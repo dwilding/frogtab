@@ -38,6 +38,19 @@
     </div>
     <script>
       const documentEditor = document.getElementById("editor");
+      document.body.addEventListener("keydown", event => {
+        if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() == 'enter') {
+          event.preventDefault();
+          let editorValue = documentEditor.value.trimStart();
+          if (editorValue.startsWith("#")) {
+            editorValue = `\n\n${editorValue}`;
+          }
+          editorValue = `\n\n${editorValue}`;
+          documentEditor.value = editorValue;
+          focusEditor();
+          save();
+        }
+      });
       documentEditor.addEventListener("input", event => {
         save();
       });
@@ -47,6 +60,9 @@
           localStorage.setItem("editor", "\n\n\n\n# Not today\n\n");
         }
         documentEditor.value = localStorage.getItem("editor");
+        focusEditor();
+      }
+      function focusEditor() {
         documentEditor.focus();
         documentEditor.scrollTop = 0;
         documentEditor.setSelectionRange(0, 0);
