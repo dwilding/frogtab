@@ -34,7 +34,26 @@
   </head>
   <body>
     <div>
-      <textarea></textarea>
+      <textarea id="editor"></textarea>
     </div>
+    <script>
+      const documentEditor = document.getElementById("editor");
+      documentEditor.addEventListener("input", event => {
+        save();
+      });
+      start();
+      function start() {
+        if (localStorage.length == 0) {
+          localStorage.setItem("editor", "\n\n\n\n# Not today\n\n");
+        }
+        documentEditor.value = localStorage.getItem("editor");
+        documentEditor.focus();
+        documentEditor.scrollTop = 0;
+        documentEditor.setSelectionRange(0, 0);
+      }
+      function save() {
+        localStorage.setItem("editor", documentEditor.value);
+      }
+    </script>
   </body>
 </html>
