@@ -120,7 +120,7 @@
         return decomposed.high;
       }
       function decompose(value) {
-        const match = value.match(/^ *#[^#]/m); // find the first section
+        const match = value.match(/^ *#/m); // find the first section
         if (match === null) {
           return {
             high: value,
