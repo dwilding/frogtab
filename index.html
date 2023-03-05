@@ -58,9 +58,20 @@
       function start() {
         if (localStorage.length == 0) {
           localStorage.setItem("editor", "\n\n\n\n# Not today\n\n");
+          localStorage.setItem("date", (new Date().toDateString()));
         }
         documentEditor.value = localStorage.getItem("editor");
+        if (isNewDay()) {
+          bumpNotToday();
+        }
         focusEditor();
+        save();
+        window.setInterval(() => {
+          if (isNewDay() && bumpNotToday()) {
+            focusEditor();
+            save();
+          }
+        }, 30 * 1000);
       }
       function focusEditor() {
         documentEditor.focus();
@@ -69,6 +80,57 @@
       }
       function save() {
         localStorage.setItem("editor", documentEditor.value);
+        const notify = decompose(documentEditor.value).high.trim() != "";
+        console.log(`notify: ${notify}`);
+      }
+      function isNewDay() {
+        const today = (new Date().toDateString());
+        if (localStorage.getItem("date") == today) {
+          return false;
+        }
+        localStorage.setItem("date", today);
+        return true;
+      }
+      function bumpNotToday() {
+        const extracted = extractNotToday().trim();
+        if (extracted == "") {
+          return false;
+        }
+        const decomposed = decompose(documentEditor.value);
+        let before = decomposed.high.trimEnd();
+        if (before != "") {
+          before = `${before}\n\n`;
+        }
+        const after = decomposed.low;
+        documentEditor.value = `${before}${extracted}\n\n\n\n${after}`;
+        return true;
+      }
+      function extractNotToday() {
+        const match = documentEditor.value.match(/^ *# *not today *$/mi)
+        if (match === null) {
+          return "";
+        }
+        const before = documentEditor.value.substring(0, match.index + match[0].length);
+        const decomposed = decompose(documentEditor.value.substring(match.index + match[0].length));
+        let after = decomposed.low;
+        if (after != "") {
+          after = `\n\n\n\n${after}`;
+        }
+        documentEditor.value = `${before}\n\n${after}`;
+        return decomposed.high;
+      }
+      function decompose(value) {
+        const match = value.match(/^ *#[^#]/m); // find the first section
+        if (match === null) {
+          return {
+            high: value,
+            low: ""
+          };
+        }
+        return {
+          high: value.substring(0, match.index),
+          low: value.substring(match.index)
+        };
       }
     </script>
   </body>
