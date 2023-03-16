@@ -3,139 +3,227 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>frogtab</title>
-    <link rel="icon" href="/favicon.ico" sizes="any">
-    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <title>Frogtab</title>
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" id="icon">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/manifest.webmanifest">
     <style>
       body {
         margin: 0;
-        background-color: #f0f0f0;
+        background-color: #f3f3f3;
         color: #222;
+        font-family: sans-serif;
       }
-      div {
+      .container {
         height: 100vh;
+        width: 100vw;
         display: flex;
         justify-content: center;
         align-items: center;
       }
+      .interface {
+        height: 65%;
+        min-width: 400px;
+        max-width: 40%;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+      }
+      .tabs {
+        display: flex;
+      }
+      .tab {
+        flex: 1;
+        padding: 1rem 0;
+      }
+      .tab-name {
+        margin: 0 0.3rem 0 0.6rem;
+        color: #555;
+        cursor: pointer;
+      }
+      .tab-name.selected {
+        color: #222;
+        font-weight: bold;
+        cursor: default;
+      }
+      .tab-name.notify + .tab-icon {
+        visibility: visible;
+      }
+      .tab-icon {
+        vertical-align: top;
+        color: #ed2024;
+        font-size: 0.4rem;
+        cursor: default;
+        visibility: hidden;
+      }
+      .main {
+        display: flex;
+        flex: 1;
+      }
       textarea {
-        width: 40%;
-        height: 60%;
+        flex: 1;
         outline: none;
         resize: none;
-        padding: 1rem;
+        padding: 0.6rem;
         box-sizing: border-box;
-        box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
-        border-radius: 5px;
         border: 2px solid #c0c0c0;
+        border-radius: 6px;
         background-color: #fff;
-        font-size: 1.2rem;
         font-family: sans-serif;
+        font-size: 1rem;
+      }
+      textarea:focus {
+        border-color: #79c152
       }
     </style>
   </head>
   <body>
-    <div>
-      <textarea id="editor"></textarea>
+    <div class="container">
+      <div class="interface">
+        <div class="tabs">
+          <div class="tab">
+            <span id="tab-today" class="tab-name">Today</span><span id="tab-inbox" class="tab-name selected">Inbox</span><span class="tab-icon">⬤</span>
+          </div>
+        </div>
+        <div class="main">
+          <textarea id="editor"></textarea>
+        </div>
+      </div>
     </div>
     <script>
-      const documentEditor = document.getElementById("editor");
+      const dom = {
+        icon: document.getElementById("icon"),
+        editor: document.getElementById("editor"),
+        tabs: {
+          today: document.getElementById("tab-today"),
+          inbox: document.getElementById("tab-inbox")
+        }
+      };
+      const storedIcons = {};
+      async function storeIcons() {
+        const icons = await fetchIcons();
+        const blobIconNormal = await icons[0].blob();
+        const blobIconNotify = await icons[1].blob();
+        storedIcons.normal = URL.createObjectURL(blobIconNormal);
+        storedIcons.notify = URL.createObjectURL(blobIconNotify);
+      }
+      async function fetchIcons() {
+        return Promise.all([
+          fetch("/icon.svg"),
+          fetch("/icon-notify.svg")
+        ]);
+      }
+      let selectedTab = "inbox";
+      let notifyInbox = false;
+      function switchToTabToday() {
+        dom.tabs.today.classList.add("selected");
+        dom.tabs.inbox.classList.remove("selected");
+        selectedTab = "today";
+        dom.editor.value = localStorage.getItem("value.today");
+      }
+      function switchToTabInbox() {
+        dom.tabs.today.classList.remove("selected");
+        dom.tabs.inbox.classList.add("selected");
+        selectedTab = "inbox";
+        dom.editor.value = localStorage.getItem("value.inbox");
+      }
+      dom.tabs.today.addEventListener("click", event => {
+        switchToTabToday();
+      });
+      dom.tabs.inbox.addEventListener("click", event => {
+        switchToTabInbox();
+      });
+      function checkValue(value) {
+        return value.match(/^\s*[^\s#]/m) !== null;
+      }
+      function setNotifyStatus() {
+        const value = localStorage.getItem("value.inbox");
+        if (checkValue(value) && !notifyInbox) {
+          dom.tabs.inbox.classList.add("notify");
+          dom.icon.setAttribute("href", storedIcons.notify);
+          notifyInbox = true;
+        }
+        else if (!checkValue(value) && notifyInbox) {
+          dom.tabs.inbox.classList.remove("notify");
+          dom.icon.setAttribute("href", storedIcons.normal);
+          notifyInbox = false;
+        }
+      }
+      dom.editor.addEventListener("input", event => {
+        localStorage.setItem(`value.${selectedTab}`, dom.editor.value);
+        if (selectedTab == "inbox") {
+          setNotifyStatus();
+        }
+      });
+      function focusEditor() {
+        dom.editor.focus();
+        dom.editor.scrollTop = 0;
+        dom.editor.setSelectionRange(0, 0);
+      }
       document.body.addEventListener("keydown", event => {
         if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() == 'enter') {
           event.preventDefault();
-          let editorValue = documentEditor.value.trimStart();
-          if (editorValue.startsWith("#")) {
-            editorValue = `\n\n${editorValue}`;
+          let value = dom.editor.value.trimStart();
+          if (value != "") {
+            value = `\n\n${value}`;
           }
-          editorValue = `\n\n${editorValue}`;
-          documentEditor.value = editorValue;
+          dom.editor.value = value;
+          localStorage.setItem(`value.${selectedTab}`, dom.editor.value);
           focusEditor();
-          save();
+        }
+        else if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() == 'u') {
+          event.preventDefault();
+          switchToTabToday();
+          focusEditor();
+        }
+        else if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() == 'i') {
+          event.preventDefault();
+          switchToTabInbox();
+          focusEditor();
         }
       });
-      documentEditor.addEventListener("input", event => {
-        save();
-      });
-      start();
-      function start() {
+      function updateValues() {
+        const valueToday = localStorage.getItem("value.today").trim();
+        let valueInbox = localStorage.getItem("value.inbox").trimStart();
+        if (valueToday != "") {
+          if (valueInbox != "") {
+            valueInbox = `\n\n${valueInbox}`;
+          }
+          valueInbox = `${valueToday}${valueInbox}`;
+        }
+        valueInbox = valueInbox.replaceAll(/^( *#)+ */gm, "");
+        localStorage.setItem("value.today", "");
+        localStorage.setItem("value.inbox", valueInbox);
+      }
+      function isNewDay() {
+        const dateToday = (new Date().toDateString());
+        if (localStorage.getItem("date") == dateToday) {
+          return false;
+        }
+        localStorage.setItem("date", dateToday);
+        return true;
+      }
+      async function startApp() {
         if (localStorage.length == 0) {
-          localStorage.setItem("editor", "\n\n\n\n# Not today\n\n");
+          localStorage.setItem("value.today", "");
+          localStorage.setItem("value.inbox", "");
           localStorage.setItem("date", (new Date().toDateString()));
         }
-        documentEditor.value = localStorage.getItem("editor");
+        await storeIcons();
         if (isNewDay()) {
-          bumpNotToday();
+          updateValues();
         }
-        focusEditor();
-        save();
+        switchToTabInbox();
+        setNotifyStatus();
         window.setInterval(() => {
-          if (isNewDay() && bumpNotToday()) {
-            focusEditor();
-            save();
+          if (isNewDay()) {
+            updateValues();
+            switchToTabInbox();
+            setNotifyStatus();
           }
         }, 30 * 1000);
       }
-      function focusEditor() {
-        documentEditor.focus();
-        documentEditor.scrollTop = 0;
-        documentEditor.setSelectionRange(0, 0);
-      }
-      function save() {
-        localStorage.setItem("editor", documentEditor.value);
-        const notify = decompose(documentEditor.value).high.trim() != "";
-        console.log(`notify: ${notify}`);
-      }
-      function isNewDay() {
-        const today = (new Date().toDateString());
-        if (localStorage.getItem("date") == today) {
-          return false;
-        }
-        localStorage.setItem("date", today);
-        return true;
-      }
-      function bumpNotToday() {
-        const extracted = extractNotToday().trim();
-        if (extracted == "") {
-          return false;
-        }
-        const decomposed = decompose(documentEditor.value);
-        let before = decomposed.high.trimEnd();
-        if (before != "") {
-          before = `${before}\n\n`;
-        }
-        const after = decomposed.low;
-        documentEditor.value = `${before}${extracted}\n\n\n\n${after}`;
-        return true;
-      }
-      function extractNotToday() {
-        const match = documentEditor.value.match(/^ *# *not today *$/mi)
-        if (match === null) {
-          return "";
-        }
-        const before = documentEditor.value.substring(0, match.index + match[0].length);
-        const decomposed = decompose(documentEditor.value.substring(match.index + match[0].length));
-        let after = decomposed.low;
-        if (after != "") {
-          after = `\n\n\n\n${after}`;
-        }
-        documentEditor.value = `${before}\n\n${after}`;
-        return decomposed.high;
-      }
-      function decompose(value) {
-        const match = value.match(/^ *#/m); // find the first section
-        if (match === null) {
-          return {
-            high: value,
-            low: ""
-          };
-        }
-        return {
-          high: value.substring(0, match.index),
-          low: value.substring(match.index)
-        };
-      }
+      startApp();
     </script>
   </body>
 </html>
