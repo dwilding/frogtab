@@ -7,75 +7,7 @@
     <link rel="icon" href="/icon.svg" type="image/svg+xml" id="icon">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/manifest.webmanifest">
-    <style>
-      body {
-        margin: 0;
-        background-color: #f3f3f3;
-        color: #222;
-        font-family: sans-serif;
-      }
-      .container {
-        height: 100vh;
-        width: 100vw;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-      .interface {
-        height: 65%;
-        min-width: 400px;
-        max-width: 40%;
-        display: flex;
-        flex-direction: column;
-        flex: 1;
-      }
-      .tabs {
-        display: flex;
-      }
-      .tab {
-        flex: 1;
-        padding: 1rem 0;
-      }
-      .tab-name {
-        margin: 0 0.3rem 0 0.6rem;
-        color: #555;
-        cursor: pointer;
-      }
-      .tab-name.selected {
-        color: #222;
-        font-weight: bold;
-        cursor: default;
-      }
-      .tab-name.notify + .tab-icon {
-        visibility: visible;
-      }
-      .tab-icon {
-        vertical-align: top;
-        color: #ed2024;
-        font-size: 0.4rem;
-        cursor: default;
-        visibility: hidden;
-      }
-      .main {
-        display: flex;
-        flex: 1;
-      }
-      textarea {
-        flex: 1;
-        outline: none;
-        resize: none;
-        padding: 0.6rem;
-        box-sizing: border-box;
-        border: 2px solid #c0c0c0;
-        border-radius: 6px;
-        background-color: #fff;
-        font-family: sans-serif;
-        font-size: 1rem;
-      }
-      textarea:focus {
-        border-color: #79c152
-      }
-    </style>
+    <link rel="stylesheet" href="/style.css">
   </head>
   <body>
     <div class="container">
@@ -219,6 +151,16 @@
           if (isNewDay()) {
             updateValues();
             switchToTabInbox();
+            setNotifyStatus();
+          }
+          else {
+            // Refresh the UI in case another instance of the app has modified localstorage
+            const value = localStorage.getItem(`value.${selectedTab}`);
+            if (dom.editor.value != value) {
+              dom.editor.value = value;
+              dom.editor.scrollTop = 0;
+              dom.editor.setSelectionRange(0, 0);
+            }
             setNotifyStatus();
           }
         }, 30 * 1000);
