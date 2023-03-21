@@ -58,6 +58,11 @@
           }
         }
       });
+      if (localStorage.length == 0) {
+        localStorage.setItem("value.today", "");
+        localStorage.setItem("value.inbox", "");
+        localStorage.setItem("date", (new Date().toDateString()));
+      }
       editor.focus();
     </script>
   </body>
