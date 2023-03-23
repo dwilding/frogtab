@@ -14,7 +14,7 @@
       <div class="interface">
         <div class="tabs">
           <div class="tab">
-            <span id="tab-today" class="tab-name">Today</span><span id="tab-inbox" class="tab-name selected">Inbox</span><span class="tab-icon">⬤</span>
+            <span id="tab-today" class="tab-name selected">Today</span><span id="tab-inbox" class="tab-name">Inbox</span><span class="tab-icon">⬤</span>
           </div>
         </div>
         <div class="main">
@@ -45,7 +45,7 @@
           fetch("/icon-notify.svg")
         ]);
       }
-      let selectedTab = "inbox";
+      let selectedTab = "today";
       let notifyInbox = false;
       function switchToTabToday() {
         dom.tabs.today.classList.add("selected");
@@ -145,13 +145,23 @@
         if (isNewDay()) {
           updateValues();
         }
-        switchToTabInbox();
         setNotifyStatus();
+        if (notifyInbox) {
+          switchToTabInbox();
+        }
+        else {
+          switchToTabToday();
+        }
         window.setInterval(() => {
           if (isNewDay()) {
             updateValues();
-            switchToTabInbox();
             setNotifyStatus();
+            if (notifyInbox) {
+              switchToTabInbox();
+            }
+            else {
+              switchToTabToday();
+            }
           }
           else {
             // Refresh the UI in case another instance of the app has modified localstorage
