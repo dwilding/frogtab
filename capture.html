@@ -41,17 +41,23 @@
           dom.tabs.info.classList.remove("visible");
         }
       });
+      function appendToInbox(value) {
+        const valueToAppend = value.trim();
+        if (valueToAppend == "") {
+          return false;
+        }
+        let valueInbox = localStorage.getItem("value.inbox").trimStart();
+        if (valueInbox != "") {
+          valueInbox = `\n\n${valueInbox}`;
+        }
+        valueInbox = `${valueToAppend}${valueInbox}`;
+        localStorage.setItem("value.inbox", valueInbox);
+        return true;
+      }
       document.body.addEventListener("keydown", event => {
         if (event.key.toLowerCase() == 'enter') {
           event.preventDefault();
-          const valueCapture = dom.editor.value.trim();
-          if (valueCapture != "") {
-            let valueInbox = localStorage.getItem("value.inbox").trimStart();
-            if (valueInbox != "") {
-              valueInbox = `\n\n${valueInbox}`;
-            }
-            valueInbox = `${valueCapture}${valueInbox}`;
-            localStorage.setItem("value.inbox", valueInbox);
+          if (appendToInbox(dom.editor.value)) {
             dom.editor.value = "";
             dom.editor.focus();
             dom.tabs.info.classList.remove("visible");

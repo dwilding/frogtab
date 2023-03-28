@@ -132,17 +132,23 @@
           focusEditor();
         }
       });
-      function updateValues() {
-        const valueToday = localStorage.getItem("value.today").trim();
-        let valueInbox = localStorage.getItem("value.inbox").trimStart();
-        if (valueToday != "") {
-          if (valueInbox != "") {
-            valueInbox = `\n\n${valueInbox}`;
-          }
-          valueInbox = `${valueToday}${valueInbox}`;
+      function appendToInbox(value) {
+        const valueToAppend = value.trim();
+        if (valueToAppend == "") {
+          return false;
         }
-        valueInbox = valueInbox.replaceAll(/^( *#)+ */gm, "");
+        let valueInbox = localStorage.getItem("value.inbox").trimStart();
+        if (valueInbox != "") {
+          valueInbox = `\n\n${valueInbox}`;
+        }
+        valueInbox = `${valueToAppend}${valueInbox}`;
+        localStorage.setItem("value.inbox", valueInbox);
+        return true;
+      }
+      function updateValues() {
+        appendToInbox(localStorage.getItem("value.today"));
         localStorage.setItem("value.today", "");
+        const valueInbox = localStorage.getItem("value.inbox").replaceAll(/^( *#)+ */gm, "");
         localStorage.setItem("value.inbox", valueInbox);
       }
       function isNewDay() {
@@ -153,11 +159,32 @@
         localStorage.setItem("date", dateToday);
         return true;
       }
+      function generateUser() {
+        localStorage.setItem("user.userID", crypto.randomUUID());
+        localStorage.setItem("user.apiKey", crypto.randomUUID());
+        displayUser();
+      }
+      function displayUser() {
+        console.group("User");
+        console.log(`userID: ${localStorage.getItem("user.userID")}`);
+        console.log(`apiKey: ${localStorage.getItem("user.apiKey")}`);
+        console.groupEnd();
+      }
+      function appendMessages() {
+        const messages = []; // TODO: fetch from the API
+        for (const message of messages) {
+          appendToInbox(message);
+        }
+      }
       async function startApp() {
         if (localStorage.length == 0) {
           localStorage.setItem("value.today", "");
           localStorage.setItem("value.inbox", "");
           localStorage.setItem("date", (new Date().toDateString()));
+        }
+        if (localStorage.getItem("user.userID") !== null) {
+          displayUser();
+          appendMessages();
         }
         await storeIcons();
         if (isNewDay()) {
@@ -171,6 +198,9 @@
           switchToTabToday();
         }
         window.setInterval(() => {
+          if (localStorage.getItem("user.userID") !== null) {
+            appendMessages();
+          }
           const value = localStorage.getItem(`value.${selectedTab}`);
           if (isNewDay()) {
             updateValues();
