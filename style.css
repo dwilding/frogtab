@@ -13,11 +13,16 @@ body {
 }
 .interface {
   height: 65%;
-  min-width: 400px;
-  max-width: 40%;
+  max-width: 90%;
   display: flex;
   flex-direction: column;
   flex: 1;
+}
+@media (min-width: 500px) {
+  .interface {
+    max-width: 40%;
+    min-width: 450px;
+  }
 }
 .tabs {
   display: flex;
@@ -77,5 +82,5 @@ textarea:focus {
   border-color: #79c152
 }
 textarea.capture {
-  max-height: 20%;
+  height: 6rem;
 }
