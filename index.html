@@ -171,16 +171,25 @@
         console.groupEnd();
       }
       async function appendMessages() {
-        const response = await fetch("https://api.frogtab.com/post-remove-messages", {
-          method: "POST",
-          headers: {
-            "content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            user_id: localStorage.getItem("user.userID"),
-            api_key: localStorage.getItem("user.apiKey")
-          })
-        });
+        let response;
+        try {
+          response = await fetch("https://api.frogtab.com/post-remove-messages", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              user_id: localStorage.getItem("user.userID"),
+              api_key: localStorage.getItem("user.apiKey")
+            })
+          });
+        }
+        catch (error) {
+          return;
+        }
+        if (!response.ok) {
+          return;
+        }
         const messages = await response.json();
         for (const message of messages) {
           appendToInbox(message);
