@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Capture - Frogtab</title>
+    <title>Send to Frogtab</title>
     <link rel="icon" href="/icon.svg" type="image/svg+xml" id="icon">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/manifest.webmanifest">
@@ -12,33 +12,31 @@
   <body>
     <div class="container">
       <div class="interface">
-        <div class="tabs">
-          <div class="tab">
-            <span class="tab-name selected">Capture</span>
-          </div>
-          <div class="tab info">
-            <span id="tab-info" class="info-message">Press Enter to add to your inbox</span>
-          </div>
-        </div>
         <div class="main">
-          <textarea id="editor" class="capture"></textarea>
+          <textarea id="editor" class="restricted" placeholder="Write a message…"></textarea>
+        </div>
+        <div class="actions">
+          <div class="action">
+            <!-- <span class="action-instruction"><a href="#">Learn about Frogtab</a><br><a href="#">Privacy policy</a></span> -->
+          </div>
+          <div class="action primary">
+            <span id="send" class="circle-button"><svg width="24px" height="24px" viewBox="0 0 24 24" stroke-width="1.5" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M22 12L3 20l3.563-8L3 4l19 8zM6.5 12H22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
+          </div>
         </div>
       </div>
     </div>
     <script>
       const dom = {
         editor: document.getElementById("editor"),
-        tabs: {
-          info: document.getElementById("tab-info")
-        }
+        send: document.getElementById("send")
       };
       dom.editor.addEventListener("input", event => {
         const value = dom.editor.value.trim();
         if (value != "") {
-          dom.tabs.info.classList.add("visible");
+          dom.send.classList.add("enabled");
         }
         else {
-          dom.tabs.info.classList.remove("visible");
+          dom.send.classList.remove("enabled");
         }
       });
       function appendToInbox(value) {
@@ -54,15 +52,21 @@
         localStorage.setItem("value.inbox", valueInbox);
         return true;
       }
-      document.body.addEventListener("keydown", event => {
-        if (event.key.toLowerCase() == 'enter') {
-          event.preventDefault();
-          if (appendToInbox(dom.editor.value)) {
-            dom.editor.value = "";
-            dom.editor.focus();
-            dom.tabs.info.classList.remove("visible");
-          }
+      function tryToSend() {
+        if (appendToInbox(dom.editor.value)) {
+          dom.editor.value = "";
+          dom.editor.focus();
+          dom.send.classList.remove("enabled");
         }
+      }
+      document.body.addEventListener("keydown", event => {
+        if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() == 'enter') {
+          event.preventDefault();
+          tryToSend();
+        }
+      });
+      send.addEventListener("click", event => {
+        tryToSend();
       });
       if (localStorage.length == 0) {
         localStorage.setItem("value.today", "");

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send to Frogtab</title>
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" id="icon">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="stylesheet" href="/style.css">
+  </head>
+  <body>
+    <div class="container">
+      <div class="interface">
+        <div class="popup display">
+          <svg width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M21 2l-1 1M3 2l1 1M21 16l-1-1M3 16l1-1M9 18h6M10 21h4M12 3C8 3 5.952 4.95 6 8c.023 1.487.5 2.5 1.5 3.5S9 13 9 15h6c0-2 .5-2.5 1.5-3.5h0c1-1 1.477-2.013 1.5-3.5.048-3.05-2-5-6-5z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>You can use this link to send messages to your inbox from any device
+        </div>
+        <div class="main">
+          <textarea id="editor" class="restricted" placeholder="Write a message…"></textarea>
+        </div>
+        <div class="actions">
+          <div class="action">
+            <!-- <span class="action-instruction"><a href="#">Learn about Frogtab</a><br><a href="#">Privacy policy</a></span> -->
+          </div>
+          <div class="action primary">
+            <span id="send" class="circle-button"><svg width="24px" height="24px" viewBox="0 0 24 24" stroke-width="1.5" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M22 12L3 20l3.563-8L3 4l19 8zM6.5 12H22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      const dom = {
+        editor: document.getElementById("editor"),
+        send: document.getElementById("send")
+      };
+      dom.editor.addEventListener("input", event => {
+        const value = dom.editor.value.trim();
+        if (value != "") {
+          dom.send.classList.add("enabled");
+        }
+        else {
+          dom.send.classList.remove("enabled");
+        }
+      });
+      async function tryToSend() {
+        const valueToSend = dom.editor.value.trim();
+        if (valueToSend == "") {
+          return;
+        }
+        dom.editor.value = "";
+        dom.editor.focus();
+        dom.send.classList.remove("enabled");
+        const userID = window.location.hash.substring(1);
+        let response;
+        try {
+          response = await fetch("https://api.frogtab.com/post-add-message", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              user_id: userID,
+              message: valueToSend
+            })
+          });
+        }
+        catch (error) {
+          return;
+        }
+        if (!response.ok) {
+          return;
+        }
+        const result = await response.json();
+        if (!result.success) {
+          return;
+        }
+        console.log(`Message sent to user ${userID}`);
+      }
+      document.body.addEventListener("keydown", event => {
+        if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() == 'enter') {
+          event.preventDefault();
+          tryToSend();
+        }
+      });
+      send.addEventListener("click", event => {
+        tryToSend();
+      });
+      editor.focus();
+    </script>
+  </body>
+</html>

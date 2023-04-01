@@ -24,12 +24,31 @@ body {
     min-width: 450px;
   }
 }
+.popup {
+  display: none;
+  margin-bottom: 3rem;
+  padding: 0.6rem;
+  box-sizing: border-box;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  background-color: #ddd;
+  text-align: center;
+}
+.popup.display {
+  display: block;
+}
+.popup > svg {
+  margin-right: 0.6rem;
+  vertical-align: text-top;
+}
 .tabs {
   display: flex;
+  box-sizing: border-box;
+  border: 2px solid #f3f3f3;
 }
 .tab {
   flex: 1;
-  padding: 1rem 0;
+  padding: 0.8rem 0;
 }
 .tab-name {
   margin: 0 0.3rem 0 0.6rem;
@@ -64,7 +83,9 @@ body {
 }
 .main {
   display: flex;
-  flex: 1;
+}
+.main.expand {
+  flex: 1
 }
 textarea {
   flex: 1;
@@ -75,12 +96,64 @@ textarea {
   border: 2px solid #c0c0c0;
   border-radius: 6px;
   background-color: #fff;
+  color: inherit;
   font-family: sans-serif;
   font-size: 1rem;
+}
+textarea::placeholder {
+  color: #888;
 }
 textarea:focus {
   border-color: #79c152
 }
-textarea.capture {
+textarea.restricted {
   height: 6rem;
+}
+.actions {
+  display: flex;
+  box-sizing: border-box;
+  border: 2px solid #f3f3f3;
+}
+.action {
+  flex: 1;
+  padding: 0.8rem 0 0 0.6rem;
+}
+.action.primary {
+  text-align: right;
+}
+.action-instruction {
+  line-height: 1.4rem;
+  color: #888;
+}
+.action-instruction > a {
+  color: #888;
+  text-decoration: none;
+}
+.action-instruction > a:hover {
+  text-decoration: underline;
+}
+.circle-button {
+  display: inline-block;
+  position: relative;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: #ddd;
+  color: #888;
+}
+.circle-button.enabled {
+  background-color: #79c152;
+  color: #fff;
+  cursor: pointer;
+}
+.circle-button > svg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transition: transform 0.1s ease;
+}
+.circle-button.enabled:hover > svg {
+  transform: translate(-45%, -60%) rotate(-30deg);
+  transition: transform 0.1s ease;
 }
