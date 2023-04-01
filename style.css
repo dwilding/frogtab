@@ -129,9 +129,6 @@ textarea.restricted {
   color: #888;
   text-decoration: none;
 }
-.action-instruction > a:hover {
-  text-decoration: underline;
-}
 .circle-button {
   display: inline-block;
   position: relative;
@@ -153,19 +150,16 @@ textarea.restricted {
   transform: translate(-50%, -50%);
   transition: transform 0.1s ease;
 }
-.circle-button.enabled:hover > svg {
-  transform: translate(-45%, -60%) rotate(-30deg);
-  transition: transform 0.1s ease;
-}
 .circle-button.fake-hover > svg {
   transform: translate(-45%, -60%) rotate(-30deg);
   transition: transform 0.1s ease;
 }
-.circle-button.fake-no-hover > svg {
-  transform: translate(-50%, -50%);
-  transition: transform 0.1s ease;
-}
-.circle-button.fake-no-hover:hover > svg {
-  transform: translate(-50%, -50%);
-  transition: transform 0.1s ease;
+@media (hover: hover) {
+  .action-instruction > a:hover {
+    text-decoration: underline;
+  }
+  .circle-button.enabled:hover > svg {
+    transform: translate(-45%, -60%) rotate(-30deg);
+    transition: transform 0.1s ease;
+  }
 }
