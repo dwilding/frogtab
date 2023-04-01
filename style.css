@@ -165,3 +165,7 @@ textarea.restricted {
   transform: translate(-50%, -50%);
   transition: transform 0.1s ease;
 }
+.circle-button.fake-no-hover:hover > svg {
+  transform: translate(-50%, -50%);
+  transition: transform 0.1s ease;
+}
