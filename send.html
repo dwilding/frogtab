@@ -56,7 +56,15 @@
         if (appendToInbox(dom.editor.value)) {
           dom.editor.value = "";
           dom.editor.focus();
-          dom.send.classList.remove("enabled");
+          dom.send.classList.add("fake-hover");
+          setTimeout(() => {
+            dom.send.classList.remove("enabled");
+            dom.send.classList.remove("fake-hover");
+            dom.send.classList.add("fake-no-hover");
+            setTimeout(() => {
+              dom.send.classList.remove("fake-no-hover");
+            }, 100);
+          }, 300);
         }
       }
       document.body.addEventListener("keydown", event => {

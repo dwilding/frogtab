@@ -26,7 +26,7 @@ body {
 }
 .popup {
   display: none;
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
   padding: 0.6rem;
   box-sizing: border-box;
   border: 2px solid #ddd;
@@ -155,5 +155,13 @@ textarea.restricted {
 }
 .circle-button.enabled:hover > svg {
   transform: translate(-45%, -60%) rotate(-30deg);
+  transition: transform 0.1s ease;
+}
+.circle-button.fake-hover > svg {
+  transform: translate(-45%, -60%) rotate(-30deg);
+  transition: transform 0.1s ease;
+}
+.circle-button.fake-no-hover > svg {
+  transform: translate(-50%, -50%);
   transition: transform 0.1s ease;
 }
