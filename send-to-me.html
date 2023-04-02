@@ -12,11 +12,17 @@
   <body>
     <div class="container">
       <div class="interface">
-        <div class="popup display">
-          <svg width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M21 2l-1 1M3 2l1 1M21 16l-1-1M3 16l1-1M9 18h6M10 21h4M12 3C8 3 5.952 4.95 6 8c.023 1.487.5 2.5 1.5 3.5S9 13 9 15h6c0-2 .5-2.5 1.5-3.5h0c1-1 1.477-2.013 1.5-3.5.048-3.05-2-5-6-5z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>Use this page to send from anywhere
+        <div class="popup">
+          Connecting to Frogtab…
+        </div>
+        <div id="popup-default" class="popup display">
+          <svg width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M12 7v6M12 17.01l.01-.011M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>Not connected to Frogtab
+        </div>
+        <div id="popup-connected" class="popup">
+          <svg width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M7 12.5l3 3 7-7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>Connection is end-to-end encrypted
         </div>
         <div class="main">
-          <textarea id="editor" class="restricted" placeholder="Write a message…"></textarea>
+          <textarea id="editor" class="restricted" placeholder="Send to your inbox…"></textarea>
         </div>
         <div class="actions">
           <div class="action">
@@ -30,18 +36,34 @@
     </div>
     <script>
       const dom = {
+        popups: {
+          default: document.getElementById("popup-default"),
+          connected: document.getElementById("popup-connected")
+        },
         editor: document.getElementById("editor"),
         send: document.getElementById("send")
       };
-      dom.editor.addEventListener("input", event => {
-        const value = dom.editor.value.trim();
-        if (value != "") {
-          dom.send.classList.add("enabled");
+      let user = null;
+      async function tryToGetUser(id) {
+        let response;
+        try {
+          response = await fetch(`https://api.frogtab.com/get-user?user_id=${encodeURIComponent(id)}`);
         }
-        else {
-          dom.send.classList.remove("enabled");
+        catch (error) {
+          return;
         }
-      });
+        if (!response.ok) {
+          return;
+        }
+        const result = await response.json();
+        if (!result.success) {
+          return;
+        }
+        user = {
+          userID: result.user.user_id
+        };
+        console.log(`User ID: ${user.userID}`);
+      }
       async function tryToSend() {
         const valueToSend = dom.editor.value.trim();
         if (valueToSend == "") {
@@ -54,7 +76,6 @@
           dom.send.classList.remove("enabled");
           dom.send.classList.remove("fake-hover");
         }, 300);
-        const userID = window.location.hash.substring(1);
         let response;
         try {
           response = await fetch("https://api.frogtab.com/post-add-message", {
@@ -63,7 +84,7 @@
               "Content-Type": "application/json"
             },
             body: JSON.stringify({
-              user_id: userID,
+              user_id: user.userID,
               message: valueToSend
             })
           });
@@ -78,17 +99,35 @@
         if (!result.success) {
           return;
         }
-        console.log(`Message sent to user ${userID}`);
+        console.log("Message sent");
       }
-      document.body.addEventListener("keydown", event => {
-        if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() == 'enter') {
-          event.preventDefault();
-          tryToSend();
+      async function startApp() {
+        await tryToGetUser(window.location.hash.substring(1));
+        if (user === null) {
+          return;
         }
-      });
-      send.addEventListener("click", event => {
-        tryToSend();
-      });
+        dom.popups.default.classList.remove("display");
+        dom.popups.connected.classList.add("display");
+        dom.editor.addEventListener("input", event => {
+          const value = dom.editor.value.trim();
+          if (value != "") {
+            dom.send.classList.add("enabled");
+          }
+          else {
+            dom.send.classList.remove("enabled");
+          }
+        });
+        document.body.addEventListener("keydown", event => {
+          if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() == 'enter') {
+            event.preventDefault();
+            tryToSend();
+          }
+        });
+        send.addEventListener("click", event => {
+          tryToSend();
+        });
+      }
+      startApp();
     </script>
   </body>
 </html>
