@@ -19,14 +19,15 @@
           <svg width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M12 7v6M12 17.01l.01-.011M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>Not connected to Frogtab
         </div>
         <div id="popup-connected" class="popup">
-          <svg width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M7 12.5l3 3 7-7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>Connection is end-to-end encrypted
+          <svg width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M7 12.5l3 3 7-7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>Connected
+          <!-- Saved for later: "Connection is end-to-end encrypted" -->
         </div>
         <div class="main">
           <textarea id="editor" class="restricted" placeholder="Send to your inbox…"></textarea>
         </div>
         <div class="actions">
           <div class="action">
-            <!-- <span class="action-instruction"><a href="#">Learn about Frogtab</a><br><a href="#">Privacy policy</a></span> -->
+            <!-- Saved for later: <span class="action-instruction"><a href="#">Help</a><br><a href="#">Privacy</a></span> -->
           </div>
           <div class="action primary">
             <span id="send" class="circle-button"><svg width="24px" height="24px" viewBox="0 0 24 24" stroke-width="1.5" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M22 12L3 20l3.563-8L3 4l19 8zM6.5 12H22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
@@ -35,34 +36,25 @@
       </div>
     </div>
     <script>
-      const dom = {
-        popups: {
-          default: document.getElementById("popup-default"),
-          connected: document.getElementById("popup-connected")
-        },
-        editor: document.getElementById("editor"),
-        send: document.getElementById("send")
-      };
-      let user = null;
-      async function tryToGetUser(id) {
+      async function tryToGetUser(userID) {
         let response;
         try {
-          response = await fetch(`https://api.frogtab.com/get-user?user_id=${encodeURIComponent(id)}`);
+          response = await fetch(`https://api.frogtab.com/get-user?user_id=${encodeURIComponent(userID)}`);
         }
         catch (error) {
-          return;
+          return null;
         }
         if (!response.ok) {
-          return;
+          return null;
         }
         const result = await response.json();
         if (!result.success) {
-          return;
+          return null;
         }
-        user = {
+        console.log(`User ID: ${result.user.user_id}`);
+        return {
           userID: result.user.user_id
-        };
-        console.log(`User ID: ${user.userID}`);
+        };        
       }
       async function tryToSend() {
         const valueToSend = dom.editor.value.trim();
@@ -99,10 +91,10 @@
         if (!result.success) {
           return;
         }
-        console.log("Message sent");
+        console.log("Message sent!");
       }
       async function startApp() {
-        await tryToGetUser(window.location.hash.substring(1));
+        user = await tryToGetUser(window.location.hash.substring(1));
         if (user === null) {
           return;
         }
@@ -127,6 +119,17 @@
           tryToSend();
         });
       }
+
+      // ******** Initial setup ********
+      const dom = {
+        popups: {
+          default: document.getElementById("popup-default"),
+          connected: document.getElementById("popup-connected")
+        },
+        editor: document.getElementById("editor"),
+        send: document.getElementById("send")
+      };
+      let user;
       startApp();
     </script>
   </body>
