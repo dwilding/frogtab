@@ -167,7 +167,7 @@
       async function startApp() {
         if (localStorage.getItem("user.userID") !== null) {
           displayUser();
-          if (tryToGetUser(localStorage.getItem("user.userID") !== null)) {
+          if (tryToGetUser(localStorage.getItem("user.userID")) !== null) {
             userIsKnown = true;
             console.log("Checking messages…");
             await appendMessages();
