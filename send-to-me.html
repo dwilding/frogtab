@@ -51,7 +51,6 @@
         if (!result.success) {
           return null;
         }
-        console.log(`User ID: ${result.user.user_id}`);
         return {
           userID: result.user.user_id
         };        
@@ -98,6 +97,7 @@
         if (user === null) {
           return;
         }
+        console.log(`User ID: ${user.userID}`);
         dom.popups.default.classList.remove("display");
         dom.popups.connected.classList.add("display");
         dom.editor.addEventListener("input", event => {
