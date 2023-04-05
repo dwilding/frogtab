@@ -199,7 +199,7 @@
             user.apiKey = localStorage.getItem("user.apiKey");
             await loadOpenPGP();
             user.pgpPrivateKeyRead = await openpgp.readKey({
-              armoredKey: user.pgpPrivateKey
+              armoredKey: localStorage.getItem("user.pgpPrivateKey")
             });
             console.log("Checking messages…");
             await appendMessages();
