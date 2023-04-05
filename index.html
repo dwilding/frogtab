@@ -148,7 +148,7 @@
         return {
           userID: result.user.user_id,
           pgpPublicKey: result.user.pgp_public_key
-        };        
+        };
       }
       async function appendMessages() {
         let response;
@@ -159,8 +159,8 @@
               "Content-Type": "application/json"
             },
             body: JSON.stringify({
-              user_id: localStorage.getItem("user.userID"),
-              api_key: localStorage.getItem("user.apiKey")
+              user_id: user.userID,
+              api_key: user.apiKey
             })
           });
         }
@@ -170,9 +170,15 @@
         if (!response.ok) {
           return;
         }
-        const messages = await response.json();
-        for (const message of messages) {
-          appendToInbox(message);
+        const encryptedMessages = await response.json();
+        for (const encryptedMessage of encryptedMessages) {
+          const decrypted = await openpgp.decrypt({
+            message: await openpgp.readMessage({
+              armoredMessage: encryptedMessage
+            }),
+            decryptionKeys: user.pgpPrivateKeyRead
+          });
+          appendToInbox(decrypted.data);
         }
       }
       function loadOpenPGP() {
@@ -187,11 +193,15 @@
       async function startApp() {
         if (localStorage.getItem("user.userID") !== null) {
           displayUser();
-          const user = await tryToGetUser(localStorage.getItem("user.userID"));
+          user = await tryToGetUser(localStorage.getItem("user.userID"));
           if (user !== null && user.pgpPublicKey == localStorage.getItem("user.pgpPublicKey")) {
             userIsKnown = true;
-            console.log("Checking messages…");
+            user.apiKey = localStorage.getItem("user.apiKey");
             await loadOpenPGP();
+            user.pgpPrivateKeyRead = await openpgp.readKey({
+              armoredKey: user.pgpPrivateKey
+            });
+            console.log("Checking messages…");
             await appendMessages();
           }
         }
@@ -254,6 +264,7 @@
       let selectedTab = "today";
       let notifyInbox = false;
       let timeoutShowInfo;
+      let user;
       let userIsKnown = false;
       dom.tabs.today.addEventListener("click", event => {
         switchToTabToday();
