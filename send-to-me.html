@@ -8,6 +8,7 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/manifest.webmanifest">
     <link rel="stylesheet" href="/style.css">
+    <script src="https://unpkg.com/openpgp@5.x/dist/openpgp.min.js"></script>
   </head>
   <body>
     <div class="container">
@@ -16,14 +17,16 @@
           Connecting to Frogtab…
         </div>
         <div id="popup-default" class="popup display">
-          <svg width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M12 7v6M12 17.01l.01-.011M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>Not connected to Frogtab
+          <svg width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M20 17.607c1.494-.585 3-1.918 3-4.607 0-4-3.333-5-5-5 0-2 0-6-6-6S6 6 6 8c-1.667 0-5 1-5 5 0 2.689 1.506 4.022 3 4.607M7.58 19.487l1.768 1.768a4 4 0 005.657 0l.354-.353" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M7.934 21.962l-.353-2.475 2.474.354-2.12 2.121zM16.298 16.902l-1.768-1.768a4 4 0 00-5.657 0l-.353.353" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M15.944 14.427l.354 2.475-2.475-.354 2.121-2.121z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>Connecting to Frogtab…
         </div>
         <div id="popup-connected" class="popup">
-          <svg width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M7 12.5l3 3 7-7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>Connected
-          <!-- Saved for later: "Connection is end-to-end encrypted" -->
+          <svg width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M8 18l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M20 17.607c1.494-.585 3-1.918 3-4.607 0-4-3.333-5-5-5 0-2 0-6-6-6S6 6 6 8c-1.667 0-5 1-5 5 0 2.689 1.506 4.022 3 4.607" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>Connection is end-to-end encrypted
+        </div>
+        <div id="popup-disconnected" class="popup">
+          <svg width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M9 22l3-3m3-3l-3 3m0 0l-3-3m3 3l3 3M20 17.607c1.494-.585 3-1.918 3-4.607 0-4-3.333-5-5-5 0-2 0-6-6-6S6 6 6 8c-1.667 0-5 1-5 5 0 2.689 1.506 4.022 3 4.607" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>Not connected
         </div>
         <div class="main">
-          <textarea id="editor" class="restricted" placeholder="Send to your inbox…"></textarea>
+          <textarea id="editor" class="restricted" disabled></textarea>
         </div>
         <div class="actions">
           <div class="action">
@@ -52,8 +55,9 @@
           return null;
         }
         return {
-          userID: result.user.user_id
-        };        
+          userID: result.user.user_id,
+          pgpPublicKey: result.user.pgp_public_key
+        };
       }
       async function tryToSend() {
         const valueToSend = dom.editor.value.trim();
@@ -67,6 +71,12 @@
           dom.send.classList.remove("enabled");
           dom.send.classList.remove("fake-hover");
         }, 300);
+        const encryptedMessage = openpgp.encrypt({
+          message: openpgp.createMessage({
+            text: valueToSend
+          }),
+          encryptionKeys: user.pgpPublicKeyRead
+        });
         let response;
         try {
           response = await fetch("https://api.frogtab.com/post-add-message", {
@@ -76,7 +86,7 @@
             },
             body: JSON.stringify({
               user_id: user.userID,
-              message: valueToSend
+              message: encryptedMessage
             })
           });
         }
@@ -95,11 +105,18 @@
       async function startApp() {
         user = await tryToGetUser(window.location.hash.substring(1));
         if (user === null) {
+          dom.popups.default.classList.remove("display");
+          dom.popups.disconnected.classList.add("display");
           return;
         }
         console.log(`User ID: ${user.userID}`);
+        user.pgpPublicKeyRead = openpgp.readKey({
+          armoredKey: user.pgpPublicKey
+        });
         dom.popups.default.classList.remove("display");
         dom.popups.connected.classList.add("display");
+        dom.editor.disabled = false;
+        dom.editor.placeholder = "Send to your inbox…";
         dom.editor.addEventListener("input", event => {
           const value = dom.editor.value.trim();
           if (value != "") {
@@ -124,7 +141,8 @@
       const dom = {
         popups: {
           default: document.getElementById("popup-default"),
-          connected: document.getElementById("popup-connected")
+          connected: document.getElementById("popup-connected"),
+          disconnected: document.getElementById("popup-disconnected")
         },
         editor: document.getElementById("editor"),
         send: document.getElementById("send")
