@@ -108,12 +108,9 @@
         localStorage.setItem("date", dateToday);
         return true;
       }
-      function generateUser() {
+      async function generateUser() {
         localStorage.setItem("user.userID", crypto.randomUUID());
         localStorage.setItem("user.apiKey", crypto.randomUUID());
-        displayUser();
-      }
-      async function generatePGPKeys() {
         if (typeof openpgp == "undefined") {
           await loadOpenPGP();
         }
@@ -124,11 +121,13 @@
         });
         localStorage.setItem("user.pgpPublicKey", keys.publicKey);
         localStorage.setItem("user.pgpPrivateKey", keys.privateKey);
+        displayUser();
       }
       function displayUser() {
         console.group("User");
         console.log(`Send to me: https://frogtab.com/send-to-me#${localStorage.getItem("user.userID")}`);
         console.log(`API key: ${localStorage.getItem("user.apiKey")}`);
+        console.log(`PGP public key: ${localStorage.getItem("user.pgpPublicKey")}`);
         console.groupEnd();
       }
       async function tryToGetUser(userID) {
@@ -147,7 +146,8 @@
           return null;
         }
         return {
-          userID: result.user.user_id
+          userID: result.user.user_id,
+          pgpPublicKey: result.user.pgp_public_key
         };        
       }
       async function appendMessages() {
@@ -188,7 +188,7 @@
         if (localStorage.getItem("user.userID") !== null) {
           displayUser();
           const user = await tryToGetUser(localStorage.getItem("user.userID"));
-          if (user !== null) {
+          if (user !== null && user.pgpPublicKey == localStorage.getItem("user.pgpPublicKey")) {
             userIsKnown = true;
             console.log("Checking messages…");
             await loadOpenPGP();
