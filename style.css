@@ -104,7 +104,6 @@ textarea::placeholder {
   color: #888;
 }
 textarea:disabled {
-  border: 4px solid #c0c0c0 !important;
   background-color: #f3f3f3;
 }
 textarea:focus {
