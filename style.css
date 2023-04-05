@@ -103,9 +103,6 @@ textarea {
 textarea::placeholder {
   color: #888;
 }
-textarea:disabled {
-  background-color: #f3f3f3;
-}
 textarea:focus {
   border-color: #79c152
 }
