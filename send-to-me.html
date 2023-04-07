@@ -72,13 +72,16 @@
           dom.send.classList.remove("fake-hover");
         }, 300);
         const onFailure = () => {
-          dom.popups.connected.classList.remove("display");
-          dom.popups.failure.classList.add("display");
-          let value = dom.editor.value.trimEnd();
-          if (value != "") {
-            value = `${value}\n\n`;
-          }
-          dom.editor.value = `${value}${valueToSend}`;
+          setTimeout(() => {
+            dom.popups.connected.classList.remove("display");
+            dom.popups.failure.classList.add("display");
+            let value = dom.editor.value.trimEnd();
+            if (value != "") {
+              value = `${value}\n\n`;
+            }
+            dom.editor.value = `${value}${valueToSend}`;
+            dom.send.classList.add("enabled");
+          }, 600);
         };
         const encryptedMessage = await openpgp.encrypt({
           message: await openpgp.createMessage({
