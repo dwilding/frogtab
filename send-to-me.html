@@ -22,6 +22,9 @@
         <div id="popup-disconnected" class="popup">
           <svg width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M9 22l3-3m3-3l-3 3m0 0l-3-3m3 3l3 3M20 17.607c1.494-.585 3-1.918 3-4.607 0-4-3.333-5-5-5 0-2 0-6-6-6S6 6 6 8c-1.667 0-5 1-5 5 0 2.689 1.506 4.022 3 4.607" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>Not connected
         </div>
+        <div id="popup-failure" class="popup">
+          <?xml version="1.0" encoding="UTF-8"?><svg width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M20.043 21H3.957c-1.538 0-2.5-1.664-1.734-2.997l8.043-13.988c.77-1.337 2.699-1.337 3.468 0l8.043 13.988C22.543 19.336 21.58 21 20.043 21zM12 9v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path><path d="M12 17.01l.01-.011" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>Couldn't send. Try again
+        </div>
         <div class="main">
           <textarea id="editor" class="restricted" placeholder="Send to your inbox…"></textarea>
         </div>
@@ -68,6 +71,15 @@
           dom.send.classList.remove("enabled");
           dom.send.classList.remove("fake-hover");
         }, 300);
+        const onFailure = () => {
+          dom.popups.connected.classList.remove("display");
+          dom.popups.failure.classList.add("display");
+          let value = dom.editor.value.trimEnd();
+          if (value != "") {
+            value = `${value}\n\n`;
+          }
+          dom.editor.value = `${value}${valueToSend}`;
+        };
         const encryptedMessage = await openpgp.encrypt({
           message: await openpgp.createMessage({
             text: valueToSend
@@ -88,15 +100,20 @@
           });
         }
         catch (error) {
+          onFailure();
           return;
         }
         if (!response.ok) {
+          onFailure();
           return;
         }
         const result = await response.json();
         if (!result.success) {
+          onFailure();
           return;
         }
+        dom.popups.failure.classList.remove("display");
+        dom.popups.connected.classList.add("display");
         console.log("Message sent!");
       }
       async function startApp() {
@@ -138,7 +155,8 @@
         popups: {
           default: document.getElementById("popup-default"),
           connected: document.getElementById("popup-connected"),
-          disconnected: document.getElementById("popup-disconnected")
+          disconnected: document.getElementById("popup-disconnected"),
+          failure: document.getElementById("popup-failure")
         },
         editor: document.getElementById("editor"),
         send: document.getElementById("send")
