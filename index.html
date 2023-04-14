@@ -206,7 +206,7 @@
         });
         const encryptedMessage = await openpgp.encrypt({
           message: await openpgp.createMessage({
-            text: message
+            text: `Frogtab feedback: ${message}`
           }),
           encryptionKeys: devUser.pgpPublicKeyRead
         });
