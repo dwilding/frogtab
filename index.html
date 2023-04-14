@@ -190,6 +190,51 @@
           document.head.appendChild(script);
         });
       }
+      async function feedback(message) {
+        if (message == "") {
+          return;
+        }
+        const devUser = await tryToGetUser("03ae6b6f-1134-4e7b-83ed-deaae4b53af7");
+        if (devUser === null) {
+          return;
+        }
+        if (typeof openpgp == "undefined") {
+          await loadOpenPGP();
+        }
+        devUser.pgpPublicKeyRead = await openpgp.readKey({
+          armoredKey: devUser.pgpPublicKey
+        });
+        const encryptedMessage = await openpgp.encrypt({
+          message: await openpgp.createMessage({
+            text: message
+          }),
+          encryptionKeys: devUser.pgpPublicKeyRead
+        });
+        let response;
+        try {
+          response = await fetch("https://api.frogtab.com/post-add-message", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              user_id: devUser.userID,
+              message: encryptedMessage
+            })
+          });
+        }
+        catch (error) {
+          return;
+        }
+        if (!response.ok) {
+          return;
+        }
+        const result = await response.json();
+        if (!result.success) {
+          return;
+        }
+        console.log("Message sent!");
+      }
       async function startApp() {
         if (localStorage.getItem("user.userID") !== null) {
           displayUser();
