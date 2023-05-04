@@ -8,7 +8,6 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/manifest.webmanifest">
     <link rel="stylesheet" href="/style.css">
-    <script src="https://unpkg.com/openpgp@5.x/dist/openpgp.min.js"></script>
   </head>
   <body>
     <div class="container">
@@ -42,26 +41,6 @@
       </div>
     </div>
     <script>
-      async function tryToGetUser(userID) {
-        let response;
-        try {
-          response = await fetch(`https://api.frogtab.com/open/get-user?user_id=${encodeURIComponent(userID)}`);
-        }
-        catch (error) {
-          return null;
-        }
-        if (!response.ok) {
-          return null;
-        }
-        const result = await response.json();
-        if (!result.success) {
-          return null;
-        }
-        return {
-          userID: result.user.user_id,
-          pgpPublicKey: result.user.pgp_public_key
-        };
-      }
       async function tryToSend() {
         const valueToSend = dom.editor.value.trim();
         if (valueToSend == "") {
@@ -90,35 +69,8 @@
             dom.send.classList.add("enabled");
           }, 600);
         };
-        const encryptedMessage = await openpgp.encrypt({
-          message: await openpgp.createMessage({
-            text: valueToSend
-          }),
-          encryptionKeys: user.pgpPublicKeyRead
-        });
-        let response;
-        try {
-          response = await fetch("https://api.frogtab.com/open/post-add-message", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              user_id: user.userID,
-              message: encryptedMessage
-            })
-          });
-        }
-        catch (error) {
-          onFailure();
-          return;
-        }
-        if (!response.ok) {
-          onFailure();
-          return;
-        }
-        const result = await response.json();
-        if (!result.success) {
+        const success = await sdk.sendMessage(valueToSend);
+        if (!success) {
           onFailure();
           return;
         }
@@ -128,17 +80,14 @@
         console.log("Message sent!");
       }
       async function startApp() {
-        user = await tryToGetUser(window.location.hash.substring(1));
-        if (user === null) {
+        sdk = await import("/sdk.js");
+        const hasPublicInbox = await sdk.setPublicInbox(window.location.hash.substring(1));
+        if (!hasPublicInbox) {
           dom.popups.default.classList.remove("display");
           dom.popups.disconnected.classList.add("display");
           dom.editor.placeholder = "";
           return;
         }
-        console.log(`User ID: ${user.userID}`);
-        user.pgpPublicKeyRead = await openpgp.readKey({
-          armoredKey: user.pgpPublicKey
-        });
         dom.popups.default.classList.remove("display");
         dom.popups.connected.classList.add("display");
         dom.editor.addEventListener("input", event => {
@@ -173,7 +122,6 @@
         editor: document.getElementById("editor"),
         send: document.getElementById("send")
       };
-      let user;
       startApp();
     </script>
   </body>

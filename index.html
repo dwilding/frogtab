@@ -108,20 +108,15 @@
         localStorage.setItem("date", dateToday);
         return true;
       }
-      async function generateUser() {
-        localStorage.setItem("user.userID", crypto.randomUUID());
-        localStorage.setItem("user.apiKey", crypto.randomUUID());
-        if (typeof openpgp == "undefined") {
-          await loadOpenPGP();
-        }
-        keys = await openpgp.generateKey({
-          userIDs: [{
-            email: `user_${localStorage.getItem("user.userID")}@frogtab.com`
-          }]
-        });
-        localStorage.setItem("user.pgpPublicKey", keys.publicKey);
-        localStorage.setItem("user.pgpPrivateKey", keys.privateKey);
+      async function newLocalCredentials() {
+        sdk = await import("/sdk.js");
+        const localCredentials = await sdk.generateLocalCredentials();
+        localStorage.setItem("user.userID", localCredentials.userID);
+        localStorage.setItem("user.apiKey", localCredentials.apiKey);
+        localStorage.setItem("user.pgpPublicKey", localCredentials.pgpPublicKey);
+        localStorage.setItem("user.pgpPrivateKey", localCredentials.pgpPrivateKey);
         displayUser();
+        hasPublicInbox = false;
       }
       function displayUser() {
         console.group("User");
@@ -130,122 +125,22 @@
         console.log(`PGP public key: ${localStorage.getItem("user.pgpPublicKey")}`);
         console.groupEnd();
       }
-      async function tryToGetUser(userID) {
-        let response;
-        try {
-          response = await fetch(`https://api.frogtab.com/open/get-user?user_id=${encodeURIComponent(userID)}`);
-        }
-        catch (error) {
-          return null;
-        }
-        if (!response.ok) {
-          return null;
-        }
-        const result = await response.json();
-        if (!result.success) {
-          return null;
-        }
-        return {
-          userID: result.user.user_id,
-          pgpPublicKey: result.user.pgp_public_key
-        };
-      }
       async function appendMessages() {
-        let response;
-        try {
-          response = await fetch("https://api.frogtab.com/post-remove-messages", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              user_id: user.userID,
-              api_key: user.apiKey
-            })
-          });
+        const messages = await sdk.fetchMessages();
+        for (const message of messages) {
+          appendToInbox(message);
         }
-        catch (error) {
-          return;
-        }
-        if (!response.ok) {
-          return;
-        }
-        const encryptedMessages = await response.json();
-        for (const encryptedMessage of encryptedMessages) {
-          const decrypted = await openpgp.decrypt({
-            message: await openpgp.readMessage({
-              armoredMessage: encryptedMessage
-            }),
-            decryptionKeys: user.pgpPrivateKeyRead
-          });
-          appendToInbox(decrypted.data);
-        }
-      }
-      function loadOpenPGP() {
-        return new Promise((resolve, reject) => {
-          const script = document.createElement("script");
-          script.src = "https://unpkg.com/openpgp@5.x/dist/openpgp.min.js";
-          script.onload = resolve;
-          script.onerror = reject;
-          document.head.appendChild(script);
-        });
-      }
-      async function feedback(message) {
-        if (message == "") {
-          return;
-        }
-        const devUser = await tryToGetUser("03ae6b6f-1134-4e7b-83ed-deaae4b53af7");
-        if (devUser === null) {
-          return;
-        }
-        if (typeof openpgp == "undefined") {
-          await loadOpenPGP();
-        }
-        devUser.pgpPublicKeyRead = await openpgp.readKey({
-          armoredKey: devUser.pgpPublicKey
-        });
-        const encryptedMessage = await openpgp.encrypt({
-          message: await openpgp.createMessage({
-            text: `Frogtab feedback: ${message}`
-          }),
-          encryptionKeys: devUser.pgpPublicKeyRead
-        });
-        let response;
-        try {
-          response = await fetch("https://api.frogtab.com/open/post-add-message", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              user_id: devUser.userID,
-              message: encryptedMessage
-            })
-          });
-        }
-        catch (error) {
-          return;
-        }
-        if (!response.ok) {
-          return;
-        }
-        const result = await response.json();
-        if (!result.success) {
-          return;
-        }
-        console.log("Message sent!");
       }
       async function startApp() {
         if (localStorage.getItem("user.userID") !== null) {
           displayUser();
-          user = await tryToGetUser(localStorage.getItem("user.userID"));
-          if (user !== null && user.pgpPublicKey == localStorage.getItem("user.pgpPublicKey")) {
-            userIsKnown = true;
-            user.apiKey = localStorage.getItem("user.apiKey");
-            await loadOpenPGP();
-            user.pgpPrivateKeyRead = await openpgp.readKey({
-              armoredKey: localStorage.getItem("user.pgpPrivateKey")
-            });
+          sdk = await import("/sdk.js");
+          hasPublicInbox = await sdk.setPublicInbox(localStorage.getItem("user.userID"));
+          if (hasPublicInbox) {
+            await sdk.setInboxOwner(
+              localStorage.getItem("user.apiKey"),
+              localStorage.getItem("user.pgpPrivateKey")
+            );
             console.log("Checking messages…");
             await appendMessages();
           }
@@ -262,7 +157,7 @@
           switchToTabToday();
         }
         window.setInterval(async () => {
-          if (userIsKnown) {
+          if (hasPublicInbox) {
             await appendMessages();
           }
           const value = localStorage.getItem(`value.${selectedTab}`);
@@ -309,8 +204,8 @@
       let selectedTab = "today";
       let notifyInbox = false;
       let timeoutShowInfo;
-      let user;
-      let userIsKnown = false;
+      let sdk;
+      let hasPublicInbox;
       dom.tabs.today.addEventListener("click", event => {
         switchToTabToday();
         refreshInfo();
