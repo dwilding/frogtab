@@ -168,17 +168,17 @@
             if (hasPublicInbox) {
               await appendMessages();
             }
-            refreshInfo();
             setNotifyStatus();
             setTab();
+            refreshInfo();
           }
           else {
             if (hasPublicInbox) {
               await appendMessages();
             }
             if (dom.editor.value != localStorage.getItem(`value.${selectedTab}`)) {
-              refreshInfo();
               refreshEditor();
+              refreshInfo();
             }
             setNotifyStatus();
           }
@@ -207,17 +207,17 @@
       let sdk;
       let hasPublicInbox;
       dom.tabs.today.addEventListener("click", event => {
-        refreshInfo();
         switchToTabToday();
+        refreshInfo();
       });
       dom.tabs.inbox.addEventListener("click", event => {
-        refreshInfo();
         switchToTabInbox();
+        refreshInfo();
       });
       dom.editor.addEventListener("input", event => {
         localStorage.setItem(`value.${selectedTab}`, dom.editor.value);
-        refreshInfo();
         setNotifyStatus();
+        refreshInfo();
       });
       document.body.addEventListener("keydown", event => {
         if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() == 'enter') {
@@ -228,21 +228,21 @@
           }
           dom.editor.value = value;
           localStorage.setItem(`value.${selectedTab}`, dom.editor.value);
-          refreshInfo();
           refreshEditor();
           dom.editor.focus();
+          refreshInfo();
         }
         else if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() == 'u') {
           event.preventDefault();
-          refreshInfo();
           switchToTabToday();
           dom.editor.focus();
+          refreshInfo();
         }
         else if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() == 'i') {
           event.preventDefault();
-          refreshInfo();
           switchToTabInbox();
           dom.editor.focus();
+          refreshInfo();
         }
       });
       startApp();
