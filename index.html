@@ -43,13 +43,13 @@
         dom.tabs.today.classList.add("selected");
         dom.tabs.inbox.classList.remove("selected");
         selectedTab = "today";
-        dom.editor.value = localStorage.getItem("value.today");
+        refreshEditor();
       }
       function switchToTabInbox() {
         dom.tabs.today.classList.remove("selected");
         dom.tabs.inbox.classList.add("selected");
         selectedTab = "inbox";
-        dom.editor.value = localStorage.getItem("value.inbox");
+        refreshEditor();
       }
       function checkValue(value) {
         return value.match(/^\s*[^\s#]/m) !== null;
@@ -67,6 +67,19 @@
           notifyInbox = false;
         }
       }
+      function setTab() {
+        if (notifyInbox) {
+          switchToTabInbox();
+        }
+        else {
+          switchToTabToday();
+        }
+      }
+      function refreshEditor() {
+        dom.editor.value = localStorage.getItem(`value.${selectedTab}`);
+        dom.editor.scrollTop = 0;
+        dom.editor.setSelectionRange(0, 0);
+      }
       function refreshInfo() {
         dom.tabs.info.classList.remove("visible");
         window.clearTimeout(timeoutShowInfo);
@@ -75,11 +88,6 @@
             dom.tabs.info.classList.add("visible");
           }, 30 * 1000);
         }
-      }
-      function focusEditor() {
-        dom.editor.focus();
-        dom.editor.scrollTop = 0;
-        dom.editor.setSelectionRange(0, 0);
       }
       function appendToInbox(value) {
         const valueToAppend = value.trim();
@@ -132,6 +140,13 @@
         }
       }
       async function startApp() {
+        if (isNewDay()) {
+          updateValues();
+        }
+        switchToTabToday();
+        await storeIcons();
+        setNotifyStatus();
+        setTab();
         if (localStorage.getItem("user.userID") !== null) {
           displayUser();
           sdk = await import("/sdk.js");
@@ -141,45 +156,30 @@
               localStorage.getItem("user.apiKey"),
               localStorage.getItem("user.pgpPrivateKey")
             );
-            console.log("Checking messages…");
+            console.log("Connection is end-to-end encrypted");
             await appendMessages();
+            setNotifyStatus();
+            setTab();
           }
-        }
-        if (isNewDay()) {
-          updateValues();
-        }
-        await storeIcons();
-        setNotifyStatus();
-        if (notifyInbox) {
-          switchToTabInbox();
-        }
-        else {
-          switchToTabToday();
         }
         window.setInterval(async () => {
-          if (hasPublicInbox) {
-            await appendMessages();
-          }
-          const value = localStorage.getItem(`value.${selectedTab}`);
           if (isNewDay()) {
             updateValues();
-            setNotifyStatus();
-            if (notifyInbox) {
-              switchToTabInbox();
-            }
-            else {
-              switchToTabToday();
+            if (hasPublicInbox) {
+              await appendMessages();
             }
             refreshInfo();
-          }
-          else if (dom.editor.value != value) {
-            dom.editor.value = value;
-            dom.editor.scrollTop = 0;
-            dom.editor.setSelectionRange(0, 0);
             setNotifyStatus();
-            refreshInfo();
+            setTab();
           }
           else {
+            if (hasPublicInbox) {
+              await appendMessages();
+            }
+            if (dom.editor.value != localStorage.getItem(`value.${selectedTab}`)) {
+              refreshInfo();
+              refreshEditor();
+            }
             setNotifyStatus();
           }
         }, 30 * 1000);
@@ -201,23 +201,23 @@
         }
       };
       const storedIcons = {};
-      let selectedTab = "today";
       let notifyInbox = false;
+      let selectedTab;
       let timeoutShowInfo;
       let sdk;
       let hasPublicInbox;
       dom.tabs.today.addEventListener("click", event => {
-        switchToTabToday();
         refreshInfo();
+        switchToTabToday();
       });
       dom.tabs.inbox.addEventListener("click", event => {
-        switchToTabInbox();
         refreshInfo();
+        switchToTabInbox();
       });
       dom.editor.addEventListener("input", event => {
         localStorage.setItem(`value.${selectedTab}`, dom.editor.value);
-        setNotifyStatus();
         refreshInfo();
+        setNotifyStatus();
       });
       document.body.addEventListener("keydown", event => {
         if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() == 'enter') {
@@ -229,19 +229,20 @@
           dom.editor.value = value;
           localStorage.setItem(`value.${selectedTab}`, dom.editor.value);
           refreshInfo();
-          focusEditor();
+          refreshEditor();
+          dom.editor.focus();
         }
         else if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() == 'u') {
           event.preventDefault();
-          switchToTabToday();
           refreshInfo();
-          focusEditor();
+          switchToTabToday();
+          dom.editor.focus();
         }
         else if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() == 'i') {
           event.preventDefault();
-          switchToTabInbox();
           refreshInfo();
-          focusEditor();
+          switchToTabInbox();
+          dom.editor.focus();
         }
       });
       startApp();
