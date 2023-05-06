@@ -75,6 +75,13 @@
           switchToTabToday();
         }
       }
+      function refreshView() {
+        if (dom.editor.value != localStorage.getItem(`value.${selectedTab}`)) {
+          refreshEditor();
+          refreshInfo();
+        }
+        setNotifyStatus();
+      }
       function refreshEditor() {
         dom.editor.value = localStorage.getItem(`value.${selectedTab}`);
         dom.editor.scrollTop = 0;
@@ -172,15 +179,9 @@
             setTab();
             refreshInfo();
           }
-          else {
-            if (hasPublicInbox) {
-              await appendMessages();
-            }
-            if (dom.editor.value != localStorage.getItem(`value.${selectedTab}`)) {
-              refreshEditor();
-              refreshInfo();
-            }
-            setNotifyStatus();
+          else if (hasPublicInbox) {
+            await appendMessages();
+            refreshView();
           }
         }, 30 * 1000);
       }
@@ -228,7 +229,7 @@
           }
           dom.editor.value = value;
           localStorage.setItem(`value.${selectedTab}`, dom.editor.value);
-          refreshEditor();
+          refreshEditor(); // Can probably refactor
           dom.editor.focus();
           refreshInfo();
         }
@@ -244,6 +245,9 @@
           dom.editor.focus();
           refreshInfo();
         }
+      });
+      window.addEventListener("storage", event => {
+        refreshView();
       });
       startApp();
     </script>
