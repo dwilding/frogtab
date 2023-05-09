@@ -154,6 +154,45 @@
         await storeIcons();
         setNotifyStatus();
         setTab();
+        dom.tabs.today.addEventListener("click", event => {
+          switchToTabToday();
+          refreshInfo();
+        });
+        dom.tabs.inbox.addEventListener("click", event => {
+          switchToTabInbox();
+          refreshInfo();
+        });
+        dom.editor.addEventListener("input", event => {
+          localStorage.setItem(`value.${selectedTab}`, dom.editor.value);
+          setNotifyStatus();
+          refreshInfo();
+        });
+        document.body.addEventListener("keydown", event => {
+          if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() == 'enter') {
+            event.preventDefault();
+            let value = dom.editor.value.trimStart();
+            if (value != "") {
+              value = `\n\n${value}`;
+            }
+            dom.editor.value = value;
+            localStorage.setItem(`value.${selectedTab}`, dom.editor.value);
+            refreshEditor();
+            dom.editor.focus();
+            refreshInfo();
+          }
+          else if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() == 'u') {
+            event.preventDefault();
+            switchToTabToday();
+            dom.editor.focus();
+            refreshInfo();
+          }
+          else if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() == 'i') {
+            event.preventDefault();
+            switchToTabInbox();
+            dom.editor.focus();
+            refreshInfo();
+          }
+        });
         if (localStorage.getItem("user.userID") !== null) {
           displayUser();
           sdk = await import("/sdk.js");
@@ -184,6 +223,18 @@
             refreshView();
           }
         }, 30 * 1000);
+        window.addEventListener("storage", event => {
+          refreshView();
+        });
+        window.addEventListener("hashchange", () => {
+          if (window.location.hash == "#advance") {
+            window.location.hash = "";
+            localStorage.setItem("date", "");
+            isNewDay();
+            updateValues();
+            refreshView();
+          }
+        });
       }
 
       // ******** Initial setup ********
@@ -207,48 +258,6 @@
       let timeoutShowInfo;
       let sdk;
       let hasPublicInbox;
-      dom.tabs.today.addEventListener("click", event => {
-        switchToTabToday();
-        refreshInfo();
-      });
-      dom.tabs.inbox.addEventListener("click", event => {
-        switchToTabInbox();
-        refreshInfo();
-      });
-      dom.editor.addEventListener("input", event => {
-        localStorage.setItem(`value.${selectedTab}`, dom.editor.value);
-        setNotifyStatus();
-        refreshInfo();
-      });
-      document.body.addEventListener("keydown", event => {
-        if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() == 'enter') {
-          event.preventDefault();
-          let value = dom.editor.value.trimStart();
-          if (value != "") {
-            value = `\n\n${value}`;
-          }
-          dom.editor.value = value;
-          localStorage.setItem(`value.${selectedTab}`, dom.editor.value);
-          refreshEditor(); // Can probably refactor
-          dom.editor.focus();
-          refreshInfo();
-        }
-        else if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() == 'u') {
-          event.preventDefault();
-          switchToTabToday();
-          dom.editor.focus();
-          refreshInfo();
-        }
-        else if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() == 'i') {
-          event.preventDefault();
-          switchToTabInbox();
-          dom.editor.focus();
-          refreshInfo();
-        }
-      });
-      window.addEventListener("storage", event => {
-        refreshView();
-      });
       startApp();
     </script>
   </body>
