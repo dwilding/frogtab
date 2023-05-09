@@ -76,11 +76,11 @@
         }
       }
       function refreshView() {
+        setNotifyStatus();
         if (dom.editor.value != localStorage.getItem(`value.${selectedTab}`)) {
           refreshEditor();
           refreshInfo();
         }
-        setNotifyStatus();
       }
       function refreshEditor() {
         dom.editor.value = localStorage.getItem(`value.${selectedTab}`);
