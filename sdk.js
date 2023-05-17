@@ -85,7 +85,7 @@ export async function fetchMessages() {
     || inboxOwner.apiKey === null
     || inboxOwner.pgpPrivateKeyObj === null
   ) {
-    return [];
+    return null;
   }
   let response;
   try {
@@ -101,10 +101,10 @@ export async function fetchMessages() {
     });
   }
   catch (error) {
-    return [];
+    return null;
   }
   if (!response.ok) {
-    return [];
+    return null;
   }
   const messages = [];
   const encryptedMessages = await response.json();

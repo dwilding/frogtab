@@ -142,6 +142,10 @@
       }
       async function appendMessages() {
         const messages = await sdk.fetchMessages();
+        if (messages === null) {
+          console.log("Couldn't fetch messages");
+          return;
+        }
         for (const message of messages) {
           appendToInbox(message);
         }
