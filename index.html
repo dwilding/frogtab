@@ -143,12 +143,12 @@
       async function appendMessages() {
         const messages = await sdk.fetchMessages();
         if (messages === null) {
-          console.log("Couldn't fetch messages");
           return;
         }
         for (const message of messages) {
           appendToInbox(message);
         }
+        lastSuccessfulAppend = Date.now();
       }
       async function startApp() {
         if (isNewDay()) {
@@ -222,11 +222,11 @@
             setTab();
             refreshInfo();
           }
-          else if (hasPublicInbox) {
+          else if (hasPublicInbox && Date.now() >= lastSuccessfulAppend + 600000) { // 600000 = 10 minutes
             await appendMessages();
             refreshView();
           }
-        }, 30 * 1000);
+        }, 15000); // 15000 = 15 seconds
         window.addEventListener("storage", event => {
           refreshView();
         });
@@ -262,6 +262,7 @@
       let timeoutShowInfo;
       let sdk;
       let hasPublicInbox;
+      let lastSuccessfulAppend = 0;
       startApp();
     </script>
   </body>
