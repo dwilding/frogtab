@@ -83,7 +83,7 @@
         let userID = window.location.hash.substring(1);
         if (userID == "" && localStorage.getItem("user.userID") !== null) {
           userID = localStorage.getItem("user.userID");
-          window.location.hash = `$#{userID}`;
+          window.location.hash = `#${userID}`;
         }
         sdk = await import("/sdk.js");
         const hasPublicInbox = await sdk.setPublicInbox(userID);
