@@ -17,7 +17,7 @@
             <span id="tab-today" class="tab-name selected">Today</span><span id="tab-inbox" class="tab-name">Inbox</span><span class="tab-icon">⬤</span>
           </div>
           <div class="tab info">
-            <span id="tab-info" class="info-message">You're all set! Now focus on today</span>
+            <span id="tab-info" class="info-message">You're all set! Now focus on today</span><span id="fetch-connected" class="info-message"><svg width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M8 18l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M20 17.607c1.494-.585 3-1.918 3-4.607 0-4-3.333-5-5-5 0-2 0-6-6-6S6 6 6 8c-1.667 0-5 1-5 5 0 2.689 1.506 4.022 3 4.607" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></span><span id="fetch-disconnected" class="info-message"><svg width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M9 22l3-3m3-3l-3 3m0 0l-3-3m3 3l3 3M20 17.607c1.494-.585 3-1.918 3-4.607 0-4-3.333-5-5-5 0-2 0-6-6-6S6 6 6 8c-1.667 0-5 1-5 5 0 2.689 1.506 4.022 3 4.607" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
           </div>
         </div>
         <div class="main expand">
@@ -40,14 +40,14 @@
         ]);
       }
       function switchToTabToday() {
-        dom.tabs.today.classList.add("selected");
-        dom.tabs.inbox.classList.remove("selected");
+        dom.today.classList.add("selected");
+        dom.inbox.classList.remove("selected");
         selectedTab = "today";
         refreshEditor();
       }
       function switchToTabInbox() {
-        dom.tabs.today.classList.remove("selected");
-        dom.tabs.inbox.classList.add("selected");
+        dom.today.classList.remove("selected");
+        dom.inbox.classList.add("selected");
         selectedTab = "inbox";
         refreshEditor();
       }
@@ -57,12 +57,12 @@
       function setNotifyStatus() {
         const value = localStorage.getItem("value.inbox");
         if (checkValue(value) && !notifyInbox) {
-          dom.tabs.inbox.classList.add("notify");
+          dom.inbox.classList.add("notify");
           dom.icon.setAttribute("href", storedIcons.notify);
           notifyInbox = true;
         }
         else if (!checkValue(value) && notifyInbox) {
-          dom.tabs.inbox.classList.remove("notify");
+          dom.inbox.classList.remove("notify");
           dom.icon.setAttribute("href", storedIcons.normal);
           notifyInbox = false;
         }
@@ -88,11 +88,11 @@
         dom.editor.setSelectionRange(0, 0);
       }
       function refreshInfo() {
-        dom.tabs.info.classList.remove("visible");
+        dom.info.classList.remove("display");
         window.clearTimeout(timeoutShowInfo);
         if (selectedTab == "inbox" && !notifyInbox) {
           timeoutShowInfo = window.setTimeout(() => {
-            dom.tabs.info.classList.add("visible");
+            dom.info.classList.add("display");
           }, 30 * 1000);
         }
       }
@@ -143,12 +143,16 @@
       async function appendMessages() {
         const messages = await sdk.fetchMessages();
         if (messages === null) {
+          dom.fetchConnected.classList.remove("display");
+          dom.fetchDisconnected.classList.add("display");
           return;
         }
         for (const message of messages) {
           appendToInbox(message);
         }
         lastSuccessfulAppend = Date.now();
+        dom.fetchDisconnected.classList.remove("display");
+        dom.fetchConnected.classList.add("display");
       }
       async function startApp() {
         if (isNewDay()) {
@@ -158,11 +162,11 @@
         await storeIcons();
         setNotifyStatus();
         setTab();
-        dom.tabs.today.addEventListener("click", event => {
+        dom.today.addEventListener("click", event => {
           switchToTabToday();
           refreshInfo();
         });
-        dom.tabs.inbox.addEventListener("click", event => {
+        dom.inbox.addEventListener("click", event => {
           switchToTabInbox();
           refreshInfo();
         });
@@ -250,11 +254,11 @@
       const dom = {
         icon: document.getElementById("icon"),
         editor: document.getElementById("editor"),
-        tabs: {
-          today: document.getElementById("tab-today"),
-          inbox: document.getElementById("tab-inbox"),
-          info: document.getElementById("tab-info")
-        }
+        today: document.getElementById("tab-today"),
+        inbox: document.getElementById("tab-inbox"),
+        info: document.getElementById("tab-info"),
+        fetchConnected: document.getElementById("fetch-connected"),
+        fetchDisconnected: document.getElementById("fetch-disconnected")
       };
       const storedIcons = {};
       let notifyInbox = false;

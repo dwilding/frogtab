@@ -48,7 +48,7 @@ body {
 }
 .tab {
   flex: 1;
-  padding: 0.8rem 0;
+  padding: 0.6rem 0;
 }
 .tab-name {
   margin: 0 0.3rem 0 0.6rem;
@@ -71,15 +71,20 @@ body {
   visibility: hidden;
 }
 .tab.info {
+  flex: 2;
   text-align: right;
+  min-height: 20px;
 }
 .info-message {
   margin: 0 0.6rem 0 0.3rem;
   color: #888;
-  visibility: hidden;
+  display: none;
 }
-.info-message.visible {
-  visibility: visible;
+.info-message.display {
+  display: inline;
+}
+.info-message > svg {
+  vertical-align: text-top;
 }
 .main {
   display: flex;
@@ -116,7 +121,7 @@ textarea.restricted {
 }
 .action {
   flex: 1;
-  padding: 0.8rem 0 0 0.6rem;
+  padding: 0.6rem 0 0 0.6rem;
 }
 .action.primary {
   text-align: right;
