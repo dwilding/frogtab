@@ -134,11 +134,9 @@
         hasPublicInbox = false;
       }
       function displayUser() {
-        console.group("User");
-        console.log(`Send to me: https://frogtab.com/send-to-me#${localStorage.getItem("user.userID")}`);
+        console.log(`User ID: ${localStorage.getItem("user.userID")}`);
         console.log(`API key: ${localStorage.getItem("user.apiKey")}`);
         console.log(`PGP public key: ${localStorage.getItem("user.pgpPublicKey")}`);
-        console.groupEnd();
       }
       async function appendMessages() {
         const messages = await sdk.fetchMessages();
@@ -210,7 +208,6 @@
               localStorage.getItem("user.apiKey"),
               localStorage.getItem("user.pgpPrivateKey")
             );
-            console.log("Connection is end-to-end encrypted");
             await appendMessages();
             setNotifyStatus();
             setTab();
