@@ -106,9 +106,12 @@ export async function fetchMessages() {
   if (!response.ok) {
     return null;
   }
+  const result = await response.json();
+  if (!result.success) {
+    return null;
+  }
   const messages = [];
-  const encryptedMessages = await response.json();
-  for (const encryptedMessage of encryptedMessages) {
+  for (const encryptedMessage of result.messages) {
     const decrypted = await openpgp.decrypt({
       message: await openpgp.readMessage({
         armoredMessage: encryptedMessage
