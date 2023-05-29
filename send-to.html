@@ -80,8 +80,13 @@
         console.log("Message sent!");
       }
       async function startApp() {
+        let userID = window.location.hash.substring(1);
+        if (userID == "" && localStorage.getItem("user.userID") !== null) {
+          userID = localStorage.getItem("user.userID");
+          window.location.hash = `$#{userID}`;
+        }
         sdk = await import("/sdk.js");
-        const hasPublicInbox = await sdk.setPublicInbox(window.location.hash.substring(1));
+        const hasPublicInbox = await sdk.setPublicInbox(userID);
         if (!hasPublicInbox) {
           dom.popups.default.classList.remove("display");
           dom.popups.disconnected.classList.add("display");
