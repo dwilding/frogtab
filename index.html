@@ -17,7 +17,7 @@
             <span id="tab-today" class="tab-name selected">Today</span><span id="tab-inbox" class="tab-name">Inbox</span><span class="tab-icon">⬤</span>
           </div>
           <div class="tab info">
-            <span id="tab-info" class="info-message">You're all set! Now focus on today</span><span id="fetch-connected" class="info-message" title="You can receive messages from any device"><svg width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M12 4c-6 0-6 4-6 6-1.667 0-5 1-5 5s3.333 5 5 5h12c1.667 0 5-1 5-5s-3.333-5-5-5c0-2 0-6-6-6z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path></svg></span>
+            <span id="tab-info" class="info-message">Inbox sorted! Focus on today</span><span id="routine-enabled" class="info-message" title="Including actions from your weekly routine"><svg width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M18 8.4c0-1.697-.632-3.325-1.757-4.525C15.117 2.675 13.59 2 12 2c-1.591 0-3.117.674-4.243 1.875C6.632 5.075 6 6.703 6 8.4 6 15.867 3 18 3 18h18s-3-2.133-3-9.6zM13.73 21a1.999 1.999 0 01-3.46 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></span><span id="fetch-connected" class="info-message" title="Ready to receive messages from any device"><svg width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M12 4c-6 0-6 4-6 6-1.667 0-5 1-5 5s3.333 5 5 5h12c1.667 0 5-1 5-5s-3.333-5-5-5c0-2 0-6-6-6z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path></svg></span>
           </div>
         </div>
         <div class="main expand">
@@ -110,13 +110,18 @@
         return true;
       }
       function updateValues() {
+        if (localStorage.getItem("routine") !== null) {
+          const routine = JSON.parse(localStorage.getItem("routine"));
+          const weekdayToday = (new Date()).getDay();
+          appendToInbox(routine[weekdayToday]);
+        }
         appendToInbox(localStorage.getItem("value.today"));
         localStorage.setItem("value.today", "");
         const valueInbox = localStorage.getItem("value.inbox").replaceAll(/^( *#)+ */gm, "");
         localStorage.setItem("value.inbox", valueInbox);
       }
       function isNewDay() {
-        const dateToday = (new Date().toDateString());
+        const dateToday = (new Date()).toDateString();
         if (localStorage.getItem("date") == dateToday) {
           return false;
         }
@@ -150,6 +155,9 @@
         dom.fetchConnected.classList.add("display");
       }
       async function startApp() {
+        if (localStorage.getItem("routine") !== null) {
+          dom.routineEnabled.classList.add("display");
+        }
         if (isNewDay()) {
           updateValues();
         }
@@ -243,7 +251,7 @@
       if (localStorage.length == 0) {
         localStorage.setItem("value.today", "");
         localStorage.setItem("value.inbox", "");
-        localStorage.setItem("date", (new Date().toDateString()));
+        localStorage.setItem("date", (new Date()).toDateString());
       }
       const dom = {
         icon: document.getElementById("icon"),
@@ -251,6 +259,7 @@
         today: document.getElementById("tab-today"),
         inbox: document.getElementById("tab-inbox"),
         info: document.getElementById("tab-info"),
+        routineEnabled: document.getElementById("routine-enabled"),
         fetchConnected: document.getElementById("fetch-connected")
       };
       const storedIcons = {};
