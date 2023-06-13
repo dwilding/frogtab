@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weekly Routine - Frogtab</title>
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" id="icon">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="stylesheet" href="/style.css">
+  </head>
+  <body>
+    <div class="container">
+      <div class="interface">
+        <div class="tabs">
+          <div class="tab">
+            <span id="tab-mon" class="tab-name selected">Mon</span><span id="tab-tue" class="tab-name">Tue</span><span id="tab-wed" class="tab-name">Wed</span><span id="tab-thu" class="tab-name">Thu</span><span id="tab-fri" class="tab-name">Fri</span><span id="tab-sat" class="tab-name">Sat</span><span id="tab-sun" class="tab-name">Sun</span>
+          </div>
+        </div>
+        <div class="main">
+          <textarea id="editor" class="restricted" placeholder="What's important to accomplish on Mondays?"></textarea>
+        </div>
+      </div>
+    </div>
+    <script>
+      function switchToTab(tab) {
+        dom[tab].classList.add("selected");
+        dom[selectedTab].classList.remove("selected");
+        selectedTab = tab;
+        refreshEditor();
+      }
+      function refreshView() {
+        const routine = JSON.parse(localStorage.getItem("routine"));
+        if (dom.editor.value != routine[weekdayByKey[selectedTab].index]) {
+          refreshEditor();
+        }
+      }
+      function refreshEditor() {
+        const routine = JSON.parse(localStorage.getItem("routine"));
+        dom.editor.value = routine[weekdayByKey[selectedTab].index];
+        dom.editor.placeholder = `What's important to accomplish on ${weekdayByKey[selectedTab].plural}?`
+        dom.editor.scrollTop = 0;
+        dom.editor.setSelectionRange(0, 0);
+      }
+      async function startApp() {
+        const weekdayToday = (new Date()).getDay();
+        switchToTab(weekdayKeys[weekdayToday]);
+        dom.mon.addEventListener("click", event => {
+          switchToTab("mon");
+        });
+        dom.tue.addEventListener("click", event => {
+          switchToTab("tue");
+        });
+        dom.wed.addEventListener("click", event => {
+          switchToTab("wed");
+        });
+        dom.thu.addEventListener("click", event => {
+          switchToTab("thu");
+        });
+        dom.fri.addEventListener("click", event => {
+          switchToTab("fri");
+        });
+        dom.sat.addEventListener("click", event => {
+          switchToTab("sat");
+        });
+        dom.sun.addEventListener("click", event => {
+          switchToTab("sun");
+        });
+        dom.editor.addEventListener("input", event => {
+          const routine = JSON.parse(localStorage.getItem("routine"));
+          routine[weekdayByKey[selectedTab].index] = dom.editor.value;
+          localStorage.setItem("routine", JSON.stringify(routine));
+        });
+        window.addEventListener("storage", event => {
+          refreshView();
+        });
+      }
+
+      // ******** Initial setup ********
+      if (localStorage.getItem("routine") === null) {
+        localStorage.setItem("routine", JSON.stringify(["", "", "", "", "", "", ""]));
+      }
+      const dom = {
+        editor: document.getElementById("editor"),
+        mon: document.getElementById("tab-mon"),
+        tue: document.getElementById("tab-tue"),
+        wed: document.getElementById("tab-wed"),
+        thu: document.getElementById("tab-thu"),
+        fri: document.getElementById("tab-fri"),
+        sat: document.getElementById("tab-sat"),
+        sun: document.getElementById("tab-sun")
+      };
+      let selectedTab = "mon";
+      const weekdayKeys = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+      const weekdayByKey = {
+        sun: {
+          index: 0,
+          plural: "Sundays"
+        },
+        mon: {
+          index: 1,
+          plural: "Mondays"
+        },
+        tue: {
+          index: 2,
+          plural: "Tuesdays"
+        },
+        wed: {
+          index: 3,
+          plural: "Wednesdays"
+        },
+        thu: {
+          index: 4,
+          plural: "Thursdays"
+        },
+        fri: {
+          index: 5,
+          plural: "Fridays"
+        },
+        sat: {
+          index: 6,
+          plural: "Saturdays"
+        }
+      };
+      startApp();
+    </script>
+  </body>
+</html>

@@ -17,7 +17,7 @@
             <span id="tab-today" class="tab-name selected">Today</span><span id="tab-inbox" class="tab-name">Inbox</span><span class="tab-icon">⬤</span>
           </div>
           <div class="tab info">
-            <span id="tab-info" class="info-message">Inbox sorted! Focus on today</span><span id="routine-enabled" class="info-message" title="Including actions from your weekly routine"><svg width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M18 8.4c0-1.697-.632-3.325-1.757-4.525C15.117 2.675 13.59 2 12 2c-1.591 0-3.117.674-4.243 1.875C6.632 5.075 6 6.703 6 8.4 6 15.867 3 18 3 18h18s-3-2.133-3-9.6zM13.73 21a1.999 1.999 0 01-3.46 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></span><span id="fetch-connected" class="info-message" title="Ready to receive messages from any device"><svg width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M12 4c-6 0-6 4-6 6-1.667 0-5 1-5 5s3.333 5 5 5h12c1.667 0 5-1 5-5s-3.333-5-5-5c0-2 0-6-6-6z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path></svg></span>
+            <span id="tab-info" class="info-message">Inbox sorted! Focus on today</span><span id="routine-enabled" class="info-message" title="Including actions from your weekly routine"><svg width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M12 18v-6m0 0V3.41a.6.6 0 01.836-.552l8.444 3.62a.6.6 0 01.022 1.093L12 12zM12 22c3.866 0 7-1.567 7-3.5S15.866 15 12 15s-7 1.567-7 3.5S8.134 22 12 22z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></span><span id="fetch-connected" class="info-message" title="Ready to receive messages from any device"><svg width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M12 4c-6 0-6 4-6 6-1.667 0-5 1-5 5s3.333 5 5 5h12c1.667 0 5-1 5-5s-3.333-5-5-5c0-2 0-6-6-6z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path></svg></span>
           </div>
         </div>
         <div class="main expand">
@@ -161,41 +161,6 @@
           dom.routineEnabled.classList.remove("display");
         }
       }
-      function defineRoutine(key, entry) {
-        let routine = ["", "", "", "", "", "", ""];
-        if (hasRoutine) {
-          routine = JSON.parse(localStorage.getItem("routine"));
-        }
-        const keys = {
-          mon: 1,
-          tue: 2,
-          wed: 3,
-          thu: 4,
-          fri: 5,
-          sat: 6,
-          sun: 0
-        };
-        if (key in keys) {
-          routine[keys[key]] = entry.trim();
-          localStorage.setItem("routine", JSON.stringify(routine));
-          setRoutineStatus();
-        }
-      }
-      function displayRoutine() {
-        let routine = ["", "", "", "", "", "", ""];
-        if (hasRoutine) {
-          routine = JSON.parse(localStorage.getItem("routine"));
-        }
-        console.table({
-          mon: routine[1],
-          tue: routine[2],
-          wed: routine[3],
-          thu: routine[4],
-          fri: routine[5],
-          sat: routine[6],
-          sun: routine[0],
-        });
-      }
       async function newLocalCredentials() {
         sdk = await import("/sdk.js");
         const localCredentials = await sdk.generateLocalCredentials();
@@ -284,6 +249,7 @@
           }
         }, 15000); // 15000 = 15 seconds
         window.addEventListener("storage", event => {
+          setRoutineStatus();
           refreshView();
         });
         window.addEventListener("hashchange", () => {
