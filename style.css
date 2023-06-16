@@ -52,7 +52,7 @@ body {
   min-height: 20px;
 }
 .tab-name {
-  margin: 0 0.3rem 0 0.6rem;
+  margin-left: 0.6rem;
   color: #555;
   cursor: pointer;
 }
@@ -76,7 +76,7 @@ body {
   text-align: right;
 }
 .info-message {
-  margin: 0 0.6rem 0 0.3rem;
+  margin-right: 0.6rem;
   color: #888;
   display: none;
 }
