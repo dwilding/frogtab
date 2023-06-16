@@ -30,6 +30,9 @@
     </div>
     <script>
       function switchToTab(tab) {
+        if (tab == selectedTab) {
+          return;
+        }
         dom[tab].classList.add("selected");
         dom[selectedTab].classList.remove("selected");
         selectedTab = tab;
