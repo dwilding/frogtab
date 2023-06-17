@@ -24,7 +24,7 @@
           </div>
         </div>
         <div class="main">
-          <textarea id="editor" class="restricted" placeholder="What's important to accomplish on Mondays?"></textarea>
+          <textarea id="editor" class="restricted" placeholder="What do you usually do on Mondays?"></textarea>
         </div>
       </div>
     </div>
@@ -47,7 +47,7 @@
       function refreshEditor() {
         const routine = JSON.parse(localStorage.getItem("routine"));
         dom.editor.value = routine[weekdayByKey[selectedTab].index];
-        dom.editor.placeholder = `What's important to accomplish on ${weekdayByKey[selectedTab].plural}?`
+        dom.editor.placeholder = `What do you usually do on ${weekdayByKey[selectedTab].plural}?`;
         dom.editor.scrollTop = 0;
         dom.editor.setSelectionRange(0, 0);
       }
