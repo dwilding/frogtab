@@ -30,24 +30,21 @@
     </div>
     <script>
       function switchToTab(tab) {
-        if (tab == selectedTab) {
-          return;
+        if (tab != selectedTab) {
+          dom[tab].classList.add("selected");
+          dom[selectedTab].classList.remove("selected");
+          selectedTab = tab;
         }
-        dom[tab].classList.add("selected");
-        dom[selectedTab].classList.remove("selected");
-        selectedTab = tab;
         refreshEditor();
       }
       function refreshView() {
-        const routine = JSON.parse(localStorage.getItem("routine"));
-        if (dom.editor.value != routine[weekdayByKey[selectedTab].index]) {
+        if (dom.editor.value != localStorage.getItem(`routine.${selectedTab}`)) {
           refreshEditor();
         }
       }
       function refreshEditor() {
-        const routine = JSON.parse(localStorage.getItem("routine"));
-        dom.editor.value = routine[weekdayByKey[selectedTab].index];
-        dom.editor.placeholder = `What do you usually do on ${weekdayByKey[selectedTab].plural}?`;
+        dom.editor.value = localStorage.getItem(`routine.${selectedTab}`);
+        dom.editor.placeholder = `What do you usually do on ${plurals[selectedTab]}?`
         dom.editor.scrollTop = 0;
         dom.editor.setSelectionRange(0, 0);
       }
@@ -76,9 +73,7 @@
           switchToTab("sun");
         });
         dom.editor.addEventListener("input", event => {
-          const routine = JSON.parse(localStorage.getItem("routine"));
-          routine[weekdayByKey[selectedTab].index] = dom.editor.value;
-          localStorage.setItem("routine", JSON.stringify(routine));
+          localStorage.setItem(`routine.${selectedTab}`, dom.editor.value);
         });
         window.addEventListener("storage", event => {
           refreshView();
@@ -86,8 +81,11 @@
       }
 
       // ******** Initial setup ********
-      if (localStorage.getItem("routine") === null) {
-        localStorage.setItem("routine", JSON.stringify(["", "", "", "", "", "", ""]));
+      const weekdayKeys = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+      for (const key of weekdayKeys) {
+        if (localStorage.getItem(`routine.${key}`) === null) {
+          localStorage.setItem(`routine.${key}`, "");
+        }
       }
       const dom = {
         editor: document.getElementById("editor"),
@@ -100,36 +98,14 @@
         sun: document.getElementById("tab-sun")
       };
       let selectedTab = "mon";
-      const weekdayKeys = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
-      const weekdayByKey = {
-        sun: {
-          index: 0,
-          plural: "Sundays"
-        },
-        mon: {
-          index: 1,
-          plural: "Mondays"
-        },
-        tue: {
-          index: 2,
-          plural: "Tuesdays"
-        },
-        wed: {
-          index: 3,
-          plural: "Wednesdays"
-        },
-        thu: {
-          index: 4,
-          plural: "Thursdays"
-        },
-        fri: {
-          index: 5,
-          plural: "Fridays"
-        },
-        sat: {
-          index: 6,
-          plural: "Saturdays"
-        }
+      const plurals = {
+        "mon": "Mondays",
+        "tue": "Tuesdays",
+        "wed": "Wednesdays",
+        "thu": "Thursdays",
+        "fri": "Fridays",
+        "sat": "Saturdays",
+        "sun": "Sundays"
       };
       startApp();
     </script>

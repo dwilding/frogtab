@@ -115,9 +115,10 @@
       }
       function updateValues() {
         if (hasRoutine) {
-          const routine = JSON.parse(localStorage.getItem("routine"));
           const weekdayToday = (new Date()).getDay();
-          appendToInbox(routine[weekdayToday]);
+          const key = weekdayKeys[weekdayToday];
+          const routine = localStorage.getItem(`routine.${key}`);
+          appendToInbox(routine);
         }
         appendToInbox(localStorage.getItem("value.today"));
         localStorage.setItem("value.today", "");
@@ -150,12 +151,10 @@
       }
       function setRoutineStatus() {
         hasRoutine = false;
-        if (localStorage.getItem("routine") !== null) {
-          const routine = JSON.parse(localStorage.getItem("routine"));
-          for (const entry of routine) {
-            if (entry.trim() != "") {
-              hasRoutine = true;
-            }
+        for (const key of weekdayKeys) {
+          const routine = localStorage.getItem(`routine.${key}`);
+          if (routine.trim() != "") {
+            hasRoutine = true;
           }
         }
         if (hasRoutine) {
@@ -256,15 +255,6 @@
           setRoutineStatus();
           refreshView();
         });
-        window.addEventListener("hashchange", () => {
-          if (window.location.hash == "#advance") {
-            window.location.hash = "";
-            localStorage.setItem("date", "");
-            isNewDay();
-            updateValues();
-            refreshView();
-          }
-        });
       }
 
       // ******** Initial setup ********
@@ -272,6 +262,12 @@
         localStorage.setItem("value.today", "");
         localStorage.setItem("value.inbox", "");
         localStorage.setItem("date", (new Date()).toDateString());
+      }
+      const weekdayKeys = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+      for (const key of weekdayKeys) {
+        if (localStorage.getItem(`routine.${key}`) === null) {
+          localStorage.setItem(`routine.${key}`, "");
+        }
       }
       const dom = {
         icon: document.getElementById("icon"),
