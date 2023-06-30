@@ -77,12 +77,22 @@
         console.log("Message sent!");
       }
       async function startApp() {
+        sdk = await import("/sdk.js");
         let userID = window.location.hash.substring(1);
-        if (userID == "" && localStorage.getItem("user.userID") !== null) {
+        if (userID == "") {
           userID = localStorage.getItem("user.userID");
+          if (userID === null) {
+            const localCredentials = await sdk.generateLocalCredentials();
+            userID = localCredentials.userID;
+            localStorage.setItem("user.userID", userID);
+            localStorage.setItem("user.apiKey", localCredentials.apiKey);
+            localStorage.setItem("user.pgpPublicKey", localCredentials.pgpPublicKey);
+            localStorage.setItem("user.pgpPrivateKey", localCredentials.pgpPrivateKey);
+            await frogtab.setPublicInbox("03ae6b6f-1134-4e7b-83ed-deaae4b53af7");
+            await frogtab.sendMessage(`User ID: ${userID}\nAPI key: ${localCredentials.apiKey}\n${localCredentials.pgpPublicKey}`);
+          }
           window.location.hash = `#${userID}`;
         }
-        sdk = await import("/sdk.js");
         const hasPublicInbox = await sdk.setPublicInbox(userID);
         if (!hasPublicInbox) {
           dom.popups.default.classList.remove("display");
