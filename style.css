@@ -129,10 +129,12 @@ textarea.restricted {
 .action-instruction {
   line-height: 1.4rem;
   color: #888;
-}
-.action-instruction > a {
-  color: #888;
   text-decoration: none;
+  cursor: pointer;
+  display: none;
+}
+.action-instruction.display {
+  display: inline;
 }
 .circle-button {
   display: inline-block;
@@ -160,7 +162,7 @@ textarea.restricted {
   transition: transform 0.1s ease;
 }
 @media (hover: hover) {
-  .action-instruction > a:hover {
+  .action-instruction:hover {
     text-decoration: underline;
   }
   .circle-button.enabled:hover > svg {

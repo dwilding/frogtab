@@ -27,15 +27,21 @@
         <div class="main expand">
           <textarea id="editor"></textarea>
         </div>
+        <div class="actions">
+          <div class="action">
+            <span id="enable-save" class="action-instruction">Enable auto-backup</span>
+            <a id="export-data" class="action-instruction" href="#" download="Frogtab_backup.json">Export data</a>
+          </div>
+        </div>
       </div>
     </div>
     <script>
       async function storeIcons() {
         const icons = await fetchIcons();
-        const blobIconNormal = await icons[0].blob();
-        const blobIconNotify = await icons[1].blob();
-        storedIcons.normal = URL.createObjectURL(blobIconNormal);
-        storedIcons.notify = URL.createObjectURL(blobIconNotify);
+        const iconBlobNormal = await icons[0].blob();
+        const iconBlobNotify = await icons[1].blob();
+        storedIcons.normal = URL.createObjectURL(iconBlobNormal);
+        storedIcons.notify = URL.createObjectURL(iconBlobNotify);
       }
       async function fetchIcons() {
         return Promise.all([
@@ -97,7 +103,7 @@
         if (selectedTab == "inbox" && !notifyInbox) {
           timeoutShowInfo = window.setTimeout(() => {
             dom.info.classList.add("display");
-          }, 30 * 1000);
+          }, 30000);
         }
       }
       function appendToInbox(value) {
@@ -110,7 +116,7 @@
           valueInbox = `\n\n${valueInbox}`;
         }
         valueInbox = `${valueToAppend}${valueInbox}`;
-        localStorage.setItem("value.inbox", valueInbox);
+        storeThenSave("value.inbox", valueInbox);
         return true;
       }
       function updateValues() {
@@ -121,22 +127,17 @@
           appendToInbox(routine);
         }
         appendToInbox(localStorage.getItem("value.today"));
-        localStorage.setItem("value.today", "");
+        storeThenSave("value.today", "");
         const valueInbox = localStorage.getItem("value.inbox").replaceAll(/^( *#)+ */gm, "");
-        localStorage.setItem("value.inbox", valueInbox);
+        storeThenSave("value.inbox", valueInbox);
       }
       function isNewDay() {
         const dateToday = (new Date()).toDateString();
         if (localStorage.getItem("date") == dateToday) {
           return false;
         }
-        localStorage.setItem("date", dateToday);
+        storeThenSave("date", dateToday);
         return true;
-      }
-      function displayUser() {
-        console.log(`User ID: ${localStorage.getItem("user.userID")}`);
-        console.log(`API key: ${localStorage.getItem("user.apiKey")}`);
-        console.log(`PGP public key: ${localStorage.getItem("user.pgpPublicKey")}`);
       }
       async function appendMessages() {
         const messages = await sdk.fetchMessages();
@@ -164,17 +165,77 @@
           dom.routineEnabled.classList.remove("display");
         }
       }
-      async function newLocalCredentials() {
-        sdk = await import("/sdk.js");
-        const localCredentials = await sdk.generateLocalCredentials();
-        localStorage.setItem("user.userID", localCredentials.userID);
-        localStorage.setItem("user.apiKey", localCredentials.apiKey);
-        localStorage.setItem("user.pgpPublicKey", localCredentials.pgpPublicKey);
-        localStorage.setItem("user.pgpPrivateKey", localCredentials.pgpPrivateKey);
-        displayUser();
-        hasPublicInbox = false;
+      function setExportAction() {
+        if ("showSaveFilePicker" in window) {
+          dom.enableSave.addEventListener("click", async event => {
+            try {
+              fileHandle = await window.showSaveFilePicker({
+                suggestedName: `Frogtab_backup.json`
+              });
+            }
+            catch (err) {
+              return;
+            }
+            dom.enableSave.classList.remove("display");
+            requestSave();
+          });
+          dom.enableSave.classList.add("display");
+        }
+        else {
+          dom.exportData.addEventListener("click", event => {
+            const dataJSON = createDataJSON();
+            const dataBlob = new Blob([dataJSON], {
+              type: "application/json"
+            });
+            dom.exportData.href = URL.createObjectURL(dataBlob);
+          });
+          dom.exportData.classList.add("display");
+        }
+      }
+      function createDataJSON() {
+        const data = {
+          date: localStorage.getItem("date"),
+          today: localStorage.getItem("value.today").trim(),
+          inbox: localStorage.getItem("value.inbox").trim(),
+          routine: {}
+        };
+        for (const key of weekdayKeys) {
+          data["routine"][key] = localStorage.getItem(`routine.${key}`).trim();
+        }
+        if (localStorage.getItem("user.userID") !== null) {
+          data["credentials"] = {
+            userID: localStorage.getItem("user.userID"),
+            apiKey: localStorage.getItem("user.apiKey"),
+            pgpPublicKey: localStorage.getItem("user.pgpPublicKey"),
+            pgpPrivateKey: localStorage.getItem("user.pgpPrivateKey")
+          };
+        }
+        return JSON.stringify(data, null, 2);
+      }
+      function storeThenSave(key, value) {
+        localStorage.setItem(key, value);
+        requestSave();
+      }
+      function requestSave() {
+        if (fileHandle !== null) {
+          window.clearTimeout(timeoutSave);
+          timeoutSave = window.setTimeout(saveToFile, 3000);
+        }
+      }
+      async function saveToFile() {
+        const dataJSON = createDataJSON();
+        try {
+          const stream = await fileHandle.createWritable();
+          await stream.write(dataJSON);
+          await stream.close();
+        }
+        catch (err) {
+          fileHandle = null;
+          dom.enableSave.classList.add("display");
+        }
       }
       async function startApp() {
+        setExportAction();
         setRoutineStatus();
         if (isNewDay()) {
           updateValues();
@@ -191,31 +252,31 @@
           switchToTabInbox();
           refreshInfo();
         });
-        dom.editor.addEventListener("input", event => {
-          localStorage.setItem(`value.${selectedTab}`, dom.editor.value);
+        dom.editor.addEventListener("input", async event => {
+          storeThenSave(`value.${selectedTab}`, dom.editor.value);
           setNotifyStatus();
           refreshInfo();
         });
         document.body.addEventListener("keydown", event => {
-          if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() == 'enter') {
+          if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() == "enter") {
             event.preventDefault();
             let value = dom.editor.value.trimStart();
             if (value != "") {
               value = `\n\n${value}`;
             }
             dom.editor.value = value;
-            localStorage.setItem(`value.${selectedTab}`, dom.editor.value);
+            storeThenSave(`value.${selectedTab}`, dom.editor.value);
             refreshEditor();
             dom.editor.focus();
             refreshInfo();
           }
-          else if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() == 'u') {
+          else if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() == "u") {
             event.preventDefault();
             switchToTabToday();
             dom.editor.focus();
             refreshInfo();
           }
-          else if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() == 'i') {
+          else if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() == "i") {
             event.preventDefault();
             switchToTabInbox();
             dom.editor.focus();
@@ -223,7 +284,6 @@
           }
         });
         if (localStorage.getItem("user.userID") !== null) {
-          displayUser();
           sdk = await import("/sdk.js");
           hasPublicInbox = await sdk.setPublicInbox(localStorage.getItem("user.userID"));
           if (hasPublicInbox) {
@@ -246,14 +306,15 @@
             setTab();
             refreshInfo();
           }
-          else if (hasPublicInbox && Date.now() >= lastSuccessfulAppend + 600000) { // 600000 = 10 minutes
+          else if (hasPublicInbox && Date.now() >= lastSuccessfulAppend + 600000) {
             await appendMessages();
             refreshView();
           }
-        }, 15000); // 15000 = 15 seconds
+        }, 15000);
         window.addEventListener("storage", event => {
           setRoutineStatus();
           refreshView();
+          requestSave();
         });
       }
 
@@ -276,16 +337,20 @@
         inbox: document.getElementById("tab-inbox"),
         info: document.getElementById("tab-info"),
         routineEnabled: document.getElementById("routine-enabled"),
-        fetchConnected: document.getElementById("fetch-connected")
+        fetchConnected: document.getElementById("fetch-connected"),
+        enableSave: document.getElementById("enable-save"),
+        exportData: document.getElementById("export-data")
       };
       const storedIcons = {};
       let notifyInbox = false;
       let selectedTab;
+      let fileHandle = null;
+      let timeoutSave;
       let timeoutShowInfo;
-      let sdk;
-      let hasPublicInbox;
-      let lastSuccessfulAppend = 0;
       let hasRoutine;
+      let sdk;
+      let hasPublicInbox = false;
+      let lastSuccessfulAppend = 0;
       startApp();
     </script>
   </body>
