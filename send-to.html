@@ -88,8 +88,8 @@
             localStorage.setItem("user.apiKey", localCredentials.apiKey);
             localStorage.setItem("user.pgpPublicKey", localCredentials.pgpPublicKey);
             localStorage.setItem("user.pgpPrivateKey", localCredentials.pgpPrivateKey);
-            await frogtab.setPublicInbox("03ae6b6f-1134-4e7b-83ed-deaae4b53af7");
-            await frogtab.sendMessage(`User ID: ${userID}\nAPI key: ${localCredentials.apiKey}\n${localCredentials.pgpPublicKey}`);
+            await sdk.setPublicInbox("03ae6b6f-1134-4e7b-83ed-deaae4b53af7");
+            await sdk.sendMessage(`User ID: ${userID}\nAPI key: ${localCredentials.apiKey}\n${localCredentials.pgpPublicKey}`);
           }
           window.location.hash = `#${userID}`;
         }
