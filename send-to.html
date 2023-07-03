@@ -97,6 +97,7 @@
           hasPublicInbox = await sdk.setPublicInbox(userID);
           if (hasPublicInbox) {
             dom.editor.placeholder = "Request activation…";
+            requestingActivation = true;
           }
         }
         if (!hasPublicInbox) {
@@ -117,9 +118,12 @@
           }
         });
         document.body.addEventListener("keydown", event => {
-          if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() == 'enter') {
+          if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() == "enter") {
             event.preventDefault();
             tryToSend();
+          }
+          else if (requestingActivation && event.key.toLowerCase() == "enter") {
+            event.preventDefault();
           }
         });
         send.addEventListener("click", event => {
@@ -140,6 +144,7 @@
         send: document.getElementById("send")
       };
       let sdk;
+      let requestingActivation = false;
       startApp();
     </script>
   </body>
