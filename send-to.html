@@ -31,6 +31,9 @@
           <textarea id="editor" class="restricted" placeholder="Send to your inbox…"></textarea>
         </div>
         <div class="actions">
+          <div class="action">
+            <a id="export" class="action-instruction" href="#" download="exported.json">Export</a>
+          </div>
           <div class="action primary">
             <span id="send" class="circle-button"><svg width="24px" height="24px" viewBox="0 0 24 24" stroke-width="1.5" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M22 12L3 20l3.563-8L3 4l19 8zM6.5 12H22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
           </div>
@@ -87,19 +90,13 @@
             localStorage.setItem("user.apiKey", localCredentials.apiKey);
             localStorage.setItem("user.pgpPublicKey", localCredentials.pgpPublicKey);
             localStorage.setItem("user.pgpPrivateKey", localCredentials.pgpPrivateKey);
-            // await sdk.sendMessage(`User ID: ${userID}\nAPI key: ${localCredentials.apiKey}\n${localCredentials.pgpPublicKey}`);
           }
           window.location.hash = `#${userID}`;
         }
-        let hasPublicInbox = await sdk.setPublicInbox(userID);
-        if (!hasPublicInbox && userID != "03ae6b6f-1134-4e7b-83ed-deaae4b53af7") {
-          userID = "03ae6b6f-1134-4e7b-83ed-deaae4b53af7";
-          hasPublicInbox = await sdk.setPublicInbox(userID);
-          if (hasPublicInbox) {
-            dom.editor.placeholder = "Request activation…";
-            requestingActivation = true;
-          }
+        if (userID == localStorage.getItem("user.userID")) {
+          dom.export.classList.add("display");
         }
+        let hasPublicInbox = await sdk.setPublicInbox(userID);
         if (!hasPublicInbox) {
           dom.popups.default.classList.remove("display");
           dom.popups.disconnected.classList.add("display");
@@ -122,9 +119,6 @@
             event.preventDefault();
             tryToSend();
           }
-          else if (requestingActivation && event.key.toLowerCase() == "enter") {
-            event.preventDefault();
-          }
         });
         send.addEventListener("click", event => {
           tryToSend();
@@ -141,10 +135,10 @@
           failure: document.getElementById("popup-failure")
         },
         editor: document.getElementById("editor"),
-        send: document.getElementById("send")
+        send: document.getElementById("send"),
+        export: document.getElementById("export")
       };
       let sdk;
-      let requestingActivation = false;
       startApp();
     </script>
   </body>
