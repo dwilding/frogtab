@@ -78,36 +78,48 @@
         dom.popups.failure.classList.remove("display");
         dom.popups.connected.classList.add("display");
       }
-      async function startApp() {
-        sdk = await import("/sdk.js");
-        let userID = window.location.hash.substring(1);
-        if (userID == "") {
-          userID = localStorage.getItem("user.userID");
-          if (userID === null) {
-            const localCredentials = await sdk.generateLocalCredentials();
-            userID = localCredentials.userID;
-            localStorage.setItem("user.userID", userID);
-            localStorage.setItem("user.apiKey", localCredentials.apiKey);
-            localStorage.setItem("user.pgpPublicKey", localCredentials.pgpPublicKey);
-            localStorage.setItem("user.pgpPrivateKey", localCredentials.pgpPrivateKey);
-          }
-          window.location.hash = `#${userID}`;
-        }
-        if (userID === localStorage.getItem("user.userID")) {
-          dom.exportDevice.addEventListener("click", event => {
-            const dataJSON = JSON.stringify({
-              userID: localStorage.getItem("user.userID"),
-              apiKey: localStorage.getItem("user.apiKey"),
-              pgpPublicKey: localStorage.getItem("user.pgpPublicKey")
-            }, null, 2);
-            const dataBlob = new Blob([dataJSON], {
-              type: "application/json"
-            });
-            dom.exportDevice.href = URL.createObjectURL(dataBlob);
+      function displayExportDevice() {
+        dom.exportDevice.addEventListener("click", event => {
+          const dataJSON = JSON.stringify({
+            userID: localStorage.getItem("user.userID"),
+            apiKey: localStorage.getItem("user.apiKey"),
+            pgpPublicKey: localStorage.getItem("user.pgpPublicKey")
+          }, null, 2);
+          const dataBlob = new Blob([dataJSON], {
+            type: "application/json"
           });
-          dom.exportDevice.classList.add("display");
+          dom.exportDevice.href = URL.createObjectURL(dataBlob);
+        });
+        dom.exportDevice.classList.add("display");
+      }
+      async function startApp() {
+        let userID = window.location.hash.substring(1);
+        const localUserID = localStorage.getItem("user.userID");
+        if (localUserID !== null) {
+          if (userID == "") {
+            userID = localUserID;
+            window.location.hash = `#${userID}`;
+            displayExportDevice();
+          }
+          else if (userID == localUserID) {
+            displayExportDevice();
+          }
         }
-        let hasPublicInbox = await sdk.setPublicInbox(userID);
+        sdk = await import("/sdk.js");
+        if (userID == "") {
+          const localCredentials = await sdk.generateLocalCredentials();
+          localStorage.setItem("user.userID", localCredentials.userID);
+          localStorage.setItem("user.apiKey", localCredentials.apiKey);
+          localStorage.setItem("user.pgpPublicKey", localCredentials.pgpPublicKey);
+          localStorage.setItem("user.pgpPrivateKey", localCredentials.pgpPrivateKey);
+          window.location.hash = `#${localCredentials.userID}`;
+          displayExportDevice();
+          dom.popups.default.classList.remove("display");
+          dom.popups.disconnected.classList.add("display");
+          dom.editor.placeholder = "";
+          return;
+        }
+        const hasPublicInbox = await sdk.setPublicInbox(userID);
         if (!hasPublicInbox) {
           dom.popups.default.classList.remove("display");
           dom.popups.disconnected.classList.add("display");
