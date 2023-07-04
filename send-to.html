@@ -103,7 +103,7 @@
             const dataBlob = new Blob([dataJSON], {
               type: "application/json"
             });
-            dom.exportData.href = URL.createObjectURL(dataBlob);
+            dom.exportDevice.href = URL.createObjectURL(dataBlob);
           });
           dom.exportDevice.classList.add("display");
         }
