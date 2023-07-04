@@ -203,7 +203,7 @@
           data["routine"][key] = localStorage.getItem(`routine.${key}`).trim();
         }
         if (localStorage.getItem("user.userID") !== null) {
-          data["credentials"] = {
+          data["device"] = {
             userID: localStorage.getItem("user.userID"),
             apiKey: localStorage.getItem("user.apiKey"),
             pgpPublicKey: localStorage.getItem("user.pgpPublicKey"),

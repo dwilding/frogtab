@@ -32,7 +32,7 @@
         </div>
         <div class="actions">
           <div class="action">
-            <a id="export" class="action-instruction" href="#" download="exported.json">Export</a>
+            <a id="export-device" class="action-instruction" href="#" download="Frogtab_device.json">Export device info</a>
           </div>
           <div class="action primary">
             <span id="send" class="circle-button"><svg width="24px" height="24px" viewBox="0 0 24 24" stroke-width="1.5" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M22 12L3 20l3.563-8L3 4l19 8zM6.5 12H22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
@@ -93,8 +93,19 @@
           }
           window.location.hash = `#${userID}`;
         }
-        if (userID == localStorage.getItem("user.userID")) {
-          dom.export.classList.add("display");
+        if (userID === localStorage.getItem("user.userID")) {
+          dom.exportDevice.addEventListener("click", event => {
+            const dataJSON = JSON.stringify({
+              userID: localStorage.getItem("user.userID"),
+              apiKey: localStorage.getItem("user.apiKey"),
+              pgpPublicKey: localStorage.getItem("user.pgpPublicKey")
+            }, null, 2);
+            const dataBlob = new Blob([dataJSON], {
+              type: "application/json"
+            });
+            dom.exportData.href = URL.createObjectURL(dataBlob);
+          });
+          dom.exportDevice.classList.add("display");
         }
         let hasPublicInbox = await sdk.setPublicInbox(userID);
         if (!hasPublicInbox) {
@@ -136,7 +147,7 @@
         },
         editor: document.getElementById("editor"),
         send: document.getElementById("send"),
-        export: document.getElementById("export")
+        exportDevice: document.getElementById("export")
       };
       let sdk;
       startApp();
