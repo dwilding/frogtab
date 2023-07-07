@@ -319,10 +319,14 @@
       }
 
       // ******** Initial setup ********
-      if (localStorage.length == 0) {
-        localStorage.setItem("value.today", "");
-        localStorage.setItem("value.inbox", "");
+      if (localStorage.getItem("date") === null) {
         localStorage.setItem("date", (new Date()).toDateString());
+      }
+      if (localStorage.getItem("value.today") === null) {
+        localStorage.setItem("value.today", "");
+      }
+      if (localStorage.getItem("value.inbox") === null) {
+        localStorage.setItem("value.inbox", "");
       }
       const weekdayKeys = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
       for (const key of weekdayKeys) {

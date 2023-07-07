@@ -53,7 +53,10 @@
           dom.send.classList.remove("enabled");
           dom.send.classList.remove("fake-hover");
         }, 300);
-        let valueInbox = localStorage.getItem("value.inbox").trimStart();
+        if (localStorage.getItem("value.inbox") === null) {
+          localStorage.setItem("value.inbox", "");
+        }
+        let valueInbox = localStorage.getItem("value.inbox");
         if (valueInbox != "") {
           valueInbox = `\n\n${valueInbox}`;
         }
