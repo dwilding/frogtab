@@ -121,13 +121,15 @@ textarea.restricted {
 }
 .action {
   flex: 1;
-  padding: 0.6rem 0 0 0.6rem;
+  /* padding: 0.6rem 0 0 0.6rem; */
+  padding: 0.6rem 0;
+  min-height: 20px;
 }
 .action.primary {
   text-align: right;
 }
 .action-instruction {
-  line-height: 1.4rem;
+  margin-left: 0.6rem;
   color: #888;
   text-decoration: none;
   cursor: pointer;
@@ -135,6 +137,9 @@ textarea.restricted {
 }
 .action-instruction.display {
   display: inline;
+}
+.action-instruction > svg {
+  vertical-align: text-top;
 }
 .circle-button {
   display: inline-block;
@@ -162,8 +167,11 @@ textarea.restricted {
   transition: transform 0.1s ease;
 }
 @media (hover: hover) {
+  .tab-name:hover {
+    color: #222;
+  }
   .action-instruction:hover {
-    text-decoration: underline;
+    color: #222;
   }
   .circle-button.enabled:hover > svg {
     transform: translate(-45%, -60%) rotate(-30deg);
