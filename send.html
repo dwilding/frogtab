@@ -168,19 +168,14 @@
       async function startApp() {
         const fragment = window.location.hash.substring(1);
         const localUserID = localStorage.getItem("user.userID");
-        if (localUserID !== null) {
-          if (fragment === localUserID) {
-            displayExportDevice();
-            setSendLocal();
-          }
-          else if (/^[0-9a-f-]{36}$/.test(fragment)) {
-            setSendCloud(fragment);
-          }
-          else {
-            window.location.hash = `#${localUserID}`;
-            displayExportDevice();
-            setSendLocal();
-          }
+        if (localUserID !== null && fragment == "beta") {
+          window.location.hash = `#${localUserID}`;
+          displayExportDevice();
+          setSendLocal();
+        }
+        else if (localUserID !== null && fragment == localUserID) {
+          displayExportDevice();
+          setSendLocal();
         }
         else if (fragment == "beta") {
           sdk = await import("/sdk.js");
