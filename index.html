@@ -192,7 +192,7 @@
           dom.exportData.addEventListener("click", event => {
             const dataJSON = createDataJSON();
             const dataBlob = new Blob([dataJSON], {
-              type: "application/json"
+              type: "application/json; charset=utf-8"
             });
             dom.exportData.href = URL.createObjectURL(dataBlob);
           });
@@ -217,7 +217,8 @@
             pgpPrivateKey: localStorage.getItem("user.pgpPrivateKey")
           };
         }
-        return JSON.stringify(data, null, 2);
+        const dataJSON = JSON.stringify(data, null, 2);
+        return (new TextEncoder()).encode(dataJSON);
       }
       function storeThenSave(key, value) {
         localStorage.setItem(key, value);
