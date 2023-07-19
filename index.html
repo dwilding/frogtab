@@ -177,7 +177,15 @@
           dom.enableSave.addEventListener("click", async event => {
             try {
               fileHandle = await window.showSaveFilePicker({
-                suggestedName: `Frogtab_backup.json`
+                suggestedName: `Frogtab_backup.json`,
+                types: [{
+                  description: "JSON files",
+                  accept: {
+                    "application/json": [
+                      ".json"
+                    ]
+                  }
+                }]
               });
             }
             catch (err) {
