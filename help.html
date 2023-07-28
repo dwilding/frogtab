@@ -8,6 +8,20 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/manifest.webmanifest">
     <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+    <style>
+      .notice p {
+        margin-top: 0;
+      }
+      .case {
+        display: none;
+      }
+      .case.display {
+        display: block;
+      }
+      svg {
+        vertical-align: text-top;
+      }
+    </style>
   </head>
   <body>
     <header>
@@ -89,6 +103,32 @@
           </p>
         </li>
       </ul>
+      <p>
+        TODO: General info about registering
+      </p>
+      <div class="notice">
+        <div id="case-unregistered" class="case display">
+          <p>
+            You have not registered this device.
+            To register this device, please share your experience of using Frogtab - thank you!
+          </p>
+          <div>
+            <input id="comment" style="width: 100%" type="text" placeholder="Your experience…">
+          </div>
+          <div>
+            <button id="register" disabled>Register This Device</button>
+          </div>
+        </div>
+        <!-- <p>
+          Registering this device…
+        </p>
+        <div>
+          <progress max="4" value="3"></progress>
+        </div> -->
+      </div>
+      <p>
+        TODO: What happens after you register?
+      </p>
       <h2 id="triaging-your-inbox">Triaging your inbox</h2>
       <p>
         The purpose of triaging your inbox is to make a decision about how to act on each of the tasks that you've captured.
@@ -171,7 +211,19 @@
         If you want to add a task to your inbox but don't want other people to see your inbox, you can use <a href="/send" target="_blank">Send to Frogtab</a> instead of directly writing down the task in your inbox.
       </p>
       <p>
-        Send to Frogtab doesn't send any data to a server.
+        By default, Send to Frogtab doesn't send any data to a server.
+      </p>
+      <p>
+        If you choose to register your device, you'll get a personal URL that you can use to send tasks to your inbox from any device.
+        To learn more, see <a href="#adding-tasks-to-your-inbox">Adding tasks to your inbox</a>.
+      </p>
+      <p>
+        Your personal URL sends data via a server. Data is encrypted before it reaches the server, and can only be decrypted using a private key that belongs to the registered device.
+        The private key is not sent to the server.
+      </p>
+      <p>
+        In addition, only the registered device is permitted to download the encrypted data from the server.
+        As soon as the data has been downloaded, the server deletes the data.
       </p>
       <h2 id="exporting-your-data">Exporting your data</h2>
       <p>
@@ -180,7 +232,7 @@
       </p>
       <p>
         To export your data, click
-        <svg style="vertical-align: text-top" width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M3 5h18M3 12h18M3 19h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        <svg width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M3 5h18M3 12h18M3 19h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
         at the bottom of Frogtab, then choose <strong>Export Your Data</strong>.
       </p>
       <p>
@@ -235,5 +287,30 @@
         </tbody>
       </table>
     </main>
+    <script>
+      async function startApp() {
+        dom.comment.addEventListener("input", event => {
+          const value = dom.comment.value.trim();
+          if (value != "") {
+            dom.register.disabled = false;
+            console.log("hello");
+          }
+          else {
+            dom.register.disabled = true;
+          }
+        });
+        sdk = await import("/sdk.js");
+        // TODO: Check whether the device is registered
+      }
+
+      // ******** Initial setup ********
+      const dom = {
+        caseUnregistered: document.getElementById("case-unregistered"),
+        comment: document.getElementById("comment"),
+        register: document.getElementById("register")
+      };
+      let sdk;
+      startApp();
+    </script>
   </body>
 </html>

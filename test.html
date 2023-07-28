@@ -74,12 +74,12 @@
         const value = localStorage.getItem("value.inbox");
         if (checkValue(value) && !notifyInbox) {
           dom.inbox.classList.add("notify");
-          dom.icon.setAttribute("href", storedIcons.notify);
+          dom.icon.href = storedIcons.notify;
           notifyInbox = true;
         }
         else if (!checkValue(value) && notifyInbox) {
           dom.inbox.classList.remove("notify");
-          dom.icon.setAttribute("href", storedIcons.normal);
+          dom.icon.href = storedIcons.normal;
           notifyInbox = false;
         }
       }
