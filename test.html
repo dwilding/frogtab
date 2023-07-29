@@ -228,6 +228,9 @@
           dom.enableSave.classList.add("display");
         }
       }
+      async function tryToConnect() {
+        
+      }
       async function startApp() {
         setExportAction();
         if (isNewDay()) {
@@ -287,8 +290,7 @@
         });
         if (localStorage.getItem("user.userID") !== null) {
           sdk = await import("/sdk.js");
-          const hasPublicInbox = await sdk.setPublicInbox(localStorage.getItem("user.userID"));
-          if (hasPublicInbox) {
+          if (await sdk.setPublicInbox(localStorage.getItem("user.userID"))) {
             await sdk.setInboxOwner(
               localStorage.getItem("user.apiKey"),
               localStorage.getItem("user.pgpPrivateKey")
@@ -296,9 +298,9 @@
             await appendMessages();
             if (lastSuccessfulAppend > 0) {
               dom.fetchConnected.classList.add("display");
+              setNotifyStatus();
+              setTab();
             }
-            setNotifyStatus();
-            setTab();
           }
         }
         window.setInterval(async () => {
@@ -316,7 +318,20 @@
             refreshView();
           }
         }, 15000);
-        window.addEventListener("storage", event => {
+        window.addEventListener("storage", async event => {
+          if (sdk === undefined && localStorage.getItem("user.userID") !== null) {
+            sdk = await import("/sdk.js");
+            if (await sdk.setPublicInbox(localStorage.getItem("user.userID"))) {
+              await sdk.setInboxOwner(
+                localStorage.getItem("user.apiKey"),
+                localStorage.getItem("user.pgpPrivateKey")
+              );
+              await appendMessages();
+              if (lastSuccessfulAppend > 0) {
+                dom.fetchConnected.classList.add("display");
+              }
+            }
+          }
           refreshView();
           requestSave();
         });
