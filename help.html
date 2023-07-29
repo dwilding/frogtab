@@ -351,6 +351,9 @@
         if (localStorage.getItem("user.userID") !== null && await sdk.setPublicInbox(localStorage.getItem("user.userID"))) {
           dom.caseChecking.classList.remove("display");
           dom.caseRegistered.classList.add("display");
+          dom.link.addEventListener("click", event => {
+            window.open(`/send#${localStorage.getItem("user.userID")}`, "_blank");
+          });
         }
         else {
           dom.caseChecking.classList.remove("display");
