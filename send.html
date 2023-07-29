@@ -31,9 +31,6 @@
           <textarea id="editor" class="restricted" placeholder="Send to your inbox…"></textarea>
         </div>
         <div class="actions">
-          <div class="action">
-            <a id="export-device" class="action-instruction" href="#" download="Frogtab_device.json">Export device info</a>
-          </div>
           <div class="action primary">
             <span id="send" class="circle-button" title="Send"><svg width="24px" height="24px" viewBox="0 0 24 24" stroke-width="1.5" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M22 12L3 20l3.563-8L3 4l19 8zM6.5 12H22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
           </div>
@@ -151,44 +148,9 @@
           }
         });
       }
-      function displayExportDevice() {
-        dom.exportDevice.addEventListener("click", event => {
-          const dataJSON = JSON.stringify({
-            userID: localStorage.getItem("user.userID"),
-            apiKey: localStorage.getItem("user.apiKey"),
-            pgpPublicKey: localStorage.getItem("user.pgpPublicKey")
-          }, null, 2);
-          const dataBlob = new Blob([dataJSON], {
-            type: "application/json"
-          });
-          dom.exportDevice.href = URL.createObjectURL(dataBlob);
-        });
-        dom.exportDevice.classList.add("display");
-      }
       async function startApp() {
         const fragment = window.location.hash.substring(1);
-        const localUserID = localStorage.getItem("user.userID");
-        if (localUserID !== null && fragment == "beta") {
-          window.location.hash = `#${localUserID}`;
-          displayExportDevice();
-          setSendLocal();
-        }
-        else if (localUserID !== null && fragment == localUserID) {
-          displayExportDevice();
-          setSendLocal();
-        }
-        else if (fragment == "beta") {
-          sdk = await import("/sdk.js");
-          const localCredentials = await sdk.generateLocalCredentials();
-          localStorage.setItem("user.userID", localCredentials.userID);
-          localStorage.setItem("user.apiKey", localCredentials.apiKey);
-          localStorage.setItem("user.pgpPublicKey", localCredentials.pgpPublicKey);
-          localStorage.setItem("user.pgpPrivateKey", localCredentials.pgpPrivateKey);
-          window.location.hash = `#${localCredentials.userID}`;
-          displayExportDevice();
-          setSendLocal();
-        }
-        else if (/^[0-9a-f-]{36}$/.test(fragment)) {
+        if (/^[0-9a-f-]{36}$/.test(fragment)) {
           setSendCloud(fragment);
         }
         else {
@@ -206,8 +168,7 @@
           failure: document.getElementById("popup-failure")
         },
         editor: document.getElementById("editor"),
-        send: document.getElementById("send"),
-        exportDevice: document.getElementById("export-device")
+        send: document.getElementById("send")
       };
       let sdk;
       startApp();
