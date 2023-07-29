@@ -113,7 +113,7 @@
       <p>
         By default, Send to Frogtab doesn't work from other devices.
         If you want to capture tasks from other devices, you must first register this device.
-        After you register this device, you'll get a personal link that you can use to capture tasks from any device.
+        When you register this device, you'll get a personal link that you can use to capture tasks from any device.
       </p>
       <div class="notice">
         <div id="case-checking" class="display">
@@ -141,7 +141,7 @@
             Registering this device…
           </p>
           <div>
-            <progress id="progress" max="4" value="0"></progress>
+            <progress id="progress" max="3" value="0"></progress>
           </div>
           <p>
             <a href="#overview-of-data-privacy">Learn about data privacy</a>
@@ -160,8 +160,26 @@
         </div>
       </div>
       <p>
-        TODO: What happens after registration?
+        After registering this device, refresh Frogtab.
+        A cloud icon will appear at the top of Frogtab.
+        This icon means that Frogtab is ready to receive tasks from your personal link.
       </p>
+      <p>
+        Additional notes about your personal link:
+      </p>
+      <ul>
+        <li>
+          <p>
+            Anyone who knows your personal link can send tasks to your inbox.
+          </p>
+        </li>
+        <li>
+          <p>
+            Tasks may take up to 10 minutes to appear in your inbox.
+            To force Frogtab to check for new tasks, refresh Frogtab.
+          </p>
+        </li>
+      </ul>
       <h2 id="triaging-your-inbox">Triaging your inbox</h2>
       <p>
         The purpose of triaging your inbox is to make a decision about how to act on each of the tasks that you've captured.
@@ -375,14 +393,13 @@
             localStorage.setItem("user.apiKey", localCredentials.apiKey);
             localStorage.setItem("user.pgpPublicKey", localCredentials.pgpPublicKey);
             localStorage.setItem("user.pgpPrivateKey", localCredentials.pgpPrivateKey);
-            dom.progress.value = 1;
             const comment = dom.comment.value.trim();
             // TODO: Register
-            dom.progress.value = 2;
+            dom.progress.value = 1;
             await sdk.setPublicInbox("03ae6b6f-1134-4e7b-83ed-deaae4b53af7");
-            dom.progress.value = 3;
+            dom.progress.value = 2;
             await sdk.sendMessage(`Registration from ${localCredentials.userID}: ${comment}`);
-            dom.progress.value = 4;
+            dom.progress.value = 3;
             setTimeout(() => {
               dom.caseRegistering.classList.remove("display");
               dom.caseRegistered.classList.add("display");

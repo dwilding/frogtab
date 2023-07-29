@@ -20,8 +20,7 @@
             <span class="tab-icon">⬤</span>
           </div>
           <div class="tab info">
-            <span id="tab-info" class="info-message">Inbox is all set!</span>
-            <span id="routine-enabled" class="info-message" title="Including actions from your weekly routine"><svg width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M12 18v-6m0 0V3.41a.6.6 0 01.836-.552l8.444 3.62a.6.6 0 01.022 1.093L12 12zM12 22c3.866 0 7-1.567 7-3.5S15.866 15 12 15s-7 1.567-7 3.5S8.134 22 12 22z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
+            <span id="tab-info" class="info-message">Your inbox is all set!</span>
             <span id="fetch-connected" class="info-message" title="Ready to receive tasks from any device"><svg width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M12 4c-6 0-6 4-6 6-1.667 0-5 1-5 5s3.333 5 5 5h12c1.667 0 5-1 5-5s-3.333-5-5-5c0-2 0-6-6-6z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path></svg></span>
           </div>
         </div>
@@ -30,14 +29,14 @@
         </div>
         <div class="actions">
           <div class="action">
-            <span class="action-instruction"><svg width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M3 5h18M3 12h18M3 19h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
-            <span id="enable-save" class="action-instruction">Enable auto-backup</span>
-            <a id="export-data" class="action-instruction" href="#" download="Frogtab_backup.json">Export data</a>
+            <span id="menu-button" class="action-instruction display"><svg width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M3 5h18M3 12h18M3 19h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
+            <span id="enable-save" class="action-instruction">Enable Auto-Backup</span>
           </div>
-          <div class="action-menu">
+          <div id="menu" class="action-menu">
             <a href="/week" target="_blank">Weekly Routine</span>
             <a href="/send" target="_blank">Send to Frogtab</span>
-            <a href="#" target="_blank">Help &amp; Privacy</span>
+            <a href="/help" target="_blank">Help &amp; Privacy</span>
+            <a id="export-data" href="#" download="Frogtab_backup.json">Export Your Data</a>
           </div>
         </div>
       </div>
@@ -75,12 +74,12 @@
         const value = localStorage.getItem("value.inbox");
         if (checkValue(value) && !notifyInbox) {
           dom.inbox.classList.add("notify");
-          dom.icon.setAttribute("href", storedIcons.notify);
+          dom.icon.href = storedIcons.notify;
           notifyInbox = true;
         }
         else if (!checkValue(value) && notifyInbox) {
           dom.inbox.classList.remove("notify");
-          dom.icon.setAttribute("href", storedIcons.normal);
+          dom.icon.href = storedIcons.normal;
           notifyInbox = false;
         }
       }
@@ -127,12 +126,10 @@
         return true;
       }
       function updateValues() {
-        if (hasRoutine) {
-          const weekdayToday = (new Date()).getDay();
-          const key = weekdayKeys[weekdayToday];
-          const routine = localStorage.getItem(`routine.${key}`);
-          appendToInbox(routine);
-        }
+        const weekdayToday = (new Date()).getDay();
+        const key = weekdayKeys[weekdayToday];
+        const routine = localStorage.getItem(`routine.${key}`);
+        appendToInbox(routine);
         appendToInbox(localStorage.getItem("value.today"));
         storeThenSave("value.today", "");
         const valueInbox = localStorage.getItem("value.inbox").replaceAll(/^( *#)+ */gm, "");
@@ -155,22 +152,6 @@
           appendToInbox(message);
         }
         lastSuccessfulAppend = Date.now();
-        dom.fetchConnected.classList.add("display");
-      }
-      function setRoutineStatus() {
-        hasRoutine = false;
-        for (const key of weekdayKeys) {
-          const routine = localStorage.getItem(`routine.${key}`);
-          if (routine.trim() != "") {
-            hasRoutine = true;
-          }
-        }
-        if (hasRoutine) {
-          dom.routineEnabled.classList.add("display");
-        }
-        else {
-          dom.routineEnabled.classList.remove("display");
-        }
       }
       function setExportAction() {
         if ("showSaveFilePicker" in window) {
@@ -196,16 +177,13 @@
           });
           dom.enableSave.classList.add("display");
         }
-        else {
-          dom.exportData.addEventListener("click", event => {
-            const dataJSON = createDataJSON();
-            const dataBlob = new Blob([dataJSON], {
-              type: "application/json; charset=utf-8"
-            });
-            dom.exportData.href = URL.createObjectURL(dataBlob);
+        dom.exportData.addEventListener("click", event => {
+          const dataJSON = createDataJSON();
+          const dataBlob = new Blob([dataJSON], {
+            type: "application/json; charset=utf-8"
           });
-          dom.exportData.classList.add("display");
-        }
+          dom.exportData.href = URL.createObjectURL(dataBlob);
+        });
       }
       function createDataJSON() {
         const data = {
@@ -252,7 +230,6 @@
       }
       async function startApp() {
         setExportAction();
-        setRoutineStatus();
         if (isNewDay()) {
           updateValues();
         }
@@ -272,6 +249,15 @@
           storeThenSave(`value.${selectedTab}`, dom.editor.value);
           setNotifyStatus();
           refreshInfo();
+        });
+        dom.menuButton.addEventListener("click", event => {
+          if (!dom.menu.classList.contains("display")) {
+            dom.menu.classList.add("display");
+            event.stopPropagation();
+          }
+        });
+        document.addEventListener("click", event => {
+          dom.menu.classList.remove("display");
         });
         document.body.addEventListener("keydown", event => {
           if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() == "enter") {
@@ -301,13 +287,16 @@
         });
         if (localStorage.getItem("user.userID") !== null) {
           sdk = await import("/sdk.js");
-          hasPublicInbox = await sdk.setPublicInbox(localStorage.getItem("user.userID"));
+          const hasPublicInbox = await sdk.setPublicInbox(localStorage.getItem("user.userID"));
           if (hasPublicInbox) {
             await sdk.setInboxOwner(
               localStorage.getItem("user.apiKey"),
               localStorage.getItem("user.pgpPrivateKey")
             );
             await appendMessages();
+            if (lastSuccessfulAppend > 0) {
+              dom.fetchConnected.classList.add("display");
+            }
             setNotifyStatus();
             setTab();
           }
@@ -315,20 +304,19 @@
         window.setInterval(async () => {
           if (isNewDay()) {
             updateValues();
-            if (hasPublicInbox) {
+            if (lastSuccessfulAppend > 0) {
               await appendMessages();
             }
             setNotifyStatus();
             setTab();
             refreshInfo();
           }
-          else if (hasPublicInbox && Date.now() >= lastSuccessfulAppend + 600000) {
+          else if (lastSuccessfulAppend > 0 && lastSuccessfulAppend <= Date.now() - 600000) {
             await appendMessages();
             refreshView();
           }
         }, 15000);
         window.addEventListener("storage", event => {
-          setRoutineStatus();
           refreshView();
           requestSave();
         });
@@ -339,7 +327,7 @@
         localStorage.setItem("date", (new Date()).toDateString());
       }
       if (localStorage.getItem("value.today") === null) {
-        localStorage.setItem("value.today", "Welcome to Frogtab! This box is your to-do list for today\n\nStart by writing down everything you'd like to accomplish today. As you complete your tasks, simply delete them\n\nUse your inbox to capture any thoughts or potential tasks that arise during the day. You can triage your inbox later");
+        localStorage.setItem("value.today", "");
       }
       if (localStorage.getItem("value.inbox") === null) {
         localStorage.setItem("value.inbox", "");
@@ -356,10 +344,11 @@
         today: document.getElementById("tab-today"),
         inbox: document.getElementById("tab-inbox"),
         info: document.getElementById("tab-info"),
-        routineEnabled: document.getElementById("routine-enabled"),
         fetchConnected: document.getElementById("fetch-connected"),
-        enableSave: document.getElementById("enable-save"),
-        exportData: document.getElementById("export-data")
+        menuButton: document.getElementById("menu-button"),
+        menu: document.getElementById("menu"),
+        exportData: document.getElementById("export-data"),
+        enableSave: document.getElementById("enable-save")
       };
       const storedIcons = {};
       let notifyInbox = false;
@@ -367,9 +356,7 @@
       let fileHandle = null;
       let timeoutSave;
       let timeoutShowInfo;
-      let hasRoutine;
       let sdk;
-      let hasPublicInbox = false;
       let lastSuccessfulAppend = 0;
       startApp();
     </script>
