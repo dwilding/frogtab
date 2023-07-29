@@ -9,14 +9,21 @@
     <link rel="manifest" href="/manifest.webmanifest">
     <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
     <style>
-      .notice p {
-        margin-top: 0;
-      }
-      .case {
+      .notice > div {
         display: none;
       }
-      .case.display {
+      .notice {
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+      }
+      .notice > div.display {
         display: block;
+      }
+      .notice > div > p,
+      .notice > div > div > input,
+      .notice > div > div > button,
+      .notice > div > div > progress {
+        margin: 0.5rem 0;
       }
       svg {
         vertical-align: text-top;
@@ -105,11 +112,16 @@
       </ul>
       <p>
         By default, Send to Frogtab doesn't work from other devices.
-        If you want to capture tasks from other devices, you must first register your primary device.
-        After you register your primary device, you'll get a personal URL that you can use to capture tasks from any device.
+        If you want to capture tasks from other devices, you must first register this device.
+        After you register this device, you'll get a personal link that you can use to capture tasks from any device.
       </p>
       <div class="notice">
-        <div id="case-unregistered" class="case display">
+        <div id="case-checking" class="display">
+          <p>
+            Checking this device…
+          </p>
+        </div>
+        <div id="case-unregistered">
           <p>
             You have not registered this device.
             To register this device, please share your experience of using Frogtab - thank you!
@@ -120,16 +132,35 @@
           <div>
             <button id="register" disabled>Send &amp; Register</button>
           </div>
+          <p>
+            <a href="#overview-of-data-privacy">Learn about data privacy</a>
+          </p>
         </div>
-        <!-- <p>
-          Registering this device…
-        </p>
-        <div>
-          <progress max="4" value="3"></progress>
-        </div> -->
+        <div id="case-registering">
+          <p>
+            Registering this device…
+          </p>
+          <div>
+            <progress id="progress" max="4" value="0"></progress>
+          </div>
+          <p>
+            <a href="#overview-of-data-privacy">Learn about data privacy</a>
+          </p>
+        </div>
+        <div id="case-registered">
+          <p>
+            You have registered this device.
+          </p>
+          <div>
+            <button id="link">Open Your Personal Link</button>
+          </div>
+          <p>
+            <a href="#overview-of-data-privacy">Learn about data privacy</a>
+          </p>
+        </div>
       </div>
       <p>
-        TODO: What happens after you register?
+        TODO: What happens after registration?
       </p>
       <h2 id="triaging-your-inbox">Triaging your inbox</h2>
       <p>
@@ -216,17 +247,42 @@
         By default, Send to Frogtab doesn't send any data to a server.
       </p>
       <p>
-        If you choose to register your primary device, you'll get a personal URL that you can use to capture tasks from any device.
+        If you choose to register this device, you'll get a personal link that you can use to capture tasks from any device.
         To learn more, see <a href="#adding-tasks-to-your-inbox">Adding tasks to your inbox</a>.
       </p>
       <p>
-        Your personal URL sends data via a server. Data is encrypted before it reaches the server, and can only be decrypted using a private key that belongs to the registered device.
-        The private key is not sent to the server.
+        Registering this device has the following privacy implications:
       </p>
-      <p>
-        In addition, only the registered device is permitted to download the encrypted data from the server.
-        As soon as the data has been downloaded, the server deletes the data.
-      </p>
+      <ul>
+        <li>
+          <p>
+            When you register this device, Frogtab generates identification and encryption credentials for this device.
+          </p>
+        </li>
+        <li>
+          <p>
+            The credentials are stored in your browser and are included if you make a backup of your data.
+            In addition, some of the credentials are stored on a server.
+          </p>
+        </li>
+        <li>
+          <p>
+            Your personal link sends data via the server.
+            Data is encrypted on this device before reaching the server.
+          </p>
+        </li>
+        <li>
+          <p>
+            Only this device can download the encrypted data from the server.
+            As soon as the data has been downloaded, the server deletes the data.
+          </p>
+        </li>
+        <li>
+          <p>
+            Only this device can decrypt the data, using a key that is not stored on the server.
+          </p>
+        </li>
+      </ul>
       <h2 id="exporting-your-data">Exporting your data</h2>
       <p>
         Your data is stored in your browser.
@@ -291,25 +347,60 @@
     </main>
     <script>
       async function startApp() {
-        dom.comment.addEventListener("input", event => {
-          const value = dom.comment.value.trim();
-          if (value != "") {
-            dom.register.disabled = false;
-            console.log("hello");
-          }
-          else {
-            dom.register.disabled = true;
-          }
-        });
         sdk = await import("/sdk.js");
-        // TODO: Check whether the device is registered
+        if (localStorage.getItem("user.userID") !== null && await sdk.setPublicInbox(localStorage.getItem("user.userID"))) {
+          dom.caseChecking.classList.remove("display");
+          dom.caseRegistered.classList.add("display");
+        }
+        else {
+          dom.caseChecking.classList.remove("display");
+          dom.caseUnregistered.classList.add("display");
+          dom.comment.addEventListener("input", event => {
+            const comment = dom.comment.value.trim();
+            if (comment != "") {
+              dom.register.disabled = false;
+            }
+            else {
+              dom.register.disabled = true;
+            }
+          });
+          dom.register.addEventListener("click", async event => {
+            dom.caseUnregistered.classList.remove("display");
+            dom.caseRegistering.classList.add("display");
+            const localCredentials = await sdk.generateLocalCredentials();
+            localStorage.setItem("user.userID", localCredentials.userID);
+            localStorage.setItem("user.apiKey", localCredentials.apiKey);
+            localStorage.setItem("user.pgpPublicKey", localCredentials.pgpPublicKey);
+            localStorage.setItem("user.pgpPrivateKey", localCredentials.pgpPrivateKey);
+            dom.progress.value = 1;
+            const comment = dom.comment.value.trim();
+            // TODO: Register
+            dom.progress.value = 2;
+            await sdk.setPublicInbox("03ae6b6f-1134-4e7b-83ed-deaae4b53af7");
+            dom.progress.value = 3;
+            await sdk.sendMessage(`Registration from ${localCredentials.userID}: ${comment}`);
+            dom.progress.value = 4;
+            setTimeout(() => {
+              dom.caseRegistering.classList.remove("display");
+              dom.caseRegistered.classList.add("display");
+              dom.link.addEventListener("click", event => {
+                window.open(`/send#${localCredentials.userID}`, "_blank");
+              });
+            }, 1000);
+          });
+        }
       }
 
       // ******** Initial setup ********
       const dom = {
+        caseChecking: document.getElementById("case-checking"),
         caseUnregistered: document.getElementById("case-unregistered"),
+        caseRegistering: document.getElementById("case-registering"),
+        caseRegistered: document.getElementById("case-registered"),
         comment: document.getElementById("comment"),
-        register: document.getElementById("register")
+        register: document.getElementById("register"),
+        progress: document.getElementById("progress"),
+        link: document.getElementById("link")
       };
       let sdk;
       startApp();
