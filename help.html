@@ -356,42 +356,47 @@
       </table>
     </main>
     <script>
+      function delayForUX() {
+        return new Promise(resolve => setTimeout(resolve, 1500));
+      }
+      async function register() {
+        dom.caseUnregistered.classList.remove("display");
+        dom.caseRegistering.classList.add("display");
+        await sdk.register(dom.comment.value.trim());
+        localStorage.setItem("user.apiKey", sdk.inboxOwner.apiKey);
+        localStorage.setItem("user.pgpPrivateKey", sdk.inboxOwner.pgpPrivateKey);
+        localStorage.setItem("user.pgpPublicKey", sdk.publicInbox.pgpPublicKey);
+        localStorage.setItem("user.userID", sdk.publicInbox.userID);
+        await delayForUX();
+        dom.caseRegistering.classList.remove("display");
+        dom.caseRegistered.classList.add("display");
+        dom.link.addEventListener("click", event => {
+          window.open(`/send#${sdk.publicInbox.userID}`, "_blank");
+        });
+      }
       async function startApp() {
         sdk = await import("/sdk.js");
+        await delayForUX();
+        dom.caseChecking.classList.remove("display");
         if (localStorage.getItem("user.userID") !== null && await sdk.setPublicInbox(localStorage.getItem("user.userID"))) {
-          dom.caseChecking.classList.remove("display");
           dom.caseRegistered.classList.add("display");
           dom.link.addEventListener("click", event => {
             window.open(`/send#${localStorage.getItem("user.userID")}`, "_blank");
           });
         }
         else {
-          dom.caseChecking.classList.remove("display");
           dom.caseUnregistered.classList.add("display");
           dom.comment.addEventListener("input", event => {
             const comment = dom.comment.value.trim();
-            if (comment != "") {
-              dom.register.disabled = false;
-            }
-            else {
-              dom.register.disabled = true;
-            }
+            dom.register.disabled = (comment == "");
           });
-          dom.register.addEventListener("click", async event => {
-            dom.caseUnregistered.classList.remove("display");
-            dom.caseRegistering.classList.add("display");
-            await sdk.register(dom.comment.value.trim());
-            localStorage.setItem("user.apiKey", sdk.inboxOwner.apiKey);
-            localStorage.setItem("user.pgpPrivateKey", sdk.inboxOwner.pgpPrivateKey);
-            localStorage.setItem("user.pgpPublicKey", sdk.publicInbox.pgpPublicKey);
-            localStorage.setItem("user.userID", sdk.publicInbox.userID);
-            window.setTimeout(() => {
-              dom.caseRegistering.classList.remove("display");
-              dom.caseRegistered.classList.add("display");
-              dom.link.addEventListener("click", event => {
-                window.open(`/send#${sdk.publicInbox.userID}`, "_blank");
-              });
-            }, 2000);
+          dom.register.addEventListener("click", event => {
+            register();
+          });
+          dom.comment.addEventListener("keydown", event => {
+            if (!dom.register.disabled && event.key.toLowerCase() == "enter") {
+              register();
+            }
           });
         }
       }
