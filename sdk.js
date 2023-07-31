@@ -140,6 +140,7 @@ export async function register(comment) {
       email: `key+${crypto.randomUUID()}@frogtab.com`
     }]
   });
+  let response;
   try {
     response = await fetch("https://api.frogtab.com/post-create-user", {
       method: "POST",
