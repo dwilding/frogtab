@@ -320,6 +320,8 @@
         }, 15000);
         window.addEventListener("storage", async event => {
           if (sdk === undefined && localStorage.getItem("user.userID") !== null) {
+            // There was no user ID set when Frogtab loaded.
+            // But now there is a user ID set, so we'll perform the registration check.
             sdk = await import("/sdk.js");
             if (await sdk.setPublicInbox(localStorage.getItem("user.userID"))) {
               await sdk.setInboxOwner(
@@ -328,7 +330,12 @@
               );
               await appendMessages();
               if (lastSuccessfulAppend > 0) {
+                // Registration check successful!
+                // Since the user has probably just sent a test message,
+                // we'll set the last message fetch to be 7 minmutes ago.
+                // Then Frogtab will do another message fetch in 3 minutes.
                 dom.fetchConnected.classList.add("display");
+                lastSuccessfulAppend -= 420000;
               }
             }
           }
