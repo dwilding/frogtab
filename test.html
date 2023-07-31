@@ -332,10 +332,10 @@
               if (lastSuccessfulAppend > 0) {
                 // Registration check successful!
                 // Since the user has probably just sent a test message,
-                // we'll set the last message fetch to be 7 minmutes ago.
-                // Then Frogtab will do another message fetch in 3 minutes.
+                // we'll set the last message fetch to be 8 minmutes ago.
+                // Then Frogtab will do another message fetch in 2 minutes.
                 dom.fetchConnected.classList.add("display");
-                lastSuccessfulAppend -= 420000;
+                lastSuccessfulAppend -= 480000;
               }
             }
           }
