@@ -167,6 +167,6 @@ export async function register(comment) {
   publicInbox.pgpPublicKeyObj = await openpgp.readKey({
     armoredKey: publicInbox.pgpPublicKey
   });
-  setInboxOwner(result.user.api_key, pgpKey.privateKey);
+  await setInboxOwner(result.user.api_key, pgpKey.privateKey);
   return true;
 }
