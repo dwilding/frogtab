@@ -38,6 +38,9 @@
       </div>
     </div>
     <script>
+      function delayForUX() {
+        return new Promise(resolve => setTimeout(resolve, 1500));
+      }
       function tryToSendLocal() {
         const valueToSend = dom.editor.value.trim();
         if (valueToSend == "") {
@@ -121,13 +124,13 @@
         dom.popups.connecting.classList.add("display");
         sdk = await import("/sdk.js");
         const hasPublicInbox = await sdk.setPublicInbox(userID);
+        await delayForUX();
+        dom.popups.connecting.classList.remove("display");
         if (!hasPublicInbox) {
-          dom.popups.connecting.classList.remove("display");
           dom.popups.disconnected.classList.add("display");
           dom.editor.placeholder = "";
           return;
         }
-        dom.popups.connecting.classList.remove("display");
         dom.popups.connected.classList.add("display");
         document.body.addEventListener("keydown", event => {
           if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() == "enter") {
