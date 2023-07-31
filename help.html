@@ -376,9 +376,13 @@
       }
       async function startApp() {
         sdk = await import("/sdk.js");
+        const hasPublicInbox = (
+          localStorage.getItem("user.userID") !== null
+          && await sdk.setPublicInbox(localStorage.getItem("user.userID"))
+        );
         await delayForUX();
         dom.caseChecking.classList.remove("display");
-        if (localStorage.getItem("user.userID") !== null && await sdk.setPublicInbox(localStorage.getItem("user.userID"))) {
+        if (hasPublicInbox) {
           dom.caseRegistered.classList.add("display");
           dom.link.addEventListener("click", event => {
             window.open(`/send#${localStorage.getItem("user.userID")}`, "_blank");
