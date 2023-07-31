@@ -21,8 +21,7 @@
       }
       .notice > div > p,
       .notice > div > div > input,
-      .notice > div > div > button,
-      .notice > div > div > progress {
+      .notice > div > div > button {
         margin: 0.5rem 0;
       }
       svg {
@@ -139,12 +138,6 @@
         <div id="case-registering">
           <p>
             Registering this device…
-          </p>
-          <div>
-            <progress id="progress" max="3" value="0"></progress>
-          </div>
-          <p>
-            <a href="#overview-of-data-privacy">Learn about data privacy</a>
           </p>
         </div>
         <div id="case-registered">
@@ -387,25 +380,16 @@
           dom.register.addEventListener("click", async event => {
             dom.caseUnregistered.classList.remove("display");
             dom.caseRegistering.classList.add("display");
-            const localCredentials = await sdk.generateLocalCredentials();
-            localStorage.setItem("user.userID", localCredentials.userID);
-            localStorage.setItem("user.apiKey", localCredentials.apiKey);
-            localStorage.setItem("user.pgpPublicKey", localCredentials.pgpPublicKey);
-            localStorage.setItem("user.pgpPrivateKey", localCredentials.pgpPrivateKey);
-            const comment = dom.comment.value.trim();
-            // TODO: Register
-            dom.progress.value = 1;
-            await sdk.setPublicInbox("03ae6b6f-1134-4e7b-83ed-deaae4b53af7");
-            dom.progress.value = 2;
-            await sdk.sendMessage(`Registration from ${localCredentials.userID}: ${comment}`);
-            dom.progress.value = 3;
-            setTimeout(() => {
-              dom.caseRegistering.classList.remove("display");
-              dom.caseRegistered.classList.add("display");
-              dom.link.addEventListener("click", event => {
-                window.open(`/send#${localCredentials.userID}`, "_blank");
-              });
-            }, 1000);
+            await sdk.register(dom.comment.value.trim());
+            localStorage.setItem("user.apiKey", sdk.inboxOwner.apiKey);
+            localStorage.setItem("user.pgpPrivateKey", sdk.inboxOwner.pgpPrivateKey);
+            localStorage.setItem("user.pgpPublicKey", sdk.publicInbox.pgpPublicKey);
+            localStorage.setItem("user.userID", sdk.publicInbox.userID);
+            dom.caseRegistering.classList.remove("display");
+            dom.caseRegistered.classList.add("display");
+            dom.link.addEventListener("click", event => {
+              window.open(`/send#${sdk.publicInbox.userID}`, "_blank");
+            });
           });
         }
       }
@@ -418,7 +402,6 @@
         caseRegistered: document.getElementById("case-registered"),
         comment: document.getElementById("comment"),
         register: document.getElementById("register"),
-        progress: document.getElementById("progress"),
         link: document.getElementById("link")
       };
       let sdk;

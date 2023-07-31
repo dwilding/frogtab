@@ -123,18 +123,50 @@ export async function fetchMessages() {
   return messages;
 }
 
-export async function generateLocalCredentials() {
-  const userID = crypto.randomUUID();
-  const apiKey = crypto.randomUUID();
+export async function register(comment) {
+  if (comment == "") {
+    return false;
+  }
+  const encryptedComment = await openpgp.encrypt({
+    message: await openpgp.createMessage({
+      text: `Registration: ${comment}`
+    }),
+    encryptionKeys: await openpgp.readKey({
+      armoredKey: "-----BEGIN PGP PUBLIC KEY BLOCK-----\n\nxjMEZC0XTRYJKwYBBAHaRw8BAQdAQGn1uwsmrmyNDjJEpBItytslxrvK0Iym\nKrSeCQaWOv7NNzx1c2VyXzAzYWU2YjZmLTExMzQtNGU3Yi04M2VkLWRlYWFl\nNGI1M2FmN0Bmcm9ndGFiLmNvbT7CjAQQFgoAPgWCZC0XTQQLCQcICZDHWnmD\n1b6y2wMVCAoEFgACAQIZAQKbAwIeARYhBOsq7cBWQAUaO3W7VMdaeYPVvrLb\nAACwZQD+J8iHCcZwYwO3U/5dUu0fKR9iCInWlFk23UTgzUFkCS4BAILb2Xzy\nMORtPHGaBqUP0v7XbnnigyCwC2zg1JiJ5bIOzjgEZC0XTRIKKwYBBAGXVQEF\nAQEHQCbGVL7Nh+2kYvX2W6FTK7f/n7Fo7OclmEOS3xjUzEs0AwEIB8J4BBgW\nCAAqBYJkLRdNCZDHWnmD1b6y2wKbDBYhBOsq7cBWQAUaO3W7VMdaeYPVvrLb\nAABb/gEApI8wmO4HQ82pTMg2POA/AT85AseK3lv4ds1Mz6W5p48A/jbtMsAG\nn5seyoPf02oOSmPmNr7OhtP/19HeoY6Sj1IG\n=PY9A\n-----END PGP PUBLIC KEY BLOCK-----\n"
+    })
+  });
   const pgpKey = await openpgp.generateKey({
     userIDs: [{
-      email: `user_${userID}@frogtab.com`
+      email: `key+${crypto.randomUUID()}@frogtab.com`
     }]
   });
-  return {
-    userID: userID,
-    apiKey: apiKey,
-    pgpPublicKey: pgpKey.publicKey,
-    pgpPrivateKey: pgpKey.privateKey
-  };
+  try {
+    response = await fetch("https://api.frogtab.com/post-create-user", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        pgp_public_key: pgpKey.publicKey,
+        comment: encryptedComment
+      })
+    });
+  }
+  catch (error) {
+    return false;
+  }
+  if (!response.ok) {
+    return false;
+  }
+  const result = await response.json();
+  if (!result.success) {
+    return false;
+  }
+  publicInbox.userID = result.user.user_id;
+  publicInbox.pgpPublicKey = pgpKey.publicKey;
+  publicInbox.pgpPublicKeyObj = await openpgp.readKey({
+    armoredKey: publicInbox.pgpPublicKey
+  });
+  setInboxOwner(result.user.api_key, pgpKey.privateKey);
+  return true;
 }
