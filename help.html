@@ -27,6 +27,9 @@
       svg {
         vertical-align: text-top;
       }
+      footer a {
+        color: var(--text-light) !important;
+      }
     </style>
   </head>
   <body>
@@ -50,10 +53,10 @@
         <li><a href="#adding-tasks-to-your-inbox">Adding tasks to your inbox</a></li>
         <li><a href="#triaging-your-inbox">Triaging your inbox</a></li>
         <li><a href="#setting-up-recurring-tasks">Setting up recurring tasks</a></li>
+        <li><a href="#keyboard-shortcuts">Keyboard shortcuts</a></li>
         <li><a href="#overview-of-data-privacy">Overview of data privacy</a></li>
         <li><a href="#exporting-your-data">Exporting your data</a></li>
         <li><a href="#privacy-implications-of-registering-this-device">Privacy implications of registering this device</a></li>
-        <li><a href="#keyboard-shortcuts">Keyboard shortcuts</a></li>
       </ul>
       <p>
         Thanks for exploring Frogtab!
@@ -238,6 +241,52 @@
       <p>
         After you've finished writing down your tasks, close the tab.
       </p>
+      <h2 id="keyboard-shortcuts">Keyboard shortcuts</h2>
+      <table style="width: 100%">
+        <thead>
+          <tr>
+            <th style="width: 40%">Action</th>
+            <th style="width: 30%">macOS</th>
+            <th style="width: 30%">Windows and Linux</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Select Today</td>
+            <td><kbd>⌘ + U</kbd></td>
+            <td><kbd>Ctrl + U</kbd></td>
+          </tr>
+          <tr>
+            <td>Select Inbox</td>
+            <td><kbd>⌘ + I</kbd></td>
+            <td><kbd>Ctrl + I</kbd></td>
+          </tr>
+          <tr>
+            <td>Start a new line at the top</td>
+            <td><kbd>⌘ + Enter</kbd></td>
+            <td><kbd>Ctrl + Enter</kbd></td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        For <a href="/send" target="_blank">Send to Frogtab</a>:
+      </p>
+      <table style="width: 100%">
+        <thead>
+          <tr>
+            <th style="width: 40%">Action</th>
+            <th style="width: 30%">macOS</th>
+            <th style="width: 30%">Windows and Linux</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Send</td>
+            <td><kbd>⌘ + Enter</kbd></td>
+            <td><kbd>Ctrl + Enter</kbd></td>
+          </tr>
+        </tbody>
+      </table>
       <h2 id="overview-of-data-privacy">Overview of data privacy</h2>
       <p>
         Frogtab stores the following data that you create:
@@ -299,53 +348,14 @@
           </p>
         </li>
       </ul>
-      <h2 id="keyboard-shortcuts">Keyboard shortcuts</h2>
-      <table style="width: 100%">
-        <thead>
-          <tr>
-            <th style="width: 40%">Action</th>
-            <th style="width: 30%">macOS</th>
-            <th style="width: 30%">Windows and Linux</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Select Today</td>
-            <td><kbd>⌘ + U</kbd></td>
-            <td><kbd>Ctrl + U</kbd></td>
-          </tr>
-          <tr>
-            <td>Select Inbox</td>
-            <td><kbd>⌘ + I</kbd></td>
-            <td><kbd>Ctrl + I</kbd></td>
-          </tr>
-          <tr>
-            <td>Start a new line at the top</td>
-            <td><kbd>⌘ + Enter</kbd></td>
-            <td><kbd>Ctrl + Enter</kbd></td>
-          </tr>
-        </tbody>
-      </table>
-      <p>
-        For <a href="/send" target="_blank">Send to Frogtab</a>:
-      </p>
-      <table style="width: 100%">
-        <thead>
-          <tr>
-            <th style="width: 40%">Action</th>
-            <th style="width: 30%">macOS</th>
-            <th style="width: 30%">Windows and Linux</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Send</td>
-            <td><kbd>⌘ + Enter</kbd></td>
-            <td><kbd>Ctrl + Enter</kbd></td>
-          </tr>
-        </tbody>
-      </table>
     </main>
+    <footer>
+      <p>
+        Frogtab is a free app developed by <a href="https://github.com/dwilding" target="_blank">Dave Wilding</a>.
+        It's designed to be inexpensive to operate and stable over the course of many years.
+        I hope that Frogtab brings joy to your day!
+      </p>
+    </footer>
     <script>
       function delayForUX() {
         return new Promise(resolve => setTimeout(resolve, 1500));
