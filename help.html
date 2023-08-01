@@ -52,6 +52,7 @@
         <li><a href="#setting-up-recurring-tasks">Setting up recurring tasks</a></li>
         <li><a href="#overview-of-data-privacy">Overview of data privacy</a></li>
         <li><a href="#exporting-your-data">Exporting your data</a></li>
+        <li><a href="#privacy-implications-of-registering-this-device">Privacy implications of registering this device</a></li>
         <li><a href="#keyboard-shortcuts">Keyboard shortcuts</a></li>
       </ul>
       <p>
@@ -132,7 +133,7 @@
             <button id="register" disabled>Send &amp; Register</button>
           </div>
           <p>
-            <a href="#overview-of-data-privacy">Learn about data privacy</a>
+            <a href="#privacy-implications-of-registering-this-device">Learn about data privacy</a>
           </p>
         </div>
         <div id="case-registering">
@@ -148,7 +149,7 @@
             <button id="link">Open Your Personal Link</button>
           </div>
           <p>
-            <a href="#overview-of-data-privacy">Learn about data privacy</a>
+            <a href="#privacy-implications-of-registering-this-device">Learn about data privacy</a>
           </p>
         </div>
       </div>
@@ -157,7 +158,7 @@
         The cloud icon means that Frogtab is ready to receive tasks from your personal link.
       </p>
       <p>
-        Additional notes about your personal link:
+        More details about your personal link:
       </p>
       <ul>
         <li>
@@ -251,48 +252,9 @@
         To learn more, see <a href="#exporting-your-data">Exporting your data</a>.
       </p>
       <p>
-        If you want to add a task to your inbox but don't want other people to see your inbox, you can use <a href="/send" target="_blank">Send to Frogtab</a> instead of directly writing down the task in your inbox.
-      </p>
-      <p>
-        By default, Send to Frogtab doesn't send any data to a server.
-      </p>
-      <p>
         If you choose to register this device, you'll get a personal link that you can use to send tasks to Frogtab from any device.
-        To learn more, see <a href="#adding-tasks-to-your-inbox">Adding tasks to your inbox</a>.
+        To learn more, see <a href="#adding-tasks-to-your-inbox">Adding tasks to your inbox</a> and <a href="#privacy-implications-of-registering-this-device">Privacy implications of registering this device</a>.
       </p>
-      <p>
-        Registering this device has the following privacy implications:
-      </p>
-      <ul>
-        <li>
-          <p>
-            When you register this device, Frogtab generates identification and encryption credentials for this device.
-          </p>
-        </li>
-        <li>
-          <p>
-            The credentials are stored in your browser and are included if you make a backup of your data.
-            In addition, some of the credentials are stored on a server.
-          </p>
-        </li>
-        <li>
-          <p>
-            Your personal link sends data via the server.
-            Data is encrypted on the sending device before the data reaches the server.
-          </p>
-        </li>
-        <li>
-          <p>
-            Only this device can download the encrypted data from the server.
-            As soon as the data has been downloaded, the server deletes the data.
-          </p>
-        </li>
-        <li>
-          <p>
-            Only this device can decrypt the data, using a key that is not stored on the server.
-          </p>
-        </li>
-      </ul>
       <h2 id="exporting-your-data">Exporting your data</h2>
       <p>
         Your data is stored in your browser.
@@ -308,6 +270,35 @@
         If your browser supports this feature, Frogtab can automatically back up your data whenever your data changes.
         To start automatically backing up your data, click <strong>Enable Auto-Backup</strong> at the bottom of Frogtab.
       </p>
+      <h2 id="privacy-implications-of-registering-this-device">Privacy implications of registering this device</h2>
+      <p>
+        If you choose to register this device, Frogtab generates identification and encryption credentials for this device. The credentials are stored in your browser and are included if you make a backup of your data.
+      </p>
+      <p>
+        The credentials are also stored on a server, with the exception of a private key that Frogtab uses to decrypt tasks received from your personal link.
+      </p>
+      <p>
+        More details about how your personal link works:
+      </p>
+      <ul>
+        <li>
+          <p>
+            When you use your personal link to send a task to Frogtab, the task is first encrypted on the sending device.
+            The encrypted task is then sent to the server.
+          </p>
+        </li>
+        <li>
+          <p>
+            Only this device is permitted to download the encrypted task from the server.
+            After downloading the encrypted task, Frogtab decrypts the task using a private key that never leaves this device.
+          </p>
+        </li>
+        <li>
+          <p>
+            The server deletes the encrypted task as soon as it has been downloaded.
+          </p>
+        </li>
+      </ul>
       <h2 id="keyboard-shortcuts">Keyboard shortcuts</h2>
       <table style="width: 100%">
         <thead>
