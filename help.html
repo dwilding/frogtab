@@ -9,12 +9,16 @@
     <link rel="manifest" href="/manifest.webmanifest">
     <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
     <style>
-      .notice > div {
-        display: none;
-      }
       .notice {
+        display: none;
         padding-top: 1rem;
         padding-bottom: 1rem;
+      }
+      .notice.display {
+        display: block;
+      }
+      .notice > div {
+        display: none;
       }
       .notice > div.display {
         display: block;
@@ -56,6 +60,7 @@
         <li><a href="#keyboard-shortcuts">Keyboard shortcuts</a></li>
         <li><a href="#overview-of-data-privacy">Overview of data privacy</a></li>
         <li><a href="#exporting-your-data">Exporting your data</a></li>
+        <li><a href="#importing-your-data">Importing your data</a></li>
         <li><a href="#privacy-implications-of-registering-this-device">Privacy implications of registering this device</a></li>
       </ul>
       <p>
@@ -118,7 +123,7 @@
         If you want to capture tasks from other devices, you must first register this device.
         When you register this device, you'll get a personal link that you can use to capture tasks from any device.
       </p>
-      <div class="notice">
+      <div class="notice display">
         <div id="case-checking" class="display">
           <p>
             Checking this device…
@@ -149,7 +154,7 @@
             You have registered this device.
           </p>
           <div>
-            <button id="link">Open Your Personal Link</button>
+            <button id="link">Open My Personal Link</button>
           </div>
           <p>
             <a href="#privacy-implications-of-registering-this-device">Learn about data privacy</a>
@@ -312,13 +317,28 @@
       <p>
         To export your data, click
         <svg width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M3 5h18M3 12h18M3 19h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-        at the bottom of Frogtab, then choose <strong>Export Your Data</strong>.
+        at the bottom of Frogtab, then choose <strong>Export My Data</strong>.
       </p>
       <p>
         Some browsers are able to directly write to files on your device.
         If your browser supports this feature, Frogtab can automatically back up your data whenever your data changes.
         To start automatically backing up your data, click <strong>Enable Auto-Backup</strong> at the bottom of Frogtab.
       </p>
+      <h2 id="importing-your-data">Importing your data</h2>
+      <p>
+        If you have previously made a backup of your data, you can <a href="#" id="start-restore">restore your data</a>.
+      </p>
+      <input type="file" id="choose-backup-file" style="display: none;" accept=".json">
+      <div id="staged-restore" class="notice">
+        <div class="display">
+          <p>
+            Refresh Frogtab to restore your data from <strong id="restore-date"></strong>.
+          </p>
+          <div>
+            <button id="cancel-restore">Don't Restore My Data</button>
+          </div>
+        </div>
+      </div>
       <h2 id="privacy-implications-of-registering-this-device">Privacy implications of registering this device</h2>
       <p>
         If you choose to register this device, Frogtab generates identification and encryption credentials for this device. The credentials are stored in your browser and are included if you make a backup of your data.
@@ -360,6 +380,33 @@
       function delayForUX() {
         return new Promise(resolve => setTimeout(resolve, 1500));
       }
+      function tryToStageRestore(backupJSON) {
+        let backupData;
+        try {
+          backupData = JSON.parse(backupJSON);
+        }
+        catch (err) {
+          return;
+        }
+        if (!("date" in backupData)) {
+          return;
+        }
+        localStorage.setItem("restore", backupJSON);
+        setRestoreStatus(backupData);
+      }
+      function setRestoreStatus(backupData) {
+        const backupDate = (new Date(backupData.date)).toLocaleDateString(undefined, {
+          day: "numeric",
+          month: "long",
+          year: "numeric"
+        });
+        dom.stagedRestore.classList.add("display");
+        dom.restoreDate.textContent = backupDate;
+        dom.cancelRestore.addEventListener("click", event => {
+          localStorage.removeItem("restore");
+          dom.stagedRestore.classList.remove("display");
+        });
+      }
       async function register() {
         dom.caseUnregistered.classList.remove("display");
         dom.caseRegistering.classList.add("display");
@@ -376,6 +423,39 @@
         });
       }
       async function startApp() {
+        if (localStorage.getItem("restore") !== null) {
+          setRestoreStatus(JSON.parse(localStorage.getItem("restore")));
+        }
+        dom.startRestore.addEventListener("click", event => {
+          event.preventDefault();
+          dom.chooseBackupFile.click();
+        });
+        dom.chooseBackupFile.addEventListener("change", event => {
+          const backupFile = dom.chooseBackupFile.files[0];
+          if (backupFile === undefined) {
+            return;
+          }
+          const backupFileReader = new FileReader();
+          backupFileReader.onload = event => {
+            tryToStageRestore(backupFileReader.result);
+          };
+          backupFileReader.readAsText(backupFile);
+          dom.chooseBackupFile.value = "";
+        });
+        window.addEventListener("storage", event => {
+          if (
+            (
+              dom.stagedRestore.classList.contains("display")
+              && localStorage.getItem("restore") === null
+            )
+            || (
+              !dom.stagedRestore.classList.contains("display")
+              && localStorage.getItem("restore") !== null
+            )
+          ) {
+            location.reload();
+          }
+        });
         sdk = await import("/sdk.js");
         const hasPublicInbox = (
           localStorage.getItem("user.userID") !== null
@@ -414,7 +494,12 @@
         caseRegistered: document.getElementById("case-registered"),
         comment: document.getElementById("comment"),
         register: document.getElementById("register"),
-        link: document.getElementById("link")
+        link: document.getElementById("link"),
+        startRestore: document.getElementById("start-restore"),
+        chooseBackupFile: document.getElementById("choose-backup-file"),
+        stagedRestore: document.getElementById("staged-restore"),
+        restoreDate: document.getElementById("restore-date"),
+        cancelRestore: document.getElementById("cancel-restore")
       };
       let sdk;
       startApp();

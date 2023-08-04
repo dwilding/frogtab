@@ -36,7 +36,7 @@
             <a href="/week" target="_blank">Weekly Routine</span>
             <a href="/send" target="_blank">Send to Frogtab</span>
             <a href="/help" target="_blank">Help &amp; Privacy</span>
-            <a id="export-data" href="#" download="Frogtab_backup.json">Export Your Data</a>
+            <a id="export-data" href="#" download="Frogtab_backup.json">Export My Data</a>
           </div>
         </div>
       </div>
@@ -193,10 +193,10 @@
           routine: {}
         };
         for (const key of weekdayKeys) {
-          data["routine"][key] = localStorage.getItem(`routine.${key}`).trim();
+          data.routine[key] = localStorage.getItem(`routine.${key}`).trim();
         }
         if (localStorage.getItem("user.userID") !== null) {
-          data["device"] = {
+          data.device = {
             userID: localStorage.getItem("user.userID"),
             apiKey: localStorage.getItem("user.apiKey"),
             pgpPublicKey: localStorage.getItem("user.pgpPublicKey"),
@@ -345,6 +345,23 @@
       }
 
       // ******** Initial setup ********
+      const weekdayKeys = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+      if (localStorage.getItem("restore") !== null) {
+        const backupData = JSON.parse(localStorage.getItem("restore"));
+        localStorage.setItem("date", backupData.date);
+        localStorage.setItem("value.today", backupData.today);
+        localStorage.setItem("value.inbox", backupData.inbox);
+        for (const key of weekdayKeys) {
+          localStorage.setItem(`routine.${key}`, backupData.routine[key]);
+        }
+        if ("device" in backupData) {
+          localStorage.setItem("user.userID", backupData.device.userID);
+          localStorage.setItem("user.apiKey", backupData.device.apiKey);
+          localStorage.setItem("user.pgpPublicKey", backupData.device.pgpPublicKey);
+          localStorage.setItem("user.pgpPrivateKey", backupData.device.pgpPrivateKey);
+        }
+        localStorage.removeItem("restore");
+      }
       if (localStorage.getItem("date") === null) {
         localStorage.setItem("date", (new Date()).toDateString());
       }
@@ -354,7 +371,6 @@
       if (localStorage.getItem("value.inbox") === null) {
         localStorage.setItem("value.inbox", "");
       }
-      const weekdayKeys = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
       for (const key of weekdayKeys) {
         if (localStorage.getItem(`routine.${key}`) === null) {
           localStorage.setItem(`routine.${key}`, "");
