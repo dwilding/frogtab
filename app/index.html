@@ -289,7 +289,7 @@
           }
         });
         if (localStorage.getItem("user.userID") !== null) {
-          sdk = await import("/sdk.js");
+          sdk = await import("/open/sdk.js");
           if (await sdk.setPublicInbox(localStorage.getItem("user.userID"))) {
             await sdk.setInboxOwner(
               localStorage.getItem("user.apiKey"),
@@ -322,7 +322,7 @@
           if (sdk === undefined && localStorage.getItem("user.userID") !== null) {
             // There was no user ID set when Frogtab loaded.
             // But now there is a user ID set, so we'll perform the registration check.
-            sdk = await import("/sdk.js");
+            sdk = await import("/open/sdk.js");
             if (await sdk.setPublicInbox(localStorage.getItem("user.userID"))) {
               await sdk.setInboxOwner(
                 localStorage.getItem("user.apiKey"),

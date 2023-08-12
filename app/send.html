@@ -122,7 +122,7 @@
       }
       async function setSendCloud(userID) {
         dom.popups.connecting.classList.add("display");
-        sdk = await import("/sdk.js");
+        sdk = await import("/open/sdk.js");
         const hasPublicInbox = await sdk.setPublicInbox(userID);
         await delayForUX();
         dom.popups.connecting.classList.remove("display");

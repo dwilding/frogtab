@@ -476,7 +476,7 @@
             location.reload();
           }
         });
-        sdk = await import("/sdk.js");
+        sdk = await import("/open/sdk.js");
         const hasPublicInbox = (
           localStorage.getItem("user.userID") !== null
           && await sdk.setPublicInbox(localStorage.getItem("user.userID"))
