@@ -9,7 +9,7 @@ export const publicInbox = {
 export async function setPublicInbox(userID) {
   let response;
   try {
-    response = await fetch(`https://api.frogtab.com/open/get-user?user_id=${encodeURIComponent(userID)}`);
+    response = await fetch(`https://frogtab.com/open/get-user?user_id=${encodeURIComponent(userID)}`);
   }
   catch (error) {
     return false;
@@ -44,7 +44,7 @@ export async function sendMessage(message) {
   });
   let response;
   try {
-    response = await fetch("https://api.frogtab.com/open/post-add-message", {
+    response = await fetch("https://frogtab.com/open/post-add-message", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -89,7 +89,7 @@ export async function fetchMessages() {
   }
   let response;
   try {
-    response = await fetch("https://api.frogtab.com/post-remove-messages", {
+    response = await fetch("https://frogtab.com/post-remove-messages", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -142,7 +142,7 @@ export async function register(comment) {
   });
   let response;
   try {
-    response = await fetch("https://api.frogtab.com/post-create-user", {
+    response = await fetch("https://frogtab.com/post-create-user", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
