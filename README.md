@@ -1,6 +1,6 @@
 # Frogtab — Private, peaceful task management
 
-[Frogtab](https://frogtab.com) is lightweight task manager that helps you stay focused on today's priorities.
+[Frogtab](https://frogtab.com) is a lightweight task manager that helps you stay focused on today's priorities.
 
 - **Full docs** - https://frogtab.com/help
 - **Dev blog** - https://maybecoding.bearblog.dev/blog/?q=frogtab
@@ -44,19 +44,19 @@ More details:
 
     See the `sendMessage` function in [sdk.js](app/open/sdk.js).
 
- 7. The server appends the encypted task to a message queue.
+ 7. The server appends the encrypted task to a message queue.
 
     See [post-add-message.php](app/open/post-add-message.php).
 
   8. Frogtab on your main device periodically checks for encrypted tasks.
 
      The server only permits your main device to check for encrypted tasks (by requiring the API key from step 2).
-     If there are encrypted tasks in the message queue, your main device downloads the encypted tasks.
+     If there are encrypted tasks in the message queue, your main device downloads the encrypted tasks.
 
-     The server clears the message queue as soon as your main device has downloaded the encypted tasks.
+     The server clears the message queue as soon as your main device has downloaded the encrypted tasks.
 
      See [post-remove-messages.php](app/post-remove-messages.php).
 
- 9. Frogtab decyptes the tasks using the private key from step 1.
+ 9. Frogtab decrypts the tasks using the private key from step 1.
 
     See the `fetchMessages` function in [sdk.js](app/open/sdk.js).
