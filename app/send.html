@@ -142,14 +142,16 @@
           tryToSendCloud();
         });
         dom.editor.addEventListener("input", event => {
-          const value = dom.editor.value.trim();
-          if (value != "") {
+          if (dom.editor.value.trim() != "") {
             dom.send.classList.add("enabled");
           }
           else {
             dom.send.classList.remove("enabled");
           }
         });
+        if (dom.editor.value.trim() != "") {
+          dom.send.classList.add("enabled");
+        }
       }
       async function startApp() {
         const fragment = window.location.hash.substring(1);
