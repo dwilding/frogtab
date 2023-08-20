@@ -5,15 +5,9 @@
 - **Full docs** - https://frogtab.com/help
 - **Dev blog** - https://maybecoding.bearblog.dev/blog/?q=frogtab
 
-## How it works
+## Data flow
 
-Frogtab is a JavaScript app that runs in your browser.
-Your data is stored in `localStorage`.
-
-You can make a backup of your data by [exporting your data](https://frogtab.com/help#exporting-your-data).
-You can restore from a backup by [importing your data](https://frogtab.com/help#importing-your-data).
-
-### Data flow
+Your data is stored in your browser's `localStorage`.
 
 Frogtab can't sync data between devices. However, if you [register your main device](https://frogtab.com/help#registering-this-device), you can send tasks to your main device from any device.
 This feature uses a server to relay tasks to your main device.
@@ -60,3 +54,18 @@ More details:
  9. Frogtab decrypts the tasks using the private key from step 1.
 
     See the `fetchMessages` function in [sdk.js](app/open/sdk.js).
+
+## JavaScript SDK
+
+If you have [registered your main device](https://frogtab.com/help#registering-this-device), you can use the JavaScript SDK to send messages to Frogtab on your main device.
+For example:
+
+```javascript
+async function send(message) {
+  const frogtab = await import("https://frogtab.com/open/sdk.js");
+  await frogtab.setPublicInbox("USER ID GOES HERE");
+  const success = await frogtab.sendMessage(message);
+}
+```
+
+See [this blog post](https://maybecoding.bearblog.dev/adding-a-private-feedback-box-to-bear/) for a more practical example.
