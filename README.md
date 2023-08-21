@@ -68,4 +68,4 @@ async function send(message) {
 }
 ```
 
-See [this blog post](https://maybecoding.bearblog.dev/adding-a-private-feedback-box-to-bear/) for a more practical example.
+To learn more, see [this blog post](https://maybecoding.bearblog.dev/adding-a-private-feedback-box-to-bear/).
