@@ -39,8 +39,11 @@
       </div>
     </div>
     <script>
-      function delayForUX() {
-        return new Promise(resolve => setTimeout(resolve, 1500));
+      function delayForUX(f) {
+        return Promise.all([
+          f(),
+          new Promise(resolve => setTimeout(resolve, 1500))
+        ]);
       }
       function tryToSendLocal() {
         const valueToSend = dom.editor.value.trim();
@@ -92,7 +95,10 @@
             dom.send.classList.add("enabled");
           }, 600);
         };
-        const success = await sdk.sendMessage(valueToSend);
+        let success;
+        await delayForUX(async () => {
+          success = await sdk.sendMessage(valueToSend);
+        });
         if (!success) {
           onFailure();
           return;
@@ -123,9 +129,11 @@
       }
       async function setSendCloud(userID) {
         dom.popups.connecting.classList.add("display");
-        sdk = await import("/open/sdk.js");
-        const hasPublicInbox = await sdk.setPublicInbox(userID);
-        await delayForUX();
+        let hasPublicInbox;
+        await delayForUX(async () => {
+          sdk = await import("/open/sdk.js");
+          hasPublicInbox = await sdk.setPublicInbox(userID);
+        });
         dom.popups.connecting.classList.remove("display");
         if (!hasPublicInbox) {
           dom.popups.disconnected.classList.add("display");

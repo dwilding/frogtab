@@ -404,8 +404,11 @@
       </p>
     </footer>
     <script>
-      function delayForUX() {
-        return new Promise(resolve => setTimeout(resolve, 1500));
+      function delayForUX(f) {
+        return Promise.all([
+          f(),
+          new Promise(resolve => setTimeout(resolve, 1500))
+        ]);
       }
       function tryToStageRestore(backupJSON) {
         let backupData;
@@ -437,12 +440,13 @@
       async function register() {
         dom.caseUnregistered.classList.remove("display");
         dom.caseRegistering.classList.add("display");
-        await sdk.register(dom.comment.value.trim());
+        await delayForUX(async () => {
+          await sdk.register(dom.comment.value.trim());
+        });
         localStorage.setItem("user.apiKey", sdk.inboxOwner.apiKey);
         localStorage.setItem("user.pgpPrivateKey", sdk.inboxOwner.pgpPrivateKey);
         localStorage.setItem("user.pgpPublicKey", sdk.publicInbox.pgpPublicKey);
         localStorage.setItem("user.userID", sdk.publicInbox.userID);
-        await delayForUX();
         dom.caseRegistering.classList.remove("display");
         dom.caseRegistered.classList.add("display");
         dom.link.addEventListener("click", event => {
@@ -483,12 +487,14 @@
             location.reload();
           }
         });
-        sdk = await import("/open/sdk.js");
-        const hasPublicInbox = (
-          localStorage.getItem("user.userID") !== null
-          && await sdk.setPublicInbox(localStorage.getItem("user.userID"))
-        );
-        await delayForUX();
+        let hasPublicInbox;
+        await delayForUX(async () => {
+          sdk = await import("/open/sdk.js");
+          hasPublicInbox = (
+            localStorage.getItem("user.userID") !== null
+            && await sdk.setPublicInbox(localStorage.getItem("user.userID"))
+          );
+        });
         dom.caseChecking.classList.remove("display");
         if (hasPublicInbox) {
           dom.caseRegistered.classList.add("display");
