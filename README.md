@@ -9,7 +9,7 @@
 
 Your data is stored in your browser's `localStorage`.
 
-Frogtab can't sync data between devices. However, if you [register your main device](https://frogtab.com/help#registering-this-device), you can send tasks to your main device from any device.
+Frogtab can't sync data between devices. However, if you [register your main device](https://frogtab.com/help#registering-for-a-personal-link), you can send tasks to your main device from any device.
 This feature uses a server to relay tasks to your main device.
 
 More details:
@@ -57,7 +57,7 @@ More details:
 
 ## JavaScript SDK
 
-If you have [registered your main device](https://frogtab.com/help#registering-this-device), you can use the JavaScript SDK to send messages to Frogtab on your main device.
+If you have [registered your main device](https://frogtab.com/help#registering-for-a-personal-link), you can use the JavaScript SDK to send messages to Frogtab on your main device.
 For example:
 
 ```javascript

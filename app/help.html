@@ -10,6 +10,10 @@
     <link rel="manifest" href="/manifest.webmanifest">
     <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
     <style>
+      article {
+        padding-top: 0;
+        padding-bottom: 0;
+      }
       .notice {
         display: none;
         padding-top: 1rem;
@@ -51,24 +55,36 @@
     </header>
     <main>
       <p>
-        All topics:
-      </p>
-      <ul>
-        <li><a href="#getting-started">Getting started</a></li>
-        <li><a href="#adding-tasks-to-your-inbox">Adding tasks to your inbox</a></li>
-        <li><a href="#registering-this-device">Registering this device</a></li>
-        <li><a href="#triaging-your-inbox">Triaging your inbox</a></li>
-        <li><a href="#setting-up-recurring-tasks">Setting up recurring tasks</a></li>
-        <li><a href="#keyboard-shortcuts">Keyboard shortcuts</a></li>
-        <li><a href="#overview-of-data-privacy">Overview of data privacy</a></li>
-        <li><a href="#exporting-your-data">Exporting your data</a></li>
-        <li><a href="#importing-your-data">Importing your data</a></li>
-        <li><a href="#privacy-implications-of-registering-this-device">Privacy implications of registering this device</a></li>
-      </ul>
-      <p>
         Thanks for exploring Frogtab!
         To get in touch, please email <a href="mailto:feedback@frogtab.com">feedback@frogtab.com</a> 🐸
       </p>
+      <article>
+        <p>
+          <strong>Learn how to use Frogtab</strong>
+        </p>
+        <ul>
+          <li><a href="#getting-started">Getting started</a></li>
+          <li><a href="#adding-tasks-to-your-inbox">Adding tasks to your inbox</a></li>
+          <li><a href="#registering-for-a-personal-link">Registering for a personal link</a></li>
+          <li><a href="#triaging-your-inbox">Triaging your inbox</a></li>
+          <li><a href="#setting-up-recurring-tasks">Setting up recurring tasks</a></li>
+          <li><a href="#keyboard-shortcuts">Keyboard shortcuts</a></li>
+        </ul>
+        <p>
+          <strong>Learn about data privacy</strong>
+        </p>
+        <ul>
+          <li><a href="#overview-of-data-privacy">Overview of data privacy</a></li>
+          <li><a href="#privacy-implications-of-registering">Privacy implications of registering</a></li>
+        </ul>
+        <p>
+          <strong>Manage your data</strong>
+        <p>
+        <ul>
+          <li><a href="#exporting-your-data">Exporting your data</a></li>
+          <li><a href="#importing-your-data">Importing your data</a></li>
+        </ul>
+      </article>
       <h2 id="getting-started">Getting started</h2>
       <p>
         <img alt="The Today view in Frogtab" src="/help-today.png" width="480">
@@ -122,9 +138,9 @@
       </ul>
       <p>
         By default, Send to Frogtab doesn't work from other devices.
-        If you want to capture tasks from other devices, you must first register this device.
+        If you want to capture tasks from other devices, you must first register for a personal link.
       </p>
-      <h2 id="registering-this-device">Registering this device</h2>
+      <h2 id="registering-for-a-personal-link">Registering for a personal link</h2>
       <p>
         If you choose to register this device, you'll get a personal link that you can use to send tasks to Frogtab from any device.
       </p>
@@ -146,7 +162,7 @@
             <button id="register" disabled>Send &amp; Register</button>
           </div>
           <p>
-            <a href="#privacy-implications-of-registering-this-device">Learn about data privacy</a>
+            <a href="#privacy-implications-of-registering">Learn about data privacy</a>
           </p>
         </div>
         <div id="case-registering">
@@ -162,7 +178,7 @@
             <button id="link">Open My Personal Link</button>
           </div>
           <p>
-            <a href="#privacy-implications-of-registering-this-device">Learn about data privacy</a>
+            <a href="#privacy-implications-of-registering">Learn about data privacy</a>
           </p>
         </div>
       </div>
@@ -320,7 +336,7 @@
       </p>
       <p>
         If you choose to register this device, you'll get a personal link that you can use to send tasks to Frogtab from any device.
-        To learn more, see <a href="#registering-this-device">Registering this device</a> and <a href="#privacy-implications-of-registering-this-device">Privacy implications of registering this device</a>.
+        To learn more, see <a href="#registering-for-a-personal-link">Registering for a personal link</a> and <a href="#privacy-implications-of-registering">Privacy implications of registering</a>.
       </p>
       <h2 id="exporting-your-data">Exporting your data</h2>
       <p>
@@ -355,7 +371,7 @@
           </div>
         </div>
       </div>
-      <h2 id="privacy-implications-of-registering-this-device">Privacy implications of registering this device</h2>
+      <h2 id="privacy-implications-of-registering">Privacy implications of registering</h2>
       <p>
         If you choose to register this device, Frogtab generates identification and encryption credentials for this device. The credentials are stored in your browser and are included if you make a backup of your data.
       </p>
