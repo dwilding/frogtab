@@ -338,6 +338,38 @@
         If you choose to register this device, you'll get a personal link that you can use to send tasks to Frogtab from any device.
         To learn more, see <a href="#registering-for-a-personal-link">Registering for a personal link</a> and <a href="#privacy-implications-of-registering">Privacy implications of registering</a>.
       </p>
+      <h2 id="privacy-implications-of-registering">Privacy implications of registering</h2>
+      <p>
+        If you choose to register this device, Frogtab generates identification and encryption credentials for this device. The credentials are stored in your browser and are included if you make a backup of your data.
+      </p>
+      <p>
+        The credentials are also stored on a server, with the exception of a private key that Frogtab uses to decrypt tasks received from your personal link.
+      </p>
+      <p>
+        More details about how your personal link works:
+      </p>
+      <ul>
+        <li>
+          <p>
+            When you use your personal link to send a task to Frogtab, the task is first encrypted on the sending device.
+            The encrypted task is then sent to the server.
+          </p>
+        </li>
+        <li>
+          <p>
+            Only this device is permitted to download the encrypted task from the server.
+            After downloading the encrypted task, Frogtab decrypts the task using a private key that never leaves this device.
+          </p>
+        </li>
+        <li>
+          <p>
+            The server deletes the encrypted task as soon as it has been downloaded.
+          </p>
+        </li>
+      </ul>
+      <p>
+        For technical details, see <a href="https://github.com/dwilding/frogtab#data-flow" target="_blank">Data flow</a> in GitHub.
+      </p>
       <h2 id="exporting-your-data">Exporting your data</h2>
       <p>
         Your data is stored in your browser.
@@ -371,38 +403,6 @@
           </div>
         </div>
       </div>
-      <h2 id="privacy-implications-of-registering">Privacy implications of registering</h2>
-      <p>
-        If you choose to register this device, Frogtab generates identification and encryption credentials for this device. The credentials are stored in your browser and are included if you make a backup of your data.
-      </p>
-      <p>
-        The credentials are also stored on a server, with the exception of a private key that Frogtab uses to decrypt tasks received from your personal link.
-      </p>
-      <p>
-        More details about how your personal link works:
-      </p>
-      <ul>
-        <li>
-          <p>
-            When you use your personal link to send a task to Frogtab, the task is first encrypted on the sending device.
-            The encrypted task is then sent to the server.
-          </p>
-        </li>
-        <li>
-          <p>
-            Only this device is permitted to download the encrypted task from the server.
-            After downloading the encrypted task, Frogtab decrypts the task using a private key that never leaves this device.
-          </p>
-        </li>
-        <li>
-          <p>
-            The server deletes the encrypted task as soon as it has been downloaded.
-          </p>
-        </li>
-      </ul>
-      <p>
-        For technical details, see <a href="https://github.com/dwilding/frogtab#data-flow" target="_blank">Data flow</a> in GitHub.
-      </p>
     </main>
     <footer>
       <p>
