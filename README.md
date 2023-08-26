@@ -2,8 +2,8 @@
 
 [Frogtab](https://frogtab.com) is a lightweight task manager that helps you stay focused on today's priorities.
 
-- **Full docs** - https://frogtab.com/help
-- **Dev blog** - https://maybecoding.bearblog.dev/blog/?q=frogtab
+- **Full docs** - [frogtab.com/help](https://frogtab.com/help)
+- **Dev blog** - [maybecoding.bearblog.dev/blog/](https://maybecoding.bearblog.dev/blog/)
 
 ## Data flow
 
