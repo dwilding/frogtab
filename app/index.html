@@ -112,6 +112,40 @@
           }, 30000);
         }
       }
+      function sinkSnoozedAndSelectUnsnoozed() {
+        if (selectedTab != "inbox" || !notifyInbox) {
+          return;
+        }
+        const lines = localStorage.getItem("value.inbox").split("\n");
+        const linesUnsnoozed = [];
+        const linesSnoozed = [];
+        let afterSnoozedLine = false;
+        for (const line of lines) {
+          if (line.trimStart().startsWith("#")) {
+            linesSnoozed.push(line);
+            afterSnoozedLine = true;
+          }
+          else if (afterSnoozedLine && line.trimStart() == "") {
+            linesSnoozed.push(line);
+          }
+          else {
+            linesUnsnoozed.push(line);
+            afterSnoozedLine = false;
+          }
+        }
+        const unsnoozed = linesUnsnoozed.join("\n").trimEnd();
+        if (linesSnoozed.length > 0) {
+          const snoozed = linesSnoozed.join("\n").trimEnd();
+          dom.editor.value = `${unsnoozed}\n\n${snoozed}`;
+        }
+        else {
+          dom.editor.value = unsnoozed;
+        }
+        storeThenSave("value.inbox", dom.editor.value);
+        dom.editor.scrollTop = 0;
+        dom.editor.setSelectionRange(0, unsnoozed.length);
+        dom.editor.focus();
+      }
       function appendToInbox(value) {
         const valueToAppend = value.trim();
         if (valueToAppend == "") {
@@ -284,6 +318,10 @@
             switchToTabInbox();
             dom.editor.focus();
             refreshInfo();
+          }
+          else if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() == "b") {
+            event.preventDefault();
+            sinkSnoozedAndSelectUnsnoozed();
           }
         });
         if (localStorage.getItem("user.userID") !== null) {
