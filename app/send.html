@@ -60,7 +60,7 @@
         if (localStorage.getItem("value.inbox") === null) {
           localStorage.setItem("value.inbox", "");
         }
-        let valueInbox = localStorage.getItem("value.inbox");
+        let valueInbox = localStorage.getItem("value.inbox").trimStart();
         if (valueInbox != "") {
           valueInbox = `\n\n${valueInbox}`;
         }
