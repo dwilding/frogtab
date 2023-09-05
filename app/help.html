@@ -198,7 +198,7 @@
         <li>
           <p>
             Tasks may take up to 10 minutes to appear in your inbox.
-            To force Frogtab to check for new tasks, refresh Frogtab.
+            To force Frogtab to check for new tasks, reload Frogtab.
           </p>
         </li>
         <li>
@@ -251,7 +251,7 @@
         </li>
       </ul>
       <p>
-        As soon as your inbox is empty or only contains snoozed tasks, the notification badge disappears.
+        As soon as you have triaged your inbox, Frogtab's notification badge disappears.
       </p>
       <h2 id="setting-up-recurring-tasks">Setting up recurring tasks</h2>
       <p>
@@ -279,21 +279,26 @@
       <table style="width: 100%">
         <thead>
           <tr>
-            <th style="width: 40%">Action</th>
+            <th style="width: 35%">Action</th>
             <th style="width: 30%">macOS</th>
-            <th style="width: 30%">Windows and Linux</th>
+            <th style="width: 35%">Windows and Linux</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>Select Today</td>
+            <td>Show Today</td>
             <td><kbd>⌘ + U</kbd></td>
             <td><kbd>Ctrl + U</kbd></td>
           </tr>
           <tr>
-            <td>Select Inbox</td>
+            <td>Show Inbox</td>
             <td><kbd>⌘ + I</kbd></td>
             <td><kbd>Ctrl + I</kbd></td>
+          </tr>
+          <tr>
+            <td>Show Inbox and select all unsnoozed tasks</td>
+            <td><kbd>⌘ + Shift + I</kbd></td>
+            <td><kbd>Ctrl + Shift + I</kbd></td>
           </tr>
           <tr>
             <td>Start a new line at the top</td>
@@ -308,9 +313,9 @@
       <table style="width: 100%">
         <thead>
           <tr>
-            <th style="width: 40%">Action</th>
+            <th style="width: 35%">Action</th>
             <th style="width: 30%">macOS</th>
-            <th style="width: 30%">Windows and Linux</th>
+            <th style="width: 35%">Windows and Linux</th>
           </tr>
         </thead>
         <tbody>
@@ -381,7 +386,7 @@
       <p>
         To export your data, click
         <svg width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M3 5h18M3 12h18M3 19h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-        at the bottom of Frogtab, then choose <strong>Export My Data</strong>.
+        at the bottom of Frogtab, then click <strong>Export My Data</strong>.
       </p>
       <p>
         Some browsers are able to directly write to files on your device.
@@ -393,13 +398,13 @@
         If you have previously made a backup of your data, you can restore your data.
       </p>
       <p>
-        To start the restore process, <a href="#" id="start-restore">pick a backup file</a>.
+        To start the restore process, <a href="#" id="start-restore">open a backup file</a>.
       </p>
       <input type="file" id="choose-backup-file" style="display: none;" accept=".json">
       <div id="staged-restore" class="notice">
         <div class="display">
           <p>
-            Refresh Frogtab to restore your data from <strong id="restore-date"></strong>.
+            Reload Frogtab to restore your data from <strong id="restore-date"></strong>.
           </p>
           <div>
             <button id="cancel-restore">Don't Restore My Data</button>
