@@ -31,6 +31,7 @@
           <div class="action">
             <span id="menu-button" class="action-instruction display" title="Menu"><svg width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M3 5h18M3 12h18M3 19h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
             <span id="enable-save" class="action-instruction">Enable Auto-Backup</span>
+            <!-- <span class="action-instruction display">Select Unsnoozed</span> -->
           </div>
           <div id="menu" class="action-menu">
             <a href="/week" target="_blank">Weekly Routine</span>
@@ -113,9 +114,6 @@
         }
       }
       function selectUnsnoozed() {
-        if (selectedTab != "inbox" || !notifyInbox) {
-          return;
-        }
         const lines = localStorage.getItem("value.inbox").split("\n");
         const linesUnsnoozed = [];
         const linesSnoozed = [];
@@ -321,7 +319,12 @@
           }
           else if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() == "b") {
             event.preventDefault();
-            selectUnsnoozed();
+            if (notifyInbox) {
+              dom.today.classList.remove("selected");
+              dom.inbox.classList.add("selected");
+              selectedTab = "inbox";
+              selectUnsnoozed();
+            }
           }
         });
         if (localStorage.getItem("user.userID") !== null) {
