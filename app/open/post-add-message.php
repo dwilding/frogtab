@@ -34,20 +34,23 @@ if (!str_starts_with($message, '-----BEGIN PGP MESSAGE-----')) {
   respond_with_failure();
 }
 
-// Load config
-$users = json_decode(file_get_contents($_SERVER['APP_DIR_CONFIG'] . '/users.json'), true);
+// Connect to database
+$db = new PDO('sqlite:' . $_SERVER['APP_DIR_DATA'] . '/sqlite.db');
 
-// Verify user ID
-if (!array_key_exists($user_id, $users)) {
+// Try to select user
+$select_user = $db->prepare('SELECT user_id FROM users WHERE user_id = :user_id');
+$select_user->bindParam(':user_id', $user_id);
+$select_user->execute();
+$select_user_result = $select_user->fetch(PDO::FETCH_ASSOC);
+if (!$select_user_result) {
   respond_with_failure();
 }
 
 // Update messages
-$db = new PDO('sqlite:' . $_SERVER['APP_DIR_DATA'] . '/sqlite.db');
-$sql_insert = $db->prepare('INSERT INTO messages (for, message) VALUES (:for, :message)');
-$sql_insert->bindParam(':for', $user_id);
-$sql_insert->bindParam(':message', $message);
-$sql_insert->execute();
+$insert_message = $db->prepare('INSERT INTO messages (for, message) VALUES (:for, :message)');
+$insert_message->bindParam(':for', $user_id);
+$insert_message->bindParam(':message', $message);
+$insert_message->execute();
 
 // Respond with success
 echo json_encode([
