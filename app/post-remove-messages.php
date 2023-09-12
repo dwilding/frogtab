@@ -46,7 +46,6 @@ if (!$select_user_result) {
 
 // Remove messages
 $messages = [];
-$db = new PDO('sqlite:' . $_SERVER['APP_DIR_DATA'] . '/sqlite.db');
 $select_messages = $db->prepare('SELECT * FROM messages WHERE for = :for ORDER BY id ASC');
 $select_messages->bindParam(':for', $user_id);
 $select_messages->execute();
@@ -55,9 +54,9 @@ foreach ($select_messages_result as $result) {
   $id = $result['id'];
   $message = $result['message'];
   array_push($messages, $message);
-  $sql_delete = $db->prepare('DELETE FROM messages WHERE id = :id');
-  $sql_delete->bindParam(':id', $id, PDO::PARAM_INT);
-  $sql_delete->execute();
+  $delete_message = $db->prepare('DELETE FROM messages WHERE id = :id');
+  $delete_message->bindParam(':id', $id, PDO::PARAM_INT);
+  $delete_message->execute();
 }
 
 // Respond with messages
