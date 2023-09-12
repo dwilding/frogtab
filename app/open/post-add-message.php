@@ -43,13 +43,11 @@ if (!array_key_exists($user_id, $users)) {
 }
 
 // Update messages
-$messages_file = $_SERVER['APP_DIR_DATA'] . '/' . $user_id . '.json';
-if (!file_exists($messages_file)) {
-  file_put_contents($messages_file, '[]');
-}
-$messages = json_decode(file_get_contents($messages_file), true);
-array_push($messages, $message);
-file_put_contents($messages_file, json_encode($messages));
+$db = new PDO('sqlite:' . $_SERVER['APP_DIR_DATA'] . '/sqlite.db');
+$sql_insert = $db->prepare('INSERT INTO messages (for, message) VALUES (:for, :message)');
+$sql_insert->bindParam(':for', $user_id);
+$sql_insert->bindParam(':message', $message);
+$sql_insert->execute();
 
 // Respond with success
 echo json_encode([

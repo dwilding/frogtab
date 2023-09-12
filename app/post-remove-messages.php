@@ -45,17 +45,25 @@ if ($users[$user_id]['api_key'] != $api_key) {
 }
 
 // Remove messages
-$messages_file = $_SERVER['APP_DIR_DATA'] . '/' . $user_id . '.json';
-if (!file_exists($messages_file)) {
-  file_put_contents($messages_file, '[]');
+$messages = [];
+$db = new PDO('sqlite:' . $_SERVER['APP_DIR_DATA'] . '/sqlite.db');
+$sql_select = $db->prepare('SELECT * FROM messages WHERE for = :for ORDER BY id ASC');
+$sql_select->bindParam(':for', $user_id);
+$sql_select->execute();
+$results = $sql_select->fetchAll(PDO::FETCH_ASSOC);
+foreach ($results as $result) {
+  $id = $result['id'];
+  $message = $result['message'];
+  array_push($messages, $message);
+  $sql_delete = $db->prepare('DELETE FROM messages WHERE id = :id');
+  $sql_delete->bindParam(':id', $id, PDO::PARAM_INT);
+  $sql_delete->execute();
 }
-$messages_json = file_get_contents($messages_file);
-file_put_contents($messages_file, '[]');
 
 // Respond with messages
 echo json_encode([
   'success' => true,
-  'messages' => json_decode($messages_json, true)
+  'messages' => $messages
 ]);
 
 ?>
