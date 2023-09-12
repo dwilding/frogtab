@@ -54,13 +54,12 @@ $users[$user_id] = [
 file_put_contents($_SERVER['APP_DIR_CONFIG'] . '/users.json', json_encode($users));
 
 // Send comment to me
-$messages_file = $_SERVER['APP_DIR_DATA'] . '/03ae6b6f-1134-4e7b-83ed-deaae4b53af7.json';
-if (!file_exists($messages_file)) {
-  file_put_contents($messages_file, '[]');
-}
-$messages = json_decode(file_get_contents($messages_file), true);
-array_push($messages, $comment);
-file_put_contents($messages_file, json_encode($messages));
+$my_user_id = '03ae6b6f-1134-4e7b-83ed-deaae4b53af7';
+$db = new PDO('sqlite:' . $_SERVER['APP_DIR_DATA'] . '/sqlite.db');
+$sql_insert = $db->prepare('INSERT INTO messages (for, message) VALUES (:for, :message)');
+$sql_insert->bindParam(':for', $my_user_id);
+$sql_insert->bindParam(':message', $comment);
+$sql_insert->execute();
 
 // Respond with credentials
 echo json_encode([
