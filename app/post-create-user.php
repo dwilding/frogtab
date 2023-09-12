@@ -44,22 +44,23 @@ if (!str_starts_with($comment, '-----BEGIN PGP MESSAGE-----')) {
 $user_id = Uuid::uuid4()->toString();
 $api_key = Uuid::uuid4()->toString();
 
-// Update config
-$users = json_decode(file_get_contents($_SERVER['APP_DIR_CONFIG'] . '/users.json'), true);
-$users[$user_id] = [
-  'comment' => $comment,
-  'api_key' => $api_key,
-  'pgp_public_key' => $pgp_public_key
-];
-file_put_contents($_SERVER['APP_DIR_CONFIG'] . '/users.json', json_encode($users));
+// Connect to database
+$db = new PDO('sqlite:' . $_SERVER['APP_DIR_DATA'] . '/sqlite.db');
+
+// Add new user
+$insert_user = $db->prepare('INSERT INTO users (user_id, api_key, pgp_public_key, comment) VALUES (:user_id, :api_key, :pgp_public_key, :comment)');
+$insert_user->bindParam(':user_id', $user_id);
+$insert_user->bindParam(':api_key', $api_key);
+$insert_user->bindParam(':pgp_public_key', $pgp_public_key);
+$insert_user->bindParam(':comment', $comment);
+$insert_user->execute();
 
 // Send comment to me
 $my_user_id = '03ae6b6f-1134-4e7b-83ed-deaae4b53af7';
-$db = new PDO('sqlite:' . $_SERVER['APP_DIR_DATA'] . '/sqlite.db');
-$sql_insert = $db->prepare('INSERT INTO messages (for, message) VALUES (:for, :message)');
-$sql_insert->bindParam(':for', $my_user_id);
-$sql_insert->bindParam(':message', $comment);
-$sql_insert->execute();
+$insert_message = $db->prepare('INSERT INTO messages (for, message) VALUES (:for, :message)');
+$insert_message->bindParam(':for', $my_user_id);
+$insert_message->bindParam(':message', $comment);
+$insert_message->execute();
 
 // Respond with credentials
 echo json_encode([
