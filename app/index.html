@@ -266,6 +266,32 @@
           dom.enableSave.classList.add("display");
         }
       }
+      async function deleteAllData() {
+        localStorage.setItem("delete", "DELETE_ALL_DATA");
+        console.log("Reload Frogtab to delete all data");
+      }
+      async function deleteServerData(userID, apiKey) {
+        fetch("https://frogtab.com/post-remove-messages", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            user_id: userID,
+            api_key: apiKey
+          })
+        });
+        fetch("https://frogtab.com/post-remove-user", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            user_id: userID,
+            api_key: apiKey
+          })
+        });
+      }
       async function startApp() {
         setExportAction();
         if (isNewDay()) {
@@ -389,7 +415,15 @@
 
       // ******** Initial setup ********
       const weekdayKeys = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
-      if (localStorage.getItem("restore") !== null) {
+      if (localStorage.getItem("delete") == "DELETE_ALL_DATA") {
+        const userID = localStorage.getItem("user.userID");
+        const apiKey = localStorage.getItem("user.apiKey");
+        if (userID !== null && apiKey !== null) {
+          deleteServerData(userID, apiKey);
+        }
+        localStorage.clear();
+      }
+      else if (localStorage.getItem("restore") !== null) {
         const backupData = JSON.parse(localStorage.getItem("restore"));
         localStorage.setItem("date", backupData.date);
         localStorage.setItem("value.today", backupData.today);
