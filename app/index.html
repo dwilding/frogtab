@@ -42,12 +42,6 @@
       </div>
     </div>
     <script>
-      function delayForUX(f) {
-        return Promise.all([
-          f(),
-          new Promise(resolve => window.setTimeout(resolve, 1500))
-        ]);
-      }
       async function storeIcons() {
         const icons = await fetchIcons();
         const iconBlobNormal = await icons[0].blob();
