@@ -42,7 +42,7 @@
       function delayForUX(f) {
         return Promise.all([
           f(),
-          new Promise(resolve => setTimeout(resolve, 1500))
+          new Promise(resolve => window.setTimeout(resolve, 1500))
         ]);
       }
       function tryToSendLocal() {
@@ -53,7 +53,7 @@
         dom.editor.value = "";
         dom.editor.focus();
         dom.send.classList.add("fake-hover");
-        setTimeout(() => {
+        window.setTimeout(() => {
           dom.send.classList.remove("enabled");
           dom.send.classList.remove("fake-hover");
         }, 300);
@@ -75,7 +75,7 @@
         dom.editor.value = "";
         dom.editor.focus();
         dom.send.classList.add("fake-hover");
-        setTimeout(() => {
+        window.setTimeout(() => {
           dom.send.classList.remove("enabled");
           dom.send.classList.remove("fake-hover");
         }, 300);
@@ -84,7 +84,7 @@
           dom.popups.sending.classList.add("display");
         }
         const onFailure = () => {
-          setTimeout(() => {
+          window.setTimeout(() => {
             dom.popups.sending.classList.remove("display");
             dom.popups.failure.classList.add("display");
             let value = dom.editor.value.trimEnd();

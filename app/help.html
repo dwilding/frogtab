@@ -436,7 +436,7 @@
       function delayForUX(f) {
         return Promise.all([
           f(),
-          new Promise(resolve => setTimeout(resolve, 1500))
+          new Promise(resolve => window.setTimeout(resolve, 1500))
         ]);
       }
       function tryToStageRestore(backupJSON) {
