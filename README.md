@@ -85,4 +85,6 @@ send("Hello Frogtab!").then(success => {
 });
 ```
 
+Replace "USER ID GOES HERE" by the ID from the URL of your personal link.
+
 To learn more, see [this blog post](https://maybecoding.bearblog.dev/adding-a-private-feedback-box-to-bear/).
