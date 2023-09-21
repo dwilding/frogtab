@@ -180,6 +180,27 @@
           <p>
             <a href="#privacy-implications-of-registering">Learn about data privacy</a>
           </p>
+          <p>
+            <a href="#" id="start-forget">Forget this device</a>
+          </p>
+        </div>
+        <div id="case-registered-forget">
+          <p>
+            Frogtab will forget this device when you
+            <a href="#" id="forget" title="Forget This Device">click here</a>.
+          </p>
+          <p>
+            Your personal link will be permanently deactivated.
+            To send tasks to Frogtab from any device, you'll need to re-register this device and get a new personal link.
+          </p>
+          <div>
+            <button id="cancel-forget">Don't Forget This Device</button>
+          </div>
+        </div>
+        <div id="case-forgetting">
+          <p>
+            Forgetting this device…
+          </p>
         </div>
       </div>
       <p>
@@ -404,7 +425,7 @@
       <div id="staged-restore" class="notice">
         <div class="display">
           <p>
-            Reload Frogtab to restore your data from <strong id="restore-date"></strong>.
+            Frogtab will restore your data from <strong id="restore-date"></strong> when you next reload Frogtab.
           </p>
           <div>
             <button id="cancel-restore">Don't Restore My Data</button>
@@ -439,6 +460,147 @@
           new Promise(resolve => window.setTimeout(resolve, 1500))
         ]);
       }
+      async function verify() {
+        await delayForUX(async () => {
+          if (localStorage.getItem("user.userID") === null) {
+            return;
+          }
+          let response;
+          try {
+            response = await fetch("https://frogtab.com/post-verify-user", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                user_id: localStorage.getItem("user.userID"),
+                api_key: localStorage.getItem("user.apiKey")
+              })
+            });
+          }
+          catch (err) {
+            return;
+          }
+          if (!response.ok) {
+            return;
+          }
+          const result = await response.json();
+          verifiedUser = result.success;
+        });
+        dom.caseChecking.classList.remove("display");
+        if (verifiedUser) {
+          dom.caseRegistered.classList.add("display");
+          dom.link.addEventListener("click", event => {
+            window.open(`/send#${localStorage.getItem("user.userID")}`, "_blank");
+          });
+        }
+        else {
+          dom.caseUnregistered.classList.add("display");
+        }
+      }
+      async function register() {
+        dom.caseUnregistered.classList.remove("display");
+        dom.caseRegistering.classList.add("display");
+        await delayForUX(async () => {
+          if (openpgp === undefined) {
+            openpgp = await import("https://unpkg.com/openpgp@5.x/dist/openpgp.min.mjs");
+          }
+          const encryptedComment = await openpgp.encrypt({
+            message: await openpgp.createMessage({
+              text: `Registration: ${dom.comment.value}`
+            }),
+            encryptionKeys: await openpgp.readKey({
+              armoredKey: "-----BEGIN PGP PUBLIC KEY BLOCK-----\n\nxjMEZC0XTRYJKwYBBAHaRw8BAQdAQGn1uwsmrmyNDjJEpBItytslxrvK0Iym\nKrSeCQaWOv7NNzx1c2VyXzAzYWU2YjZmLTExMzQtNGU3Yi04M2VkLWRlYWFl\nNGI1M2FmN0Bmcm9ndGFiLmNvbT7CjAQQFgoAPgWCZC0XTQQLCQcICZDHWnmD\n1b6y2wMVCAoEFgACAQIZAQKbAwIeARYhBOsq7cBWQAUaO3W7VMdaeYPVvrLb\nAACwZQD+J8iHCcZwYwO3U/5dUu0fKR9iCInWlFk23UTgzUFkCS4BAILb2Xzy\nMORtPHGaBqUP0v7XbnnigyCwC2zg1JiJ5bIOzjgEZC0XTRIKKwYBBAGXVQEF\nAQEHQCbGVL7Nh+2kYvX2W6FTK7f/n7Fo7OclmEOS3xjUzEs0AwEIB8J4BBgW\nCAAqBYJkLRdNCZDHWnmD1b6y2wKbDBYhBOsq7cBWQAUaO3W7VMdaeYPVvrLb\nAABb/gEApI8wmO4HQ82pTMg2POA/AT85AseK3lv4ds1Mz6W5p48A/jbtMsAG\nn5seyoPf02oOSmPmNr7OhtP/19HeoY6Sj1IG\n=PY9A\n-----END PGP PUBLIC KEY BLOCK-----\n"
+            })
+          });
+          const pgpKey = await openpgp.generateKey({
+            userIDs: [{
+              email: `key+${crypto.randomUUID()}@frogtab.com`
+            }]
+          });
+          let response;
+          try {
+            response = await fetch("https://frogtab.com/post-create-user", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                pgp_public_key: pgpKey.publicKey,
+                comment: encryptedComment
+              })
+            });
+          }
+          catch (err) {
+            return;
+          }
+          if (!response.ok) {
+            return;
+          }
+          const result = await response.json();
+          verifiedUser = result.success;
+          if (!verifiedUser) {
+            return;
+          }
+          localStorage.setItem("user.pgpPublicKey", pgpKey.publicKey);
+          localStorage.setItem("user.pgpPrivateKey", pgpKey.privateKey);
+          localStorage.setItem("user.apiKey", result.user.api_key);
+          localStorage.setItem("user.userID", result.user.user_id); // Update userID last because other tabs may be watching
+        });
+        dom.caseRegistering.classList.remove("display");
+        if (verifiedUser) {
+          dom.comment.value = "";
+          dom.register.disabled = true;
+          dom.caseRegistered.classList.add("display");
+          dom.link.addEventListener("click", event => {
+            window.open(`/send#${localStorage.getItem("user.userID")}`, "_blank");
+          });
+        }
+        else {
+          dom.caseUnregistered.classList.add("display");
+        }
+      }
+      async function forget() {
+        dom.caseRegisteredForget.classList.remove("display");
+        dom.caseForgetting.classList.add("display");
+        await delayForUX(async () => {
+          let response;
+          try {
+            response = await fetch("https://frogtab.com/post-remove-user", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                user_id: localStorage.getItem("user.userID"),
+                api_key: localStorage.getItem("user.apiKey")
+              })
+            });
+          }
+          catch (err) {
+            return;
+          }
+          if (!response.ok) {
+            return;
+          }
+          const result = await response.json();
+          verifiedUser = !result.success;
+          if (verifiedUser) {
+            return;
+          }
+          localStorage.removeItem("user.userID"); // Update userID first because other tabs may be watching
+          localStorage.removeItem("user.apiKey");
+          localStorage.removeItem("user.pgpPrivateKey");
+          localStorage.removeItem("user.pgpPublicKey");
+        });
+        dom.caseForgetting.classList.remove("display");
+        if (verifiedUser) {
+          dom.caseRegistered.classList.add("display");
+        }
+        else {
+          dom.caseUnregistered.classList.add("display");
+        }
+      }
       function tryToStageRestore(backupJSON) {
         let backupData;
         try {
@@ -456,7 +618,7 @@
       function setRestoreStatus(backupData) {
         const backupDate = (new Date(backupData.date)).toLocaleDateString(undefined, {
           day: "numeric",
-          month: "long",
+          month: "short",
           year: "numeric"
         });
         dom.stagedRestore.classList.add("display");
@@ -466,23 +628,32 @@
           dom.stagedRestore.classList.remove("display");
         });
       }
-      async function register() {
-        dom.caseUnregistered.classList.remove("display");
-        dom.caseRegistering.classList.add("display");
-        await delayForUX(async () => {
-          await sdk.register(dom.comment.value.trim());
-        });
-        localStorage.setItem("user.apiKey", sdk.inboxOwner.apiKey);
-        localStorage.setItem("user.pgpPrivateKey", sdk.inboxOwner.pgpPrivateKey);
-        localStorage.setItem("user.pgpPublicKey", sdk.publicInbox.pgpPublicKey);
-        localStorage.setItem("user.userID", sdk.publicInbox.userID);
-        dom.caseRegistering.classList.remove("display");
-        dom.caseRegistered.classList.add("display");
-        dom.link.addEventListener("click", event => {
-          window.open(`/send#${sdk.publicInbox.userID}`, "_blank");
-        });
-      }
       async function startApp() {
+        verify();
+        dom.comment.addEventListener("input", event => {
+          dom.register.disabled = (dom.comment.value.trim() == "");
+        });
+        dom.comment.addEventListener("keydown", event => {
+          if (!dom.register.disabled && "key" in event && event.key.toLowerCase() == "enter") {
+            register();
+          }
+        });
+        dom.register.addEventListener("click", event => {
+          register();
+        });
+        dom.startForget.addEventListener("click", event => {
+          event.preventDefault();
+          dom.caseRegistered.classList.remove("display");
+          dom.caseRegisteredForget.classList.add("display");
+        });
+        dom.forget.addEventListener("click", async event => {
+          event.preventDefault();
+          forget();
+        });
+        dom.cancelForget.addEventListener("click", event => {
+          dom.caseRegisteredForget.classList.remove("display");
+          dom.caseRegistered.classList.add("display");
+        });
         if (localStorage.getItem("restore") !== null) {
           setRestoreStatus(JSON.parse(localStorage.getItem("restore")));
         }
@@ -516,36 +687,6 @@
             location.reload();
           }
         });
-        let hasPublicInbox;
-        await delayForUX(async () => {
-          sdk = await import("/open/sdk.js");
-          hasPublicInbox = (
-            localStorage.getItem("user.userID") !== null
-            && await sdk.setPublicInbox(localStorage.getItem("user.userID"))
-          );
-        });
-        dom.caseChecking.classList.remove("display");
-        if (hasPublicInbox) {
-          dom.caseRegistered.classList.add("display");
-          dom.link.addEventListener("click", event => {
-            window.open(`/send#${localStorage.getItem("user.userID")}`, "_blank");
-          });
-        }
-        else {
-          dom.caseUnregistered.classList.add("display");
-          dom.comment.addEventListener("input", event => {
-            const comment = dom.comment.value.trim();
-            dom.register.disabled = (comment == "");
-          });
-          dom.register.addEventListener("click", event => {
-            register();
-          });
-          dom.comment.addEventListener("keydown", event => {
-            if (!dom.register.disabled && event.key.toLowerCase() == "enter") {
-              register();
-            }
-          });
-        }
       }
 
       // ******** Initial setup ********
@@ -554,16 +695,22 @@
         caseUnregistered: document.getElementById("case-unregistered"),
         caseRegistering: document.getElementById("case-registering"),
         caseRegistered: document.getElementById("case-registered"),
+        caseRegisteredForget: document.getElementById("case-registered-forget"),
+        caseForgetting: document.getElementById("case-forgetting"),
         comment: document.getElementById("comment"),
         register: document.getElementById("register"),
         link: document.getElementById("link"),
+        startForget: document.getElementById("start-forget"),
+        forget: document.getElementById("forget"),
+        cancelForget: document.getElementById("cancel-forget"),
         startRestore: document.getElementById("start-restore"),
         chooseBackupFile: document.getElementById("choose-backup-file"),
         stagedRestore: document.getElementById("staged-restore"),
         restoreDate: document.getElementById("restore-date"),
         cancelRestore: document.getElementById("cancel-restore")
       };
-      let sdk;
+      let verifiedUser = false;
+      let openpgp;
       startApp();
     </script>
   </body>

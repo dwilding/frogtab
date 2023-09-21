@@ -67,6 +67,35 @@
         valueInbox = `${valueToSend}${valueInbox}`;
         localStorage.setItem("value.inbox", valueInbox);
       }
+      async function encryptAndSend(plainMessage) {
+        const encryptedMessage = await openpgp.encrypt({
+          message: await openpgp.createMessage({
+            text: plainMessage
+          }),
+          encryptionKeys: pgpPublicKeyObj
+        });
+        let response;
+        try {
+          response = await fetch("https://frogtab.com/open/post-add-message", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              user_id: userID,
+              message: encryptedMessage
+            })
+          });
+        }
+        catch (err) {
+          return false;
+        }
+        if (!response.ok) {
+          return false;
+        }
+        const result = await response.json();
+        return result.success;
+      }
       async function tryToSendCloud() {
         const valueToSend = dom.editor.value.trim();
         if (valueToSend == "") {
@@ -97,7 +126,7 @@
         };
         let success;
         await delayForUX(async () => {
-          success = await sdk.sendMessage(valueToSend);
+          success = await encryptAndSend(valueToSend);
         });
         if (!success) {
           onFailure();
@@ -127,15 +156,30 @@
           }
         });
       }
-      async function setSendCloud(userID) {
+      async function setSendCloud() {
         dom.popups.connecting.classList.add("display");
-        let hasPublicInbox;
         await delayForUX(async () => {
-          sdk = await import("/open/sdk.js");
-          hasPublicInbox = await sdk.setPublicInbox(userID);
+          let response;
+          try {
+            response = await fetch(`https://frogtab.com/open/get-user?user_id=${encodeURIComponent(userID)}`);
+          }
+          catch (err) {
+            return;
+          }
+          if (!response.ok) {
+            return;
+          }
+          const result = await response.json();
+          if (!result.success) {
+            return;
+          }
+          openpgp = await import("https://unpkg.com/openpgp@5.x/dist/openpgp.min.mjs");
+          pgpPublicKeyObj = await openpgp.readKey({
+            armoredKey: result.user.pgp_public_key
+          });
         });
         dom.popups.connecting.classList.remove("display");
-        if (!hasPublicInbox) {
+        if (pgpPublicKeyObj === null) {
           dom.popups.disconnected.classList.add("display");
           dom.editor.placeholder = "";
           return;
@@ -168,7 +212,7 @@
           setSendLocal();
         }
         else {
-          const userID = matches[1];
+          userID = matches[1];
           const placeholderEncoded = matches[3];
           if (placeholderEncoded !== undefined) {
             try {
@@ -176,7 +220,7 @@
             }
             catch (err) {}
           }
-          setSendCloud(userID);
+          setSendCloud();
         }
       }
 
@@ -192,7 +236,9 @@
         editor: document.getElementById("editor"),
         send: document.getElementById("send")
       };
-      let sdk;
+      let userID = null;
+      let pgpPublicKeyObj = null;
+      let openpgp;
       startApp();
     </script>
   </body>

@@ -44,25 +44,9 @@ if (!$select_user_result) {
   respond_with_failure();
 }
 
-// Remove messages
-$messages = [];
-$select_messages = $db->prepare('SELECT * FROM messages WHERE for = :for ORDER BY id ASC');
-$select_messages->bindParam(':for', $user_id);
-$select_messages->execute();
-$select_messages_result = $select_messages->fetchAll(PDO::FETCH_ASSOC);
-foreach ($select_messages_result as $result) {
-  $id = $result['id'];
-  $message = $result['message'];
-  array_push($messages, $message);
-  $delete_message = $db->prepare('DELETE FROM messages WHERE id = :id');
-  $delete_message->bindParam(':id', $id, PDO::PARAM_INT);
-  $delete_message->execute();
-}
-
-// Respond with messages
+// Respond with success
 echo json_encode([
-  'success' => true,
-  'messages' => $messages
+  'success' => true
 ]);
 
 ?>

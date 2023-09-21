@@ -19,7 +19,7 @@ More details:
     Frogtab then sends the public key to the server.
     The private key never leaves your main device.
 
-    See the `register` function in [sdk.js](app/open/sdk.js).
+    See the `register` function in [help.html](app/help.html).
 
  2. The server generates a user ID and an API key for your main device:
 
@@ -36,24 +36,24 @@ More details:
 
     Frogtab then sends the encrypted task to the server.
 
-    See the `sendMessage` function in [sdk.js](app/open/sdk.js).
+    See the `encryptAndSend` function in [send.html](app/send.html).
 
- 7. The server appends the encrypted task to a message queue.
+ 7. The server queues the encrypted task.
 
     See [post-add-message.php](app/open/post-add-message.php).
 
   8. Frogtab on your main device periodically checks for encrypted tasks.
 
      The server only permits your main device to check for encrypted tasks (by requiring the API key from step 2).
-     If there are encrypted tasks in the message queue, your main device downloads the encrypted tasks.
+     If there are encrypted tasks in the queue, your main device downloads the encrypted tasks.
 
-     The server clears the message queue as soon as your main device has downloaded the encrypted tasks.
+     The server clears the queue as soon as your main device has downloaded the encrypted tasks.
 
      See [post-remove-messages.php](app/post-remove-messages.php).
 
  9. Frogtab decrypts the tasks using the private key from step 1.
 
-    See the `fetchMessages` function in [sdk.js](app/open/sdk.js).
+    See the `verifyUserAndAppendMessages` function in [index.html](app/index.html).
 
 ## JavaScript SDK
 
@@ -61,11 +61,28 @@ If you have [registered your main device](https://frogtab.com/help#registering-f
 For example:
 
 ```javascript
-async function send(message) {
-  const frogtab = await import("https://frogtab.com/open/sdk.js");
-  await frogtab.setPublicInbox("USER ID GOES HERE");
-  const success = await frogtab.sendMessage(message);
+let encryptAndSend = null;
+
+async function setup() {
+  if (!encryptAndSend) {
+    const frogtab = await import("https://frogtab.com/open/sdk.js");
+    encryptAndSend = await frogtab.connectToInbox("USER ID GOES HERE");
+  }
 }
+
+async function send(message) {
+  try {
+    await setup();
+    return await encryptAndSend(message);
+  }
+  catch (err) {
+    return false;
+  }
+}
+
+send("Hello Frogtab!").then(success => {
+  console.log(success);
+});
 ```
 
 To learn more, see [this blog post](https://maybecoding.bearblog.dev/adding-a-private-feedback-box-to-bear/).

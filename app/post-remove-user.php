@@ -34,7 +34,7 @@ $api_key = $request_body['api_key'];
 // Connect to database
 $db = new PDO('sqlite:' . $_SERVER['APP_DIR_DATA'] . '/sqlite.db');
 
-// Try to remove user
+// Verify credentials and remove user
 $delete_user = $db->prepare('DELETE FROM users WHERE user_id = :user_id AND api_key = :api_key');
 $delete_user->bindParam(':user_id', $user_id);
 $delete_user->bindParam(':api_key', $api_key);

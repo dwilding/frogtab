@@ -189,7 +189,7 @@
             })
           });
         }
-        catch (error) {
+        catch (err) {
           return;
         }
         if (!response.ok) {
@@ -418,10 +418,10 @@
           localStorage.setItem(`routine.${key}`, backupData.routine[key]);
         }
         if ("device" in backupData) {
-          localStorage.setItem("user.userID", backupData.device.userID);
-          localStorage.setItem("user.apiKey", backupData.device.apiKey);
           localStorage.setItem("user.pgpPublicKey", backupData.device.pgpPublicKey);
           localStorage.setItem("user.pgpPrivateKey", backupData.device.pgpPrivateKey);
+          localStorage.setItem("user.apiKey", backupData.device.apiKey);
+          localStorage.setItem("user.userID", backupData.device.userID);
         }
         localStorage.removeItem("restore");
       }
