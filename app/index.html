@@ -25,7 +25,8 @@
           </div>
         </div>
         <div class="main expand">
-          <textarea id="editor" class="display"></textarea>
+          <textarea id="editor-today" class="display"></textarea>
+          <textarea id="editor-inbox"></textarea>
         </div>
         <div class="actions">
           <div class="action">
@@ -55,29 +56,27 @@
           fetch("/icon-notify.svg")
         ]);
       }
-      function switchToTabToday() {
-        dom.today.classList.add("selected");
-        dom.inbox.classList.remove("selected");
-        selectedTab = "today";
-        refreshEditor();
-      }
-      function switchToTabInbox() {
-        dom.today.classList.remove("selected");
-        dom.inbox.classList.add("selected");
-        selectedTab = "inbox";
-        refreshEditor();
+      function switchToTab(tab) {
+        if (tab != selectedTab) {
+          dom[tab].classList.add("selected");
+          dom[selectedTab].classList.remove("selected");
+          dom.editor[tab].classList.add("display");
+          dom.editor[selectedTab].classList.remove("display");
+          selectedTab = tab;
+        }
+        refreshView();
       }
       function checkValue(value) {
         return value.match(/^\s*[^\s#]/m) !== null;
       }
       function setNotifyStatus() {
-        const value = localStorage.getItem("value.inbox");
-        if (checkValue(value) && !notifyInbox) {
+        const storedInboxValue = localStorage.getItem("value.inbox");
+        if (checkValue(storedInboxValue) && !notifyInbox) {
           dom.inbox.classList.add("notify");
           dom.icon.href = storedIcons.notify;
           notifyInbox = true;
         }
-        else if (!checkValue(value) && notifyInbox) {
+        else if (!checkValue(storedInboxValue) && notifyInbox) {
           dom.inbox.classList.remove("notify");
           dom.icon.href = storedIcons.normal;
           notifyInbox = false;
@@ -85,23 +84,19 @@
       }
       function setTab() {
         if (notifyInbox) {
-          switchToTabInbox();
+          switchToTab("inbox");
         }
         else {
-          switchToTabToday();
+          switchToTab("today");
         }
       }
       function refreshView() {
-        setNotifyStatus();
-        if (dom.editor.value != localStorage.getItem(`value.${selectedTab}`)) {
-          refreshEditor();
+        if (dom.editor[selectedTab].value != localStorage.getItem(`value.${selectedTab}`)) {
+          dom.editor[selectedTab].value = localStorage.getItem(`value.${selectedTab}`);
+          dom.editor[selectedTab].scrollTop = 0;
+          dom.editor[selectedTab].setSelectionRange(0, 0);
           refreshInfo();
         }
-      }
-      function refreshEditor() {
-        dom.editor.value = localStorage.getItem(`value.${selectedTab}`);
-        dom.editor.scrollTop = 0;
-        dom.editor.setSelectionRange(0, 0);
       }
       function refreshInfo() {
         dom.info.classList.remove("display");
@@ -113,7 +108,7 @@
         }
       }
       function selectUnsnoozed() {
-        const lines = localStorage.getItem("value.inbox").split("\n");
+        const lines = dom.editor.inbox.value.split("\n");
         const linesUnsnoozed = [];
         const linesSnoozed = [];
         let afterSnoozedLine = false;
@@ -133,38 +128,38 @@
         const unsnoozed = linesUnsnoozed.join("\n").trimEnd();
         if (linesSnoozed.length > 0) {
           const snoozed = linesSnoozed.join("\n").trimEnd();
-          dom.editor.value = `${unsnoozed}\n\n${snoozed}`;
+          dom.editor.inbox.value = `${unsnoozed}\n\n${snoozed}`;
         }
         else {
-          dom.editor.value = unsnoozed;
+          dom.editor.inbox.value = unsnoozed;
         }
-        storeThenSave("value.inbox", dom.editor.value);
-        dom.editor.scrollTop = 0;
-        dom.editor.setSelectionRange(0, unsnoozed.length);
-        dom.editor.focus();
+        storeThenSave("value.inbox", dom.editor.inbox.value);
+        dom.editor.inbox.scrollTop = 0;
+        dom.editor.inbox.setSelectionRange(0, unsnoozed.length);
+        dom.editor.inbox.focus();
       }
-      function appendToInbox(value) {
+      function appendTo(original, value) {
         const valueToAppend = value.trim();
         if (valueToAppend == "") {
-          return false;
+          return original;
         }
-        let valueInbox = localStorage.getItem("value.inbox").trimStart();
-        if (valueInbox != "") {
-          valueInbox = `\n\n${valueInbox}`;
+        let updated = original.trimStart();
+        if (updated != "") {
+          updated = `\n\n${updated}`;
         }
-        valueInbox = `${valueToAppend}${valueInbox}`;
-        storeThenSave("value.inbox", valueInbox);
-        return true;
+        return `${valueToAppend}${updated}`;
       }
       function updateValues() {
         const weekdayToday = (new Date()).getDay();
         const key = weekdayKeys[weekdayToday];
         const routine = localStorage.getItem(`routine.${key}`);
-        appendToInbox(routine);
-        appendToInbox(localStorage.getItem("value.today"));
+        const storedTodayValue = localStorage.getItem("value.today");
+        let storedInboxValue = localStorage.getItem("value.inbox");
+        storedInboxValue = appendTo(storedInboxValue, routine);
+        storedInboxValue = appendTo(storedInboxValue, storedTodayValue);
+        storedInboxValue = storedInboxValue.replaceAll(/^( *#)+ */gm, "");
         storeThenSave("value.today", "");
-        const valueInbox = localStorage.getItem("value.inbox").replaceAll(/^( *#)+ */gm, "");
-        storeThenSave("value.inbox", valueInbox);
+        storeThenSave("value.inbox", storedInboxValue);
       }
       function isNewDay() {
         const dateToday = (new Date()).toDateString();
@@ -217,9 +212,11 @@
           });
           messages.push(decrypted.data);
         }
+        let storedInboxValue = localStorage.getItem("value.inbox");
         for (const message of messages) {
-          appendToInbox(message);
+          storedInboxValue = appendTo(storedInboxValue, message);
         }
+        storeThenSave("value.inbox", storedInboxValue);
         dom.fetchConnected.classList.add("display");
       }
       function setExportAction() {
@@ -303,21 +300,24 @@
         if (isNewDay()) {
           updateValues();
         }
-        switchToTabToday();
+        switchToTab("today");
         await storeIcons();
         setNotifyStatus();
         setTab();
+        dom.editor.today.addEventListener("input", async event => {
+          storeThenSave("value.today", dom.editor.today.value);
+        });
         dom.today.addEventListener("click", event => {
-          switchToTabToday();
+          switchToTab("today");
+          refreshInfo();
+        });
+        dom.editor.inbox.addEventListener("input", async event => {
+          storeThenSave("value.inbox", dom.editor.inbox.value);
+          setNotifyStatus();
           refreshInfo();
         });
         dom.inbox.addEventListener("click", event => {
-          switchToTabInbox();
-          refreshInfo();
-        });
-        dom.editor.addEventListener("input", async event => {
-          storeThenSave(`value.${selectedTab}`, dom.editor.value);
-          setNotifyStatus();
+          switchToTab("inbox");
           refreshInfo();
         });
         dom.menuButton.addEventListener("click", event => {
@@ -332,33 +332,32 @@
         document.body.addEventListener("keydown", event => {
           if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() == "enter") {
             event.preventDefault();
-            let value = dom.editor.value.trimStart();
+            let value = dom.editor[selectedTab].value.trimStart();
             if (value != "") {
               value = `\n\n${value}`;
             }
-            dom.editor.value = value;
-            storeThenSave(`value.${selectedTab}`, dom.editor.value);
-            refreshEditor();
-            dom.editor.focus();
+            dom.editor[selectedTab].value = value;
+            storeThenSave(`value.${selectedTab}`, dom.editor[selectedTab].value);
+            dom.editor[selectedTab].scrollTop = 0;
+            dom.editor[selectedTab].setSelectionRange(0, 0);
+            dom.editor[selectedTab].focus();
             refreshInfo();
           }
           else if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() == "u") {
             event.preventDefault();
-            switchToTabToday();
-            dom.editor.focus();
+            switchToTab("today");
+            dom.editor.today.focus();
             refreshInfo();
           }
           else if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() == "i") {
             event.preventDefault();
             if (!event.shiftKey || !notifyInbox) {
-              switchToTabInbox();
-              dom.editor.focus();
+              switchToTab("inbox");
+              dom.editor.inbox.focus();
               refreshInfo();
             }
             else {
-              dom.today.classList.remove("selected");
-              dom.inbox.classList.add("selected");
-              selectedTab = "inbox";
+              switchToTab("inbox");
               selectUnsnoozed();
             }
           }
@@ -383,6 +382,7 @@
           }
           else if (verifiedUser && lastAppend <= Date.now() - 600000) {
             await verifyUserAndAppendMessages();
+            setNotifyStatus();
             refreshView();
           }
         }, 15000);
@@ -402,6 +402,7 @@
             verifiedUser = false;
             dom.fetchConnected.classList.remove("display");
           }
+          setNotifyStatus();
           refreshView();
           requestSave();
         });
@@ -441,7 +442,10 @@
       }
       const dom = {
         icon: document.getElementById("icon"),
-        editor: document.getElementById("editor"),
+        editor: {
+          "today": document.getElementById("editor-today"),
+          "inbox": document.getElementById("editor-inbox")
+        },
         today: document.getElementById("tab-today"),
         inbox: document.getElementById("tab-inbox"),
         info: document.getElementById("tab-info"),
@@ -453,7 +457,7 @@
       };
       const storedIcons = {};
       let notifyInbox = false;
-      let selectedTab;
+      let selectedTab = "today";
       let fileHandle = null;
       let timeoutSave;
       let timeoutShowInfo;
