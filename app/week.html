@@ -25,7 +25,13 @@
           </div>
         </div>
         <div class="main">
-          <textarea id="editor" class="restricted" placeholder="What do you usually do on Mondays?"></textarea>
+          <textarea id="editor-mon" class="restricted display" placeholder="What do you usually do on Mondays?"></textarea>
+          <textarea id="editor-tue" class="restricted" placeholder="What do you usually do on Tuesdays?"></textarea>
+          <textarea id="editor-wed" class="restricted" placeholder="What do you usually do on Wednesdays?"></textarea>
+          <textarea id="editor-thu" class="restricted" placeholder="What do you usually do on Thursdays?"></textarea>
+          <textarea id="editor-fri" class="restricted" placeholder="What do you usually do on Fridays?"></textarea>
+          <textarea id="editor-sat" class="restricted" placeholder="What do you usually do on Saturdays?"></textarea>
+          <textarea id="editor-sun" class="restricted" placeholder="What do you usually do on Sundays?"></textarea>
         </div>
       </div>
     </div>
@@ -34,80 +40,48 @@
         if (tab != selectedTab) {
           dom[tab].classList.add("selected");
           dom[selectedTab].classList.remove("selected");
+          dom.editor[tab].classList.add("display");
+          dom.editor[selectedTab].classList.remove("display");
           selectedTab = tab;
         }
-        refreshEditor();
+        refreshView();
       }
       function refreshView() {
-        if (dom.editor.value != localStorage.getItem(`routine.${selectedTab}`)) {
-          refreshEditor();
+        if (dom.editor[selectedTab].value != localStorage.getItem(`routine.${selectedTab}`)) {
+          dom.editor[selectedTab].value = localStorage.getItem(`routine.${selectedTab}`);
+          dom.editor[selectedTab].scrollTop = 0;
+          dom.editor[selectedTab].setSelectionRange(0, 0);
         }
       }
-      function refreshEditor() {
-        dom.editor.value = localStorage.getItem(`routine.${selectedTab}`);
-        dom.editor.placeholder = `What do you usually do on ${plurals[selectedTab]}?`
-        dom.editor.scrollTop = 0;
-        dom.editor.setSelectionRange(0, 0);
-      }
-      async function startApp() {
+      function startApp() {
         const weekdayToday = (new Date()).getDay();
         switchToTab(weekdayKeys[weekdayToday]);
-        dom.mon.addEventListener("click", event => {
-          switchToTab("mon");
-        });
-        dom.tue.addEventListener("click", event => {
-          switchToTab("tue");
-        });
-        dom.wed.addEventListener("click", event => {
-          switchToTab("wed");
-        });
-        dom.thu.addEventListener("click", event => {
-          switchToTab("thu");
-        });
-        dom.fri.addEventListener("click", event => {
-          switchToTab("fri");
-        });
-        dom.sat.addEventListener("click", event => {
-          switchToTab("sat");
-        });
-        dom.sun.addEventListener("click", event => {
-          switchToTab("sun");
-        });
-        dom.editor.addEventListener("input", event => {
-          localStorage.setItem(`routine.${selectedTab}`, dom.editor.value);
-        });
+        for (const key of weekdayKeys) {
+          dom.editor[key].addEventListener("input", event => {
+            localStorage.setItem(`routine.${key}`, dom.editor[key].value);
+          });
+          dom[key].addEventListener("click", event => {
+            switchToTab(key);
+          });
+        }
         window.addEventListener("storage", event => {
           refreshView();
         });
       }
 
       // ******** Initial setup ********
+      const dom = {
+        "editor": {}
+      };
       const weekdayKeys = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
       for (const key of weekdayKeys) {
         if (localStorage.getItem(`routine.${key}`) === null) {
           localStorage.setItem(`routine.${key}`, "");
         }
+        dom.editor[key] = document.getElementById(`editor-${key}`);
+        dom[key] = document.getElementById(`tab-${key}`);
       }
-      const dom = {
-        editor: document.getElementById("editor"),
-        mon: document.getElementById("tab-mon"),
-        tue: document.getElementById("tab-tue"),
-        wed: document.getElementById("tab-wed"),
-        thu: document.getElementById("tab-thu"),
-        fri: document.getElementById("tab-fri"),
-        sat: document.getElementById("tab-sat"),
-        sun: document.getElementById("tab-sun")
-      };
       let selectedTab = "mon";
-      const plurals = {
-        "mon": "Mondays",
-        "tue": "Tuesdays",
-        "wed": "Wednesdays",
-        "thu": "Thursdays",
-        "fri": "Fridays",
-        "sat": "Saturdays",
-        "sun": "Sundays"
-      };
       startApp();
     </script>
   </body>
