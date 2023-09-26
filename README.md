@@ -63,16 +63,12 @@ For example:
 ```javascript
 let encryptAndSend = null;
 
-async function setup() {
-  if (!encryptAndSend) {
-    const frogtab = await import("https://frogtab.com/open/sdk.js");
-    encryptAndSend = await frogtab.connectToInbox("USER ID GOES HERE");
-  }
-}
-
 async function send(message) {
   try {
-    await setup();
+    if (!encryptAndSend) {
+      const frogtab = await import("https://frogtab.com/open/sdk.js");
+      encryptAndSend = await frogtab.connectToInbox("USER ID GOES HERE");
+    }
     return await encryptAndSend(message);
   }
   catch (err) {
