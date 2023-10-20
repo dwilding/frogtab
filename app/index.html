@@ -24,7 +24,7 @@
             <span id="fetch-connected" class="info-message" title="Ready to receive tasks from any device"><svg width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M12 4c-6 0-6 4-6 6-1.667 0-5 1-5 5s3.333 5 5 5h12c1.667 0 5-1 5-5s-3.333-5-5-5c0-2 0-6-6-6z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path></svg></span>
           </div>
         </div>
-        <div class="main expand">
+        <div class="main">
           <textarea id="editor-today" class="display"></textarea>
           <textarea id="editor-inbox"></textarea>
         </div>
@@ -34,10 +34,10 @@
             <span id="enable-save" class="action-instruction">Enable Auto-Backup</span>
           </div>
           <div id="menu" class="action-menu">
-            <a href="/week" target="_blank">Weekly Routine</span>
-            <a href="/send" target="_blank">Send to Frogtab</span>
-            <a href="/help" target="_blank">Help &amp; Privacy</span>
-            <a id="export-data" href="#" download="Frogtab_backup.json">Export My Data</a>
+            <a class="action-menu-item action-menu-clickable" href="/help" target="_blank">Help &amp; Privacy</a>
+            <a id="export-data" class="action-menu-item action-menu-clickable" href="#" download="Frogtab_backup.json">Export My Data</a>
+            <a class="action-menu-item action-menu-clickable" href="/send" target="_blank">Send to Frogtab</a>
+            <a class="action-menu-item action-menu-clickable" href="/week" target="_blank">Weekly Routine</a>
           </div>
         </div>
       </div>
