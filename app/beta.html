@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Frogtab is a lightweight task manager that helps you stay focused on today's priorities">
+    <title>Frogtab</title>
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" id="icon">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="stylesheet" href="/style.css">
+  </head>
+  <body>
+    <div id="container" class="container">
+      <div class="interface">
+        <div class="tabs">
+          <div class="tab">
+            <span id="tab-today" class="tab-name selected">Today</span>
+            <span id="tab-inbox" class="tab-name">Inbox</span>
+            <span class="tab-icon">⬤</span>
+          </div>
+          <div class="tab info">
+            <span id="tab-info" class="info-message">Your inbox is all set!</span>
+            <span id="fetch-connected" class="info-message" title="Ready to receive tasks from any device"><svg width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M12 4c-6 0-6 4-6 6-1.667 0-5 1-5 5s3.333 5 5 5h12c1.667 0 5-1 5-5s-3.333-5-5-5c0-2 0-6-6-6z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path></svg></span>
+          </div>
+        </div>
+        <div class="main">
+          <textarea id="editor-today" class="display"></textarea>
+          <textarea id="editor-inbox"></textarea>
+        </div>
+        <div class="actions">
+          <div class="action">
+            <span id="menu-button" class="action-instruction display" title="Menu"><svg width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M3 5h18M3 12h18M3 19h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
+            <span id="enable-save" class="action-instruction">Enable Auto-Backup</span>
+          </div>
+          <div id="menu" class="action-menu">
+            <a class="action-menu-item action-menu-clickable" href="/help" target="_blank">Help &amp; Privacy</a>
+            <a id="export-data" class="action-menu-item action-menu-clickable" href="#" download="Frogtab_backup.json">Export My Data</a>
+            <a class="action-menu-item action-menu-clickable" href="/send" target="_blank">Send to Frogtab</a>
+            <a class="action-menu-item action-menu-clickable" href="/week" target="_blank">Weekly Routine</a>
+            <div class="action-menu-item">
+              <div class="action-menu-toggle">
+                <span id="mini-mode-change" class="action-menu-clickable">Mini Mode</span>
+                <span id="mini-mode-status" class="action-menu-status">off</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      async function storeIcons() {
+        const icons = await fetchIcons();
+        const iconBlobNormal = await icons[0].blob();
+        const iconBlobNotify = await icons[1].blob();
+        storedIcons.normal = URL.createObjectURL(iconBlobNormal);
+        storedIcons.notify = URL.createObjectURL(iconBlobNotify);
+      }
+      async function fetchIcons() {
+        return Promise.all([
+          fetch("/icon.svg"),
+          fetch("/icon-notify.svg")
+        ]);
+      }
+      function switchToTab(tab) {
+        if (tab != selectedTab) {
+          dom[tab].classList.add("selected");
+          dom[selectedTab].classList.remove("selected");
+          dom.editor[tab].classList.add("display");
+          dom.editor[selectedTab].classList.remove("display");
+          selectedTab = tab;
+        }
+        refreshView();
+      }
+      function checkValue(value) {
+        return value.match(/^\s*[^\s#]/m) !== null;
+      }
+      function setNotifyStatus() {
+        const storedInboxValue = localStorage.getItem("value.inbox");
+        if (checkValue(storedInboxValue) && !notifyInbox) {
+          dom.inbox.classList.add("notify");
+          dom.icon.href = storedIcons.notify;
+          notifyInbox = true;
+        }
+        else if (!checkValue(storedInboxValue) && notifyInbox) {
+          dom.inbox.classList.remove("notify");
+          dom.icon.href = storedIcons.normal;
+          notifyInbox = false;
+        }
+      }
+      function setTab() {
+        if (notifyInbox) {
+          switchToTab("inbox");
+        }
+        else {
+          switchToTab("today");
+        }
+      }
+      function refreshView() {
+        if (dom.editor[selectedTab].value != localStorage.getItem(`value.${selectedTab}`)) {
+          dom.editor[selectedTab].value = localStorage.getItem(`value.${selectedTab}`);
+          dom.editor[selectedTab].scrollTop = 0;
+          dom.editor[selectedTab].setSelectionRange(0, 0);
+          refreshInfo();
+        }
+      }
+      function refreshInfo() {
+        dom.info.classList.remove("display");
+        window.clearTimeout(timeoutShowInfo);
+        if (selectedTab == "inbox" && !notifyInbox) {
+          timeoutShowInfo = window.setTimeout(() => {
+            dom.info.classList.add("display");
+          }, 30000);
+        }
+      }
+      function selectUnsnoozed() {
+        const lines = dom.editor.inbox.value.split("\n");
+        const linesUnsnoozed = [];
+        const linesSnoozed = [];
+        let afterSnoozedLine = false;
+        for (const line of lines) {
+          if (line.trimStart().startsWith("#")) {
+            linesSnoozed.push(line);
+            afterSnoozedLine = true;
+          }
+          else if (afterSnoozedLine && line.trimStart() == "") {
+            linesSnoozed.push(line);
+          }
+          else {
+            linesUnsnoozed.push(line);
+            afterSnoozedLine = false;
+          }
+        }
+        const unsnoozed = linesUnsnoozed.join("\n").trimEnd();
+        if (linesSnoozed.length > 0) {
+          const snoozed = linesSnoozed.join("\n").trimEnd();
+          dom.editor.inbox.value = `${unsnoozed}\n\n${snoozed}`;
+        }
+        else {
+          dom.editor.inbox.value = unsnoozed;
+        }
+        storeThenSave("value.inbox", dom.editor.inbox.value);
+        dom.editor.inbox.scrollTop = 0;
+        dom.editor.inbox.setSelectionRange(0, unsnoozed.length);
+        dom.editor.inbox.focus();
+      }
+      function appendTo(original, value) {
+        const valueToAppend = value.trim();
+        if (valueToAppend == "") {
+          return original;
+        }
+        let updated = original.trimStart();
+        if (updated != "") {
+          updated = `\n\n${updated}`;
+        }
+        return `${valueToAppend}${updated}`;
+      }
+      function updateValues() {
+        const weekdayToday = (new Date()).getDay();
+        const key = weekdayKeys[weekdayToday];
+        const routine = localStorage.getItem(`routine.${key}`);
+        const storedTodayValue = localStorage.getItem("value.today");
+        let storedInboxValue = localStorage.getItem("value.inbox");
+        storedInboxValue = appendTo(storedInboxValue, routine);
+        storedInboxValue = appendTo(storedInboxValue, storedTodayValue);
+        storedInboxValue = storedInboxValue.replaceAll(/^( *#)+ */gm, "");
+        storeThenSave("value.today", "");
+        storeThenSave("value.inbox", storedInboxValue);
+      }
+      function isNewDay() {
+        const dateToday = (new Date()).toDateString();
+        if (localStorage.getItem("date") == dateToday) {
+          return false;
+        }
+        storeThenSave("date", dateToday);
+        return true;
+      }
+      async function verifyUserAndAppendMessages() {
+        lastAppend = Date.now();
+        let response;
+        try {
+          response = await fetch("https://frogtab.com/post-remove-messages", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              user_id: localStorage.getItem("user.userID"),
+              api_key: localStorage.getItem("user.apiKey")
+            })
+          });
+        }
+        catch (err) {
+          return;
+        }
+        if (!response.ok) {
+          return;
+        }
+        const result = await response.json();
+        verifiedUser = result.success;
+        if (!verifiedUser) {
+          dom.fetchConnected.classList.remove("display");
+          return;
+        }
+        const messages = [];
+        if (openpgp === undefined) {
+          openpgp = await import("https://unpkg.com/openpgp@5.x/dist/openpgp.min.mjs");
+        }
+        const pgpPrivateKeyObj = await openpgp.readKey({
+          armoredKey: localStorage.getItem("user.pgpPrivateKey")
+        });
+        for (const encryptedMessage of result.messages) {
+          const decrypted = await openpgp.decrypt({
+            message: await openpgp.readMessage({
+              armoredMessage: encryptedMessage
+            }),
+            decryptionKeys: pgpPrivateKeyObj
+          });
+          messages.push(decrypted.data);
+        }
+        let storedInboxValue = localStorage.getItem("value.inbox");
+        for (const message of messages) {
+          storedInboxValue = appendTo(storedInboxValue, message);
+        }
+        storeThenSave("value.inbox", storedInboxValue);
+        dom.fetchConnected.classList.add("display");
+      }
+      function setModes() {
+        if (localStorage.getItem("mode.mini") == "on") {
+          dom.container.classList.add("docked");
+          dom.miniMode.status.classList.add("on");
+          dom.miniMode.status.textContent = "on";
+        }
+        dom.miniMode.change.addEventListener("click", event => {
+          if (localStorage.getItem("mode.mini") == "off") {
+            dom.container.classList.add("docked");
+            dom.miniMode.status.classList.add("on");
+            dom.miniMode.status.textContent = "on";
+            localStorage.setItem("mode.mini", "on");
+          }
+          else {
+            dom.container.classList.remove("docked");
+            dom.miniMode.status.classList.remove("on");
+            dom.miniMode.status.textContent = "off";
+            localStorage.setItem("mode.mini", "off");
+          }
+        });
+      }
+      function setExportAction() {
+        if ("showSaveFilePicker" in window) {
+          dom.enableSave.addEventListener("click", async event => {
+            try {
+              fileHandle = await window.showSaveFilePicker({
+                suggestedName: `Frogtab_backup.json`,
+                types: [{
+                  description: "JSON files",
+                  accept: {
+                    "application/json": [
+                      ".json"
+                    ]
+                  }
+                }]
+              });
+            }
+            catch (err) {
+              return;
+            }
+            dom.enableSave.classList.remove("display");
+            requestSave();
+          });
+          dom.enableSave.classList.add("display");
+        }
+        dom.exportData.addEventListener("click", event => {
+          const dataJSON = createDataJSON();
+          const dataBlob = new Blob([dataJSON], {
+            type: "application/json; charset=utf-8"
+          });
+          dom.exportData.href = URL.createObjectURL(dataBlob);
+        });
+      }
+      function createDataJSON() {
+        const data = {
+          help: "To restore your data, visit https://frogtab.com/help#importing-your-data",
+          date: localStorage.getItem("date"),
+          today: localStorage.getItem("value.today").trim(),
+          inbox: localStorage.getItem("value.inbox").trim(),
+          routine: {}
+        };
+        for (const key of weekdayKeys) {
+          data.routine[key] = localStorage.getItem(`routine.${key}`).trim();
+        }
+        if (localStorage.getItem("user.userID") !== null) {
+          data.device = {
+            userID: localStorage.getItem("user.userID"),
+            apiKey: localStorage.getItem("user.apiKey"),
+            pgpPublicKey: localStorage.getItem("user.pgpPublicKey"),
+            pgpPrivateKey: localStorage.getItem("user.pgpPrivateKey")
+          };
+        }
+        const dataJSON = JSON.stringify(data, null, 2);
+        return (new TextEncoder()).encode(dataJSON);
+      }
+      function storeThenSave(key, value) {
+        localStorage.setItem(key, value);
+        requestSave();
+      }
+      function requestSave() {
+        if (fileHandle !== null) {
+          window.clearTimeout(timeoutSave);
+          timeoutSave = window.setTimeout(saveToFile, 3000);
+        }
+      }
+      async function saveToFile() {
+        const dataJSON = createDataJSON();
+        try {
+          const stream = await fileHandle.createWritable();
+          await stream.write(dataJSON);
+          await stream.close();
+        }
+        catch (err) {
+          fileHandle = null;
+          dom.enableSave.classList.add("display");
+        }
+      }
+      async function startApp() {
+        setModes();
+        setExportAction();
+        if (isNewDay()) {
+          updateValues();
+        }
+        switchToTab("today");
+        await storeIcons();
+        setNotifyStatus();
+        setTab();
+        dom.editor.today.addEventListener("input", async event => {
+          storeThenSave("value.today", dom.editor.today.value);
+        });
+        dom.today.addEventListener("click", event => {
+          switchToTab("today");
+          refreshInfo();
+        });
+        dom.editor.inbox.addEventListener("input", async event => {
+          storeThenSave("value.inbox", dom.editor.inbox.value);
+          setNotifyStatus();
+          refreshInfo();
+        });
+        dom.inbox.addEventListener("click", event => {
+          switchToTab("inbox");
+          refreshInfo();
+        });
+        dom.menuButton.addEventListener("click", event => {
+          if (!dom.menu.classList.contains("display")) {
+            dom.menu.classList.add("display");
+            event.stopPropagation();
+          }
+        });
+        document.addEventListener("click", event => {
+          dom.menu.classList.remove("display");
+        });
+        document.body.addEventListener("keydown", event => {
+          if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() == "enter") {
+            event.preventDefault();
+            let value = dom.editor[selectedTab].value.trimStart();
+            if (value != "") {
+              value = `\n\n${value}`;
+            }
+            dom.editor[selectedTab].value = value;
+            storeThenSave(`value.${selectedTab}`, dom.editor[selectedTab].value);
+            dom.editor[selectedTab].scrollTop = 0;
+            dom.editor[selectedTab].setSelectionRange(0, 0);
+            dom.editor[selectedTab].focus();
+            refreshInfo();
+          }
+          else if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() == "u") {
+            event.preventDefault();
+            switchToTab("today");
+            dom.editor.today.focus();
+            refreshInfo();
+          }
+          else if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() == "i") {
+            event.preventDefault();
+            if (!event.shiftKey || !notifyInbox) {
+              switchToTab("inbox");
+              dom.editor.inbox.focus();
+              refreshInfo();
+            }
+            else {
+              switchToTab("inbox");
+              selectUnsnoozed();
+            }
+          }
+        });
+        if (localStorage.getItem("user.userID") !== null) {
+          hasUserID = true;
+          await verifyUserAndAppendMessages();
+          if (verifiedUser) {
+            setNotifyStatus();
+            setTab();
+          }
+        }
+        window.setInterval(async () => {
+          if (isNewDay()) {
+            updateValues();
+            if (verifiedUser) {
+              await verifyUserAndAppendMessages();
+            }
+            setNotifyStatus();
+            setTab();
+            refreshInfo();
+          }
+          else if (verifiedUser && lastAppend <= Date.now() - 600000) {
+            await verifyUserAndAppendMessages();
+            setNotifyStatus();
+            refreshView();
+          }
+        }, 15000);
+        window.addEventListener("storage", async event => {
+          if (!hasUserID && localStorage.getItem("user.userID") !== null) {
+            hasUserID = true;
+            await verifyUserAndAppendMessages();
+            if (verifiedUser) {
+              // Since the user has probably just sent a test message,
+              // we'll set the last message fetch to be 8 minutes ago.
+              // Then Frogtab will do another message fetch in 2 minutes.
+              lastAppend -= 480000;
+            }
+          }
+          else if (hasUserID && localStorage.getItem("user.userID") === null) {
+            hasUserID = false;
+            verifiedUser = false;
+            dom.fetchConnected.classList.remove("display");
+          }
+          setNotifyStatus();
+          refreshView();
+          requestSave();
+        });
+      }
+
+      // ******** Initial setup ********
+      const weekdayKeys = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+      if (localStorage.getItem("restore") !== null) {
+        const backupData = JSON.parse(localStorage.getItem("restore"));
+        localStorage.setItem("date", backupData.date);
+        localStorage.setItem("value.today", backupData.today);
+        localStorage.setItem("value.inbox", backupData.inbox);
+        for (const key of weekdayKeys) {
+          localStorage.setItem(`routine.${key}`, backupData.routine[key]);
+        }
+        if ("device" in backupData) {
+          localStorage.setItem("user.pgpPublicKey", backupData.device.pgpPublicKey);
+          localStorage.setItem("user.pgpPrivateKey", backupData.device.pgpPrivateKey);
+          localStorage.setItem("user.apiKey", backupData.device.apiKey);
+          localStorage.setItem("user.userID", backupData.device.userID);
+        }
+        localStorage.removeItem("restore");
+      }
+      if (localStorage.getItem("date") === null) {
+        localStorage.setItem("date", (new Date()).toDateString());
+      }
+      if (localStorage.getItem("value.today") === null) {
+        localStorage.setItem("value.today", "");
+      }
+      if (localStorage.getItem("value.inbox") === null) {
+        localStorage.setItem("value.inbox", "");
+      }
+      for (const key of weekdayKeys) {
+        if (localStorage.getItem(`routine.${key}`) === null) {
+          localStorage.setItem(`routine.${key}`, "");
+        }
+      }
+      if (localStorage.getItem("mode.mini") === null) {
+        localStorage.setItem("mode.mini", "off");
+      }
+      const dom = {
+        container: document.getElementById("container"),
+        icon: document.getElementById("icon"),
+        editor: {
+          "today": document.getElementById("editor-today"),
+          "inbox": document.getElementById("editor-inbox")
+        },
+        today: document.getElementById("tab-today"),
+        inbox: document.getElementById("tab-inbox"),
+        info: document.getElementById("tab-info"),
+        fetchConnected: document.getElementById("fetch-connected"),
+        menuButton: document.getElementById("menu-button"),
+        menu: document.getElementById("menu"),
+        exportData: document.getElementById("export-data"),
+        miniMode: {
+          change: document.getElementById("mini-mode-change"),
+          status: document.getElementById("mini-mode-status")
+        },
+        enableSave: document.getElementById("enable-save")
+      };
+      const storedIcons = {};
+      let notifyInbox = false;
+      let selectedTab = "today";
+      let fileHandle = null;
+      let timeoutSave;
+      let timeoutShowInfo;
+      let hasUserID = false;
+      let verifiedUser = false;
+      let lastAppend = 0;
+      let openpgp;
+      startApp();
+    </script>
+  </body>
+</html>
