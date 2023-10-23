@@ -173,34 +173,20 @@ textarea.display {
   display: block;
 }
 .action-menu-item {
-  display: block;
   margin: 0.6rem;
+  display: none;
 }
-.action-menu-clickable {
+.action-menu-item.display {
+  display: block;
+}
+.action-menu-item.clickable {
   color: #606060;
   text-decoration: none;
   cursor: pointer;
 }
-.action-menu-toggle {
-  display: flex;
-  justify-content: space-between;
-}
-.action-menu-status {
-  width: 32px;
-  margin-left: 0.6rem;
-  border: 1px solid #c0c0c0;
-  border-radius: 2px;
-  background-color: #f3f3f3;
-  color: #808080;
-  font-variant: small-caps;
-  line-height: 14px;
-  text-align: center;
-  cursor: default;
-}
-.action-menu-status.on {
-  border-color: #606060;
+.action-menu-item.spacer {
+  height: 1px;
   background-color: #e0e0e0;
-  color: #202020;
 }
 .circle-button {
   display: inline-block;
@@ -231,7 +217,7 @@ textarea.display {
   .tab-name:hover {
     color: #202020;
   }
-  .action-menu-clickable:hover {
+  .action-menu-item.clickable:hover {
     color: #202020;
   }
   .action-instruction:hover {

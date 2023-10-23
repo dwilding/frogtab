@@ -8,7 +8,7 @@
     <link rel="icon" href="/icon.svg" type="image/svg+xml" id="icon">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/manifest.webmanifest">
-    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/style.css?sha1=c98541e900c5cf5dec618600ae976cf67947d3ea">
   </head>
   <body>
     <div id="container" class="container">
@@ -34,16 +34,14 @@
             <span id="enable-save" class="action-instruction">Enable Auto-Backup</span>
           </div>
           <div id="menu" class="action-menu">
-            <a class="action-menu-item action-menu-clickable" href="/help" target="_blank">Help &amp; Privacy</a>
-            <a id="export-data" class="action-menu-item action-menu-clickable" href="#" download="Frogtab_backup.json">Export My Data</a>
-            <a class="action-menu-item action-menu-clickable" href="/send" target="_blank">Send to Frogtab</a>
-            <a class="action-menu-item action-menu-clickable" href="/week" target="_blank">Weekly Routine</a>
-            <div class="action-menu-item">
-              <div class="action-menu-toggle">
-                <span id="mini-mode-change" class="action-menu-clickable">Mini Mode</span>
-                <span id="mini-mode-status" class="action-menu-status">off</span>
-              </div>
-            </div>
+            <a class="action-menu-item display clickable" href="/help" target="_blank">Help &amp; Privacy</a>
+            <a id="export-data" class="action-menu-item display clickable" href="#" download="Frogtab_backup.json">Export My Data</a>
+            <div class="action-menu-item display spacer"></div>
+            <a class="action-menu-item display clickable" href="/send" target="_blank">Send to Frogtab</a>
+            <a class="action-menu-item display clickable" href="/week" target="_blank">Weekly Routine</a>
+            <div class="action-menu-item display spacer"></div>
+            <span id="snap-to-bottom" class="action-menu-item display clickable">Snap to Bottom</span>
+            <span id="snap-to-center" class="action-menu-item clickable">Snap to Center</span>
           </div>
         </div>
       </div>
@@ -225,25 +223,23 @@
         storeThenSave("value.inbox", storedInboxValue);
         dom.fetchConnected.classList.add("display");
       }
-      function setModes() {
-        if (localStorage.getItem("mode.mini") == "on") {
+      function setSnap() {
+        if (localStorage.getItem("ui.snap") == "bottom") {
           dom.container.classList.add("docked");
-          dom.miniMode.status.classList.add("on");
-          dom.miniMode.status.textContent = "on";
+          dom.snapToCenter.classList.add("display");
+          dom.snapToBottom.classList.remove("display");
         }
-        dom.miniMode.change.addEventListener("click", event => {
-          if (localStorage.getItem("mode.mini") == "off") {
-            dom.container.classList.add("docked");
-            dom.miniMode.status.classList.add("on");
-            dom.miniMode.status.textContent = "on";
-            localStorage.setItem("mode.mini", "on");
-          }
-          else {
-            dom.container.classList.remove("docked");
-            dom.miniMode.status.classList.remove("on");
-            dom.miniMode.status.textContent = "off";
-            localStorage.setItem("mode.mini", "off");
-          }
+        dom.snapToBottom.addEventListener("click", event => {
+          dom.container.classList.add("docked");
+          dom.snapToCenter.classList.add("display");
+          dom.snapToBottom.classList.remove("display");
+          localStorage.setItem("ui.snap", "bottom");
+        });
+        dom.snapToCenter.addEventListener("click", event => {
+          dom.container.classList.remove("docked");
+          dom.snapToBottom.classList.add("display");
+          dom.snapToCenter.classList.remove("display");
+          localStorage.setItem("ui.snap", "center");
         });
       }
       function setExportAction() {
@@ -323,7 +319,7 @@
         }
       }
       async function startApp() {
-        setModes();
+        setSnap();
         setExportAction();
         if (isNewDay()) {
           updateValues();
@@ -468,8 +464,8 @@
           localStorage.setItem(`routine.${key}`, "");
         }
       }
-      if (localStorage.getItem("mode.mini") === null) {
-        localStorage.setItem("mode.mini", "off");
+      if (localStorage.getItem("ui.snap") === null) {
+        localStorage.setItem("ui.snap", "center");
       }
       const dom = {
         container: document.getElementById("container"),
@@ -484,11 +480,9 @@
         fetchConnected: document.getElementById("fetch-connected"),
         menuButton: document.getElementById("menu-button"),
         menu: document.getElementById("menu"),
+        snapToBottom: document.getElementById("snap-to-bottom"),
+        snapToCenter: document.getElementById("snap-to-center"),
         exportData: document.getElementById("export-data"),
-        miniMode: {
-          change: document.getElementById("mini-mode-change"),
-          status: document.getElementById("mini-mode-status")
-        },
         enableSave: document.getElementById("enable-save")
       };
       const storedIcons = {};
