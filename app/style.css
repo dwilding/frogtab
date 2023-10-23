@@ -15,13 +15,14 @@ body {
   align-items: flex-end;
 }
 .container.docked .interface {
-  height: 40%;
+  height: auto;
+  margin-bottom: 2rem;
 }
 .container.docked .main {
   flex: initial;
 }
 .container.docked textarea {
-  height: 12rem;
+  height: 15rem;
 }
 .container.restricted .main {
   flex: initial;
