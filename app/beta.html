@@ -230,17 +230,25 @@
           dom.snapToBottom.classList.remove("display");
         }
         dom.snapToBottom.addEventListener("click", event => {
+          toggleSnap();
+        });
+        dom.snapToCenter.addEventListener("click", event => {
+          toggleSnap();
+        });
+      }
+      function toggleSnap() {
+        if (localStorage.getItem("ui.snap") == "center") {
           dom.container.classList.add("docked");
           dom.snapToCenter.classList.add("display");
           dom.snapToBottom.classList.remove("display");
           localStorage.setItem("ui.snap", "bottom");
-        });
-        dom.snapToCenter.addEventListener("click", event => {
+        }
+        else {
           dom.container.classList.remove("docked");
           dom.snapToBottom.classList.add("display");
           dom.snapToCenter.classList.remove("display");
           localStorage.setItem("ui.snap", "center");
-        });
+        }
       }
       function setExportAction() {
         if ("showSaveFilePicker" in window) {
@@ -384,6 +392,10 @@
               switchToTab("inbox");
               selectUnsnoozed();
             }
+          }
+          else if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() == "b") {
+            event.preventDefault();
+            toggleSnap();
           }
         });
         if (localStorage.getItem("user.userID") !== null) {

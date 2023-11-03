@@ -36,6 +36,28 @@
       svg {
         vertical-align: text-top;
       }
+      label {
+        display: inline-block;
+        margin-right: 0.5rem;
+      }
+      table {
+        width: 100%;
+      }
+      td {
+        vertical-align: top;
+      }
+      td > p {
+        margin: 0;
+      }
+      td > p + p {
+        margin-top: 0.5rem;
+      }
+      .shortcut {
+        display: none;
+      }
+      .shortcut.display {
+        display: inline;
+      }
       footer a {
         color: var(--text-light) !important;
       }
@@ -297,53 +319,121 @@
         After you've finished writing down your tasks, close the tab.
       </p>
       <h2 id="keyboard-shortcuts">Keyboard shortcuts</h2>
-      <table style="width: 100%">
+      <p>
+        <label>
+          <input id="os-mac" type="radio" name="os" checked> macOS
+        </label>
+        <label>
+          <input id="os-win-linux" type="radio" name="os"> Windows/Linux
+        </label>
+      </p>
+      <table>
         <thead>
           <tr>
-            <th style="width: 35%">Action</th>
-            <th style="width: 30%">macOS</th>
-            <th style="width: 35%">Windows and Linux</th>
+            <th style="width: 68%">Action</th>
+            <th style="width: 32%">Shortcut</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>Show Today</td>
-            <td><kbd>⌘ + U</kbd></td>
-            <td><kbd>Ctrl + U</kbd></td>
+            <td>
+              <p>
+                Start a new line at the top
+              </p>
+            </td>
+            <td>
+              <span class="shortcut mac display"><kbd>⌘</kbd> + <kbd>Enter</kbd></span>
+              <span class="shortcut win-linux"><kbd>Ctrl</kbd> + <kbd>Enter</kbd></span>
+            </td>
           </tr>
           <tr>
-            <td>Show Inbox</td>
-            <td><kbd>⌘ + I</kbd></td>
-            <td><kbd>Ctrl + I</kbd></td>
+            <td>
+              <p>
+                Show Today
+              </p>
+            </td>
+            <td>
+              <span class="shortcut mac display"><kbd>⌘</kbd> + <kbd>U</kbd></span>
+              <span class="shortcut win-linux"><kbd>Ctrl</kbd> + <kbd>U</kbd></span>
+            </td>
           </tr>
           <tr>
-            <td>Show Inbox and select all unsnoozed tasks</td>
-            <td><kbd>⌘ + Shift + I</kbd></td>
-            <td><kbd>Ctrl + Shift + I</kbd></td>
+            <td>
+              <p>
+                Show Inbox
+              </p>
+            </td>
+            <td>
+              <span class="shortcut mac display"><kbd>⌘</kbd> + <kbd>I</kbd></span>
+              <span class="shortcut win-linux"><kbd>Ctrl</kbd> + <kbd>I</kbd></span>
+            </td>
           </tr>
           <tr>
-            <td>Start a new line at the top</td>
-            <td><kbd>⌘ + Enter</kbd></td>
-            <td><kbd>Ctrl + Enter</kbd></td>
+            <td>
+              <p>
+                Show Inbox and select all unsnoozed tasks
+              </p>
+            </td>
+            <td>
+              <span class="shortcut mac display"><kbd>⌘</kbd> + <kbd>Shift</kbd> + <kbd>I</kbd></span>
+              <span class="shortcut win-linux"><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>I</kbd></span>
+            </td>
           </tr>
+          <!-- <tr>
+            <td>
+              <p>
+                Snooze selected tasks
+              </p>
+              <p>
+                If the tasks are in Today, Frogtab moves them to Inbox.
+              </p>
+            </td>
+            <td>
+              <span class="shortcut mac display"><kbd>⌘</kbd> + <kbd>/</kbd></span>
+              <span class="shortcut win-linux"><kbd>Ctrl</kbd> + <kbd>/</kbd></span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <p>
+                Toggle editing position between center and bottom
+              </p>
+              <p>
+                Also accessible via
+                <strong>Snap to Bottom</strong> or <strong>Snap to Center</strong> from the
+                <svg width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M3 5h18M3 12h18M3 19h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                menu.
+                This feature is handy for making room for other windows, such as video calls.
+              </p>
+            </td>
+            <td>
+              <span class="shortcut mac display"><kbd>⌘</kbd> + <kbd>B</kbd></span>
+              <span class="shortcut win-linux"><kbd>Ctrl</kbd> + <kbd>B</kbd></span>
+            </td>
+          </tr> -->
         </tbody>
       </table>
       <p>
         For <a href="/send" target="_blank">Send to Frogtab</a>:
       </p>
-      <table style="width: 100%">
+      <table>
         <thead>
           <tr>
-            <th style="width: 35%">Action</th>
-            <th style="width: 30%">macOS</th>
-            <th style="width: 35%">Windows and Linux</th>
+            <th style="width: 68%">Action</th>
+            <th style="width: 32%">Shortcut</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>Send</td>
-            <td><kbd>⌘ + Enter</kbd></td>
-            <td><kbd>Ctrl + Enter</kbd></td>
+            <td>
+              <p>
+                Send
+              </p>
+            </td>
+            <td>
+              <span class="shortcut mac display"><kbd>⌘</kbd> + <kbd>Enter</kbd></span>
+              <span class="shortcut win-linux"><kbd>Ctrl</kbd> + <kbd>Enter</kbd></span>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -421,7 +511,7 @@
       <p>
         To start the restore process, <a href="#" id="start-restore">open a backup file</a>.
       </p>
-      <input type="file" id="choose-backup-file" style="display: none;" accept=".json">
+      <input type="file" id="choose-backup-file" style="display: none" accept=".json">
       <div id="staged-restore" class="notice">
         <div class="display">
           <p>
@@ -630,6 +720,35 @@
       }
       async function startApp() {
         verify();
+        if (!(
+          navigator.platform.includes("Mac")
+          || navigator.platform.includes("iPad")
+          || navigator.platform.includes("iPhone")
+        )) {
+          dom.osWinLinux.checked = true;
+          for (const shortcut of document.querySelectorAll(".shortcut.mac")) {
+            shortcut.classList.remove("display");
+          }
+          for (const shortcut of document.querySelectorAll(".shortcut.win-linux")) {
+            shortcut.classList.add("display");
+          }
+        }
+        dom.osWinLinux.addEventListener("change", event => {
+          for (const shortcut of document.querySelectorAll(".shortcut.mac")) {
+            shortcut.classList.remove("display");
+          }
+          for (const shortcut of document.querySelectorAll(".shortcut.win-linux")) {
+            shortcut.classList.add("display");
+          }
+        });
+        dom.osMac.addEventListener("change", event => {
+          for (const shortcut of document.querySelectorAll(".shortcut.win-linux")) {
+            shortcut.classList.remove("display");
+          }
+          for (const shortcut of document.querySelectorAll(".shortcut.mac")) {
+            shortcut.classList.add("display");
+          }
+        });
         dom.comment.addEventListener("input", event => {
           dom.register.disabled = (dom.comment.value.trim() == "");
         });
@@ -691,6 +810,8 @@
 
       // ******** Initial setup ********
       const dom = {
+        osMac: document.getElementById("os-mac"),
+        osWinLinux: document.getElementById("os-win-linux"),
         caseChecking: document.getElementById("case-checking"),
         caseUnregistered: document.getElementById("case-unregistered"),
         caseRegistering: document.getElementById("case-registering"),
