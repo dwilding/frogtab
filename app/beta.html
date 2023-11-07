@@ -97,8 +97,8 @@
       function refreshView() {
         if (dom.editor[selectedTab].value != localStorage.getItem(`value.${selectedTab}`)) {
           dom.editor[selectedTab].value = localStorage.getItem(`value.${selectedTab}`);
-          dom.editor[selectedTab].scrollTop = 0;
           dom.editor[selectedTab].setSelectionRange(0, 0);
+          dom.editor[selectedTab].scrollTop = 0;
           refreshInfo();
         }
       }
@@ -138,9 +138,49 @@
           dom.editor.inbox.value = unsnoozed;
         }
         storeThenSave("value.inbox", dom.editor.inbox.value);
-        dom.editor.inbox.scrollTop = 0;
         dom.editor.inbox.setSelectionRange(0, unsnoozed.length);
+        dom.editor.inbox.scrollTop = 0;
         dom.editor.inbox.focus();
+      }
+      function inboxSnoozeSelected() {
+        let selectionStart = dom.editor.inbox.selectionStart;
+        let selectionEnd = dom.editor.inbox.selectionEnd;
+        let lineStart = 0;
+        let lineEnd;
+        const lines = dom.editor.inbox.value.split("\n");
+        const linesUpdated = [];
+        for (const line of lines) {
+          lineEnd = lineStart + line.length;
+          const trimmedLine = line.trimStart();
+          const lengthTrimmed = line.length - trimmedLine.length;
+          if (lineEnd < selectionStart || lineStart > selectionEnd || trimmedLine == "" || trimmedLine.startsWith("#")) {
+            linesUpdated.push(line);
+          }
+          else {
+            if (selectionStart >= lineStart) {
+              if (selectionStart < lineStart + lengthTrimmed) {
+                selectionStart = lineStart + 2;
+              }
+              else {
+                selectionStart += 2 - lengthTrimmed;
+              }
+            }
+            if (selectionEnd >= lineStart) {
+              if (selectionEnd < lineStart + lengthTrimmed) {
+                selectionEnd = lineStart + 2;
+              }
+              else {
+                selectionEnd += 2 - lengthTrimmed;
+              }
+            }
+            lineEnd += 2 - lengthTrimmed;
+            linesUpdated.push(`# ${trimmedLine}`);
+          }
+          lineStart = lineEnd + 1;
+        }
+        dom.editor.inbox.value = linesUpdated.join("\n");
+        storeThenSave("value.inbox", dom.editor.inbox.value);
+        dom.editor.inbox.setSelectionRange(selectionStart, selectionEnd);
       }
       function appendTo(original, value) {
         const valueToAppend = value.trim();
@@ -336,17 +376,25 @@
         await storeIcons();
         setNotifyStatus();
         setTab();
-        dom.editor.today.addEventListener("input", async event => {
+        dom.editor.today.addEventListener("input", event => {
           storeThenSave("value.today", dom.editor.today.value);
         });
         dom.today.addEventListener("click", event => {
           switchToTab("today");
           refreshInfo();
         });
-        dom.editor.inbox.addEventListener("input", async event => {
+        dom.editor.inbox.addEventListener("input", event => {
           storeThenSave("value.inbox", dom.editor.inbox.value);
           setNotifyStatus();
           refreshInfo();
+        });
+        dom.editor.inbox.addEventListener("keydown", event => {
+          if ((event.ctrlKey || event.metaKey) && event.key == "/") {
+            event.preventDefault();
+            inboxSnoozeSelected();
+            setNotifyStatus();
+            refreshInfo();
+          }
         });
         dom.inbox.addEventListener("click", event => {
           switchToTab("inbox");
@@ -370,8 +418,8 @@
             }
             dom.editor[selectedTab].value = value;
             storeThenSave(`value.${selectedTab}`, dom.editor[selectedTab].value);
-            dom.editor[selectedTab].scrollTop = 0;
             dom.editor[selectedTab].setSelectionRange(0, 0);
+            dom.editor[selectedTab].scrollTop = 0;
             dom.editor[selectedTab].focus();
             refreshInfo();
           }
