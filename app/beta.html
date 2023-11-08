@@ -111,44 +111,75 @@
           }, 30000);
         }
       }
-      function selectUnsnoozed() {
-        const lines = dom.editor.inbox.value.split("\n");
-        const linesUnsnoozed = [];
+      function todaySnoozeSelected() {
+        const selectionStart = dom.editor.today.selectionStart;
+        const selectionEnd = dom.editor.today.selectionEnd;
+        let newSelectionPos;
+        const lines = dom.editor.today.value.split("\n");
+        const linesUpdated = [];
         const linesSnoozed = [];
-        let afterSnoozedLine = false;
+        let extracting = false;
+        let lineStart = 0;
+        let lineEnd;
         for (const line of lines) {
-          if (line.trimStart().startsWith("#")) {
-            linesSnoozed.push(line);
-            afterSnoozedLine = true;
+          lineEnd = lineStart + line.length;
+          const trimmedLine = line.trimStart();
+          if (lineEnd < selectionStart) {
+            linesUpdated.push(line);
           }
-          else if (afterSnoozedLine && line.trimStart() == "") {
-            linesSnoozed.push(line);
+          else if (lineStart > selectionEnd) {
+            if (!extracting) {
+              linesUpdated.push(line);
+            }
+            else if (trimmedLine != "") {
+              linesUpdated.push(line);
+              extracting = false;
+            }
           }
           else {
-            linesUnsnoozed.push(line);
-            afterSnoozedLine = false;
+            if (extracting) {
+              if (trimmedLine == "" || trimmedLine.startsWith("#")) {
+                linesSnoozed.push(line);
+              }
+              else {
+                linesSnoozed.push(`# ${trimmedLine}`);
+              }
+            }
+            else if (trimmedLine != "") {
+              if (trimmedLine.startsWith("#")) {
+                linesSnoozed.push(line);
+              }
+              else {
+                linesSnoozed.push(`# ${trimmedLine}`);
+              }
+              newSelectionPos = lineStart;
+              extracting = true;
+            }
+            else {
+              linesUpdated.push(line);
+            }
           }
+          lineStart = lineEnd + 1;
         }
-        const unsnoozed = linesUnsnoozed.join("\n").trimEnd();
         if (linesSnoozed.length > 0) {
-          const snoozed = linesSnoozed.join("\n").trimEnd();
-          dom.editor.inbox.value = `${unsnoozed}\n\n${snoozed}`;
+          dom.editor.today.value = linesUpdated.join("\n");
+          if (extracting) {
+            dom.editor.today.value = dom.editor.today.value.trimEnd();
+          }
+          storeThenSave("value.today", dom.editor.today.value);
+          dom.editor.today.setSelectionRange(newSelectionPos, newSelectionPos);
+          let storedInboxValue = localStorage.getItem("value.inbox");
+          storedInboxValue = appendTo(storedInboxValue, linesSnoozed.join("\n"));
+          storeThenSave("value.inbox", storedInboxValue);
         }
-        else {
-          dom.editor.inbox.value = unsnoozed;
-        }
-        storeThenSave("value.inbox", dom.editor.inbox.value);
-        dom.editor.inbox.setSelectionRange(0, unsnoozed.length);
-        dom.editor.inbox.scrollTop = 0;
-        dom.editor.inbox.focus();
       }
       function inboxSnoozeSelected() {
         let selectionStart = dom.editor.inbox.selectionStart;
         let selectionEnd = dom.editor.inbox.selectionEnd;
-        let lineStart = 0;
-        let lineEnd;
         const lines = dom.editor.inbox.value.split("\n");
         const linesUpdated = [];
+        let lineStart = 0;
+        let lineEnd;
         for (const line of lines) {
           lineEnd = lineStart + line.length;
           const trimmedLine = line.trimStart();
@@ -181,6 +212,38 @@
         dom.editor.inbox.value = linesUpdated.join("\n");
         storeThenSave("value.inbox", dom.editor.inbox.value);
         dom.editor.inbox.setSelectionRange(selectionStart, selectionEnd);
+      }
+      function selectUnsnoozed() {
+        const lines = dom.editor.inbox.value.split("\n");
+        const linesUnsnoozed = [];
+        const linesSnoozed = [];
+        let afterSnoozedLine = false;
+        for (const line of lines) {
+          const trimmedLine = line.trimStart();
+          if (trimmedLine.startsWith("#")) {
+            linesSnoozed.push(line);
+            afterSnoozedLine = true;
+          }
+          else if (afterSnoozedLine && trimmedLine == "") {
+            linesSnoozed.push(line);
+          }
+          else {
+            linesUnsnoozed.push(line);
+            afterSnoozedLine = false;
+          }
+        }
+        const unsnoozed = linesUnsnoozed.join("\n").trimEnd();
+        if (linesSnoozed.length > 0) {
+          const snoozed = linesSnoozed.join("\n").trimEnd();
+          dom.editor.inbox.value = `${unsnoozed}\n\n${snoozed}`;
+        }
+        else {
+          dom.editor.inbox.value = unsnoozed;
+        }
+        storeThenSave("value.inbox", dom.editor.inbox.value);
+        dom.editor.inbox.setSelectionRange(0, unsnoozed.length);
+        dom.editor.inbox.scrollTop = 0;
+        dom.editor.inbox.focus();
       }
       function appendTo(original, value) {
         const valueToAppend = value.trim();
@@ -378,6 +441,12 @@
         setTab();
         dom.editor.today.addEventListener("input", event => {
           storeThenSave("value.today", dom.editor.today.value);
+        });
+        dom.editor.today.addEventListener("keydown", event => {
+          if ((event.ctrlKey || event.metaKey) && event.key == "/") {
+            event.preventDefault();
+            todaySnoozeSelected();
+          }
         });
         dom.today.addEventListener("click", event => {
           switchToTab("today");
