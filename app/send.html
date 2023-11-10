@@ -138,7 +138,7 @@
       }
       function setSendLocal() {
         document.body.addEventListener("keydown", event => {
-          if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() == "enter") {
+          if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key.toLowerCase() == "enter") {
             event.preventDefault();
             tryToSendLocal();
           }
@@ -186,7 +186,7 @@
         }
         dom.popups.connected.classList.add("display");
         document.body.addEventListener("keydown", event => {
-          if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() == "enter") {
+          if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key.toLowerCase() == "enter") {
             event.preventDefault();
             tryToSendCloud();
           }

@@ -39,6 +39,9 @@
             <div class="action-menu-item display spacer"></div>
             <a class="action-menu-item display clickable" href="/send" target="_blank">Send to Frogtab</a>
             <a class="action-menu-item display clickable" href="/week" target="_blank">Weekly Routine</a>
+            <div class="action-menu-item display spacer"></div>
+            <span id="snap-to-bottom" class="action-menu-item display clickable">Snap to Bottom</span>
+            <span id="snap-to-center" class="action-menu-item clickable">Snap to Center</span>
           </div>
         </div>
       </div>
@@ -94,8 +97,8 @@
       function refreshView() {
         if (dom.editor[selectedTab].value != localStorage.getItem(`value.${selectedTab}`)) {
           dom.editor[selectedTab].value = localStorage.getItem(`value.${selectedTab}`);
-          dom.editor[selectedTab].scrollTop = 0;
           dom.editor[selectedTab].setSelectionRange(0, 0);
+          dom.editor[selectedTab].scrollTop = 0;
           refreshInfo();
         }
       }
@@ -108,17 +111,120 @@
           }, 30000);
         }
       }
+      function todaySnoozeSelected() {
+        const selectionStart = dom.editor.today.selectionStart;
+        const selectionEnd = dom.editor.today.selectionEnd;
+        let newSelectionPos;
+        const lines = dom.editor.today.value.split("\n");
+        const linesUpdated = [];
+        const linesSnoozed = [];
+        let extracting = false;
+        let lineStart = 0;
+        let lineEnd;
+        for (const line of lines) {
+          lineEnd = lineStart + line.length;
+          const trimmedLine = line.trimStart();
+          if (lineEnd < selectionStart) {
+            linesUpdated.push(line);
+          }
+          else if (lineStart > selectionEnd) {
+            if (!extracting) {
+              linesUpdated.push(line);
+            }
+            else if (trimmedLine != "") {
+              linesUpdated.push(line);
+              extracting = false;
+            }
+          }
+          else {
+            if (extracting) {
+              if (trimmedLine == "" || trimmedLine.startsWith("#")) {
+                linesSnoozed.push(line);
+              }
+              else {
+                linesSnoozed.push(`# ${trimmedLine}`);
+              }
+            }
+            else if (trimmedLine != "") {
+              if (trimmedLine.startsWith("#")) {
+                linesSnoozed.push(line);
+              }
+              else {
+                linesSnoozed.push(`# ${trimmedLine}`);
+              }
+              newSelectionPos = lineStart;
+              extracting = true;
+            }
+            else {
+              linesUpdated.push(line);
+            }
+          }
+          lineStart = lineEnd + 1;
+        }
+        if (linesSnoozed.length > 0) {
+          dom.editor.today.value = linesUpdated.join("\n");
+          if (extracting) {
+            dom.editor.today.value = dom.editor.today.value.trimEnd();
+          }
+          storeThenSave("value.today", dom.editor.today.value);
+          dom.editor.today.setSelectionRange(newSelectionPos, newSelectionPos);
+          let storedInboxValue = localStorage.getItem("value.inbox");
+          storedInboxValue = appendTo(storedInboxValue, linesSnoozed.join("\n"));
+          storeThenSave("value.inbox", storedInboxValue);
+        }
+      }
+      function inboxSnoozeSelected() {
+        let selectionStart = dom.editor.inbox.selectionStart;
+        let selectionEnd = dom.editor.inbox.selectionEnd;
+        const lines = dom.editor.inbox.value.split("\n");
+        const linesUpdated = [];
+        let lineStart = 0;
+        let lineEnd;
+        for (const line of lines) {
+          lineEnd = lineStart + line.length;
+          const trimmedLine = line.trimStart();
+          const lengthTrimmed = line.length - trimmedLine.length;
+          if (lineEnd < selectionStart || lineStart > selectionEnd || trimmedLine == "" || trimmedLine.startsWith("#")) {
+            linesUpdated.push(line);
+          }
+          else {
+            if (selectionStart >= lineStart) {
+              if (selectionStart < lineStart + lengthTrimmed) {
+                selectionStart = lineStart + 2;
+              }
+              else {
+                selectionStart += 2 - lengthTrimmed;
+              }
+            }
+            if (selectionEnd >= lineStart) {
+              if (selectionEnd < lineStart + lengthTrimmed) {
+                selectionEnd = lineStart + 2;
+              }
+              else {
+                selectionEnd += 2 - lengthTrimmed;
+              }
+            }
+            lineEnd += 2 - lengthTrimmed;
+            linesUpdated.push(`# ${trimmedLine}`);
+          }
+          lineStart = lineEnd + 1;
+        }
+        dom.editor.inbox.value = linesUpdated.join("\n");
+        storeThenSave("value.inbox", dom.editor.inbox.value);
+        dom.editor.inbox.setSelectionRange(selectionStart, selectionEnd);
+      }
       function selectUnsnoozed() {
         const lines = dom.editor.inbox.value.split("\n");
         const linesUnsnoozed = [];
         const linesSnoozed = [];
         let afterSnoozedLine = false;
         for (const line of lines) {
-          if (line.trimStart().startsWith("#")) {
+          const trimmedLine = line.trimStart();
+          if (trimmedLine.startsWith("#")) {
             linesSnoozed.push(line);
             afterSnoozedLine = true;
           }
-          else if (afterSnoozedLine && line.trimStart() == "") {
+          else if (afterSnoozedLine && trimmedLine == "") {
             linesSnoozed.push(line);
           }
           else {
@@ -135,8 +241,8 @@
           dom.editor.inbox.value = unsnoozed;
         }
         storeThenSave("value.inbox", dom.editor.inbox.value);
-        dom.editor.inbox.scrollTop = 0;
         dom.editor.inbox.setSelectionRange(0, unsnoozed.length);
+        dom.editor.inbox.scrollTop = 0;
         dom.editor.inbox.focus();
       }
       function appendTo(original, value) {
@@ -220,6 +326,33 @@
         storeThenSave("value.inbox", storedInboxValue);
         dom.fetchConnected.classList.add("display");
       }
+      function setSnap() {
+        if (localStorage.getItem("ui.snap") == "bottom") {
+          dom.container.classList.add("docked");
+          dom.snapToCenter.classList.add("display");
+          dom.snapToBottom.classList.remove("display");
+        }
+        dom.snapToBottom.addEventListener("click", event => {
+          toggleSnap();
+        });
+        dom.snapToCenter.addEventListener("click", event => {
+          toggleSnap();
+        });
+      }
+      function toggleSnap() {
+        if (localStorage.getItem("ui.snap") == "center") {
+          dom.container.classList.add("docked");
+          dom.snapToCenter.classList.add("display");
+          dom.snapToBottom.classList.remove("display");
+          localStorage.setItem("ui.snap", "bottom");
+        }
+        else {
+          dom.container.classList.remove("docked");
+          dom.snapToBottom.classList.add("display");
+          dom.snapToCenter.classList.remove("display");
+          localStorage.setItem("ui.snap", "center");
+        }
+      }
       function setExportAction() {
         if ("showSaveFilePicker" in window) {
           dom.enableSave.addEventListener("click", async event => {
@@ -297,6 +430,7 @@
         }
       }
       async function startApp() {
+        setSnap();
         setExportAction();
         if (isNewDay()) {
           updateValues();
@@ -305,17 +439,31 @@
         await storeIcons();
         setNotifyStatus();
         setTab();
-        dom.editor.today.addEventListener("input", async event => {
+        dom.editor.today.addEventListener("input", event => {
           storeThenSave("value.today", dom.editor.today.value);
+        });
+        dom.editor.today.addEventListener("keydown", event => {
+          if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key == "/") {
+            event.preventDefault();
+            todaySnoozeSelected();
+          }
         });
         dom.today.addEventListener("click", event => {
           switchToTab("today");
           refreshInfo();
         });
-        dom.editor.inbox.addEventListener("input", async event => {
+        dom.editor.inbox.addEventListener("input", event => {
           storeThenSave("value.inbox", dom.editor.inbox.value);
           setNotifyStatus();
           refreshInfo();
+        });
+        dom.editor.inbox.addEventListener("keydown", event => {
+          if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key == "/") {
+            event.preventDefault();
+            inboxSnoozeSelected();
+            setNotifyStatus();
+            refreshInfo();
+          }
         });
         dom.inbox.addEventListener("click", event => {
           switchToTab("inbox");
@@ -331,7 +479,7 @@
           dom.menu.classList.remove("display");
         });
         document.body.addEventListener("keydown", event => {
-          if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() == "enter") {
+          if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key.toLowerCase() == "enter") {
             event.preventDefault();
             let value = dom.editor[selectedTab].value.trimStart();
             if (value != "") {
@@ -339,12 +487,12 @@
             }
             dom.editor[selectedTab].value = value;
             storeThenSave(`value.${selectedTab}`, dom.editor[selectedTab].value);
-            dom.editor[selectedTab].scrollTop = 0;
             dom.editor[selectedTab].setSelectionRange(0, 0);
+            dom.editor[selectedTab].scrollTop = 0;
             dom.editor[selectedTab].focus();
             refreshInfo();
           }
-          else if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() == "u") {
+          else if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key.toLowerCase() == "u") {
             event.preventDefault();
             switchToTab("today");
             dom.editor.today.focus();
@@ -361,6 +509,10 @@
               switchToTab("inbox");
               selectUnsnoozed();
             }
+          }
+          else if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key.toLowerCase() == "b") {
+            event.preventDefault();
+            toggleSnap();
           }
         });
         if (localStorage.getItem("user.userID") !== null) {
@@ -441,7 +593,11 @@
           localStorage.setItem(`routine.${key}`, "");
         }
       }
+      if (localStorage.getItem("ui.snap") === null) {
+        localStorage.setItem("ui.snap", "center");
+      }
       const dom = {
+        container: document.getElementById("container"),
         icon: document.getElementById("icon"),
         editor: {
           "today": document.getElementById("editor-today"),
@@ -453,6 +609,8 @@
         fetchConnected: document.getElementById("fetch-connected"),
         menuButton: document.getElementById("menu-button"),
         menu: document.getElementById("menu"),
+        snapToBottom: document.getElementById("snap-to-bottom"),
+        snapToCenter: document.getElementById("snap-to-center"),
         exportData: document.getElementById("export-data"),
         enableSave: document.getElementById("enable-save")
       };
