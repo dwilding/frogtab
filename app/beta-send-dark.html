@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Capture tasks without revealing your inbox">
+    <title>Send to Frogtab</title>
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" id="icon">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="stylesheet" href="/beta-dark-style.css?sha1=7fb8741f6cfde16f5cdb2d73b77f98431072bcbf">
+  </head>
+  <body>
+    <div class="container restricted">
+      <div class="interface">
+        <div id="popup-connecting" class="popup">
+          <svg width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M20 17.607c1.494-.585 3-1.918 3-4.607 0-4-3.333-5-5-5 0-2 0-6-6-6S6 6 6 8c-1.667 0-5 1-5 5 0 2.689 1.506 4.022 3 4.607M7.58 19.487l1.768 1.768a4 4 0 005.657 0l.354-.353" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M7.934 21.962l-.353-2.475 2.474.354-2.12 2.121zM16.298 16.902l-1.768-1.768a4 4 0 00-5.657 0l-.353.353" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M15.944 14.427l.354 2.475-2.475-.354 2.121-2.121z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>Connecting…
+        </div>
+        <div id="popup-connected" class="popup">
+          <svg width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M8 18l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M20 17.607c1.494-.585 3-1.918 3-4.607 0-4-3.333-5-5-5 0-2 0-6-6-6S6 6 6 8c-1.667 0-5 1-5 5 0 2.689 1.506 4.022 3 4.607" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>Connection is end-to-end encrypted
+        </div>
+        <div id="popup-disconnected" class="popup">
+          <svg width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M9 22l3-3m3-3l-3 3m0 0l-3-3m3 3l3 3M20 17.607c1.494-.585 3-1.918 3-4.607 0-4-3.333-5-5-5 0-2 0-6-6-6S6 6 6 8c-1.667 0-5 1-5 5 0 2.689 1.506 4.022 3 4.607" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>Not connected
+        </div>
+        <div id="popup-sending" class="popup">
+          <svg width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M12 22v-9m0 0l3.5 3.5M12 13l-3.5 3.5M20 17.607c1.494-.585 3-1.918 3-4.607 0-4-3.333-5-5-5 0-2 0-6-6-6S6 6 6 8c-1.667 0-5 1-5 5 0 2.689 1.506 4.022 3 4.607" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>Connection is end-to-end encrypted
+        </div>
+        <div id="popup-failure" class="popup">
+          <svg width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M20.043 21H3.957c-1.538 0-2.5-1.664-1.734-2.997l8.043-13.988c.77-1.337 2.699-1.337 3.468 0l8.043 13.988C22.543 19.336 21.58 21 20.043 21zM12 9v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path><path d="M12 17.01l.01-.011" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>Failed to send. Please try again
+        </div>
+        <div class="main">
+          <textarea id="editor" class="display" placeholder="Send to your inbox…"></textarea>
+        </div>
+        <div class="actions">
+          <div class="action primary">
+            <span id="send" class="circle-button" title="Send"><svg width="24px" height="24px" viewBox="0 0 24 24" stroke-width="1.5" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M22 12L3 20l3.563-8L3 4l19 8zM6.5 12H22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      function delayForUX(f) {
+        return Promise.all([
+          f(),
+          new Promise(resolve => window.setTimeout(resolve, 1500))
+        ]);
+      }
+      function tryToSendLocal() {
+        const valueToSend = dom.editor.value.trim();
+        if (valueToSend == "") {
+          return;
+        }
+        dom.editor.value = "";
+        dom.editor.focus();
+        dom.send.classList.add("fake-hover");
+        window.setTimeout(() => {
+          dom.send.classList.remove("enabled");
+          dom.send.classList.remove("fake-hover");
+        }, 300);
+        if (localStorage.getItem("value.inbox") === null) {
+          localStorage.setItem("value.inbox", "");
+        }
+        let valueInbox = localStorage.getItem("value.inbox").trimStart();
+        if (valueInbox != "") {
+          valueInbox = `\n\n${valueInbox}`;
+        }
+        valueInbox = `${valueToSend}${valueInbox}`;
+        localStorage.setItem("value.inbox", valueInbox);
+      }
+      async function encryptAndSend(plainMessage) {
+        const encryptedMessage = await openpgp.encrypt({
+          message: await openpgp.createMessage({
+            text: plainMessage
+          }),
+          encryptionKeys: pgpPublicKeyObj
+        });
+        let response;
+        try {
+          response = await fetch("https://frogtab.com/open/post-add-message", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              user_id: userID,
+              message: encryptedMessage
+            })
+          });
+        }
+        catch (err) {
+          return false;
+        }
+        if (!response.ok) {
+          return false;
+        }
+        const result = await response.json();
+        return result.success;
+      }
+      async function tryToSendCloud() {
+        const valueToSend = dom.editor.value.trim();
+        if (valueToSend == "") {
+          return;
+        }
+        dom.editor.value = "";
+        dom.editor.focus();
+        dom.send.classList.add("fake-hover");
+        window.setTimeout(() => {
+          dom.send.classList.remove("enabled");
+          dom.send.classList.remove("fake-hover");
+        }, 300);
+        if (dom.popups.connected.classList.contains("display")) {
+          dom.popups.connected.classList.remove("display");
+          dom.popups.sending.classList.add("display");
+        }
+        const onFailure = () => {
+          window.setTimeout(() => {
+            dom.popups.sending.classList.remove("display");
+            dom.popups.failure.classList.add("display");
+            let value = dom.editor.value.trimEnd();
+            if (value != "") {
+              value = `${value}\n\n`;
+            }
+            dom.editor.value = `${value}${valueToSend}`;
+            dom.send.classList.add("enabled");
+          }, 600);
+        };
+        let success;
+        await delayForUX(async () => {
+          success = await encryptAndSend(valueToSend);
+        });
+        if (!success) {
+          onFailure();
+          return;
+        }
+        dom.popups.sending.classList.remove("display");
+        dom.popups.failure.classList.remove("display");
+        dom.popups.connected.classList.add("display");
+      }
+      function setSendLocal() {
+        document.body.addEventListener("keydown", event => {
+          if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key.toLowerCase() == "enter") {
+            event.preventDefault();
+            tryToSendLocal();
+          }
+        });
+        dom.send.addEventListener("click", event => {
+          tryToSendLocal();
+        });
+        dom.editor.addEventListener("input", event => {
+          const value = dom.editor.value.trim();
+          if (value != "") {
+            dom.send.classList.add("enabled");
+          }
+          else {
+            dom.send.classList.remove("enabled");
+          }
+        });
+      }
+      async function setSendCloud() {
+        dom.popups.connecting.classList.add("display");
+        await delayForUX(async () => {
+          let response;
+          try {
+            response = await fetch(`https://frogtab.com/open/get-user?user_id=${encodeURIComponent(userID)}`);
+          }
+          catch (err) {
+            return;
+          }
+          if (!response.ok) {
+            return;
+          }
+          const result = await response.json();
+          if (!result.success) {
+            return;
+          }
+          openpgp = await import("https://unpkg.com/openpgp@5.x/dist/openpgp.min.mjs");
+          pgpPublicKeyObj = await openpgp.readKey({
+            armoredKey: result.user.pgp_public_key
+          });
+        });
+        dom.popups.connecting.classList.remove("display");
+        if (pgpPublicKeyObj === null) {
+          dom.popups.disconnected.classList.add("display");
+          dom.editor.placeholder = "";
+          return;
+        }
+        dom.popups.connected.classList.add("display");
+        document.body.addEventListener("keydown", event => {
+          if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key.toLowerCase() == "enter") {
+            event.preventDefault();
+            tryToSendCloud();
+          }
+        });
+        dom.send.addEventListener("click", event => {
+          tryToSendCloud();
+        });
+        dom.editor.addEventListener("input", event => {
+          if (dom.editor.value.trim() != "") {
+            dom.send.classList.add("enabled");
+          }
+          else {
+            dom.send.classList.remove("enabled");
+          }
+        });
+        if (dom.editor.value.trim() != "") {
+          dom.send.classList.add("enabled");
+        }
+      }
+      async function startApp() {
+        const matches = window.location.hash.match(/#([0-9a-f-]{36})(\/([^\/]*))?/);
+        if (matches === null) {
+          setSendLocal();
+        }
+        else {
+          userID = matches[1];
+          const placeholderEncoded = matches[3];
+          if (placeholderEncoded !== undefined) {
+            try {
+              dom.editor.placeholder = decodeURIComponent(placeholderEncoded);
+            }
+            catch (err) {}
+          }
+          setSendCloud();
+        }
+      }
+
+      // ******** Initial setup ********
+      const dom = {
+        popups: {
+          connecting: document.getElementById("popup-connecting"),
+          connected: document.getElementById("popup-connected"),
+          disconnected: document.getElementById("popup-disconnected"),
+          sending: document.getElementById("popup-sending"),
+          failure: document.getElementById("popup-failure")
+        },
+        editor: document.getElementById("editor"),
+        send: document.getElementById("send")
+      };
+      let userID = null;
+      let pgpPublicKeyObj = null;
+      let openpgp;
+      startApp();
+    </script>
+  </body>
+</html>

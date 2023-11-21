@@ -1,12 +1,12 @@
 :root {
-  --body-background: #f3f3f3;
-  --body-text: #181818;
-  --primary-text: #6c6c6c;
-  --secondary-text: #6c6c6c;
-  --control-border: #c0c0c0;
-  --control-background: #fff;
-  --menu-border: #e0e0e0;
-  --subtle-region: #e0e0e0;
+  --body-background: #0c0c0c;
+  --body-text: #e2e2e2;
+  --primary-text: #a4a4a4;
+  --secondary-text: #a4a4a4;
+  --control-border: #5a5a5a;
+  --control-background: #1b1b1b;
+  --menu-border: #3a3a3a;
+  --subtle-region: #2c2c2c;
   --notification: #ed2024;
   --highlight: #79c152;
   --text-on-highlight: #f0f0f0;
