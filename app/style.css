@@ -1,16 +1,27 @@
 :root {
   --body-background: #f3f3f3;
-  --body-text: #202020;
-  --primary-text: #606060;
-  --secondary-text: #808080;
+  --body-text: #181818;
+  --secondary-text: #6c6c6c;
   --control-border: #c0c0c0;
   --control-background: #fff;
+  --menu-spacer: #e0e0e0;
   --subtle-region: #e0e0e0;
   --notification: #ed2024;
   --highlight: #79c152;
   --text-on-highlight: #fff;
 }
-
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --body-background: #0c0c0c;
+    --body-text: #e2e2e2;
+    --secondary-text: #a4a4a4;
+    --control-border: #5a5a5a;
+    --control-background: #1b1b1b;
+    --menu-spacer: #3a3a3a;
+    --subtle-region: #2c2c2c;
+  }
+}
 body {
   margin: 0;
   background-color: var(--body-background);
@@ -50,10 +61,9 @@ body {
   flex-direction: column;
   flex: 1;
 }
-@media (min-width: 500px) {
+@media (min-width: 680px) {
   .interface {
-    max-width: 40%;
-    min-width: 450px;
+    max-width: 612px;
   }
 }
 .popup {
@@ -85,7 +95,7 @@ body {
 }
 .tab-name {
   margin-left: 0.6rem;
-  color: var(--primary-text);
+  color: var(--secondary-text);
   cursor: pointer;
 }
 .tab-name.selected {
@@ -178,9 +188,8 @@ textarea.display {
   left: -0.9rem;
   transform: translateY(-100%);
   background-color: var(--control-background);
-  border: 1px solid var(--control-background);
-  border-radius: 2px;
-  box-shadow: 0 0 6px var(--control-border);
+  border: 2px solid var(--highlight);
+  border-radius: 3px;
   display: none;
 }
 .action-menu.display {
@@ -194,13 +203,13 @@ textarea.display {
   display: block;
 }
 .action-menu-item.clickable {
-  color: var(--primary-text);
+  color: var(--secondary-text);
   text-decoration: none;
   cursor: pointer;
 }
 .action-menu-item.spacer {
-  height: 1px;
-  background-color: var(--subtle-region);
+  height: 2px;
+  background-color: var(--menu-spacer);
 }
 .circle-button {
   display: inline-block;
