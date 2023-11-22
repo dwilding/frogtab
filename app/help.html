@@ -61,6 +61,17 @@
       footer a {
         color: var(--text-light) !important;
       }
+      img.dark-only {
+        display: none;
+      }
+      @media (prefers-color-scheme: dark) {
+        img.dark-only {
+          display: inline;
+        }
+        img.light-only {
+          display: none;
+        }
+      }
     </style>
   </head>
   <body>
@@ -109,7 +120,8 @@
       </article>
       <h2 id="getting-started">Getting started</h2>
       <p>
-        <img alt="The Today view in Frogtab" src="/help-today.png" width="480">
+        <img class="light-only" alt="The Today view in Frogtab" src="/help-today-light.png" width="480">
+        <img class="dark-only" alt="The Today view in Frogtab (dark theme)" src="/help-today-dark.png" width="480">
       </p>
       <p>
         <strong>Today</strong> is your to-do list for today.
@@ -122,7 +134,13 @@
       </p>
       <p>
         You can triage your inbox later in the day.
-        Frogtab displays a notification badge to remind you to triage your inbox as soon as it's convenient.
+        Frogtab displays a notification badge to remind you to triage your inbox as soon as it's convenient:
+      </p>
+      <p>
+        <img class="light-only" alt="The Inbox view in Frogtab" src="/help-inbox-light.png" width="480">
+        <img class="dark-only" alt="The Inbox view in Frogtab (dark theme)" src="/help-inbox-dark.png" width="480">
+      </p>
+      <p>
         As you triage your inbox, you'll delete or snooze each task.
         To learn more, see <a href="#triaging-your-inbox">Triaging your inbox</a>.
       </p>
@@ -276,7 +294,8 @@
             Snooze the task by writing # in front of the task. For example:
           </p>
           <p>
-            <img alt="The Inbox view in Frogtab" src="/help-inbox.png" width="480">
+            <img class="light-only" alt="The Inbox view in Frogtab, with a snoozed task" src="/help-snoozed-light.png" width="480">
+            <img class="dark-only" alt="The Inbox view in Frogtab, with a snoozed task (dark theme)" src="/help-snoozed-dark.png" width="480">
           </p>
           <p>
             Frogtab will unsnooze the task at the beginning of the next day.
