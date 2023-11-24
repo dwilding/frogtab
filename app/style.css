@@ -1,4 +1,6 @@
+/* Default to light theme */
 :root {
+  color-scheme: light;
   --body-background: #f3f3f3;
   --body-text: #181818;
   --secondary-text: #6c6c6c;
@@ -10,8 +12,9 @@
   --highlight: #79c152;
   --text-on-highlight: #fff;
 }
+/* Dark theme case 1: System is dark and Frogtab is set to match system */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root[data-theme="system"] {
     color-scheme: dark;
     --body-background: #0c0c0c;
     --body-text: #e2e2e2;
@@ -21,6 +24,17 @@
     --menu-spacer: #3a3a3a;
     --subtle-region: #2c2c2c;
   }
+}
+/* Dark theme case 2: Frogtab is set to dark */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --body-background: #0c0c0c;
+  --body-text: #e2e2e2;
+  --secondary-text: #a4a4a4;
+  --control-border: #5a5a5a;
+  --control-background: #1b1b1b;
+  --menu-spacer: #3a3a3a;
+  --subtle-region: #2c2c2c;
 }
 body {
   margin: 0;

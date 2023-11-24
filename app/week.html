@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="system">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +8,7 @@
     <link rel="icon" href="/icon.svg" type="image/svg+xml" id="icon">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/manifest.webmanifest">
-    <link rel="stylesheet" href="/style.css?sha1=7eac9a5ce7eda228b9ad5924b457e63b80cd04c0">
+    <link rel="stylesheet" href="/style.css?sha1=0fdeeb1a3df28fdd7e0626a2dcfb473222a22fe9">
   </head>
   <body>
     <div class="container restricted">
@@ -65,11 +65,16 @@
           });
         }
         window.addEventListener("storage", event => {
+          document.documentElement.setAttribute("data-theme", localStorage.getItem("ui.theme"));
           refreshView();
         });
       }
 
       // ******** Initial setup ********
+      if (localStorage.getItem("ui.theme") === null) {
+        localStorage.setItem("ui.theme", "system");
+      }
+      document.documentElement.setAttribute("data-theme", localStorage.getItem("ui.theme"));
       const dom = {
         "editor": {}
       };

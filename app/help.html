@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="system">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,9 +10,72 @@
     <link rel="manifest" href="/manifest.webmanifest">
     <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
     <style>
+      /* Default to light theme */
+      :root {
+        color-scheme: light;
+        --bg: #fff;
+        --accent-bg: #f5f7ff;
+        --text: #212121;
+        --text-light: #585858;
+        --border: #898EA4;
+        --accent: #0d47a1;
+        --code: #d81b60;
+        --preformatted: #444;
+        --marked: #ffdd33;
+        --disabled: #efefef;
+      }
+      img.dark-only {
+        display: none;
+      }
+      /* Dark theme case 1: System is dark and Frogtab is set to match system */
+      @media (prefers-color-scheme: dark) {
+        :root[data-theme="system"] {
+          color-scheme: dark;
+          --bg: #212121;
+          --accent-bg: #2b2b2b;
+          --text: #dcdcdc;
+          --text-light: #ababab;
+          --accent: #ffb300;
+          --code: #f06292;
+          --preformatted: #ccc;
+          --disabled: #111;
+        }
+        :root[data-theme="system"] img.dark-only {
+          display: inline;
+        }
+        :root[data-theme="system"] img.light-only {
+          display: none;
+        }
+      }
+      /* Dark theme case 2: Frogtab is set to dark */
+      :root[data-theme="dark"] {
+        color-scheme: dark;
+        --bg: #212121;
+        --accent-bg: #2b2b2b;
+        --text: #dcdcdc;
+        --text-light: #ababab;
+        --accent: #ffb300;
+        --code: #f06292;
+        --preformatted: #ccc;
+        --disabled: #111;
+      }
+      :root[data-theme="dark"] img.dark-only {
+        display: inline;
+      }
+      :root[data-theme="dark"] img.light-only {
+        display: none;
+      }
+      /* Override/define other styles  */
+      img {
+        opacity: 1;
+      }
       article {
         padding-top: 0;
         padding-bottom: 0;
+      }
+      label {
+        display: inline-block;
+        margin-right: 0.5rem;
       }
       .notice {
         display: none;
@@ -33,12 +96,11 @@
       .notice > div > div > button {
         margin: 0.5rem 0;
       }
+      .notice > div > div > label {
+        margin: 0.5rem 0.5rem 0.5rem 0;
+      }
       svg {
         vertical-align: text-top;
-      }
-      label {
-        display: inline-block;
-        margin-right: 0.5rem;
       }
       table {
         width: 100%;
@@ -60,17 +122,6 @@
       }
       footer a {
         color: var(--text-light) !important;
-      }
-      img.dark-only {
-        display: none;
-      }
-      @media (prefers-color-scheme: dark) {
-        img.dark-only {
-          display: inline;
-        }
-        img.light-only {
-          display: none;
-        }
       }
     </style>
   </head>
@@ -101,6 +152,7 @@
           <li><a href="#registering-for-a-personal-link">Registering for a personal link</a></li>
           <li><a href="#triaging-your-inbox">Triaging your inbox</a></li>
           <li><a href="#setting-up-recurring-tasks">Setting up recurring tasks</a></li>
+          <li><a href="#changing-the-theme">Changing the theme</a></li>
           <li><a href="#keyboard-shortcuts">Keyboard shortcuts</a></li>
         </ul>
         <p>
@@ -134,15 +186,15 @@
       </p>
       <p>
         You can triage your inbox later in the day.
-        Frogtab displays a notification badge to remind you to triage your inbox as soon as it's convenient:
+        As you triage your inbox, you'll delete or snooze each task.
+        To learn more, see <a href="#triaging-your-inbox">Triaging your inbox</a>.
+      </p>
+      <p>
+        Frogtab displays a notification badge to remind you to triage your inbox:
       </p>
       <p>
         <img class="light-only" alt="The Inbox view in Frogtab" src="/help-inbox-light.png" width="480">
         <img class="dark-only" alt="The Inbox view in Frogtab (dark theme)" src="/help-inbox-dark.png" width="480">
-      </p>
-      <p>
-        As you triage your inbox, you'll delete or snooze each task.
-        To learn more, see <a href="#triaging-your-inbox">Triaging your inbox</a>.
       </p>
       <p>
         At the beginning of each day, Frogtab automatically:
@@ -291,7 +343,7 @@
         </li>
         <li>
           <p>
-            Snooze the task by writing # in front of the task. For example:
+            Snooze the task by writing # in front of the task:
           </p>
           <p>
             <img class="light-only" alt="The Inbox view in Frogtab, with a snoozed task" src="/help-snoozed-light.png" width="480">
@@ -337,6 +389,29 @@
       <p>
         After you've finished writing down your tasks, close the tab.
       </p>
+      <h2 id="changing-the-theme">Changing the theme</h2>
+      <p>
+        By default, Frogtab matches your system's light/dark setting.
+        If you prefer to always use a particular theme, you can override the default behavior.
+      </p>
+      <div class="notice display">
+        <div class="display">
+          <p>
+            Select a theme:
+          </p>
+          <div>
+            <label>
+              <input id="theme-light" type="radio" name="theme"> Light
+            </label>
+            <label>
+              <input id="theme-dark" type="radio" name="theme"> Dark
+            </label>
+            <label>
+              <input id="theme-system" type="radio" name="theme" checked> System
+            </label>
+          </div>
+        </div>
+      </div>
       <h2 id="keyboard-shortcuts">Keyboard shortcuts</h2>
       <p>
         <label>
@@ -563,6 +638,17 @@
       </p>
     </footer>
     <script>
+      function updateSelectedTheme() {
+        if (localStorage.getItem("ui.theme") == "light") {
+          dom.themeLight.checked = true;
+        }
+        else if (localStorage.getItem("ui.theme") == "dark") {
+          dom.themeDark.checked = true;
+        }
+        else {
+          dom.themeSystem.checked = true;
+        }
+      }
       function delayForUX(f) {
         return Promise.all([
           f(),
@@ -739,6 +825,19 @@
       }
       async function startApp() {
         verify();
+        updateSelectedTheme();
+        dom.themeLight.addEventListener("change", event => {
+          document.documentElement.setAttribute("data-theme", "light");
+          localStorage.setItem("ui.theme", "light");
+        });
+        dom.themeDark.addEventListener("change", event => {
+          document.documentElement.setAttribute("data-theme", "dark");
+          localStorage.setItem("ui.theme", "dark");
+        });
+        dom.themeSystem.addEventListener("change", event => {
+          document.documentElement.setAttribute("data-theme", "system");
+          localStorage.setItem("ui.theme", "system");
+        });
         if (!(
           navigator.platform.includes("Mac")
           || navigator.platform.includes("iPad")
@@ -812,6 +911,8 @@
           dom.chooseBackupFile.value = "";
         });
         window.addEventListener("storage", event => {
+          document.documentElement.setAttribute("data-theme", localStorage.getItem("ui.theme"));
+          updateSelectedTheme();
           if (
             (
               dom.stagedRestore.classList.contains("display")
@@ -828,7 +929,14 @@
       }
 
       // ******** Initial setup ********
+      if (localStorage.getItem("ui.theme") === null) {
+        localStorage.setItem("ui.theme", "system");
+      }
+      document.documentElement.setAttribute("data-theme", localStorage.getItem("ui.theme"));
       const dom = {
+        themeLight: document.getElementById("theme-light"),
+        themeDark: document.getElementById("theme-dark"),
+        themeSystem: document.getElementById("theme-system"),
         osMac: document.getElementById("os-mac"),
         osWinLinux: document.getElementById("os-win-linux"),
         caseChecking: document.getElementById("case-checking"),
