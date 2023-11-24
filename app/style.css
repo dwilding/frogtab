@@ -112,6 +112,9 @@ body {
   color: var(--secondary-text);
   cursor: pointer;
 }
+.tab-name:hover {
+  color: var(--body-text);
+}
 .tab-name.selected {
   color: var(--body-text);
   font-weight: bold;
@@ -190,6 +193,9 @@ textarea.display {
   cursor: pointer;
   display: none;
 }
+.action-instruction:hover {
+  color: var(--body-text);
+}
 .action-instruction.display {
   display: inline;
 }
@@ -221,6 +227,9 @@ textarea.display {
   text-decoration: none;
   cursor: pointer;
 }
+.action-menu-item.clickable:hover {
+  color: var(--body-text);
+}
 .action-menu-item.spacer {
   height: 2px;
   background-color: var(--menu-spacer);
@@ -246,22 +255,8 @@ textarea.display {
   transform: translate(-50%, -50%);
   transition: transform 0.1s ease;
 }
+.circle-button.enabled:hover > svg,
 .circle-button.fake-hover > svg {
   transform: translate(-45%, -60%) rotate(-30deg);
   transition: transform 0.1s ease;
-}
-@media (hover: hover) {
-  .tab-name:hover {
-    color: var(--body-text);
-  }
-  .action-menu-item.clickable:hover {
-    color: var(--body-text);
-  }
-  .action-instruction:hover {
-    color: var(--body-text);
-  }
-  .circle-button.enabled:hover > svg {
-    transform: translate(-45%, -60%) rotate(-30deg);
-    transition: transform 0.1s ease;
-  }
 }
