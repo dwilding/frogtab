@@ -255,8 +255,8 @@ textarea.display {
   transform: translate(-50%, -50%);
   transition: transform 0.1s ease;
 }
-.circle-button.enabled:hover > svg,
-.circle-button.fake-hover > svg {
+.circle-button.enabled.short-hover > svg,
+.circle-button.enabled.long-hover > svg {
   transform: translate(-45%, -60%) rotate(-30deg);
   transition: transform 0.1s ease;
 }

@@ -8,7 +8,7 @@
     <link rel="icon" href="/icon.svg" type="image/svg+xml" id="icon">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/manifest.webmanifest">
-    <link rel="stylesheet" href="/style.css?sha1=a7b8acf5e8526a10141450fd1a86c1e6c8052c65">
+    <link rel="stylesheet" href="/style.css?sha1=36cce73bea3b9c40a521680002f0407448b7e94a">
   </head>
   <body>
     <div class="container restricted">
@@ -52,10 +52,10 @@
         }
         dom.editor.value = "";
         dom.editor.focus();
-        dom.send.classList.add("fake-hover");
+        dom.send.classList.add("long-hover");
         window.setTimeout(() => {
           dom.send.classList.remove("enabled");
-          dom.send.classList.remove("fake-hover");
+          dom.send.classList.remove("long-hover");
         }, 300);
         if (localStorage.getItem("value.inbox") === null) {
           localStorage.setItem("value.inbox", "");
@@ -103,10 +103,10 @@
         }
         dom.editor.value = "";
         dom.editor.focus();
-        dom.send.classList.add("fake-hover");
+        dom.send.classList.add("long-hover");
         window.setTimeout(() => {
           dom.send.classList.remove("enabled");
-          dom.send.classList.remove("fake-hover");
+          dom.send.classList.remove("long-hover");
         }, 300);
         if (dom.popups.connected.classList.contains("display")) {
           dom.popups.connected.classList.remove("display");
@@ -222,6 +222,12 @@
           }
           setSendCloud();
         }
+        dom.send.addEventListener("mouseenter", event => {
+          dom.send.classList.add("short-hover");
+        });
+        dom.send.addEventListener("mouseleave", event => {
+          dom.send.classList.remove("short-hover");
+        });
         window.addEventListener("storage", event => {
           document.documentElement.setAttribute("data-theme", localStorage.getItem("ui.theme"));
         });
