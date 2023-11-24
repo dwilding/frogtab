@@ -150,6 +150,7 @@
           const value = dom.editor.value.trim();
           if (value != "") {
             dom.send.classList.add("enabled");
+            dom.send.classList.remove("short-hover");
           }
           else {
             dom.send.classList.remove("enabled");
