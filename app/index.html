@@ -111,6 +111,68 @@
           }, 30000);
         }
       }
+      function inboxMoveSelected() {
+        const selectionStart = dom.editor.inbox.selectionStart;
+        const selectionEnd = dom.editor.inbox.selectionEnd;
+        let newSelectionPos;
+        const lines = dom.editor.inbox.value.split("\n");
+        const linesUpdated = [];
+        const linesMoved = [];
+        let extracting = false;
+        let lineStart = 0;
+        let lineEnd;
+        for (const line of lines) {
+          lineEnd = lineStart + line.length;
+          const trimmedLine = line.trimStart();
+          if (lineEnd < selectionStart) {
+            linesUpdated.push(line);
+          }
+          else if (lineStart > selectionEnd) {
+            if (!extracting) {
+              linesUpdated.push(line);
+            }
+            else if (trimmedLine != "") {
+              linesUpdated.push(line);
+              extracting = false;
+            }
+          }
+          else {
+            if (extracting) {
+              if (!trimmedLine.startsWith("#")) {
+                linesMoved.push(line);
+              }
+              else {
+                linesMoved.push(trimmedLine.replace(/^( *#)+ */, ""));
+              }
+            }
+            else if (trimmedLine != "") {
+              if (!trimmedLine.startsWith("#")) {
+                linesMoved.push(line);
+              }
+              else {
+                linesMoved.push(trimmedLine.replace(/^( *#)+ */, ""));
+              }
+              newSelectionPos = lineStart;
+              extracting = true;
+            }
+            else {
+              linesUpdated.push(line);
+            }
+          }
+          lineStart = lineEnd + 1;
+        }
+        if (linesMoved.length > 0) {
+          dom.editor.inbox.value = linesUpdated.join("\n");
+          if (extracting) {
+            dom.editor.inbox.value = dom.editor.inbox.value.trimEnd();
+          }
+          storeThenSave("value.inbox", dom.editor.inbox.value);
+          dom.editor.inbox.setSelectionRange(newSelectionPos, newSelectionPos);
+          let storedTodayValue = localStorage.getItem("value.today");
+          storedTodayValue = appendToBottom(storedTodayValue, linesMoved.join("\n"));
+          storeThenSave("value.today", storedTodayValue);
+        }
+      }
       function todaySnoozeSelected() {
         const selectionStart = dom.editor.today.selectionStart;
         const selectionEnd = dom.editor.today.selectionEnd;
@@ -169,7 +231,7 @@
           storeThenSave("value.today", dom.editor.today.value);
           dom.editor.today.setSelectionRange(newSelectionPos, newSelectionPos);
           let storedInboxValue = localStorage.getItem("value.inbox");
-          storedInboxValue = appendTo(storedInboxValue, linesSnoozed.join("\n"));
+          storedInboxValue = appendToTop(storedInboxValue, linesSnoozed.join("\n"));
           storeThenSave("value.inbox", storedInboxValue);
         }
       }
@@ -183,11 +245,13 @@
         for (const line of lines) {
           lineEnd = lineStart + line.length;
           const trimmedLine = line.trimStart();
-          const lengthTrimmed = line.length - trimmedLine.length;
           if (lineEnd < selectionStart || lineStart > selectionEnd || trimmedLine == "" || trimmedLine.startsWith("#")) {
             linesUpdated.push(line);
           }
           else {
+            const lengthTrimmed = line.length - trimmedLine.length;
+            lineEnd += 2 - lengthTrimmed;
+            linesUpdated.push(`# ${trimmedLine}`);
             if (selectionStart >= lineStart) {
               if (selectionStart < lineStart + lengthTrimmed) {
                 selectionStart = lineStart + 2;
@@ -204,8 +268,6 @@
                 selectionEnd += 2 - lengthTrimmed;
               }
             }
-            lineEnd += 2 - lengthTrimmed;
-            linesUpdated.push(`# ${trimmedLine}`);
           }
           lineStart = lineEnd + 1;
         }
@@ -245,7 +307,7 @@
         dom.editor.inbox.scrollTop = 0;
         dom.editor.inbox.focus();
       }
-      function appendTo(original, value) {
+      function appendToTop(original, value) {
         const valueToAppend = value.trim();
         if (valueToAppend == "") {
           return original;
@@ -256,14 +318,25 @@
         }
         return `${valueToAppend}${updated}`;
       }
+      function appendToBottom(original, value) {
+        const valueToAppend = value.trim();
+        if (valueToAppend == "") {
+          return original;
+        }
+        let updated = original.trimEnd();
+        if (updated != "") {
+          updated = `${updated}\n\n`;
+        }
+        return `${updated}${valueToAppend}`;
+      }
       function updateValues() {
         const weekdayToday = (new Date()).getDay();
         const key = weekdayKeys[weekdayToday];
         const routine = localStorage.getItem(`routine.${key}`);
         const storedTodayValue = localStorage.getItem("value.today");
         let storedInboxValue = localStorage.getItem("value.inbox");
-        storedInboxValue = appendTo(storedInboxValue, routine);
-        storedInboxValue = appendTo(storedInboxValue, storedTodayValue);
+        storedInboxValue = appendToTop(storedInboxValue, routine);
+        storedInboxValue = appendToTop(storedInboxValue, storedTodayValue);
         storedInboxValue = storedInboxValue.replaceAll(/^( *#)+ */gm, "");
         storeThenSave("value.today", "");
         storeThenSave("value.inbox", storedInboxValue);
@@ -321,7 +394,7 @@
         }
         let storedInboxValue = localStorage.getItem("value.inbox");
         for (const message of messages) {
-          storedInboxValue = appendTo(storedInboxValue, message);
+          storedInboxValue = appendToTop(storedInboxValue, message);
         }
         storeThenSave("value.inbox", storedInboxValue);
         dom.fetchConnected.classList.add("display");
@@ -458,7 +531,13 @@
           refreshInfo();
         });
         dom.editor.inbox.addEventListener("keydown", event => {
-          if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key == "/") {
+          if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() == "enter") {
+            event.preventDefault();
+            inboxMoveSelected();
+            setNotifyStatus();
+            refreshInfo();
+          }
+          else if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key == "/") {
             event.preventDefault();
             inboxSnoozeSelected();
             setNotifyStatus();
