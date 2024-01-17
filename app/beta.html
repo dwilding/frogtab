@@ -335,17 +335,6 @@
         dom.editor.inbox.scrollTop = 0;
         dom.editor.inbox.focus();
       }
-      function appendToTop(original, value) {
-        const valueToAppend = value.trim();
-        if (valueToAppend == "") {
-          return original;
-        }
-        let updated = original.trimStart();
-        if (updated != "") {
-          updated = `\n\n${updated}`;
-        }
-        return `${valueToAppend}${updated}`;
-      }
       function appendToBottom(original, value) {
         const valueToAppend = value.trim();
         if (valueToAppend == "") {
@@ -357,15 +346,59 @@
         }
         return `${updated}${valueToAppend}`;
       }
+      function appendToTop(original, value) {
+        const valueToAppend = value.trim();
+        if (valueToAppend == "") {
+          return original;
+        }
+        let updated = original.trimStart();
+        if (updated != "") {
+          updated = `\n\n${updated}`;
+        }
+        return `${valueToAppend}${updated}`;
+      }
+      function appendToTopAndRemoveDupes(original, value) {
+        let updated = original;
+        const lines = value.split("\n");
+        for (const line of lines) {
+          const trimmedLine = line.trim();
+          if (trimmedLine != "") {
+            updated = removeDupesOfLine(updated, trimmedLine);
+          }
+        }
+        return appendToTop(updated, value);
+      }
+      function removeDupesOfLine(original, trimmedLineTest) {
+        const lines = original.split("\n");
+        const linesUpdated = [];
+        let capturing = false;
+        for (const line of lines) {
+          const trimmedLine = line.trim();
+          if (trimmedLine == trimmedLineTest) {
+            capturing = true;
+          }
+          else if (trimmedLine != "" || !capturing) {
+            linesUpdated.push(line);
+            capturing = false;
+          }
+        }
+        let updated = linesUpdated.join("\n");
+        if (capturing) {
+          updated = updated.trimEnd();
+        }
+        return updated;
+      }
+      function unsnoozeEverything(original) {
+        return original.replaceAll(/^( *#)+ */gm, "");
+      }
       function updateValues() {
         const weekdayToday = (new Date()).getDay();
         const key = weekdayKeys[weekdayToday];
-        const routine = localStorage.getItem(`routine.${key}`);
-        const storedTodayValue = localStorage.getItem("value.today");
-        let storedInboxValue = localStorage.getItem("value.inbox");
-        storedInboxValue = appendToTop(storedInboxValue, routine);
-        storedInboxValue = appendToTop(storedInboxValue, storedTodayValue);
-        storedInboxValue = storedInboxValue.replaceAll(/^( *#)+ */gm, "");
+        const routine = unsnoozeEverything(localStorage.getItem(`routine.${key}`));
+        const storedTodayValue = unsnoozeEverything(localStorage.getItem("value.today"));
+        let storedInboxValue = unsnoozeEverything(localStorage.getItem("value.inbox"));
+        storedInboxValue = appendToTopAndRemoveDupes(storedInboxValue, routine);
+        storedInboxValue = appendToTopAndRemoveDupes(storedInboxValue, storedTodayValue);
         storeThenSave("value.today", "");
         storeThenSave("value.inbox", storedInboxValue);
       }
