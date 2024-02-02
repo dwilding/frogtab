@@ -1,0 +1,119 @@
+/* Default to light theme */
+:root {
+  color-scheme: light;
+  --bg: #fff;
+  --accent-bg: #f5f7ff;
+  --text: #212121;
+  --text-light: #585858;
+  --border: #898EA4;
+  --accent: #0d47a1;
+  --code: #d81b60;
+  --preformatted: #444;
+  --marked: #ffdd33;
+  --disabled: #efefef;
+}
+img.dark-only {
+  display: none;
+}
+/* Dark theme case 1: System is dark and Frogtab is set to match system */
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="system"] {
+    color-scheme: dark;
+    --bg: #212121;
+    --accent-bg: #2b2b2b;
+    --text: #dcdcdc;
+    --text-light: #ababab;
+    --accent: #ffb300;
+    --code: #f06292;
+    --preformatted: #ccc;
+    --disabled: #111;
+  }
+  :root[data-theme="system"] img.dark-only {
+    display: inline;
+  }
+  :root[data-theme="system"] img.light-only {
+    display: none;
+  }
+}
+/* Dark theme case 2: Frogtab is set to dark */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #212121;
+  --accent-bg: #2b2b2b;
+  --text: #dcdcdc;
+  --text-light: #ababab;
+  --accent: #ffb300;
+  --code: #f06292;
+  --preformatted: #ccc;
+  --disabled: #111;
+}
+:root[data-theme="dark"] img.dark-only {
+  display: inline;
+}
+:root[data-theme="dark"] img.light-only {
+  display: none;
+}
+/* Override/define other styles  */
+img {
+  opacity: 1;
+}
+.compact {
+  margin-top: 0.5rem;
+}
+p.before-compact {
+  margin-bottom: 0;
+}
+article {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+label {
+  display: inline-block;
+  margin-right: 0.5rem;
+}
+.notice {
+  display: none;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+.notice.display {
+  display: block;
+}
+.notice > div {
+  display: none;
+}
+.notice > div.display {
+  display: block;
+}
+.notice > div > p,
+.notice > div > div > input,
+.notice > div > div > button {
+  margin: 0.5rem 0;
+}
+.notice > div > div > label {
+  margin: 0.5rem 0.5rem 0.5rem 0;
+}
+svg {
+  vertical-align: text-top;
+}
+table {
+  width: 100%;
+}
+td {
+  vertical-align: top;
+}
+td > p {
+  margin: 0;
+}
+td > p + p {
+  margin-top: 0.5rem;
+}
+.shortcut {
+  display: none;
+}
+.shortcut.display {
+  display: inline;
+}
+footer a {
+  color: var(--text-light) !important;
+}

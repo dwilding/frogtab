@@ -9,121 +9,7 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/manifest.webmanifest">
     <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
-    <style>
-      /* Default to light theme */
-      :root {
-        color-scheme: light;
-        --bg: #fff;
-        --accent-bg: #f5f7ff;
-        --text: #212121;
-        --text-light: #585858;
-        --border: #898EA4;
-        --accent: #0d47a1;
-        --code: #d81b60;
-        --preformatted: #444;
-        --marked: #ffdd33;
-        --disabled: #efefef;
-      }
-      img.dark-only {
-        display: none;
-      }
-      /* Dark theme case 1: System is dark and Frogtab is set to match system */
-      @media (prefers-color-scheme: dark) {
-        :root[data-theme="system"] {
-          color-scheme: dark;
-          --bg: #212121;
-          --accent-bg: #2b2b2b;
-          --text: #dcdcdc;
-          --text-light: #ababab;
-          --accent: #ffb300;
-          --code: #f06292;
-          --preformatted: #ccc;
-          --disabled: #111;
-        }
-        :root[data-theme="system"] img.dark-only {
-          display: inline;
-        }
-        :root[data-theme="system"] img.light-only {
-          display: none;
-        }
-      }
-      /* Dark theme case 2: Frogtab is set to dark */
-      :root[data-theme="dark"] {
-        color-scheme: dark;
-        --bg: #212121;
-        --accent-bg: #2b2b2b;
-        --text: #dcdcdc;
-        --text-light: #ababab;
-        --accent: #ffb300;
-        --code: #f06292;
-        --preformatted: #ccc;
-        --disabled: #111;
-      }
-      :root[data-theme="dark"] img.dark-only {
-        display: inline;
-      }
-      :root[data-theme="dark"] img.light-only {
-        display: none;
-      }
-      /* Override/define other styles  */
-      img {
-        opacity: 1;
-      }
-      article {
-        padding-top: 0;
-        padding-bottom: 0;
-      }
-      label {
-        display: inline-block;
-        margin-right: 0.5rem;
-      }
-      .notice {
-        display: none;
-        padding-top: 1rem;
-        padding-bottom: 1rem;
-      }
-      .notice.display {
-        display: block;
-      }
-      .notice > div {
-        display: none;
-      }
-      .notice > div.display {
-        display: block;
-      }
-      .notice > div > p,
-      .notice > div > div > input,
-      .notice > div > div > button {
-        margin: 0.5rem 0;
-      }
-      .notice > div > div > label {
-        margin: 0.5rem 0.5rem 0.5rem 0;
-      }
-      svg {
-        vertical-align: text-top;
-      }
-      table {
-        width: 100%;
-      }
-      td {
-        vertical-align: top;
-      }
-      td > p {
-        margin: 0;
-      }
-      td > p + p {
-        margin-top: 0.5rem;
-      }
-      .shortcut {
-        display: none;
-      }
-      .shortcut.display {
-        display: inline;
-      }
-      footer a {
-        color: var(--text-light) !important;
-      }
-    </style>
+    <link rel="stylesheet" href="/simple-customizations.css?sha1=72690989087877118653b029ffa9c59f245ee7d2">
   </head>
   <body>
     <header>
@@ -143,10 +29,10 @@
         To get in touch, <a href="https://maybecoding.bearblog.dev" target="_blank">send a message</a> or <a href="mailto:feedback@frogtab.com">email me</a> 🐸
       </p>
       <article>
-        <p>
+        <p class="before-compact">
           <strong>Learn how to use Frogtab</strong>
         </p>
-        <ul>
+        <ul class="compact">
           <li><a href="#getting-started">Getting started</a></li>
           <li><a href="#adding-tasks-to-your-inbox">Adding tasks to your inbox</a></li>
           <li><a href="#registering-for-a-personal-link">Registering for a personal link</a></li>
@@ -155,17 +41,17 @@
           <li><a href="#changing-the-theme">Changing the theme</a></li>
           <li><a href="#keyboard-shortcuts">Keyboard shortcuts</a></li>
         </ul>
-        <p>
+        <p class="before-compact">
           <strong>Learn about data privacy</strong>
         </p>
-        <ul>
+        <ul class="compact">
           <li><a href="#overview-of-data-privacy">Overview of data privacy</a></li>
           <li><a href="#privacy-implications-of-registering">Privacy implications of registering</a></li>
         </ul>
-        <p>
+        <p class="before-compact">
           <strong>Manage your data</strong>
-        <p>
-        <ul>
+        </p>
+        <ul class="compact">
           <li><a href="#exporting-your-data">Exporting your data</a></li>
           <li><a href="#importing-your-data">Importing your data</a></li>
         </ul>
@@ -196,10 +82,10 @@
         <img class="light-only" alt="The Inbox view in Frogtab" src="/help-inbox-light.png" width="480">
         <img class="dark-only" alt="The Inbox view in Frogtab (dark theme)" src="/help-inbox-dark.png" width="480">
       </p>
-      <p>
+      <p class="before-compact">
         At the beginning of each day, Frogtab automatically:
       </p>
-      <ul>
+      <ul class="compact">
         <li>Moves any remaining tasks from Today to your inbox</li>
         <li>Unsnoozes any snoozed tasks in your inbox</li>
         <li>Adds tasks from your <a href="#setting-up-recurring-tasks">weekly routine</a> to your inbox</li>
@@ -546,10 +432,10 @@
         </tbody>
       </table>
       <h2 id="overview-of-data-privacy">Overview of data privacy</h2>
-      <p>
+      <p class="before-compact">
         Frogtab stores the following data that you create:
       </p>
-      <ul>
+      <ul class="compact">
         <li>The contents of Today and Inbox</li>
         <li>Recurring tasks from your weekly routine</li>
       </ul>
