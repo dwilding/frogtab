@@ -34,6 +34,7 @@
             <span id="enable-save" class="action-instruction">Enable Auto-Backup</span>
           </div>
           <div id="menu" class="action-menu">
+            <a id="achievements" class="action-menu-item clickable" href="/achievements" target="_blank">Achievements</a>
             <a class="action-menu-item display clickable" href="/help" target="_blank">Help &amp; Privacy</a>
             <a id="export-data" class="action-menu-item display clickable" href="#" download="Frogtab_backup.json">Export My Data</a>
             <div class="action-menu-item display spacer"></div>
@@ -109,6 +110,126 @@
           timeoutShowInfo = window.setTimeout(() => {
             dom.info.classList.add("display");
           }, 30000);
+        }
+      }
+      function inboxCompleteSelected() {
+        const selectionStart = dom.editor.inbox.selectionStart;
+        const selectionEnd = dom.editor.inbox.selectionEnd;
+        let newSelectionPos;
+        const lines = dom.editor.inbox.value.split("\n");
+        const linesUpdated = [];
+        const linesCaptured = [];
+        let capturing = false;
+        let lineStart = 0;
+        let lineEnd;
+        for (const line of lines) {
+          lineEnd = lineStart + line.length;
+          const trimmedLine = line.trimStart();
+          if (lineEnd < selectionStart) {
+            linesUpdated.push(line);
+          }
+          else if (lineStart > selectionEnd) {
+            if (!capturing) {
+              linesUpdated.push(line);
+            }
+            else if (trimmedLine != "") {
+              linesUpdated.push(line);
+              capturing = false;
+            }
+          }
+          else {
+            if (capturing) {
+              if (!trimmedLine.startsWith("#")) {
+                linesCaptured.push(line);
+              }
+              else {
+                linesCaptured.push(trimmedLine.replace(/^( *#)+ */, ""));
+              }
+            }
+            else if (trimmedLine != "") {
+              if (!trimmedLine.startsWith("#")) {
+                linesCaptured.push(line);
+              }
+              else {
+                linesCaptured.push(trimmedLine.replace(/^( *#)+ */, ""));
+              }
+              newSelectionPos = lineStart;
+              capturing = true;
+            }
+            else {
+              linesUpdated.push(line);
+            }
+          }
+          lineStart = lineEnd + 1;
+        }
+        if (linesCaptured.length > 0) {
+          dom.editor.inbox.value = linesUpdated.join("\n");
+          if (capturing) {
+            dom.editor.inbox.value = dom.editor.inbox.value.trimEnd();
+          }
+          storeThenSave("value.inbox", dom.editor.inbox.value);
+          dom.editor.inbox.setSelectionRange(newSelectionPos, newSelectionPos);
+          // TODO
+        }
+      }
+      function todayCompleteSelected() {
+        const selectionStart = dom.editor.today.selectionStart;
+        const selectionEnd = dom.editor.today.selectionEnd;
+        let newSelectionPos;
+        const lines = dom.editor.today.value.split("\n");
+        const linesUpdated = [];
+        const linesCaptured = [];
+        let capturing = false;
+        let lineStart = 0;
+        let lineEnd;
+        for (const line of lines) {
+          lineEnd = lineStart + line.length;
+          const trimmedLine = line.trimStart();
+          if (lineEnd < selectionStart) {
+            linesUpdated.push(line);
+          }
+          else if (lineStart > selectionEnd) {
+            if (!capturing) {
+              linesUpdated.push(line);
+            }
+            else if (trimmedLine != "") {
+              linesUpdated.push(line);
+              capturing = false;
+            }
+          }
+          else {
+            if (capturing) {
+              if (!trimmedLine.startsWith("#")) {
+                linesCaptured.push(line);
+              }
+              else {
+                linesCaptured.push(trimmedLine.replace(/^( *#)+ */, ""));
+              }
+            }
+            else if (trimmedLine != "") {
+              if (!trimmedLine.startsWith("#")) {
+                linesCaptured.push(line);
+              }
+              else {
+                linesCaptured.push(trimmedLine.replace(/^( *#)+ */, ""));
+              }
+              newSelectionPos = lineStart;
+              capturing = true;
+            }
+            else {
+              linesUpdated.push(line);
+            }
+          }
+          lineStart = lineEnd + 1;
+        }
+        if (linesCaptured.length > 0) {
+          dom.editor.today.value = linesUpdated.join("\n");
+          if (capturing) {
+            dom.editor.today.value = dom.editor.today.value.trimEnd();
+          }
+          storeThenSave("value.today", dom.editor.today.value);
+          dom.editor.today.setSelectionRange(newSelectionPos, newSelectionPos);
+          // TODO
         }
       }
       function inboxMoveSelected() {
@@ -460,6 +581,14 @@
         storeThenSave("value.inbox", storedInboxValue);
         dom.fetchConnected.classList.add("display");
       }
+      function setAchievements() {
+        if (localStorage.getItem("achievements") !== null) {
+          dom.achievements.classList.add("display");
+        }
+        else {
+          dom.achievements.classList.remove("display");
+        }
+      }
       function setSnap() {
         if (localStorage.getItem("ui.snap") == "bottom") {
           dom.container.classList.add("docked");
@@ -530,6 +659,9 @@
         for (const key of weekdayKeys) {
           data.routine[key] = localStorage.getItem(`routine.${key}`).trim();
         }
+        if (localStorage.getItem("achievements") !== null) {
+          data.achievements = JSON.parse(localStorage.getItem("achievements"));
+        }
         if (localStorage.getItem("user.userID") !== null) {
           data.device = {
             userID: localStorage.getItem("user.userID"),
@@ -564,6 +696,7 @@
         }
       }
       async function startApp() {
+        setAchievements();
         setSnap();
         setExportAction();
         if (isNewDay()) {
@@ -577,7 +710,11 @@
           storeThenSave("value.today", dom.editor.today.value);
         });
         dom.editor.today.addEventListener("keydown", event => {
-          if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key == "/") {
+          if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key.toLowerCase() == "k" && localStorage.getItem("achievements") !== null) {
+            event.preventDefault();
+            todayCompleteSelected();
+          }
+          else if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key == "/") {
             event.preventDefault();
             todaySnoozeSelected();
           }
@@ -592,7 +729,13 @@
           refreshInfo();
         });
         dom.editor.inbox.addEventListener("keydown", event => {
-          if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() == "enter") {
+          if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key.toLowerCase() == "k" && localStorage.getItem("achievements") !== null) {
+            event.preventDefault();
+            inboxCompleteSelected();
+            setNotifyStatus();
+            refreshInfo();
+          }
+          else if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() == "enter") {
             event.preventDefault();
             inboxMoveSelected();
             setNotifyStatus();
@@ -680,6 +823,7 @@
           }
         }, 15000);
         window.addEventListener("storage", async event => {
+          setAchievements();
           document.documentElement.setAttribute("data-theme", localStorage.getItem("ui.theme"));
           if (!hasUserID && localStorage.getItem("user.userID") !== null) {
             hasUserID = true;
@@ -706,11 +850,17 @@
       const weekdayKeys = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
       if (localStorage.getItem("restore") !== null) {
         const backupData = JSON.parse(localStorage.getItem("restore"));
+        const uiSnap = localStorage.getItem("ui.snap");
+        const uiTheme = localStorage.getItem("ui.theme");
+        localStorage.clear();
         localStorage.setItem("date", backupData.date);
         localStorage.setItem("value.today", backupData.today);
         localStorage.setItem("value.inbox", backupData.inbox);
         for (const key of weekdayKeys) {
           localStorage.setItem(`routine.${key}`, backupData.routine[key]);
+        }
+        if ("achievements" in backupData) {
+          localStorage.setItem("achievements", backupData.achievements);
         }
         if ("device" in backupData) {
           localStorage.setItem("user.pgpPublicKey", backupData.device.pgpPublicKey);
@@ -718,7 +868,8 @@
           localStorage.setItem("user.apiKey", backupData.device.apiKey);
           localStorage.setItem("user.userID", backupData.device.userID);
         }
-        localStorage.removeItem("restore");
+        localStorage.setItem("ui.snap", uiSnap);
+        localStorage.setItem("ui.theme", uiTheme);
       }
       if (localStorage.getItem("date") === null) {
         localStorage.setItem("date", (new Date()).toDateString());
@@ -754,6 +905,7 @@
         fetchConnected: document.getElementById("fetch-connected"),
         menuButton: document.getElementById("menu-button"),
         menu: document.getElementById("menu"),
+        achievements: document.getElementById("achievements"),
         snapToBottom: document.getElementById("snap-to-bottom"),
         snapToCenter: document.getElementById("snap-to-center"),
         exportData: document.getElementById("export-data"),
