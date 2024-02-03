@@ -71,18 +71,20 @@ label {
   display: inline-block;
   margin-right: 0.5rem;
 }
+.conditional,
+.notice > div {
+  display: none;
+}
+.conditional.display,
+.notice > div.display {
+  display: block;
+}
 .notice {
   display: none;
   padding-top: 1rem;
   padding-bottom: 1rem;
 }
 .notice.display {
-  display: block;
-}
-.notice > div {
-  display: none;
-}
-.notice > div.display {
   display: block;
 }
 .notice > div > p,

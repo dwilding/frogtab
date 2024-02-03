@@ -7,16 +7,21 @@
   <url>
     <loc>https://frogtab.com/help</loc>
     <changefreq>monthly</changefreq>
-    <priority>0.90</priority>
+    <priority>0.75</priority>
   </url>
   <url>
-    <loc>https://frogtab.com/week</loc>
+    <loc>https://frogtab.com/achievements</loc>
     <changefreq>monthly</changefreq>
     <priority>0.50</priority>
   </url>
   <url>
     <loc>https://frogtab.com/send</loc>
     <changefreq>monthly</changefreq>
-    <priority>0.50</priority>
+    <priority>0.25</priority>
+  </url>
+  <url>
+    <loc>https://frogtab.com/week</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.25</priority>
   </url>
 </urlset>

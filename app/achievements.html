@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="system">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Review your completed tasks">
+    <title>Achievements - Frogtab</title>
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" id="icon">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+    <link rel="stylesheet" href="/simple-customizations.css?sha1=cb6ae7a89878e0e17ccbca85186ded0f81be2504">
+  </head>
+  <body>
+    <header>
+      <nav></nav>
+      <h1>Achievements</h1>
+      <p>
+        Review your completed tasks
+      </p>
+    </header>
+    <main id="main">
+      <div id="case-enabled-empty" class="conditional">
+        <p>
+          You haven't completed any tasks yet!
+        </p>
+      </div>
+      <div id="case-enabled" class="conditional">
+        <p class="before-compact">
+          <strong>Date</strong>
+        </p>
+        <ul class="compact">
+          <li>Task</li>
+        </ul>
+      </div>
+      <div id="case-disabled" class="conditional display">
+        <p>
+          To start tracking your completed tasks, see [TODO].
+        </p>
+      </div>
+    </main>
+    <footer>
+      <p>
+        Frogtab is a free app developed by <a href="https://github.com/dwilding" target="_blank">Dave Wilding</a>.
+        It's designed to be stable over many years and inexpensive for me to operate. 
+        I hope that Frogtab brings joy to your day!
+      </p>
+      <p>
+        Acknowledgments:
+        <a href="https://simplecss.org" target="_blank">Simple.css</a>,
+        <a href="https://openpgpjs.org" target="_blank">OpenPGP.js</a>,
+        <a href="https://uuid.ramsey.dev" target="_blank">ramsey/uuid</a>,
+        <a href="https://iconoir.com" target="_blank">iconnoir</a>,
+        <a href="https://www.fiverr.com/mackwhyte" target="_blank">mackwhyte</a>
+      </p>
+      <p>
+        <a href="https://github.com/dwilding/frogtab" target="_blank">Source code</a>
+        •
+        <a href="https://maybecoding.bearblog.dev/blog/" target="_blank">Dev blog</a>
+      </p>
+    </footer>
+    <script>
+      function setAchievements() {
+        if (localStorage.getItem("achievements") !== null) {
+          dom.caseEnabledEmpty.classList.add("display");
+          dom.caseEnabled.classList.remove("display");
+          dom.caseEnabled.innerHTML = "";
+          dom.caseDisabled.classList.remove("display");
+          const achievements = JSON.parse(localStorage.getItem("achievements"));
+          if (achievements.length > 0) {
+            dom.caseEnabledEmpty.classList.remove("display");
+            dom.caseEnabled.classList.add("display");
+            for (const day of achievements) {
+              const dayDate = (new Date(day.date)).toLocaleDateString(undefined, {
+                day: "numeric",
+                month: "short",
+                year: "numeric"
+              });
+              const p = document.createElement("p");
+              p.className = "before-compact";
+              const pStrong = document.createElement("strong");
+              pStrong.textContent = dayDate;
+              p.appendChild(pStrong);
+              dom.caseEnabled.appendChild(p);
+              const ul = document.createElement("ul");
+              ul.className = "compact";
+              for (const task of day.tasks) {
+                const li = document.createElement("li");
+                li.textContent = task;
+                ul.appendChild(li);
+              }
+              dom.caseEnabled.appendChild(ul);
+            }
+          }
+        }
+        else {
+          dom.caseEnabledEmpty.classList.remove("display");
+          dom.caseEnabled.classList.remove("display");
+          dom.caseEnabled.innerHTML = "";
+          dom.caseDisabled.classList.add("display");
+        }
+      }
+      function startApp() {
+        setAchievements();
+        window.addEventListener("storage", event => {
+          setAchievements();
+          document.documentElement.setAttribute("data-theme", localStorage.getItem("ui.theme"));
+        });
+      }
+
+      // ******** Initial setup ********
+      if (localStorage.getItem("ui.theme") === null) {
+        localStorage.setItem("ui.theme", "system");
+      }
+      document.documentElement.setAttribute("data-theme", localStorage.getItem("ui.theme"));
+      const dom = {
+        caseEnabledEmpty: document.getElementById("case-enabled-empty"),
+        caseEnabled: document.getElementById("case-enabled"),
+        caseDisabled: document.getElementById("case-disabled")
+      };
+      startApp();
+    </script>
+  </body>
+</html>

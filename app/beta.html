@@ -139,20 +139,12 @@
           }
           else {
             if (capturing) {
-              if (!trimmedLine.startsWith("#")) {
-                linesCaptured.push(line);
-              }
-              else {
+              if (trimmedLine != "") {
                 linesCaptured.push(trimmedLine.replace(/^( *#)+ */, ""));
               }
             }
             else if (trimmedLine != "") {
-              if (!trimmedLine.startsWith("#")) {
-                linesCaptured.push(line);
-              }
-              else {
-                linesCaptured.push(trimmedLine.replace(/^( *#)+ */, ""));
-              }
+              linesCaptured.push(trimmedLine.replace(/^( *#)+ */, ""));
               newSelectionPos = lineStart;
               capturing = true;
             }
@@ -169,7 +161,7 @@
           }
           storeThenSave("value.inbox", dom.editor.inbox.value);
           dom.editor.inbox.setSelectionRange(newSelectionPos, newSelectionPos);
-          // TODO
+          updateCompleted(linesCaptured);
         }
       }
       function todayCompleteSelected() {
@@ -199,20 +191,12 @@
           }
           else {
             if (capturing) {
-              if (!trimmedLine.startsWith("#")) {
-                linesCaptured.push(line);
-              }
-              else {
+              if (trimmedLine != "") {
                 linesCaptured.push(trimmedLine.replace(/^( *#)+ */, ""));
               }
             }
             else if (trimmedLine != "") {
-              if (!trimmedLine.startsWith("#")) {
-                linesCaptured.push(line);
-              }
-              else {
-                linesCaptured.push(trimmedLine.replace(/^( *#)+ */, ""));
-              }
+              linesCaptured.push(trimmedLine.replace(/^( *#)+ */, ""));
               newSelectionPos = lineStart;
               capturing = true;
             }
@@ -229,7 +213,7 @@
           }
           storeThenSave("value.today", dom.editor.today.value);
           dom.editor.today.setSelectionRange(newSelectionPos, newSelectionPos);
-          // TODO
+          updateCompleted(linesCaptured);
         }
       }
       function inboxMoveSelected() {
@@ -511,6 +495,20 @@
       }
       function unsnoozeEverything(original) {
         return original.replaceAll(/^( *#)+ */gm, "");
+      }
+      function updateCompleted(lines) {
+        const dateToday = (new Date()).toDateString();
+        const achievements = JSON.parse(localStorage.getItem("achievements"));
+        if (achievements.length > 0 && achievements[0].date == dateToday) {
+          achievements[0].tasks.unshift(...lines);
+        }
+        else {
+          achievements.unshift({
+            date: dateToday,
+            tasks: lines
+          });
+        }
+        storeThenSave("achievements", JSON.stringify(achievements));
       }
       function updateValues() {
         const weekdayToday = (new Date()).getDay();
@@ -860,7 +858,7 @@
           localStorage.setItem(`routine.${key}`, backupData.routine[key]);
         }
         if ("achievements" in backupData) {
-          localStorage.setItem("achievements", backupData.achievements);
+          localStorage.setItem("achievements", JSON.stringify(backupData.achievements));
         }
         if ("device" in backupData) {
           localStorage.setItem("user.pgpPublicKey", backupData.device.pgpPublicKey);
