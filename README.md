@@ -55,6 +55,9 @@ More details:
 
     See the `verifyUserAndAppendMessages` function in [index.html](app/index.html).
 
+Frogtab uses [OpenPGP.js](https://github.com/openpgpjs/openpgpjs) for PGP encryption and decryption.
+OpenPGP.js is licensed under the GNU Lesser General Public License.
+
 ## JavaScript SDK
 
 If you have [registered your main device](https://frogtab.com/help#registering-for-a-personal-link), you can use the JavaScript SDK to send messages to Frogtab on your main device.
