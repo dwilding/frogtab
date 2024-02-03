@@ -562,7 +562,7 @@
           }
           let response;
           try {
-            response = await fetch("https://frogtab.com/post-verify-user", {
+            response = await fetch("/post-verify-user", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json"
@@ -598,7 +598,7 @@
         dom.caseRegistering.classList.add("display");
         await delayForUX(async () => {
           if (openpgp === undefined) {
-            openpgp = await import("https://unpkg.com/openpgp@5.x/dist/openpgp.min.mjs");
+            openpgp = await import("/libs/openpgp.min.mjs");
           }
           const encryptedComment = await openpgp.encrypt({
             message: await openpgp.createMessage({
@@ -615,7 +615,7 @@
           });
           let response;
           try {
-            response = await fetch("https://frogtab.com/post-create-user", {
+            response = await fetch("/post-create-user", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json"
@@ -661,7 +661,7 @@
         await delayForUX(async () => {
           let response;
           try {
-            response = await fetch("https://frogtab.com/post-remove-user", {
+            response = await fetch("/post-remove-user", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json"

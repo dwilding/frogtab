@@ -350,10 +350,13 @@
         return true;
       }
       async function verifyUserAndAppendMessages() {
+        if (openpgp === undefined) {
+          openpgp = await import("/libs/openpgp.min.mjs");
+        }
         lastAppend = Date.now();
         let response;
         try {
-          response = await fetch("https://frogtab.com/post-remove-messages", {
+          response = await fetch("/post-remove-messages", {
             method: "POST",
             headers: {
               "Content-Type": "application/json"
@@ -377,9 +380,6 @@
           return;
         }
         const messages = [];
-        if (openpgp === undefined) {
-          openpgp = await import("https://unpkg.com/openpgp@5.x/dist/openpgp.min.mjs");
-        }
         const pgpPrivateKeyObj = await openpgp.readKey({
           armoredKey: localStorage.getItem("user.pgpPrivateKey")
         });

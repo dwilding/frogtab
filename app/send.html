@@ -76,7 +76,7 @@
         });
         let response;
         try {
-          response = await fetch("https://frogtab.com/open/post-add-message", {
+          response = await fetch("/open/post-add-message", {
             method: "POST",
             headers: {
               "Content-Type": "application/json"
@@ -160,9 +160,10 @@
       async function setSendCloud() {
         dom.popups.connecting.classList.add("display");
         await delayForUX(async () => {
+          openpgp = await import("/libs/openpgp.min.mjs");
           let response;
           try {
-            response = await fetch(`https://frogtab.com/open/get-user?user_id=${encodeURIComponent(userID)}`);
+            response = await fetch(`/open/get-user?user_id=${encodeURIComponent(userID)}`);
           }
           catch (err) {
             return;
@@ -174,7 +175,6 @@
           if (!result.success) {
             return;
           }
-          openpgp = await import("https://unpkg.com/openpgp@5.x/dist/openpgp.min.mjs");
           pgpPublicKeyObj = await openpgp.readKey({
             armoredKey: result.user.pgp_public_key
           });
