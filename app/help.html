@@ -598,7 +598,7 @@
         dom.caseRegistering.classList.add("display");
         await delayForUX(async () => {
           if (openpgp === undefined) {
-            openpgp = await import("/libs/openpgp.min.mjs");
+            openpgp = await import("/lib-openpgp.min.mjs");
           }
           const encryptedComment = await openpgp.encrypt({
             message: await openpgp.createMessage({

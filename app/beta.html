@@ -533,7 +533,7 @@
       }
       async function verifyUserAndAppendMessages() {
         if (openpgp === undefined) {
-          openpgp = await import("/libs/openpgp.min.mjs");
+          openpgp = await import("/lib-openpgp.min.mjs");
         }
         lastAppend = Date.now();
         let response;
