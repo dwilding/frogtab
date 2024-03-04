@@ -400,11 +400,17 @@
         }
         if (linesCaptured.length > 0) {
           newSelectionPos += linesCaptured.join("\n").length + 1; // + 1 to account for another \n
-          dom.editor.inbox.value = linesUpdated.join("\n");
+          let newInboxValue = linesUpdated.join("\n");
           if (capturing) {
-            dom.editor.inbox.value = dom.editor.inbox.value.trimEnd();
+            newInboxValue = newInboxValue.trimEnd();
           }
-          storeThenSave("value.inbox", dom.editor.inbox.value);
+          storeThenSave("value.inbox", newInboxValue);
+          const prevScrollTop = dom.editor.inbox.scrollTop;
+          dom.editor.inbox.scrollTop = 0;
+          dom.editor.inbox.value = newInboxValue.substring(0, newSelectionPos);
+          dom.editor.inbox.scrollTop = dom.editor.inbox.scrollHeight;
+          dom.editor.inbox.value = newInboxValue;
+          dom.editor.inbox.scrollTop = Math.max(prevScrollTop, dom.editor.inbox.scrollTop);
           dom.editor.inbox.setSelectionRange(newSelectionPos, newSelectionPos);
         }
       }
