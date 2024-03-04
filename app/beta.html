@@ -519,7 +519,7 @@
       function updateValues() {
         const weekdayToday = (new Date()).getDay();
         const key = weekdayKeys[weekdayToday];
-        const routine = unsnoozeEverything(localStorage.getItem(`routine.${key}`));
+        const routine = localStorage.getItem(`routine.${key}`);
         const storedTodayValue = unsnoozeEverything(localStorage.getItem("value.today"));
         let storedInboxValue = unsnoozeEverything(localStorage.getItem("value.inbox"));
         storedInboxValue = appendToTopAndRemoveDupes(storedInboxValue, routine);
