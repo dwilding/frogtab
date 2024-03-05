@@ -116,6 +116,9 @@ td > p + p {
 .shortcut.display {
   display: inline;
 }
+blockquote {
+  font-style: normal;
+}
 footer a {
   color: var(--text-light) !important;
 }
