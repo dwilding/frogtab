@@ -8,11 +8,14 @@
     <link rel="icon" href="/icon.svg" type="image/svg+xml" id="icon">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/manifest.webmanifest">
-    <link rel="stylesheet" href="/style.css?sha1=36cce73bea3b9c40a521680002f0407448b7e94a">
+    <link rel="stylesheet" href="/style.css?sha1=f7b3e85916bd60de3022658696e22a5a1c70a139">
   </head>
   <body>
     <div id="container" class="container">
       <div class="interface">
+        <a id="welcome" class="popup" href="https://frogtab.com/help#getting-started" target="_blank">
+          Welcome! Click here to get started
+        </a>
         <div class="tabs">
           <div class="tab">
             <span id="tab-today" class="tab-name selected">Today</span>
@@ -851,6 +854,7 @@
       }
 
       // ******** Initial setup ********
+      let showWelcome = false;
       const weekdayKeys = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
       if (localStorage.getItem("restore") !== null) {
         const backupData = JSON.parse(localStorage.getItem("restore"));
@@ -879,7 +883,8 @@
         localStorage.setItem("date", (new Date()).toDateString());
       }
       if (localStorage.getItem("value.today") === null) {
-        localStorage.setItem("value.today", "Welcome! Learn how to use Frogtab - https://frogtab.com/help#getting-started");
+        localStorage.setItem("value.today", "");
+        showWelcome = true;
       }
       if (localStorage.getItem("value.inbox") === null) {
         localStorage.setItem("value.inbox", "");
@@ -899,6 +904,7 @@
       const dom = {
         container: document.getElementById("container"),
         icon: document.getElementById("icon"),
+        welcome: document.getElementById("welcome"),
         editor: {
           today: document.getElementById("editor-today"),
           inbox: document.getElementById("editor-inbox")
@@ -915,6 +921,12 @@
         exportData: document.getElementById("export-data"),
         enableSave: document.getElementById("enable-save")
       };
+      if (showWelcome) {
+        dom.welcome.classList.add("display"); 
+        dom.welcome.addEventListener("click", event => {
+          dom.welcome.classList.remove("display");
+        });
+      }
       const storedIcons = {};
       let notifyInbox = false;
       let selectedTab = "today";

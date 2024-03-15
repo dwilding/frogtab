@@ -10,6 +10,7 @@
   --subtle-region: #e0e0e0;
   --notification: #ed2024;
   --highlight: #79c152;
+  --highlight-dimmed: #64a83c;
   --text-on-highlight: #fff;
 }
 /* Dark theme case 1: System is dark and Frogtab is set to match system */
@@ -96,6 +97,17 @@ body {
 .popup > svg {
   margin-right: 0.6rem;
   vertical-align: text-top;
+}
+a.popup {
+  border: 2px solid var(--highlight-dimmed);
+  background-color: var(--highlight-dimmed);
+  color: var(--text-on-highlight);
+  text-decoration: none;
+  font-weight: bold;
+}
+a.popup:hover {
+  border: 2px solid var(--highlight);
+  background-color: var(--highlight);
 }
 .tabs {
   display: flex;
