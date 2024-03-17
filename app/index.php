@@ -4,9 +4,9 @@ $page_state = '';
 $icon16 = '/favicons/icon-16.png';
 $icon32 = '/favicons/icon-32.png';
 $query = $_SERVER['QUERY_STRING'];
-if ($query == "t0a" || $query == "t1a" || $query == "i0a" || $query == "i1a") {
+if ($query == "0t" || $query == "0i" || $query == "1t" || $query == "1i") {
   $page_state = $query;
-  if ($query == "t1a" || $query == "i1a") {
+  if ($query == "1t" || $query == "1i") {
     $icon16 = '/favicons/icon-16-notify.png';
     $icon32 = '/favicons/icon-32-notify.png';
   }
@@ -725,7 +725,7 @@ if ($query == "t0a" || $query == "t1a" || $query == "i0a" || $query == "i1a") {
         switchToTab("today");
         await storeIcons();
         setNotifyStatus();
-        if (pageState.startsWith("i") || (pageState == "" && notifyInbox)) {
+        if (pageState.endsWith("i") || (pageState == "" && notifyInbox)) {
           switchToTab("inbox");
           refreshInfo();
         }
@@ -826,7 +826,7 @@ if ($query == "t0a" || $query == "t1a" || $query == "i0a" || $query == "i1a") {
           await verifyUserAndAppendMessages();
           if (verifiedUser) {
             setNotifyStatus();
-            if (pageState.startsWith("i") || (pageState == "" && notifyInbox)) {
+            if (pageState.endsWith("i") || (pageState == "" && notifyInbox)) {
               switchToTab("inbox");
               refreshInfo();
             }
@@ -853,13 +853,13 @@ if ($query == "t0a" || $query == "t1a" || $query == "i0a" || $query == "i1a") {
             refreshView();
           }
           if (pageState != "" && document.hidden) {
-            const newPageStateTab = selectedTab.slice(0, 1);
             let newPageStateNotify = "0";
             if (notifyInbox) {
               newPageStateNotify = "1";
             }
-            const newPageState = `${newPageStateTab}${newPageStateNotify}a`;
-            if (newPageStateNotify != pageState.slice(1, 2)) {
+            const newPageStateTab = selectedTab.slice(0, 1);
+            const newPageState = `${newPageStateNotify}${newPageStateTab}`;
+            if (newPageStateNotify != pageState.slice(0, 1)) {
               window.location.href = `https://frogtab.com/?${newPageState}`;
             }
             else if (newPageState != pageState) {
