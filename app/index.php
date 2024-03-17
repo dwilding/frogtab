@@ -727,6 +727,7 @@ if ($query == "t0a" || $query == "t1a" || $query == "i0a" || $query == "i1a") {
         setNotifyStatus();
         if (pageState.startsWith("i") || (pageState == "" && notifyInbox)) {
           switchToTab("inbox");
+          refreshInfo();
         }
         dom.editor.today.addEventListener("input", event => {
           storeThenSave("value.today", dom.editor.today.value);
@@ -827,6 +828,7 @@ if ($query == "t0a" || $query == "t1a" || $query == "i0a" || $query == "i1a") {
             setNotifyStatus();
             if (pageState.startsWith("i") || (pageState == "" && notifyInbox)) {
               switchToTab("inbox");
+              refreshInfo();
             }
           }
         }
