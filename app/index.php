@@ -1,12 +1,27 @@
+<?php
+
+$page_state = '';
+$icon16 = '/favicons/icon-16.png';
+$icon32 = '/favicons/icon-32.png';
+$query = $_SERVER['QUERY_STRING'];
+if ($query == "t0" || $query == "t1" || $query == "i0" || $query == "i1") {
+  $page_state = $query;
+  if ($query == "t1" || $query == "i1") {
+    $icon16 = '/favicons/icon-16-notify.png';
+    $icon32 = '/favicons/icon-32-notify.png';
+  }
+}
+
+?>
 <!DOCTYPE html>
-<html lang="en" data-theme="system">
+<html lang="en" data-theme="system" data-state="<?= $page_state ?>">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Frogtab is a lightweight task manager that helps you stay focused on today's priorities">
     <title>Frogtab</title>
-    <link rel="icon" href="/favicons/icon-16.png" sizes="16x16" type="image/png" id="icon16">
-    <link rel="icon" href="/favicons/icon-32.png" sizes="32x32" type="image/png" id="icon32">
+    <link rel="icon" href="<?= $icon16 ?>" sizes="16x16" type="image/png" id="icon16">
+    <link rel="icon" href="<?= $icon32 ?>" sizes="32x32" type="image/png" id="icon32">
     <link rel="apple-touch-icon" sizes="180x180" href="/favicons/icon-180-apple.png">
     <link rel="manifest" href="/manifest.webmanifest">
     <link rel="stylesheet" href="/style.css?sha1=f7b3e85916bd60de3022658696e22a5a1c70a139">
@@ -94,14 +109,6 @@
           dom.icon16.href = storedIcons.icon16;
           dom.icon32.href = storedIcons.icon32;
           notifyInbox = false;
-        }
-      }
-      function setTab() {
-        if (notifyInbox) {
-          switchToTab("inbox");
-        }
-        else {
-          switchToTab("today");
         }
       }
       function refreshView() {
@@ -715,10 +722,17 @@
         if (isNewDay()) {
           updateValues();
         }
-        switchToTab("today");
+        if (pageState == "" || pageState.startsWith("t")) {
+          switchToTab("today");
+        }
+        else {
+          switchToTab("inbox");
+        }
         await storeIcons();
         setNotifyStatus();
-        setTab();
+        if (pageState == "" && notifyInbox) {
+          switchToTab("inbox");
+        }
         dom.editor.today.addEventListener("input", event => {
           storeThenSave("value.today", dom.editor.today.value);
         });
@@ -816,7 +830,9 @@
           await verifyUserAndAppendMessages();
           if (verifiedUser) {
             setNotifyStatus();
-            setTab();
+            if (pageState == "" && notifyInbox) {
+              switchToTab("inbox");
+            }
           }
         }
         window.setInterval(async () => {
@@ -826,13 +842,32 @@
               await verifyUserAndAppendMessages();
             }
             setNotifyStatus();
-            setTab();
+            if (notifyInbox) {
+              switchToTab("inbox");
+            }
+            else {
+              switchToTab("today");
+            }
             refreshInfo();
           }
           else if (verifiedUser && lastAppend <= Date.now() - 600000) {
             await verifyUserAndAppendMessages();
             setNotifyStatus();
             refreshView();
+          }
+          if (pageState != "" && document.hidden) {
+            const newPageStateTab = selectedTab.slice(0, 1);
+            let newPageStateNotify = "0";
+            if (notifyInbox) {
+              newPageStateNotify = "1";
+            }
+            const newPageState = `${newPageStateTab}${newPageStateNotify}`;
+            if (newPageState != pageState) {
+              history.replaceState(null, "", `/?${newPageState}`);
+            }
+            if (newPageStateNotify != pageState.slice(1, 2)) {
+              location.reload();
+            }
           }
         }, 15000);
         window.addEventListener("storage", async event => {
@@ -907,6 +942,7 @@
         localStorage.setItem("ui.theme", "system");
       }
       document.documentElement.setAttribute("data-theme", localStorage.getItem("ui.theme"));
+      const pageState = document.documentElement.getAttribute("data-state");
       const dom = {
         container: document.getElementById("container"),
         icon16: document.getElementById("icon16"),
