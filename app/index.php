@@ -722,15 +722,15 @@ if ($query == "t0a" || $query == "t1a" || $query == "i0a" || $query == "i1a") {
         if (isNewDay()) {
           updateValues();
         }
-        if (pageState == "" || pageState.startsWith("t")) {
-          switchToTab("today");
+        if (pageState.startsWith("i")) {
+          switchToTab("inbox");
         }
         else {
-          switchToTab("inbox");
+          switchToTab("today");
         }
         await storeIcons();
         setNotifyStatus();
-        if (pageState == "" && notifyInbox) {
+        if (notifyInbox && !pageState.startsWith("t")) {
           switchToTab("inbox");
         }
         dom.editor.today.addEventListener("input", event => {
@@ -830,7 +830,7 @@ if ($query == "t0a" || $query == "t1a" || $query == "i0a" || $query == "i1a") {
           await verifyUserAndAppendMessages();
           if (verifiedUser) {
             setNotifyStatus();
-            if (pageState == "" && notifyInbox) {
+            if (notifyInbox && !pageState.startsWith("t")) {
               switchToTab("inbox");
             }
           }
