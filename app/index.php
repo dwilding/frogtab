@@ -723,9 +723,6 @@ if ($query == "t0a" || $query == "t1a" || $query == "i0a" || $query == "i1a") {
           updateValues();
         }
         switchToTab("today");
-        if (pageState.startsWith("i")) {
-          switchToTab("inbox");
-        }
         await storeIcons();
         setNotifyStatus();
         if (notifyInbox && !pageState.startsWith("t")) {
