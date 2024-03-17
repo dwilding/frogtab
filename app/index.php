@@ -722,11 +722,9 @@ if ($query == "t0a" || $query == "t1a" || $query == "i0a" || $query == "i1a") {
         if (isNewDay()) {
           updateValues();
         }
+        switchToTab("today");
         if (pageState.startsWith("i")) {
           switchToTab("inbox");
-        }
-        else {
-          switchToTab("today");
         }
         await storeIcons();
         setNotifyStatus();
