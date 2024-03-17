@@ -725,7 +725,7 @@ if ($query == "t0a" || $query == "t1a" || $query == "i0a" || $query == "i1a") {
         switchToTab("today");
         await storeIcons();
         setNotifyStatus();
-        if (notifyInbox && !pageState.startsWith("t")) {
+        if (pageState.startsWith("i") || (pageState == "" && notifyInbox)) {
           switchToTab("inbox");
         }
         dom.editor.today.addEventListener("input", event => {
@@ -825,7 +825,7 @@ if ($query == "t0a" || $query == "t1a" || $query == "i0a" || $query == "i1a") {
           await verifyUserAndAppendMessages();
           if (verifiedUser) {
             setNotifyStatus();
-            if (notifyInbox && !pageState.startsWith("t")) {
+            if (pageState.startsWith("i") || (pageState == "" && notifyInbox)) {
               switchToTab("inbox");
             }
           }
