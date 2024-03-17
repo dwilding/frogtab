@@ -4,9 +4,9 @@ $page_state = '';
 $icon16 = '/favicons/icon-16.png';
 $icon32 = '/favicons/icon-32.png';
 $query = $_SERVER['QUERY_STRING'];
-if ($query == "t0" || $query == "t1" || $query == "i0" || $query == "i1") {
+if ($query == "t0a" || $query == "t1a" || $query == "i0a" || $query == "i1a") {
   $page_state = $query;
-  if ($query == "t1" || $query == "i1") {
+  if ($query == "t1a" || $query == "i1a") {
     $icon16 = '/favicons/icon-16-notify.png';
     $icon32 = '/favicons/icon-32-notify.png';
   }
@@ -861,12 +861,12 @@ if ($query == "t0" || $query == "t1" || $query == "i0" || $query == "i1") {
             if (notifyInbox) {
               newPageStateNotify = "1";
             }
-            const newPageState = `${newPageStateTab}${newPageStateNotify}`;
-            if (newPageState != pageState) {
-              history.replaceState(null, "", `/?${newPageState}`);
-            }
+            const newPageState = `${newPageStateTab}${newPageStateNotify}a`;
             if (newPageStateNotify != pageState.slice(1, 2)) {
-              location.reload();
+              window.location.href = `https://frogtab.com/?${newPageState}`;
+            }
+            else if (newPageState != pageState) {
+              history.replaceState(null, "", `/?${newPageState}`);
             }
           }
         }, 15000);
