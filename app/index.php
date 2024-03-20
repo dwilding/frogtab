@@ -29,7 +29,7 @@ if ($query == "0t" || $query == "0i" || $query == "1t" || $query == "1i") {
   <body>
     <div id="container" class="container">
       <div class="interface">
-        <a id="welcome" class="popup" href="https://frogtab.com/help#getting-started" target="_blank">
+        <a id="welcome" class="popup" href="/help#overview-of-frogtab" target="_blank">
           Welcome! Click here to get started
         </a>
         <div class="tabs">
