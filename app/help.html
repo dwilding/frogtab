@@ -450,6 +450,39 @@
           </tr>
         </tbody>
       </table>
+      <h2 id="exporting-your-data">Exporting your data</h2>
+      <p>
+        Your data is stored in your browser.
+        If you like, you can make a backup of your data by exporting your data in JSON format.
+      </p>
+      <p>
+        To export your data, click
+        <svg width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M3 5h18M3 12h18M3 19h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        at the bottom of Frogtab, then click <strong>Export My Data</strong>.
+      </p>
+      <p>
+        Some browsers are able to directly write to files on your device.
+        If your browser supports this feature, Frogtab can automatically back up your data whenever your data changes.
+        To start automatically backing up your data, click <strong>Enable Auto-Backup</strong> at the bottom of Frogtab.
+      </p>
+      <h2 id="importing-your-data">Importing your data</h2>
+      <p>
+        If you've previously made a backup of your data, you can restore your data.
+      </p>
+      <p>
+        To start the restore process, <a href="#" id="start-restore">open a backup file</a>.
+      </p>
+      <input type="file" id="choose-backup-file" style="display: none" accept=".json">
+      <div id="staged-restore" class="notice">
+        <div class="display">
+          <p>
+            Frogtab will restore your data from <strong id="restore-date"></strong> when you next reload Frogtab.
+          </p>
+          <div>
+            <button id="cancel-restore">Don't Restore My Data</button>
+          </div>
+        </div>
+      </div>
       <h2 id="overview-of-data-privacy">Overview of data privacy</h2>
       <p class="before-compact">
         Frogtab stores the following data that you create:
@@ -502,39 +535,6 @@
       <p>
         For technical details, see <a href="https://github.com/dwilding/frogtab#data-flow" target="_blank">Data flow</a> in GitHub.
       </p>
-      <h2 id="exporting-your-data">Exporting your data</h2>
-      <p>
-        Your data is stored in your browser.
-        If you like, you can make a backup of your data by exporting your data in JSON format.
-      </p>
-      <p>
-        To export your data, click
-        <svg width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M3 5h18M3 12h18M3 19h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-        at the bottom of Frogtab, then click <strong>Export My Data</strong>.
-      </p>
-      <p>
-        Some browsers are able to directly write to files on your device.
-        If your browser supports this feature, Frogtab can automatically back up your data whenever your data changes.
-        To start automatically backing up your data, click <strong>Enable Auto-Backup</strong> at the bottom of Frogtab.
-      </p>
-      <h2 id="importing-your-data">Importing your data</h2>
-      <p>
-        If you've previously made a backup of your data, you can restore your data.
-      </p>
-      <p>
-        To start the restore process, <a href="#" id="start-restore">open a backup file</a>.
-      </p>
-      <input type="file" id="choose-backup-file" style="display: none" accept=".json">
-      <div id="staged-restore" class="notice">
-        <div class="display">
-          <p>
-            Frogtab will restore your data from <strong id="restore-date"></strong> when you next reload Frogtab.
-          </p>
-          <div>
-            <button id="cancel-restore">Don't Restore My Data</button>
-          </div>
-        </div>
-      </div>
     </main>
     <footer>
       <p>
