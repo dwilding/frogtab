@@ -113,8 +113,8 @@ if (array_key_exists('reload', $_GET) && ($_GET['reload'] == 'today' || $_GET['r
           notifyInbox = false;
           dom.inbox.classList.remove("notify");
           if (queryIcon == "") {
-            dom.icon16.href = storedIcons.icon16Notify;
-            dom.icon32.href = storedIcons.icon32Notify;
+            dom.icon16.href = storedIcons.icon16;
+            dom.icon32.href = storedIcons.icon32;
           }
         }
       }
