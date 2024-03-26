@@ -44,8 +44,9 @@
           <strong>Quick Reference</strong>
         </p>
         <ul class="compact">
-          <li><a href="#changing-the-theme">Changing the theme</a></li>
           <li><a href="#keyboard-shortcuts">Keyboard shortcuts</a></li>
+          <li><a href="#changing-the-theme">Changing the theme</a></li>
+          <li><a href="#customizing-the-tab-icon">Customizing the tab icon</a></li>
           <li><a href="#exporting-your-data">Exporting your data</a></li>
           <li><a href="#importing-your-data">Importing your data</a></li>
         </ul>
@@ -294,29 +295,6 @@
       <p>
         After you've finished writing down your recurring tasks, close the tab.
       </p>
-      <h2 id="changing-the-theme">Changing the theme</h2>
-      <p>
-        By default, Frogtab matches your system's light/dark setting.
-        If you prefer to always use a particular theme, you can override the default behavior.
-      </p>
-      <div class="notice display">
-        <div class="display">
-          <p>
-            Select a theme:
-          </p>
-          <div>
-            <label>
-              <input id="theme-light" type="radio" name="theme"> Light
-            </label>
-            <label>
-              <input id="theme-dark" type="radio" name="theme"> Dark
-            </label>
-            <label>
-              <input id="theme-system" type="radio" name="theme" checked> System
-            </label>
-          </div>
-        </div>
-      </div>
       <h2 id="keyboard-shortcuts">Keyboard shortcuts</h2>
       <p>
         <label>
@@ -450,6 +428,42 @@
           </tr>
         </tbody>
       </table>
+      <h2 id="changing-the-theme">Changing the theme</h2>
+      <p>
+        By default, Frogtab matches your system's light/dark setting.
+        If you prefer to always use a particular theme, you can override the default behavior.
+      </p>
+      <div class="notice display">
+        <div class="display">
+          <p>
+            Select a theme:
+          </p>
+          <div>
+            <label>
+              <input id="theme-light" type="radio" name="theme"> Light
+            </label>
+            <label>
+              <input id="theme-dark" type="radio" name="theme"> Dark
+            </label>
+            <label>
+              <input id="theme-system" type="radio" name="theme" checked> System
+            </label>
+          </div>
+        </div>
+      </div>
+      <h2 id="customizing-the-tab-icon">Customizing the tab icon</h2>
+      <p>
+        When Frogtab displays a notification badge to remind you to triage your inbox, Frogtab also tries to put a badge on the tab icon.
+        Some browsers (e.g., Safari) do not support this feature. If you want this feature, you'll need to use a workaround.
+      </p>
+      <p>
+        To enable the workaround, use <a href="/?icon=normal&reload=inbox" target="_blank">this version</a> of Frogtab.
+        Frogtab will periodically reload itself to update the tab icon.
+        When Frogtab reloads itself, your undo history will be lost. Frogtab will only reload itself when the tab isn't active.
+      </p>
+      <p>
+        If your browser does support Frogtab's default way of updating the tab icon, but you don't want this feature, use <a href="/?icon=normal" target="_blank">this version</a> of Frogtab.
+      </p>
       <h2 id="exporting-your-data">Exporting your data</h2>
       <p>
         Your data is stored in your browser.
