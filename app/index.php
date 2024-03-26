@@ -872,7 +872,7 @@ if (array_key_exists('reload', $_GET) && ($_GET['reload'] == 'today' || $_GET['r
               }
             }
             else if (selectedTab != queryReload) {
-              history.replaceState(null, "", "/?icon=${newIcon}&reload=${selectedTab}");
+              history.replaceState(null, "", `/?icon=${newIcon}&reload=${selectedTab}`);
             }
           }
         }, 15000);
