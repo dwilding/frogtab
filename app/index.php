@@ -866,13 +866,11 @@ if (array_key_exists('reload', $_GET) && ($_GET['reload'] == 'today' || $_GET['r
             if (notifyInbox) {
               newIcon = "notify";
             }
-            if (newIcon != queryIcon) {
-              if (localStorage.getItem("restore") === null) {
-                window.location.href = `https://frogtab.com/?icon=${newIcon}&reload=${selectedTab}`;
-              }
+            if (newIcon != queryIcon && localStorage.getItem("restore") === null) {
+              window.location.href = `https://frogtab.com/?icon=${newIcon}&reload=${selectedTab}`;
             }
             else if (selectedTab != queryReload) {
-              history.replaceState(null, "", `/?icon=${newIcon}&reload=${selectedTab}`);
+              history.replaceState(null, "", `/?icon=${queryIcon}&reload=${selectedTab}`);
             }
           }
         }, 15000);
