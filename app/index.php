@@ -1,20 +1,23 @@
 <?php
 
-$page_state = '';
+$query_icon = '';
+$query_reload = '';
 $icon16 = '/favicons/icon-16.png';
 $icon32 = '/favicons/icon-32.png';
-$query = $_SERVER['QUERY_STRING'];
-if ($query == "0t" || $query == "0i" || $query == "1t" || $query == "1i") {
-  $page_state = $query;
-  if ($query == "1t" || $query == "1i") {
+if (array_key_exists('icon', $_GET) && ($_GET['icon'] == 'normal' || $_GET['icon'] == 'notify')) {
+  $query_icon = $_GET['icon'];
+  if ($query_icon == 'notify') {
     $icon16 = '/favicons/icon-16-notify.png';
-    $icon32 = '/favicons/icon-32-notify.png';
+    $icon32 = '/favicons/icon-32-notify.png';    
   }
+}
+if (array_key_exists('reload', $_GET) && ($_GET['reload'] == 'today' || $_GET['reload'] == 'inbox')) {
+  $query_reload = $_GET['reload'];
 }
 
 ?>
 <!DOCTYPE html>
-<html lang="en" data-theme="system" data-state="<?= $page_state ?>">
+<html lang="en" data-theme="system" data-icon="<?= $query_icon ?>" data-reload="<?= $query_reload ?>">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -99,16 +102,20 @@ if ($query == "0t" || $query == "0i" || $query == "1t" || $query == "1i") {
       function setNotifyStatus() {
         const storedInboxValue = localStorage.getItem("value.inbox");
         if (checkValue(storedInboxValue) && !notifyInbox) {
-          dom.inbox.classList.add("notify");
-          dom.icon16.href = storedIcons.icon16Notify;
-          dom.icon32.href = storedIcons.icon32Notify;
           notifyInbox = true;
+          dom.inbox.classList.add("notify");
+          if (queryIcon == "") {
+            dom.icon16.href = storedIcons.icon16Notify;
+            dom.icon32.href = storedIcons.icon32Notify;
+          }
         }
         else if (!checkValue(storedInboxValue) && notifyInbox) {
-          dom.inbox.classList.remove("notify");
-          dom.icon16.href = storedIcons.icon16;
-          dom.icon32.href = storedIcons.icon32;
           notifyInbox = false;
+          dom.inbox.classList.remove("notify");
+          if (queryIcon == "") {
+            dom.icon16.href = storedIcons.icon16Notify;
+            dom.icon32.href = storedIcons.icon32Notify;
+          }
         }
       }
       function refreshView() {
@@ -723,9 +730,11 @@ if ($query == "0t" || $query == "0i" || $query == "1t" || $query == "1i") {
           updateValues();
         }
         switchToTab("today");
-        await storeIcons();
+        if (queryIcon == "") {
+          await storeIcons();
+        }
         setNotifyStatus();
-        if (pageState.endsWith("i") || (pageState == "" && notifyInbox)) {
+        if (queryReload == "inbox" || (queryReload == "" && notifyInbox)) {
           switchToTab("inbox");
           refreshInfo();
         }
@@ -826,7 +835,7 @@ if ($query == "0t" || $query == "0i" || $query == "1t" || $query == "1i") {
           await verifyUserAndAppendMessages();
           if (verifiedUser) {
             setNotifyStatus();
-            if (pageState.endsWith("i") || (pageState == "" && notifyInbox)) {
+            if (queryReload == "inbox" || (queryReload == "" && notifyInbox)) {
               switchToTab("inbox");
               refreshInfo();
             }
@@ -852,18 +861,18 @@ if ($query == "0t" || $query == "0i" || $query == "1t" || $query == "1i") {
             setNotifyStatus();
             refreshView();
           }
-          if (pageState != "" && document.hidden) {
-            let newPageStateNotify = "0";
+          if (queryIcon != "" && queryReload != "" && document.hidden) {
+            let newIcon = "normal";
             if (notifyInbox) {
-              newPageStateNotify = "1";
+              newIcon = "notify";
             }
-            const newPageStateTab = selectedTab.slice(0, 1);
-            const newPageState = `${newPageStateNotify}${newPageStateTab}`;
-            if (newPageStateNotify != pageState.slice(0, 1)) {
-              window.location.href = `https://frogtab.com/?${newPageState}`;
+            if (newIcon != queryIcon) {
+              if (localStorage.getItem("restore") === null) {
+                window.location.href = `https://frogtab.com/?icon=${newIcon}&reload=${selectedTab}`;
+              }
             }
-            else if (newPageState != pageState) {
-              history.replaceState(null, "", `/?${newPageState}`);
+            else if (selectedTab != queryReload) {
+              history.replaceState(null, "", "/?icon=${newIcon}&reload=${selectedTab}");
             }
           }
         }, 15000);
@@ -939,7 +948,8 @@ if ($query == "0t" || $query == "0i" || $query == "1t" || $query == "1i") {
         localStorage.setItem("ui.theme", "system");
       }
       document.documentElement.setAttribute("data-theme", localStorage.getItem("ui.theme"));
-      const pageState = document.documentElement.getAttribute("data-state");
+      const queryIcon = document.documentElement.getAttribute("data-icon");
+      const queryReload = document.documentElement.getAttribute("data-reload");
       const dom = {
         container: document.getElementById("container"),
         icon16: document.getElementById("icon16"),
