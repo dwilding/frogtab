@@ -5,11 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Review your completed tasks">
     <title>Achievements - Frogtab</title>
-    <link rel="icon" href="/icon.svg" type="image/svg+xml" id="icon">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="icon" href="/favicons/icon-16.png" sizes="16x16" type="image/png">
+    <link rel="icon" href="/favicons/icon-32.png" sizes="32x32" type="image/png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicons/icon-180-apple.png">
     <link rel="manifest" href="/manifest.webmanifest">
-    <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
-    <link rel="stylesheet" href="/simple-customizations.css?sha1=cb6ae7a89878e0e17ccbca85186ded0f81be2504">
+    <link rel="stylesheet" href="/simple.min.css?sha1=713346e8ca6500a33f266eca1e1c7bafd070c8fb">
+    <link rel="stylesheet" href="/simple-customizations.css?sha1=e8cf2c0eec8cfe390b70bf6fe9e103a92e3b2bf2">
   </head>
   <body>
     <header>
@@ -20,49 +21,85 @@
       </p>
     </header>
     <main id="main">
+      <div id="case-disabled" class="conditional">
+        <p>
+          To start tracking your completed tasks, see [TODO].
+        </p>
+      </div>
       <div id="case-enabled-empty" class="conditional">
         <p>
           You haven't completed any tasks yet!
         </p>
       </div>
-      <div id="case-enabled" class="conditional"></div>
-      <div id="case-disabled" class="conditional display">
-        <p>
-          To start tracking your completed tasks, see [TODO].
+      <div id="case-enabled" class="conditional">
+        <p class="actions">
+          <a id="actions-edit" href="#">Edit</a>
+          <a id="actions-done" href="#">Done</a>
         </p>
+        <div id="select-editmode" class="notice">
+          <div class="display">
+            <p>
+              Clicking a completed task will:
+            <p>
+            <div>
+              <label>
+                <input id="editmode-backdate" type="radio" name="editmodes"> Move it to the previous day
+              </label>
+              <label>
+                <input id="editmode-delete" type="radio" name="editmodes"> Delete it
+              </label>
+            </div>
+          </div>
+        </div>
+        <div id="tasks"></div>
       </div>
     </main>
     <footer>
       <p>
-        Frogtab is a free app developed by <a href="https://github.com/dwilding" target="_blank">Dave Wilding</a>.
-        It's designed to be stable over many years and inexpensive for me to operate. 
-        I hope that Frogtab brings joy to your day!
-      </p>
-      <p>
-        Acknowledgments:
-        <a href="https://simplecss.org" target="_blank">Simple.css</a>,
-        <a href="https://openpgpjs.org" target="_blank">OpenPGP.js</a>,
-        <a href="https://uuid.ramsey.dev" target="_blank">ramsey/uuid</a>,
-        <a href="https://iconoir.com" target="_blank">iconnoir</a>,
-        <a href="https://www.fiverr.com/mackwhyte" target="_blank">mackwhyte</a>
-      </p>
-      <p>
-        <a href="https://github.com/dwilding/frogtab" target="_blank">Source code</a>
-        •
-        <a href="https://maybecoding.bearblog.dev/blog/" target="_blank">Dev blog</a>
+        <!-- TODO -->
       </p>
     </footer>
     <script>
       function setAchievements() {
         if (localStorage.getItem("achievements") !== null) {
+          dom.caseDisabled.classList.remove("display");
           dom.caseEnabledEmpty.classList.add("display");
           dom.caseEnabled.classList.remove("display");
-          dom.caseEnabled.innerHTML = "";
-          dom.caseDisabled.classList.remove("display");
           const achievements = JSON.parse(localStorage.getItem("achievements"));
           if (achievements.length > 0) {
             dom.caseEnabledEmpty.classList.remove("display");
             dom.caseEnabled.classList.add("display");
+            dom.actions.edit.classList.add("display");
+            dom.actions.done.classList.remove("display");
+            dom.selectEditmode.classList.remove("display");
+            dom.editmodes.backdate.checked = true;
+            dom.tasks.classList.remove("li-clickable");
+            dom.tasks.classList.remove("li-deletable");
+            dom.tasks.innerHTML = "";
+            dom.actions.edit.addEventListener("click", () => {
+              event.preventDefault();
+              dom.actions.edit.classList.remove("display");
+              dom.actions.done.classList.add("display");
+              dom.selectEditmode.classList.add("display");
+              dom.tasks.classList.add("li-clickable");
+              if (dom.editmodes.delete.checked) {
+                dom.tasks.classList.add("li-deletable");
+              }
+            });
+            dom.actions.done.addEventListener("click", () => {
+              event.preventDefault();
+              dom.actions.edit.classList.add("display");
+              dom.actions.done.classList.remove("display");
+              dom.selectEditmode.classList.remove("display");
+              dom.tasks.classList.remove("li-clickable");
+              dom.tasks.classList.remove("li-deletable");
+            });
+            dom.editmodes.backdate.addEventListener("change", event => {
+              dom.tasks.classList.remove("li-deletable");
+            });
+            dom.editmodes.delete.addEventListener("change", event => {
+              dom.tasks.classList.add("li-deletable");
+            });
             for (const day of achievements) {
               const dayDate = (new Date(day.date)).toLocaleDateString(undefined, {
                 day: "numeric",
@@ -74,7 +111,7 @@
               const pStrong = document.createElement("strong");
               pStrong.textContent = dayDate;
               p.appendChild(pStrong);
-              dom.caseEnabled.appendChild(p);
+              dom.tasks.appendChild(p);
               const ul = document.createElement("ul");
               ul.className = "compact";
               for (const task of day.tasks) {
@@ -82,20 +119,20 @@
                 li.textContent = task;
                 ul.appendChild(li);
               }
-              dom.caseEnabled.appendChild(ul);
+              dom.tasks.appendChild(ul);
             }
           }
         }
         else {
+          dom.caseDisabled.classList.add("display");
           dom.caseEnabledEmpty.classList.remove("display");
           dom.caseEnabled.classList.remove("display");
-          dom.caseEnabled.innerHTML = "";
-          dom.caseDisabled.classList.add("display");
         }
       }
       function startApp() {
         setAchievements();
         window.addEventListener("storage", event => {
+          // TODO: Don't refresh every time localstorage changes
           setAchievements();
           document.documentElement.setAttribute("data-theme", localStorage.getItem("ui.theme"));
         });
@@ -107,9 +144,19 @@
       }
       document.documentElement.setAttribute("data-theme", localStorage.getItem("ui.theme"));
       const dom = {
+        caseDisabled: document.getElementById("case-disabled"),
         caseEnabledEmpty: document.getElementById("case-enabled-empty"),
         caseEnabled: document.getElementById("case-enabled"),
-        caseDisabled: document.getElementById("case-disabled")
+        actions: {
+          edit: document.getElementById("actions-edit"),
+          done: document.getElementById("actions-done")
+        },
+        selectEditmode: document.getElementById("select-editmode"),
+        editmodes: {
+          backdate: document.getElementById("editmode-backdate"),
+          delete: document.getElementById("editmode-delete")
+        },
+        tasks: document.getElementById("tasks")
       };
       startApp();
     </script>

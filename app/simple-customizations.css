@@ -122,6 +122,22 @@ td > p + p {
 .shortcut.display {
   display: inline;
 }
+.actions {
+  text-align: right;
+}
+.actions > a {
+  display: none;
+  margin-left: 0.5rem;
+}
+.actions > a.display {
+  display: inline;
+}
+.li-clickable li {
+  cursor: pointer;
+}
+.li-deletable li:hover {
+  text-decoration: line-through;
+}
 blockquote {
   font-style: normal;
 }
