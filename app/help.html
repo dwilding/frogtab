@@ -457,12 +457,12 @@
         Some browsers (e.g., Safari) don't support this feature. If you want this feature, you'll need to use a workaround.
       </p>
       <p>
-        To enable the workaround, use <a href="/?icon=normal&reload=inbox" target="_blank">this version of Frogtab</a>.
+        To enable the workaround, use <a href="/?icon-normal?reload=inbox" target="_blank">this version of Frogtab</a>.
         Frogtab will periodically reload itself to update the tab icon.
         When Frogtab reloads itself, your undo history will be lost. Frogtab will only reload itself when the tab isn't active.
       </p>
       <p>
-        If your browser supports Frogtab's default way of updating the tab icon, but you prefer no badge on the tab icon, you can use <a href="/?icon=normal" target="_blank">this version of Frogtab</a>.
+        If your browser supports Frogtab's default way of updating the tab icon, but you prefer no badge on the tab icon, you can use <a href="/icon-normal" target="_blank">this version of Frogtab</a>.
       </p>
       <h2 id="exporting-your-data">Exporting your data</h2>
       <p>
@@ -633,7 +633,7 @@
         dom.caseRegistering.classList.add("display");
         await delayForUX(async () => {
           if (openpgp === undefined) {
-            openpgp = await import("/lib-openpgp.min.mjs");
+            openpgp = await import("/openpgp.min.mjs?sha1=37c26b5e680e0824cde10d4ff7888cac49606a8d");
           }
           const encryptedComment = await openpgp.encrypt({
             message: await openpgp.createMessage({
