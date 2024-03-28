@@ -50,8 +50,8 @@ user_id = registration_data['user']['user_id']
 assert 'api_key' in registration_data['user']
 api_key = registration_data['user']['api_key']
 
-print(f"      user_id = {user_id}")
-print(f"      api_key = {api_key}")
+print(f"        - user_id = {user_id}")
+print(f"        - api_key = {api_key}")
 
 print("TEST: Look up the user's public key")
 user_data = success_body(requests.get(f"https://frogtab.com/open/get-user?user_id={user_id}"))
@@ -156,7 +156,7 @@ success_body(requests.post('https://frogtab.com/post-remove-user', json={
     'api_key': api_key
 }))
 
-print("TEST: Fail to lookup the user's public key")
+print("TEST: Fail to look up the user's public key")
 failure_only(requests.get(f"https://frogtab.com/open/get-user?user_id={user_id}"))
 
 print("TEST: Fail to send a message to the user")

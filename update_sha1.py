@@ -1,3 +1,5 @@
+# This script updates the ?sha1=... parameters in dependency references
+
 import re
 import subprocess
 
@@ -7,7 +9,7 @@ def sha1sum(file_path):
 
 def replace_ref(match):
     file_name = match.group(1)
-    print(f'> {file_name}')
+    print(f'  - {file_name}')
     file_sha1sum = sha1sum(f'app/{file_name}')
     return f'/{file_name}?sha1={file_sha1sum}'
 
@@ -22,11 +24,11 @@ def update_refs(file_name):
         file.write(file_contents)
     print()
 
-update_refs('achievements.html')
-update_refs('help.html')
+update_refs('main.js')
+update_refs('index.html')
 update_refs('icon-normal.html')
 update_refs('icon-notify.html')
-update_refs('index.html')
-update_refs('main.js')
+update_refs('help.html')
+update_refs('achievements.html')
 update_refs('send.html')
 update_refs('week.html')
