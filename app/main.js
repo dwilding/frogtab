@@ -650,6 +650,33 @@ async function saveToFile() {
     dom.enableSave.classList.add("display");
   }
 }
+async function setLocation() {
+  if (requestedIcon === null || requestedReload === null) { // TODO: or !document.hidden
+    return;
+  }
+  const params = new URLSearchParams(window.location.search);
+  params.set("reload", selectedTab);
+  const newQueryString = params.toString();  
+  let newIcon = "normal";
+  if (notifyInbox) {
+    newIcon = "notify";
+  }
+  if (newIcon != requestedIcon && localStorage.getItem("restore") === null) {
+    const newLocation = `/icon-${newIcon}?${newQueryString}`;
+    try {
+      // Before committing to the reload, verify that we can load the new location
+      await fetch(newLocation);
+      window.location.href = newLocation;
+      return;
+    }
+    catch (err) {
+      // If we couldn't load the new location, fall though to replaceState
+    }
+  }
+  if (selectedTab != requestedReload) {
+    history.replaceState(null, "", `/icon-${requestedIcon}?${newQueryString}`);
+  }
+}
 async function startApp() {
   setAchievements();
   setSnap();
@@ -789,18 +816,7 @@ async function startApp() {
       setNotifyStatus();
       refreshView();
     }
-    if (requestedIcon !== null && requestedReload !== null && document.hidden) {
-      let newIcon = "normal";
-      if (notifyInbox) {
-        newIcon = "notify";
-      }
-      if (newIcon != requestedIcon && localStorage.getItem("restore") === null) {
-        window.location.href = `/icon-${newIcon}?reload=${selectedTab}`;
-      }
-      else if (selectedTab != requestedReload) {
-        history.replaceState(null, "", `/icon-${requestedIcon}?reload=${selectedTab}`);
-      }
-    }
+    await setLocation();
   }, 15000);
   window.addEventListener("storage", async event => {
     setAchievements();
