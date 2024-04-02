@@ -651,7 +651,7 @@ async function saveToFile() {
   }
 }
 async function setLocation() {
-  if (requestedIcon === null || requestedReload === null) { // TODO: or !document.hidden
+  if (requestedIcon === null || requestedReload === null || !document.hidden) {
     return;
   }
   const params = new URLSearchParams(window.location.search);
