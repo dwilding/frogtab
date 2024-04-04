@@ -63,63 +63,38 @@ function refreshInfo() {
     }, 30000);
   }
 }
-function inboxCompleteSelected() {
-  const selectionStart = dom.editor.inbox.selectionStart;
-  const selectionEnd = dom.editor.inbox.selectionEnd;
-  let newSelectionPos;
-  const lines = dom.editor.inbox.value.split("\n");
-  const linesUpdated = [];
-  const linesCaptured = [];
-  let capturing = false;
-  let lineStart = 0;
-  let lineEnd;
-  for (const line of lines) {
-    lineEnd = lineStart + line.length;
-    const trimmedLine = line.trimStart();
-    if (lineEnd < selectionStart) {
-      linesUpdated.push(line);
-    }
-    else if (lineStart > selectionEnd) {
-      if (!capturing) {
-        linesUpdated.push(line);
-      }
-      else if (trimmedLine != "") {
-        linesUpdated.push(line);
-        capturing = false;
-      }
-    }
-    else {
-      if (capturing) {
-        if (trimmedLine != "") {
-          linesCaptured.push(trimmedLine.replace(/^( *#)+ */, ""));
-        }
-      }
-      else if (trimmedLine != "") {
-        linesCaptured.push(trimmedLine.replace(/^( *#)+ */, ""));
-        newSelectionPos = lineStart;
-        capturing = true;
-      }
-      else {
-        linesUpdated.push(line);
-      }
-    }
-    lineStart = lineEnd + 1;
+function extractCompletionOffset(editor) {
+  if (editor.selectionStart != editor.selectionEnd) {
+    return null;
   }
-  if (linesCaptured.length > 0) {
-    dom.editor.inbox.value = linesUpdated.join("\n");
-    if (capturing) {
-      dom.editor.inbox.value = dom.editor.inbox.value.trimEnd();
-    }
-    storeThenSave("value.inbox", dom.editor.inbox.value);
-    dom.editor.inbox.setSelectionRange(newSelectionPos, newSelectionPos);
-    updateCompleted(linesCaptured);
+  const cursorPos = editor.selectionEnd;
+  const lineStart = editor.value.lastIndexOf("\n", editor.selectionEnd - 1) + 1;
+  let lineEnd = editor.value.indexOf("\n", cursorPos);
+  if (lineEnd == -1) {
+    lineEnd = editor.value.length;
   }
+  const lineText = editor.value.substring(lineStart, lineEnd);
+  const match = lineText.match(/^(\s*x\s+((-\d+|sun|mon|tue|wed|thu|fri|sat)\s+)?)[^\s]/i);
+  if (match === null) {
+    return null;
+  }
+  if (cursorPos > lineStart + match[1].length) {
+    return null;
+  }
+  const beforeCommand = editor.value.substring(0, lineStart);
+  const afterCommand = editor.value.substring(lineStart + match[1].length);
+  editor.value = `${beforeCommand}${afterCommand}`;
+  editor.setSelectionRange(lineStart, lineStart);
+  if (match[3] === undefined) {
+    return "";
+  }
+  return match[3];
 }
-function todayCompleteSelected() {
-  const selectionStart = dom.editor.today.selectionStart;
-  const selectionEnd = dom.editor.today.selectionEnd;
+function completeSelected(editor, storageKey, offset) {
+  const selectionStart = editor.selectionStart;
+  const selectionEnd = editor.selectionEnd;
   let newSelectionPos;
-  const lines = dom.editor.today.value.split("\n");
+  const lines = editor.value.split("\n");
   const linesUpdated = [];
   const linesCaptured = [];
   let capturing = false;
@@ -158,13 +133,13 @@ function todayCompleteSelected() {
     lineStart = lineEnd + 1;
   }
   if (linesCaptured.length > 0) {
-    dom.editor.today.value = linesUpdated.join("\n");
+    editor.value = linesUpdated.join("\n");
     if (capturing) {
-      dom.editor.today.value = dom.editor.today.value.trimEnd();
+      editor.value = editor.value.trimEnd();
     }
-    storeThenSave("value.today", dom.editor.today.value);
-    dom.editor.today.setSelectionRange(newSelectionPos, newSelectionPos);
-    updateCompleted(linesCaptured);
+    storeThenSave(storageKey, editor.value);
+    editor.setSelectionRange(newSelectionPos, newSelectionPos);
+    updateCompleted(linesCaptured, offset);
   }
 }
 function inboxMoveSelected() {
@@ -453,18 +428,35 @@ function removeDupesOfLine(original, trimmedLineTest) {
 function unsnoozeEverything(original) {
   return original.replaceAll(/^( *#)+ */gm, "");
 }
-function updateCompleted(lines) {
-  const dateToday = (new Date()).toDateString();
+function updateCompleted(lines, offset) {
+  let offsetDays = 0;
+  if (offset.startsWith("-")) {
+    offsetDays = parseInt(offset);
+  } else if (offset != "") {
+    const weekdayToday = (new Date()).getDay();
+    const weekdayKeysRotated = weekdayKeys.slice(weekdayToday + 1).concat(weekdayKeys.slice(0, weekdayToday + 1));
+    offsetDays = weekdayKeysRotated.indexOf(offset) - 6;
+  }
+  const dateCompletedObj = new Date();
+  dateCompletedObj.setTime(dateCompletedObj.getTime() + (offsetDays * 86400000));
+  const dateCompleted = dateCompletedObj.toDateString();
   const achievements = JSON.parse(localStorage.getItem("achievements"));
-  if (achievements.length > 0 && achievements[0].date == dateToday) {
-    achievements[0].tasks.unshift(...lines);
+  let testIndex;
+  for (testIndex = 0; testIndex < achievements.length; testIndex++) {
+    if (achievements[testIndex].date == dateCompleted) {
+      achievements[testIndex].tasks.unshift(...lines);
+      storeThenSave("achievements", JSON.stringify(achievements));
+      return;
+    }
+    const testTime = (new Date(achievements[testIndex].date)).getTime();
+    if (testTime < dateCompletedObj.getTime()) {
+      break;
+    }
   }
-  else {
-    achievements.unshift({
-      date: dateToday,
-      tasks: lines
-    });
-  }
+  achievements.splice(testIndex, 0, {
+    date: dateCompleted,
+    tasks: lines
+  });
   storeThenSave("achievements", JSON.stringify(achievements));
 }
 function updateValues() {
@@ -697,13 +689,24 @@ async function startApp() {
     storeThenSave("value.today", dom.editor.today.value);
   });
   dom.editor.today.addEventListener("keydown", event => {
-    if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key.toLowerCase() == "k" && localStorage.getItem("achievements") !== null) {
-      event.preventDefault();
-      todayCompleteSelected();
-    }
-    else if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key == "/") {
+    if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key == "/") {
       event.preventDefault();
       todaySnoozeSelected();
+      return;
+    }
+    if (localStorage.getItem("achievements") !== null) {
+      if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key.toLowerCase() == "k") {
+        event.preventDefault();
+        completeSelected(dom.editor.today, "value.today", "");
+        return;
+      }
+      if (!event.ctrlKey && !event.metaKey && !event.shiftKey && event.key.toLowerCase() == "enter") {
+        const offset = extractCompletionOffset(dom.editor.today);
+        if (offset !== null) {
+          event.preventDefault();
+          completeSelected(dom.editor.today, "value.today", offset);
+        }
+      }
     }
   });
   dom.today.addEventListener("click", event => {
@@ -716,23 +719,33 @@ async function startApp() {
     refreshInfo();
   });
   dom.editor.inbox.addEventListener("keydown", event => {
-    if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key.toLowerCase() == "k" && localStorage.getItem("achievements") !== null) {
-      event.preventDefault();
-      inboxCompleteSelected();
-      setNotifyStatus();
-      refreshInfo();
-    }
-    else if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() == "enter") {
+    if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() == "enter") {
       event.preventDefault();
       inboxMoveSelected();
       setNotifyStatus();
       refreshInfo();
-    }
-    else if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key == "/") {
+      return;
+    }    
+    if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key == "/") {
       event.preventDefault();
       inboxSnoozeSelected();
       setNotifyStatus();
       refreshInfo();
+      return;
+    }
+    if (localStorage.getItem("achievements") !== null) {
+      if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key.toLowerCase() == "k") {
+        event.preventDefault();
+        completeSelected(dom.editor.inbox, "value.inbox", "");
+        return;
+      }
+      if (!event.ctrlKey && !event.metaKey && !event.shiftKey && event.key.toLowerCase() == "enter") {
+        const offset = extractCompletionOffset(dom.editor.inbox);
+        if (offset !== null) {
+          event.preventDefault();
+          completeSelected(dom.editor.inbox, "value.inbox", offset);
+        }
+      }
     }
   });
   dom.inbox.addEventListener("click", event => {
