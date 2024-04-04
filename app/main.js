@@ -63,6 +63,22 @@ function refreshInfo() {
     }, 30000);
   }
 }
+function addSpaceForCompletionOffset(editor) {
+  const cursorPos = editor.selectionEnd;
+  const lineStart = editor.value.lastIndexOf("\n", editor.selectionEnd - 1) + 1;
+  const textToCursor = editor.value.substring(lineStart, cursorPos);
+  if (!/^\s*x\s+$/i.test(textToCursor)) {
+    return;
+  }
+  const nextChar = editor.value.substring(cursorPos, cursorPos + 1);
+  if (nextChar == "" || /\s/.test(nextChar)) {
+    return;
+  }
+  const beforeLine = editor.value.substring(0, lineStart);
+  const afterCursor = editor.value.substring(cursorPos);
+  editor.value = `${beforeLine}${textToCursor.toLowerCase()} ${afterCursor}`;
+  editor.setSelectionRange(cursorPos, cursorPos);
+}
 function extractCompletionOffset(editor) {
   if (editor.selectionStart != editor.selectionEnd) {
     return null;
@@ -81,9 +97,9 @@ function extractCompletionOffset(editor) {
   if (cursorPos > lineStart + match[1].length) {
     return null;
   }
-  const beforeCommand = editor.value.substring(0, lineStart);
-  const afterCommand = editor.value.substring(lineStart + match[1].length);
-  editor.value = `${beforeCommand}${afterCommand}`;
+  const beforeLine = editor.value.substring(0, lineStart);
+  const afterOffset = editor.value.substring(lineStart + match[1].length);
+  editor.value = `${beforeLine}${afterOffset}`;
   editor.setSelectionRange(lineStart, lineStart);
   if (match[3] === undefined) {
     return "";
@@ -689,6 +705,9 @@ async function startApp() {
     refreshInfo();
   }
   dom.editor.today.addEventListener("input", event => {
+    if (event.inputType == "insertText") {
+      addSpaceForCompletionOffset(dom.editor.today);
+    }
     storeThenSave("value.today", dom.editor.today.value);
   });
   dom.editor.today.addEventListener("keydown", event => {
