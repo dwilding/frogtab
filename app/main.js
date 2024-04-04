@@ -745,6 +745,9 @@ async function startApp() {
     refreshInfo();
   });
   dom.editor.inbox.addEventListener("input", event => {
+    if (event.inputType == "insertText") {
+      addSpaceForCompletionOffset(dom.editor.inbox);
+    }
     storeThenSave("value.inbox", dom.editor.inbox.value);
     setNotifyStatus();
     refreshInfo();
@@ -768,6 +771,8 @@ async function startApp() {
       if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key.toLowerCase() == "k") {
         event.preventDefault();
         completeSelected(dom.editor.inbox, "value.inbox", "");
+        setNotifyStatus();
+        refreshInfo();
         return;
       }
       if (!event.ctrlKey && !event.metaKey && !event.shiftKey && event.key.toLowerCase() == "enter") {
@@ -775,6 +780,8 @@ async function startApp() {
         if (offset !== null) {
           event.preventDefault();
           completeSelected(dom.editor.inbox, "value.inbox", offset);
+          setNotifyStatus();
+          refreshInfo();
         }
       }
     }
