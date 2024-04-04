@@ -626,8 +626,9 @@ function storeThenSave(key, value) {
 }
 function requestSave() {
   if (fileHandle !== null) {
-    window.clearTimeout(timeoutSave);
-    timeoutSave = window.setTimeout(saveToFile, 3000);
+    window.clearTimeout(timeoutSave.id);
+    timeoutSave.id = window.setTimeout(saveToFile, 3000);
+    timeoutSave.waiting = true;
   }
 }
 async function saveToFile() {
@@ -641,12 +642,14 @@ async function saveToFile() {
     fileHandle = null;
     dom.enableSave.classList.add("display");
   }
+  timeoutSave.waiting = false;
 }
 async function setLocation() {
-  if (requestedIcon === null || requestedReload === null || !document.hidden) {
+  if (requestedIcon === null || requestedReload === null || !document.hidden || timeoutSave.waiting) {
     return;
   }
   const params = new URLSearchParams(window.location.search);
+  params.set("time", (new Date()).getTime().toString());
   params.set("reload", selectedTab);
   const newQueryString = params.toString();  
   let newIcon = "normal";
@@ -936,7 +939,10 @@ const storedIcons = {};
 let notifyInbox = false;
 let selectedTab = "today";
 let fileHandle = null;
-let timeoutSave;
+let timeoutSave = {
+  id: 0,
+  waiting: false
+};
 let timeoutShowInfo;
 let hasUserID = false;
 let verifiedUser = false;
