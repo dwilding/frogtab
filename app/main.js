@@ -23,6 +23,9 @@ function switchToTab(tab) {
     selectedTab = tab;
   }
   refreshView();
+  if (requestedIcon !== null && requestedReload !== null) {
+    history.replaceState(null, "", `/icon-${requestedIcon}?${getReloadParams()}`);
+  }
 }
 function checkValue(value) {
   return value.match(/^\s*[^\s#]/m) !== null;
@@ -660,6 +663,12 @@ async function saveToFile() {
   }
   timeoutSave.waiting = false;
 }
+function getReloadParams() {
+  const params = new URLSearchParams(window.location.search);
+  params.set("time", (new Date()).getTime().toString());
+  params.set("reload", selectedTab);
+  return params.toString();  
+}
 async function setLocation() {
   if (requestedIcon === null || requestedReload === null || !document.hidden || timeoutSave.waiting) {
     return;
@@ -851,7 +860,27 @@ async function startApp() {
       setNotifyStatus();
       refreshView();
     }
-    await setLocation();
+    if (
+      document.hidden
+      && requestedIcon !== null
+      && requestedReload !== null
+      && !timeoutSave.waiting
+      && localStorage.getItem("restore") === null
+    ) {
+      let newIcon = "normal";
+      if (notifyInbox) {
+        newIcon = "notify";
+      }
+      if (newIcon != requestedIcon) {
+        const newLocation = `/icon-${newIcon}?${getReloadParams()}`;
+        try {
+          // Before committing to the reload, verify that we can load the new location
+          await fetch(newLocation);
+          window.location.href = newLocation;
+        }
+        catch {}
+      }
+    }
   }, 15000);
   window.addEventListener("storage", async event => {
     setAchievements();
