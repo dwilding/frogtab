@@ -669,34 +669,6 @@ function getReloadParams() {
   params.set("reload", selectedTab);
   return params.toString();  
 }
-async function setLocation() {
-  if (requestedIcon === null || requestedReload === null || !document.hidden || timeoutSave.waiting) {
-    return;
-  }
-  const params = new URLSearchParams(window.location.search);
-  params.set("time", (new Date()).getTime().toString());
-  params.set("reload", selectedTab);
-  const newQueryString = params.toString();  
-  let newIcon = "normal";
-  if (notifyInbox) {
-    newIcon = "notify";
-  }
-  if (newIcon != requestedIcon && localStorage.getItem("restore") === null) {
-    const newLocation = `/icon-${newIcon}?${newQueryString}`;
-    try {
-      // Before committing to the reload, verify that we can load the new location
-      await fetch(newLocation);
-      window.location.href = newLocation;
-      return;
-    }
-    catch (err) {
-      // If we couldn't load the new location, fall though to replaceState
-    }
-  }
-  if (selectedTab != requestedReload) {
-    history.replaceState(null, "", `/icon-${requestedIcon}?${newQueryString}`);
-  }
-}
 async function startApp() {
   setAchievements();
   setSnap();
@@ -799,6 +771,11 @@ async function startApp() {
   document.addEventListener("click", event => {
     dom.menu.classList.remove("display");
   });
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) {
+      inactivityCheckins = [];
+    }
+  });
   document.body.addEventListener("keydown", event => {
     if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key.toLowerCase() == "enter") {
       event.preventDefault();
@@ -867,25 +844,29 @@ async function startApp() {
       setNotifyStatus();
       refreshView();
     }
-    if (
-      document.hidden
-      && requestedIcon !== null
-      && requestedReload !== null
-      && !timeoutSave.waiting
-      && localStorage.getItem("restore") === null
-    ) {
-      let newIcon = "normal";
-      if (notifyInbox) {
-        newIcon = "notify";
+    if (document.hidden) {
+      const timeNow = (new Date().getTime());
+      if (inactivityCheckins.length > 0 && timeNow < inactivityCheckins[0] + 20000) {
+        inactivityCheckins.unshift(timeNow);
       }
-      if (newIcon != requestedIcon) {
-        const newLocation = `/icon-${newIcon}?${getReloadParams()}`;
-        try {
-          // Before committing to the reload, verify that we can load the new location
-          await fetch(newLocation);
-          window.location.href = newLocation;
+      else {
+        inactivityCheckins = [timeNow];
+      }
+      if (inactivityCheckins.length == 4) { // 4 checkins => page has been hidden for 45-60 seconds
+        inactivityCheckins = [];
+        if (requestedIcon !== null && requestedReload !== null && !timeoutSave.waiting && localStorage.getItem("restore") === null) {
+          let reloadIcon = "normal";
+          if (notifyInbox) {
+            reloadIcon = "notify";
+          }
+          const reloadLocation = `/icon-${reloadIcon}?${getReloadParams()}`;
+          try {
+            // Before committing to the reload, verify that we can load the new location
+            await fetch(reloadLocation);
+            window.location.href = reloadLocation;
+          }
+          catch {}
         }
-        catch {}
       }
     }
   }, 15000);
@@ -999,6 +980,7 @@ let timeoutSave = {
   waiting: false
 };
 let timeoutShowInfo;
+let inactivityCheckins = [];
 let hasUserID = false;
 let verifiedUser = false;
 let lastAppend = 0;
