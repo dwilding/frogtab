@@ -850,7 +850,7 @@ async function startApp() {
         inactivityCheckins = [timeNow];
       }
       if (inactivityCheckins.length == 4) { // 4 checkins => page has been hidden for 45-60 seconds
-        inactivityCheckins = [];
+        inactivityCheckins.pop();
         if (requestedIcon !== null && requestedReload !== null && !timeoutSave.waiting && localStorage.getItem("restore") === null) {
           let reloadIcon = "normal";
           if (notifyInbox) {
