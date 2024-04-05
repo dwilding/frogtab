@@ -23,9 +23,9 @@ function switchToTab(tab) {
     selectedTab = tab;
   }
   refreshView();
-  if (requestedIcon !== null && requestedReload !== null) {
-    history.replaceState(null, "", `/icon-${requestedIcon}?${getReloadParams()}`);
-  }
+  // if (requestedIcon !== null && requestedReload !== null) {
+  //   history.replaceState(null, "", `/icon-${requestedIcon}?${getReloadParams()}`);
+  // }
 }
 function checkValue(value) {
   return value.match(/^\s*[^\s#]/m) !== null;
