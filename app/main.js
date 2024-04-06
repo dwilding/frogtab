@@ -660,12 +660,6 @@ async function saveToFile() {
   }
   timeoutSave.waiting = false;
 }
-function getReloadParams() {
-  const params = new URLSearchParams(window.location.search);
-  params.set("time", (new Date()).getTime().toString());
-  params.set("reload", selectedTab);
-  return params.toString();  
-}
 async function startApp() {
   setAchievements();
   setSnap();
@@ -678,7 +672,7 @@ async function startApp() {
     await storeIcons();
   }
   setNotifyStatus();
-  if (requestedReload == "inbox" || (requestedReload === null && notifyInbox)) {
+  if (startingTab == "inbox" || (startingTab === null && notifyInbox)) {
     switchToTab("inbox");
     refreshInfo();
   }
@@ -769,8 +763,8 @@ async function startApp() {
     dom.menu.classList.remove("display");
   });
   document.addEventListener("visibilitychange", () => {
-    if (!document.hidden) {
-      inactivityCheckins = [];
+    if (document.hidden) {
+      lastActive = Date.now();
     }
   });
   document.body.addEventListener("keydown", event => {
@@ -815,7 +809,7 @@ async function startApp() {
     await verifyUserAndAppendMessages();
     if (verifiedUser) {
       setNotifyStatus();
-      if (requestedReload == "inbox" || (requestedReload === null && notifyInbox)) {
+      if (startingTab == "inbox" || (startingTab === null && notifyInbox)) {
         switchToTab("inbox");
         refreshInfo();
       }
@@ -841,29 +835,27 @@ async function startApp() {
       setNotifyStatus();
       refreshView();
     }
-    if (document.hidden) {
-      const timeNow = (new Date().getTime());
-      if (inactivityCheckins.length > 0 && timeNow < inactivityCheckins[0] + 20000) {
-        inactivityCheckins.unshift(timeNow);
+    if (
+      document.hidden && lastActive <= Date.now() - 30000
+      && requestedIcon !== null && requestedReload !== null
+      && !timeoutSave.waiting
+      && localStorage.getItem("restore") === null
+    ) {
+      let reloadIcon = "normal";
+      if (notifyInbox) {
+        reloadIcon = "notify";
       }
-      else {
-        inactivityCheckins = [timeNow];
-      }
-      if (inactivityCheckins.length == 4) { // 4 checkins => page has been hidden for 45-60 seconds
-        inactivityCheckins.pop();
-        if (requestedIcon !== null && requestedReload !== null && !timeoutSave.waiting && localStorage.getItem("restore") === null) {
-          let reloadIcon = "normal";
-          if (notifyInbox) {
-            reloadIcon = "notify";
-          }
-          const reloadLocation = `/icon-${reloadIcon}?${getReloadParams()}`;
-          try {
-            // Before committing to the reload, verify that we can load the new location
-            await fetch(reloadLocation);
-            window.location.href = reloadLocation;
-          }
-          catch {}
+      if (reloadIcon != requestedIcon) {
+        const reloadParams = new URLSearchParams(window.location.search);
+        reloadParams.set("reload", Date.now().toString());
+        const reloadLocation = `/icon-${reloadIcon}?${reloadParams.toString()}`;
+        try {
+          // Before committing to the reload, verify that we can load the new location
+          await fetch(reloadLocation);
+          localStorage.setItem("tab", selectedTab);
+          window.location.href = reloadLocation;
         }
+        catch {}
       }
     }
   }, 15000);
@@ -941,6 +933,8 @@ if (localStorage.getItem("ui.theme") === null) {
 document.documentElement.setAttribute("data-theme", localStorage.getItem("ui.theme"));
 const requestedIcon = document.documentElement.getAttribute("data-icon");
 const requestedReload = (new URLSearchParams(window.location.search)).get('reload');
+const startingTab = localStorage.getItem("tab");
+localStorage.removeItem("tab");
 const dom = {
   container: document.getElementById("container"),
   icon16: document.getElementById("icon16"),
@@ -977,7 +971,7 @@ let timeoutSave = {
   waiting: false
 };
 let timeoutShowInfo;
-let inactivityCheckins = [];
+let lastActive = Date.now();
 let hasUserID = false;
 let verifiedUser = false;
 let lastAppend = 0;
