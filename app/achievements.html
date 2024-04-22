@@ -10,7 +10,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/favicons/icon-180-apple.png">
     <link rel="manifest" href="/manifest.webmanifest">
     <link rel="stylesheet" href="/simple.min.css?sha1=713346e8ca6500a33f266eca1e1c7bafd070c8fb">
-    <link rel="stylesheet" href="/simple-customizations.css?sha1=e8cf2c0eec8cfe390b70bf6fe9e103a92e3b2bf2">
+    <link rel="stylesheet" href="/simple-customizations.css?sha1=398af5fa50e4b2eb92a49bcd369425a11d399e5b">
   </head>
   <body>
     <header>
@@ -21,120 +21,344 @@
       </p>
     </header>
     <main id="main">
-      <div id="case-disabled" class="conditional">
+      <div id="case-disabled" class="conditional display">
         <p>
-          To start tracking your completed tasks, see [TODO].
+          If you enable Achievements, Frogtab lists your completed tasks here.
+          <a href="/help#tracking-your-completed-tasks" target="_blank" title="Tracking your completed tasks">Learn more</a>
         </p>
       </div>
       <div id="case-enabled-empty" class="conditional">
+        <p class="actions">
+          <a id="actions-import" href="#" class="display">Import</a>
+          <a id="actions-import" href="/help#tracking-your-completed-tasks" target="_blank" title="Tracking your completed tasks" class="display">Help</a>
+        </p>
         <p>
-          You haven't completed any tasks yet!
+          You don't have any completed tasks!
+        </p>
+        <p>
+          To complete a task, write "x " in front of the task, then press <kbd>Enter</kbd>
         </p>
       </div>
       <div id="case-enabled" class="conditional">
         <p class="actions">
           <a id="actions-edit" href="#">Edit</a>
           <a id="actions-done" href="#">Done</a>
+          <a id="actions-import" href="/help#tracking-your-completed-tasks" target="_blank" title="Tracking your completed tasks" class="display">Help</a>
         </p>
         <div id="select-editmode" class="notice">
           <div class="display">
             <p>
-              Clicking a completed task will:
-            <p>
+              Click tasks to mark them as incomplete.
+              Frogtab will move incomplete tasks to:
+            </p>
             <div>
               <label>
-                <input id="editmode-backdate" type="radio" name="editmodes"> Move it to the previous day
+                <input id="editmode-to-today" type="radio" name="editmodes" checked> Today
               </label>
               <label>
-                <input id="editmode-delete" type="radio" name="editmodes"> Delete it
+                <input id="editmode-to-inbox" type="radio" name="editmodes"> Inbox
               </label>
+            </div>
+            <p class="before-compact">
+              To make other changes to your completed tasks:
+            </p>
+            <ol>
+              <li><a id="actions-edit-export" href="#" download="Frogtab_achievements.txt">Export a todo.txt file</a>, then edit the todo.txt file</li>
+              <li><a id="actions-edit-import" href="#">Import the todo.txt file</a></li>
+            </ol>
+          </div>
+        </div>
+        <div id="confirm-import" class="notice">
+          <div class="display">
+            <p>
+              Frogtab will import completed tasks when you
+              <a id="finish-import" href="#" title="Import Completed Tasks">click here</a>.
+            </p>
+            <p>
+              Your existing completed tasks will be deleted.
+            </p>
+            <div>
+              <button id="cancel-import">Don't Import Completed Tasks</button>
             </div>
           </div>
         </div>
-        <div id="tasks"></div>
+        <div id="tasks" class="checklist"></div>
       </div>
+      <input type="file" id="choose-todotxt-file" style="display: none" accept=".txt">
     </main>
-    <footer>
-      <p>
-        <!-- TODO -->
-      </p>
-    </footer>
     <script>
-      function setAchievements() {
-        if (localStorage.getItem("achievements") !== null) {
-          dom.caseDisabled.classList.remove("display");
-          dom.caseEnabledEmpty.classList.add("display");
-          dom.caseEnabled.classList.remove("display");
-          const achievements = JSON.parse(localStorage.getItem("achievements"));
-          if (achievements.length > 0) {
-            dom.caseEnabledEmpty.classList.remove("display");
-            dom.caseEnabled.classList.add("display");
-            dom.actions.edit.classList.add("display");
-            dom.actions.done.classList.remove("display");
-            dom.selectEditmode.classList.remove("display");
-            dom.editmodes.backdate.checked = true;
-            dom.tasks.classList.remove("li-clickable");
-            dom.tasks.classList.remove("li-deletable");
-            dom.tasks.innerHTML = "";
-            dom.actions.edit.addEventListener("click", () => {
-              event.preventDefault();
-              dom.actions.edit.classList.remove("display");
-              dom.actions.done.classList.add("display");
-              dom.selectEditmode.classList.add("display");
-              dom.tasks.classList.add("li-clickable");
-              if (dom.editmodes.delete.checked) {
-                dom.tasks.classList.add("li-deletable");
-              }
-            });
-            dom.actions.done.addEventListener("click", () => {
-              event.preventDefault();
-              dom.actions.edit.classList.add("display");
-              dom.actions.done.classList.remove("display");
-              dom.selectEditmode.classList.remove("display");
-              dom.tasks.classList.remove("li-clickable");
-              dom.tasks.classList.remove("li-deletable");
-            });
-            dom.editmodes.backdate.addEventListener("change", event => {
-              dom.tasks.classList.remove("li-deletable");
-            });
-            dom.editmodes.delete.addEventListener("change", event => {
-              dom.tasks.classList.add("li-deletable");
-            });
-            for (const day of achievements) {
-              const dayDate = (new Date(day.date)).toLocaleDateString(undefined, {
-                day: "numeric",
-                month: "short",
-                year: "numeric"
-              });
-              const p = document.createElement("p");
-              p.className = "before-compact";
-              const pStrong = document.createElement("strong");
-              pStrong.textContent = dayDate;
-              p.appendChild(pStrong);
-              dom.tasks.appendChild(p);
-              const ul = document.createElement("ul");
-              ul.className = "compact";
-              for (const task of day.tasks) {
-                const li = document.createElement("li");
-                li.textContent = task;
-                ul.appendChild(li);
-              }
-              dom.tasks.appendChild(ul);
-            }
-          }
+      function buildWeekdayNameByDate() {
+        const weekdayNameByDate = {};
+        const dateObj = new Date();
+        for (let i = 0; i < 7; i++) {
+          weekdayNameByDate[dateObj.toDateString()] = weekdayNames[dateObj.getDay()];
+          dateObj.setTime(dateObj.getTime() - 86400000);
+        }
+        return weekdayNameByDate;
+      }
+      function formatDateForPage(date, weekdayNameByDate) {
+        let formatted;
+        if (date in weekdayNameByDate) {
+          formatted = (new Date(date)).toLocaleDateString(undefined, {
+            day: "numeric",
+            month: "short"
+          });
+          formatted = `${formatted} (${weekdayNameByDate[date]})`;
         }
         else {
-          dom.caseDisabled.classList.add("display");
-          dom.caseEnabledEmpty.classList.remove("display");
-          dom.caseEnabled.classList.remove("display");
+          formatted = (new Date(date)).toLocaleDateString(undefined, {
+            day: "numeric",
+            month: "short",
+            year: "numeric"
+          });
+        }
+        return formatted;
+      }
+      function formatDateForTodotxt(date) {
+        const dateObj = new Date(date);
+        const dateDD = dateObj.toLocaleDateString(undefined, {
+          day: "2-digit"
+        });
+        const dateMM = dateObj.toLocaleDateString(undefined, {
+          month: "2-digit"
+        });
+        const dateYYYY = dateObj.toLocaleDateString(undefined, {
+          year: "numeric"
+        });
+        return [dateYYYY, dateMM, dateDD].join("-");
+      }
+      function createTodotxt() {
+        const data = [];
+        for (const day of achievementsParsed) {
+          for (const task of day.tasks) {
+            data.push(`x ${formatDateForTodotxt(day.date)} ${task}`);
+          }
+        }
+        return (new TextEncoder()).encode(data.join("\n"));
+      }
+      function parseTodotxt(todotxt) {
+        const tasksByTime = {};
+        const lines = todotxt.split("\n");
+        for (const line of lines) {
+          const match = line.match(/^\s*x\s+((\d{4})-(\d{2})-(\d{2}))\s+(\d{4}-\d{2}-\d{2}\s+)?/);
+          if (match === null) {
+            continue;
+          }
+          const taskText = line.substring(match[0].length).trimEnd();
+          const dayDateObj = new Date(
+            parseInt(match[2]),     // year
+            parseInt(match[3]) - 1, // month index
+            parseInt(match[4])      // day
+          );
+          const dayTime = dayDateObj.getTime().toString();
+          if (dayTime in tasksByTime) {
+            tasksByTime[dayTime].push(taskText);
+          }
+          else {
+            tasksByTime[dayTime] = [taskText];
+          }
+        }
+        const parsed = [];
+        for (const time of Object.keys(tasksByTime).map(str => parseInt(str)).sort().reverse()) {
+          parsed.push({
+            date: (new Date(time)).toDateString(),
+            tasks: tasksByTime[time.toString()]
+          });
+        }
+        return parsed;
+      }
+      function moveTaskBack(indexDay, indexTask) {
+        const taskText = achievementsParsed[indexDay].tasks[indexTask];
+        if (dom.editmodes.toToday.checked) {
+          // Append task to bottom of Today
+          if (localStorage.getItem("value.today") === null) {
+            localStorage.setItem("value.today", "");
+          }
+          let valueToday = localStorage.getItem("value.today").trimEnd();
+          if (valueToday != "") {
+            valueToday = `${valueToday}\n\n`;
+          }
+          valueToday = `${valueToday}${taskText}`;
+          localStorage.setItem("value.today", valueToday);
+        }
+        else {
+          // Append task to top of Inbox
+          if (localStorage.getItem("value.inbox") === null) {
+            localStorage.setItem("value.inbox", "");
+          }
+          let valueInbox = localStorage.getItem("value.inbox").trimStart();
+          if (valueInbox != "") {
+            valueInbox = `\n\n${valueInbox}`;
+          }
+          valueInbox = `${taskText}${valueInbox}`;
+          localStorage.setItem("value.inbox", valueInbox);
+        }
+        achievementsParsed[indexDay].tasks.splice(indexTask, 1);
+        if (achievementsParsed[indexDay].tasks.length == 0) {
+          achievementsParsed.splice(indexDay, 1);
+        }
+        achievementsCached = JSON.stringify(achievementsParsed);
+        localStorage.setItem("achievements", achievementsCached);
+      }
+      function displayTasks() {
+        const weekdayNameByDate = buildWeekdayNameByDate();
+        for (let indexDay = 0; indexDay < achievementsParsed.length; indexDay++) {
+          const day = achievementsParsed[indexDay];
+          const p = document.createElement("p");
+          dom.tasks.appendChild(p);
+          p.className = "before-compact";
+          const pStrong = document.createElement("strong");
+          p.appendChild(pStrong);
+          pStrong.textContent = formatDateForPage(day.date, weekdayNameByDate);
+          const ul = document.createElement("ul");
+          dom.tasks.appendChild(ul);
+          ul.className = "compact";
+          for (let indexTask = 0; indexTask < day.tasks.length; indexTask++) {
+            const li = document.createElement("li");
+            ul.appendChild(li);
+            const liSpan = document.createElement("span");
+            li.appendChild(liSpan);
+            liSpan.textContent = day.tasks[indexTask];
+            liSpan.addEventListener("mouseenter", () => {
+              li.classList.add("inner-hover");
+            });
+            liSpan.addEventListener("mouseleave", () => {
+              li.classList.remove("inner-hover");
+            });
+            liSpan.addEventListener("click", () => {
+              if (editingState != "editing") {
+                return;
+              }
+              moveTaskBack(indexDay, indexTask);
+              setView();
+            });
+          }
         }
       }
+      function setViewDisabled() {
+        dom.caseDisabled.classList.add("display");
+        dom.caseEnabledEmpty.classList.remove("display");
+        dom.caseEnabled.classList.remove("display");
+        editingState = "";
+      }
+      function setViewEnabledEmpty() {
+        dom.caseDisabled.classList.remove("display");
+        dom.caseEnabledEmpty.classList.add("display");
+        dom.caseEnabled.classList.remove("display");
+        editingState = "";
+      }
+      function setViewEnabled() {
+        dom.caseDisabled.classList.remove("display");
+        dom.caseEnabledEmpty.classList.remove("display");
+        dom.caseEnabled.classList.add("display");
+        dom.actions.edit.classList.add("display");
+        dom.actions.done.classList.remove("display");
+        dom.selectEditmode.classList.remove("display");
+        dom.confirmImport.classList.remove("display");
+        dom.tasks.classList.remove("editing");
+        dom.tasks.classList.remove("selectable");
+        dom.tasks.innerHTML = "";
+        displayTasks();
+        if (editingState.startsWith("editing")) {
+          viewEnabledSetEditing();
+        }
+      }
+      function viewEnabledSetEditing() {
+        editingState = "editing";
+        dom.actions.edit.classList.remove("display");
+        dom.actions.done.classList.add("display");
+        dom.selectEditmode.classList.add("display");
+        dom.confirmImport.classList.remove("display");
+        dom.tasks.classList.add("editing");
+        dom.tasks.classList.add("selectable");
+      }
+      function viewEnabledEditingSetImporting() {
+        editingState = "editing/importing";
+        dom.selectEditmode.classList.remove("display");
+        dom.confirmImport.classList.add("display");
+        dom.tasks.classList.remove("selectable");
+        editingState = "editing/importing"
+      }
+      function setView() {
+        if (achievementsCached === null) {
+          setViewDisabled();
+          return;
+        }
+        achievementsParsed = JSON.parse(achievementsCached);
+        if (achievementsParsed.length == 0) {
+          setViewEnabledEmpty();
+          return;
+        }
+        setViewEnabled();
+      }
       function startApp() {
-        setAchievements();
-        window.addEventListener("storage", event => {
-          // TODO: Don't refresh every time localstorage changes
-          setAchievements();
+        setView();
+        dom.actions.import.addEventListener("click", event => {
+          event.preventDefault();
+          dom.chooseTodotxtFile.click();
+        });
+        dom.actions.edit.addEventListener("click", event => {
+          event.preventDefault();
+          editingState = "editing";
+          setView();
+        });
+        dom.actions.done.addEventListener("click", event => {
+          event.preventDefault();
+          editingState = "";
+          setView();
+        });
+        dom.editExport.addEventListener("click", () => {
+          const todotxt = createTodotxt();
+          const blob = new Blob([todotxt], {
+            type: "text/plain; charset=utf-8"
+          });
+          dom.editExport.href = URL.createObjectURL(blob);
+        });
+        dom.editImport.addEventListener("click", event => {
+          event.preventDefault();
+          dom.chooseTodotxtFile.click();
+        });
+        dom.finishImport.addEventListener("click", event => {
+          event.preventDefault();
+          achievementsParsed = achievementsStaged;
+          achievementsCached = JSON.stringify(achievementsParsed);
+          localStorage.setItem("achievements", achievementsCached);
+          editingState = "";
+          setView();
+        });
+        dom.cancelImport.addEventListener("click", () => {
+          editingState = "editing";
+          setView();
+        });
+        dom.chooseTodotxtFile.addEventListener("change", () => {
+          const todotxtFile = dom.chooseTodotxtFile.files[0];
+          if (todotxtFile === undefined) {
+            return;
+          }
+          const todotxtFileReader = new FileReader();
+          todotxtFileReader.onload = event => {
+            if (editingState == "") {
+              achievementsParsed = parseTodotxt(todotxtFileReader.result);
+              achievementsCached = JSON.stringify(achievementsParsed);
+              localStorage.setItem("achievements", achievementsCached);
+              setView();
+            }
+            else {
+              achievementsStaged = parseTodotxt(todotxtFileReader.result);
+              editingState = "editing/importing";
+              setView();
+              viewEnabledEditingSetImporting();
+            }
+          };
+          todotxtFileReader.readAsText(todotxtFile);
+          dom.chooseTodotxtFile.value = "";
+        });
+        window.addEventListener("storage", () => {
           document.documentElement.setAttribute("data-theme", localStorage.getItem("ui.theme"));
+          if (localStorage.getItem("achievements") !== achievementsCached) {
+            achievementsCached = localStorage.getItem("achievements");
+            setView();
+          }
         });
       }
 
@@ -147,17 +371,30 @@
         caseDisabled: document.getElementById("case-disabled"),
         caseEnabledEmpty: document.getElementById("case-enabled-empty"),
         caseEnabled: document.getElementById("case-enabled"),
+        enable: document.getElementById("enable"),
         actions: {
+          import: document.getElementById("actions-import"),
           edit: document.getElementById("actions-edit"),
           done: document.getElementById("actions-done")
         },
         selectEditmode: document.getElementById("select-editmode"),
         editmodes: {
-          backdate: document.getElementById("editmode-backdate"),
-          delete: document.getElementById("editmode-delete")
+          toToday: document.getElementById("editmode-to-today"),
+          toInbox: document.getElementById("editmode-to-inbox")
         },
-        tasks: document.getElementById("tasks")
+        editExport: document.getElementById("actions-edit-export"),
+        editImport: document.getElementById("actions-edit-import"),
+        confirmImport: document.getElementById("confirm-import"),
+        finishImport: document.getElementById("finish-import"),
+        cancelImport: document.getElementById("cancel-import"),
+        tasks: document.getElementById("tasks"),
+        chooseTodotxtFile: document.getElementById("choose-todotxt-file")
       };
+      const weekdayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+      let achievementsCached = localStorage.getItem("achievements");
+      let achievementsParsed;
+      let achievementsStaged;
+      let editingState = "";
       startApp();
     </script>
   </body>
