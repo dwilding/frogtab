@@ -39,6 +39,7 @@
           <li><a href="#registering-for-a-personal-link">Registering for a personal link</a></li>
           <li><a href="#triaging-your-inbox">Triaging your inbox</a></li>
           <li><a href="#setting-up-recurring-tasks">Setting up recurring tasks</a></li>
+          <li><a href="#tracking-your-completed-tasks">Tracking your completed tasks</a></li>
         </ul>
         <p class="before-compact">
           <strong>Quick Reference</strong>
@@ -65,7 +66,7 @@
       </p>
       <p>
         <strong>Today</strong> is your to-do list for today.
-        Start the day by writing down everything you'd like to accomplish.
+        Begin the day by writing down everything you'd like to accomplish.
         As you complete your tasks, simply delete them.
       </p>
       <p>
@@ -275,7 +276,7 @@
           <blockquote>
             Mon&nbsp; Tue&nbsp; <strong>Wed</strong>&nbsp; Thu&nbsp; Fri&nbsp; Sat&nbsp; Sun
             <hr>
-            Prepare for this week's Wild Wednesday!
+            Host this week's Wild Wednesday!
           </blockquote>
           <p>
             If you usually plan each day the night before, write down your recurring tasks under the previous day too,
@@ -284,7 +285,7 @@
           <blockquote>
             Mon&nbsp; <strong>Tue</strong>&nbsp; Wed&nbsp; Thu&nbsp; Fri&nbsp; Sat&nbsp; Sun
             <hr>
-            # Prepare for this week's Wild Wednesday!
+            # Host this week's Wild Wednesday!
           </blockquote>
           <p>
             You'll then be able to see the tasks one day in advance.
@@ -295,6 +296,92 @@
       <p>
         After you've finished writing down your recurring tasks, close the tab.
       </p>
+      <h2 id="tracking-your-completed-tasks">Tracking your completed tasks</h2>
+      <p>
+        If you enable the Achievements feature, Frogtab can record your completed tasks.
+      </p>
+      <div id="achievements-disabled" class="notice display">
+        <div class="display">
+          <p>
+            You have not enabled Achievements.
+          </p>
+          <div>
+            <button id="enable-achievements">Enable Achievements</button>
+          </div>
+        </div>
+      </div>
+      <div id="achievements-enabled" class="notice">
+        <div class="display">
+          <p>
+            You have enabled Achievements.
+          </p>
+          <div>
+            <a href="/achievements" target="_blank" class="button">Review My Completed Tasks</a>
+          </div>
+          <p>
+            <a id="start-disable-achievements" href="#">Disable Achievements</a>
+          </p>
+        </div>
+      </div>
+      <div id="confirm-disable-achievements" class="notice">
+        <div class="display">
+          <p>
+            Frogtab will disable Achievements when you
+            <a id="finish-disable-achievements" href="#" title="Disable Achievements">click here</a>.
+          </p>
+          <p>
+            Your completed tasks will be deleted.
+          </p>
+          <div>
+            <button id="cancel-disable-achievements">Don't Disable Achievements</button>
+          </div>
+        </div>
+      </div>
+      <p>
+        To complete a task, use either of the following methods:
+      </p>
+      <ul>
+        <li>
+          <p>
+            Put the cursor at the beginning of the task, then press <kbd>X</kbd>, <kbd>Space</kbd>, and <kbd>Enter</kbd> one-by-one.
+            In other words, write "x " in front of the task, then press Enter.
+          </p>
+        </li>
+        <li>
+          <p>
+            Put the cursor anywhere in the task, then press <kbd>⌘</kbd>&nbsp;+&nbsp;<kbd>K</kbd> (for macOS) or <kbd>Ctrl</kbd>&nbsp;+&nbsp;<kbd>K</kbd> (for Windows/Linux).
+          </p>
+        </li>
+      </ul>
+      <p>
+        Frogtab moves the task to <a href="/achievements" target="_blank">Achievements</a> and sets the completion date to today's date.
+      </p>
+      <p>
+        If you use the first method of completing a task, you can customize the completion date of the task.
+        To set the completion date to yesterday's date, write "x -1 " in front of the task, then press Enter.
+        For 2 days ago, write "x -2 ", and so on.
+        You can also specify a day from the past week.
+        For example, for the most recent Friday, write "x fri ".
+      </p>
+      <p>
+        More details about completed tasks:
+      </p>
+      <ul>
+        <li>
+          <p>
+            If you accidentally complete a task, you can mark it as incomplete and remove it from your completed tasks.
+            Click <strong>Edit</strong> at the top of the Achievements page, select
+            <strong>Today</strong> or <strong>Inbox</strong> as the new location for the task, then click the task to move it.
+          </p>
+        </li>
+        <li>
+          <p>
+            You can import and export completed tasks in <a href="http://todotxt.org/" target="_blank">todo.txt</a> format.
+            If you've already completed tasks in Frogtab, click <strong>Edit</strong> at the top of the Achievements page.
+            Otherwise, click <strong>Import</strong> at the top of the Achievements page.
+          </p>
+        </li>
+      </ul>
       <h2 id="keyboard-shortcuts">Keyboard shortcuts</h2>
       <p>
         <label>
@@ -368,6 +455,20 @@
             <td>
               <span class="shortcut mac display"><kbd>⌘</kbd> + <kbd>Shift</kbd> + <kbd>Enter</kbd></span>
               <span class="shortcut win-linux"><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Enter</kbd></span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <p>
+                Complete selected tasks
+              </p>
+              <p>
+                Only available if you've enabled <a href="/achievements" target="_blank">Achievements</a>.
+              </p>
+            </td>
+            <td>
+              <span class="shortcut mac display"><kbd>⌘</kbd> + <kbd>K</kbd></span>
+              <span class="shortcut win-linux"><kbd>Ctrl</kbd> + <kbd>K</kbd></span>
             </td>
           </tr>
           <tr>
@@ -468,23 +569,29 @@
       <p>
         Your data is stored in your browser.
         If you like, you can make a backup of your data by exporting your data in JSON format.
-      </p>
-      <p>
         To export your data, click
         <svg width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M3 5h18M3 12h18M3 19h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
         at the bottom of Frogtab, then click <strong>Export My Data</strong>.
       </p>
       <p>
-        Some browsers are able to directly write to files on your device.
-        If your browser supports this feature, Frogtab can automatically back up your data whenever your data changes.
+        Some browsers are able to directly save files on your device.
+        If your browser supports this feature, Frogtab can automatically back up your data.
         To start automatically backing up your data, click <strong>Enable Auto-Backup</strong> at the bottom of Frogtab.
+      </p>
+      <p>
+        If you've enabled <a href="/achievements" target="_blank">Achievements</a>,
+        you can export your completed tasks in <a href="http://todotxt.org/" target="_blank">todo.txt</a> format.
+        To learn more, see <a href="#tracking-your-completed-tasks">Tracking your completed tasks</a>.
       </p>
       <h2 id="importing-your-data">Importing your data</h2>
       <p>
         If you've previously made a backup of your data, you can restore your data.
+        To start the restore process, <a href="#" id="start-restore">open a backup file</a>.
       </p>
       <p>
-        To start the restore process, <a href="#" id="start-restore">open a backup file</a>.
+        If you've enabled <a href="/achievements" target="_blank">Achievements</a>,
+        you can import completed tasks from a <a href="http://todotxt.org/" target="_blank">todo.txt</a> file.
+        To learn more, see <a href="#tracking-your-completed-tasks">Tracking your completed tasks</a>.
       </p>
       <input type="file" id="choose-backup-file" style="display: none" accept=".json">
       <div id="staged-restore" class="notice">
@@ -504,6 +611,7 @@
       <ul class="compact">
         <li>The contents of Today and Inbox</li>
         <li>Recurring tasks from your weekly routine</li>
+        <li>Your completed tasks (if you've enabled <a href="/achievements" target="_blank">Achievements</a>)</li>
       </ul>
       <p>
         Your data is stored in your browser and isn't sent to a server.
@@ -620,7 +728,7 @@
         dom.caseChecking.classList.remove("display");
         if (verifiedUser) {
           dom.caseRegistered.classList.add("display");
-          dom.link.addEventListener("click", event => {
+          dom.link.addEventListener("click", () => {
             window.open(`/send#${localStorage.getItem("user.userID")}`, "_blank");
           });
         }
@@ -682,7 +790,7 @@
           dom.comment.value = "";
           dom.register.disabled = true;
           dom.caseRegistered.classList.add("display");
-          dom.link.addEventListener("click", event => {
+          dom.link.addEventListener("click", () => {
             window.open(`/send#${localStorage.getItem("user.userID")}`, "_blank");
           });
         }
@@ -753,23 +861,38 @@
         });
         dom.stagedRestore.classList.add("display");
         dom.restoreDate.textContent = backupDate;
-        dom.cancelRestore.addEventListener("click", event => {
+        dom.cancelRestore.addEventListener("click", () => {
           localStorage.removeItem("restore");
           dom.stagedRestore.classList.remove("display");
         });
       }
+      function setAchievements() {
+        if (localStorage.getItem("achievements") !== null) {
+          dom.achievementsDisabled.classList.remove("display");
+          dom.achievementsEnabled.classList.add("display");
+          if (dom.confirmDisableAchievements.classList.contains("display")) {
+            dom.achievementsEnabled.classList.remove("display");
+          }
+        }
+        else {
+          dom.achievementsDisabled.classList.add("display");
+          dom.achievementsEnabled.classList.remove("display");
+          dom.confirmDisableAchievements.classList.remove("display");
+        }
+      }
       async function startApp() {
         verify();
         updateSelectedTheme();
-        dom.themeLight.addEventListener("change", event => {
+        setAchievements();
+        dom.themeLight.addEventListener("change", () => {
           document.documentElement.setAttribute("data-theme", "light");
           localStorage.setItem("ui.theme", "light");
         });
-        dom.themeDark.addEventListener("change", event => {
+        dom.themeDark.addEventListener("change", () => {
           document.documentElement.setAttribute("data-theme", "dark");
           localStorage.setItem("ui.theme", "dark");
         });
-        dom.themeSystem.addEventListener("change", event => {
+        dom.themeSystem.addEventListener("change", () => {
           document.documentElement.setAttribute("data-theme", "system");
           localStorage.setItem("ui.theme", "system");
         });
@@ -786,7 +909,7 @@
             shortcut.classList.add("display");
           }
         }
-        dom.osWinLinux.addEventListener("change", event => {
+        dom.osWinLinux.addEventListener("change", () => {
           for (const shortcut of document.querySelectorAll(".shortcut.mac")) {
             shortcut.classList.remove("display");
           }
@@ -794,7 +917,7 @@
             shortcut.classList.add("display");
           }
         });
-        dom.osMac.addEventListener("change", event => {
+        dom.osMac.addEventListener("change", () => {
           for (const shortcut of document.querySelectorAll(".shortcut.win-linux")) {
             shortcut.classList.remove("display");
           }
@@ -802,7 +925,7 @@
             shortcut.classList.add("display");
           }
         });
-        dom.comment.addEventListener("input", event => {
+        dom.comment.addEventListener("input", () => {
           dom.register.disabled = (dom.comment.value.trim() == "");
         });
         dom.comment.addEventListener("keydown", event => {
@@ -810,7 +933,7 @@
             register();
           }
         });
-        dom.register.addEventListener("click", event => {
+        dom.register.addEventListener("click", () => {
           register();
         });
         dom.startForget.addEventListener("click", event => {
@@ -822,7 +945,7 @@
           event.preventDefault();
           forget();
         });
-        dom.cancelForget.addEventListener("click", event => {
+        dom.cancelForget.addEventListener("click", () => {
           dom.caseRegisteredForget.classList.remove("display");
           dom.caseRegistered.classList.add("display");
         });
@@ -833,7 +956,7 @@
           event.preventDefault();
           dom.chooseBackupFile.click();
         });
-        dom.chooseBackupFile.addEventListener("change", event => {
+        dom.chooseBackupFile.addEventListener("change", () => {
           const backupFile = dom.chooseBackupFile.files[0];
           if (backupFile === undefined) {
             return;
@@ -845,9 +968,28 @@
           backupFileReader.readAsText(backupFile);
           dom.chooseBackupFile.value = "";
         });
-        window.addEventListener("storage", event => {
+        dom.enableAchievements.addEventListener("click", () => {
+          localStorage.setItem("achievements", "[]");
+          setAchievements();
+        });
+        dom.startDisableAchievements.addEventListener("click", event => {
+          event.preventDefault();
+          dom.confirmDisableAchievements.classList.add("display");
+          setAchievements();
+        });
+        dom.finishDisableAchievements.addEventListener("click", event => {
+          event.preventDefault();
+          localStorage.removeItem("achievements");
+          setAchievements();
+        });
+        dom.cancelDisableAchievements.addEventListener("click", () => {
+          dom.confirmDisableAchievements.classList.remove("display");
+          setAchievements();
+        });
+        window.addEventListener("storage", () => {
           document.documentElement.setAttribute("data-theme", localStorage.getItem("ui.theme"));
           updateSelectedTheme();
+          setAchievements();
           if (
             (
               dom.stagedRestore.classList.contains("display")
@@ -858,7 +1000,7 @@
               && localStorage.getItem("restore") !== null
             )
           ) {
-            window.location.reload();
+            window.location.href = "/help";
           }
         });
       }
@@ -890,7 +1032,14 @@
         chooseBackupFile: document.getElementById("choose-backup-file"),
         stagedRestore: document.getElementById("staged-restore"),
         restoreDate: document.getElementById("restore-date"),
-        cancelRestore: document.getElementById("cancel-restore")
+        cancelRestore: document.getElementById("cancel-restore"),
+        achievementsDisabled: document.getElementById("achievements-disabled"),
+        enableAchievements: document.getElementById("enable-achievements"),
+        achievementsEnabled: document.getElementById("achievements-enabled"),
+        startDisableAchievements: document.getElementById("start-disable-achievements"),
+        confirmDisableAchievements: document.getElementById("confirm-disable-achievements"),
+        finishDisableAchievements: document.getElementById("finish-disable-achievements"),
+        cancelDisableAchievements: document.getElementById("cancel-disable-achievements")
       };
       let verifiedUser = false;
       let openpgp;

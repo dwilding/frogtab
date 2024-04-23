@@ -58,14 +58,14 @@
         const weekdayToday = (new Date()).getDay();
         switchToTab(weekdayKeys[weekdayToday]);
         for (const key of weekdayKeys) {
-          dom.editor[key].addEventListener("input", event => {
+          dom.editor[key].addEventListener("input", () => {
             localStorage.setItem(`routine.${key}`, dom.editor[key].value);
           });
-          dom[key].addEventListener("click", event => {
+          dom[key].addEventListener("click", () => {
             switchToTab(key);
           });
         }
-        window.addEventListener("storage", event => {
+        window.addEventListener("storage", () => {
           document.documentElement.setAttribute("data-theme", localStorage.getItem("ui.theme"));
           refreshView();
         });

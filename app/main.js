@@ -558,10 +558,10 @@ function setSnap() {
     dom.snapToCenter.classList.add("display");
     dom.snapToBottom.classList.remove("display");
   }
-  dom.snapToBottom.addEventListener("click", event => {
+  dom.snapToBottom.addEventListener("click", () => {
     toggleSnap();
   });
-  dom.snapToCenter.addEventListener("click", event => {
+  dom.snapToCenter.addEventListener("click", () => {
     toggleSnap();
   });
 }
@@ -581,7 +581,7 @@ function toggleSnap() {
 }
 function setExportAction() {
   if ("showSaveFilePicker" in window) {
-    dom.enableSave.addEventListener("click", async event => {
+    dom.enableSave.addEventListener("click", async () => {
       try {
         fileHandle = await window.showSaveFilePicker({
           suggestedName: `Frogtab_backup.json`,
@@ -603,7 +603,7 @@ function setExportAction() {
     });
     dom.enableSave.classList.add("display");
   }
-  dom.exportData.addEventListener("click", event => {
+  dom.exportData.addEventListener("click", () => {
     const dataJSON = createDataJSON();
     const dataBlob = new Blob([dataJSON], {
       type: "application/json; charset=utf-8"
@@ -703,7 +703,7 @@ async function startApp() {
       }
     }
   });
-  dom.today.addEventListener("click", event => {
+  dom.today.addEventListener("click", () => {
     switchToTab("today");
     refreshInfo();
   });
@@ -749,7 +749,7 @@ async function startApp() {
       }
     }
   });
-  dom.inbox.addEventListener("click", event => {
+  dom.inbox.addEventListener("click", () => {
     switchToTab("inbox");
     refreshInfo();
   });
@@ -759,7 +759,7 @@ async function startApp() {
       dom.menu.classList.add("display");
     }
   });
-  document.addEventListener("click", event => {
+  document.addEventListener("click", () => {
     dom.menu.classList.remove("display");
   });
   document.addEventListener("visibilitychange", () => {
@@ -859,9 +859,9 @@ async function startApp() {
       }
     }
   }, 15000);
-  window.addEventListener("storage", async event => {
-    setAchievements();
+  window.addEventListener("storage", async () => {
     document.documentElement.setAttribute("data-theme", localStorage.getItem("ui.theme"));
+    setAchievements();
     if (!hasUserID && localStorage.getItem("user.userID") !== null) {
       hasUserID = true;
       await verifyUserAndAppendMessages();
@@ -958,7 +958,7 @@ const dom = {
 };
 if (showWelcome) {
   dom.welcome.classList.add("display"); 
-  dom.welcome.addEventListener("click", event => {
+  dom.welcome.addEventListener("click", () => {
     dom.welcome.classList.remove("display");
   });
 }
