@@ -677,7 +677,7 @@ async function startApp() {
     refreshInfo();
   }
   dom.editor.today.addEventListener("input", event => {
-    if (event.inputType == "insertText") {
+    if (event.inputType == "insertText" && localStorage.getItem("achievements") !== null) {
       addSpaceForCompletionOffset(dom.editor.today);
     }
     storeThenSave("value.today", dom.editor.today.value);
@@ -708,7 +708,7 @@ async function startApp() {
     refreshInfo();
   });
   dom.editor.inbox.addEventListener("input", event => {
-    if (event.inputType == "insertText") {
+    if (event.inputType == "insertText" && localStorage.getItem("achievements") !== null) {
       addSpaceForCompletionOffset(dom.editor.inbox);
     }
     storeThenSave("value.inbox", dom.editor.inbox.value);
@@ -885,6 +885,7 @@ async function startApp() {
 
 // ******** Initial setup ********
 let showWelcome = false;
+let showWhatsnew = false;
 const weekdayKeys = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
 if (localStorage.getItem("restore") !== null) {
   const backupData = JSON.parse(localStorage.getItem("restore"));
