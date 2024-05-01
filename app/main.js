@@ -547,9 +547,17 @@ async function verifyUserAndAppendMessages() {
 function setAchievements() {
   if (localStorage.getItem("achievements") !== null) {
     dom.achievements.classList.add("display");
+    localStorage.setItem("ui.newsAchievements", "hide");
   }
   else {
     dom.achievements.classList.remove("display");
+    if (localStorage.getItem("ui.newsAchievements") == "show") {
+      dom.newsAchievements.classList.add("display"); 
+      dom.newsAchievements.addEventListener("click", () => {
+        dom.newsAchievements.classList.remove("display");
+        localStorage.setItem("ui.newsAchievements", "hide");
+      });
+    }
   }
 }
 function setSnap() {
@@ -885,12 +893,12 @@ async function startApp() {
 
 // ******** Initial setup ********
 let showWelcome = false;
-let showWhatsnew = false;
 const weekdayKeys = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
 if (localStorage.getItem("restore") !== null) {
   const backupData = JSON.parse(localStorage.getItem("restore"));
   const uiSnap = localStorage.getItem("ui.snap");
   const uiTheme = localStorage.getItem("ui.theme");
+  const uiNewsAchievements = localStorage.getItem("ui.newsAchievements");
   localStorage.clear();
   localStorage.setItem("date", backupData.date);
   localStorage.setItem("value.today", backupData.today);
@@ -909,12 +917,15 @@ if (localStorage.getItem("restore") !== null) {
   }
   localStorage.setItem("ui.snap", uiSnap);
   localStorage.setItem("ui.theme", uiTheme);
+  localStorage.setItem("ui.newsAchievements", uiNewsAchievements);
 }
 if (localStorage.getItem("date") === null) {
   localStorage.setItem("date", (new Date()).toDateString());
 }
 if (localStorage.getItem("value.today") === null) {
+  // This is the user's first time opening Frogtab
   localStorage.setItem("value.today", "");
+  localStorage.setItem("ui.newsAchievements", "hide");
   showWelcome = true;
 }
 if (localStorage.getItem("value.inbox") === null) {
@@ -931,6 +942,9 @@ if (localStorage.getItem("ui.snap") === null) {
 if (localStorage.getItem("ui.theme") === null) {
   localStorage.setItem("ui.theme", "system");
 }
+if (localStorage.getItem("ui.newsAchievements") === null) {
+  localStorage.setItem("ui.newsAchievements", "show");
+}
 document.documentElement.setAttribute("data-theme", localStorage.getItem("ui.theme"));
 const requestedIcon = document.documentElement.getAttribute("data-icon");
 const requestedReload = (new URLSearchParams(window.location.search)).get('reload');
@@ -941,6 +955,7 @@ const dom = {
   icon16: document.getElementById("icon16"),
   icon32: document.getElementById("icon32"),
   welcome: document.getElementById("welcome"),
+  newsAchievements: document.getElementById("news-achievements"),
   editor: {
     today: document.getElementById("editor-today"),
     inbox: document.getElementById("editor-inbox")
