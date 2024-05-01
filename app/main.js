@@ -547,12 +547,13 @@ async function verifyUserAndAppendMessages() {
 function setAchievements() {
   if (localStorage.getItem("achievements") !== null) {
     dom.achievements.classList.add("display");
+    dom.newsAchievements.classList.remove("display");
     localStorage.setItem("ui.newsAchievements", "hide");
   }
   else {
     dom.achievements.classList.remove("display");
     if (localStorage.getItem("ui.newsAchievements") == "show") {
-      dom.newsAchievements.classList.add("display"); 
+      dom.newsAchievements.classList.add("display");
       dom.newsAchievements.addEventListener("click", () => {
         dom.newsAchievements.classList.remove("display");
         localStorage.setItem("ui.newsAchievements", "hide");
@@ -730,7 +731,7 @@ async function startApp() {
       setNotifyStatus();
       refreshInfo();
       return;
-    }    
+    }
     if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key == "/") {
       event.preventDefault();
       inboxSnoozeSelected();
@@ -973,7 +974,7 @@ const dom = {
   enableSave: document.getElementById("enable-save")
 };
 if (showWelcome) {
-  dom.welcome.classList.add("display"); 
+  dom.welcome.classList.add("display");
   dom.welcome.addEventListener("click", () => {
     dom.welcome.classList.remove("display");
   });
