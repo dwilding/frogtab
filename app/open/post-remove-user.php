@@ -1,7 +1,5 @@
 <?php
 
-// TODO: REMOVE THIS ENDPOINT LATER
-
 header('Content-Type: application/json');
 
 function respond_with_failure() {

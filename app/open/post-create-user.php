@@ -1,7 +1,5 @@
 <?php
 
-// TODO: REMOVE THIS ENDPOINT LATER
-
 require $_SERVER['APP_DIR_PACKAGES'] . '/vendor/autoload.php';
 use Ramsey\Uuid\Uuid;
 
