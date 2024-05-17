@@ -1,9 +1,9 @@
 async function storeIcons() {
   const fetched = await Promise.all([
-    fetch("/favicons/icon-16.png"),
-    fetch("/favicons/icon-32.png"),
-    fetch("/favicons/icon-16-notify.png"),
-    fetch("/favicons/icon-32-notify.png")
+    fetch("favicons/icon-16.png"),
+    fetch("favicons/icon-32.png"),
+    fetch("favicons/icon-16-notify.png"),
+    fetch("favicons/icon-32-notify.png")
   ]);
   const getObjectURL = async i => {
     const blob = await fetched[i].blob();
@@ -496,12 +496,12 @@ function isNewDay() {
 }
 async function verifyUserAndAppendMessages() {
   if (openpgp === undefined) {
-    openpgp = await import("/openpgp.min.mjs?sha1=37c26b5e680e0824cde10d4ff7888cac49606a8d");
+    openpgp = await import("./openpgp.min.mjs?sha1=37c26b5e680e0824cde10d4ff7888cac49606a8d");
   }
   lastAppend = Date.now();
   let response;
   try {
-    response = await fetch("/post-remove-messages", {
+    response = await fetch(`${serverBase}/open/post-remove-messages`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -547,18 +547,9 @@ async function verifyUserAndAppendMessages() {
 function setAchievements() {
   if (localStorage.getItem("achievements") !== null) {
     dom.achievements.classList.add("display");
-    dom.newsAchievements.classList.remove("display");
-    localStorage.setItem("ui.newsAchievements", "hide");
   }
   else {
     dom.achievements.classList.remove("display");
-    if (localStorage.getItem("ui.newsAchievements") == "show") {
-      dom.newsAchievements.classList.add("display");
-      dom.newsAchievements.addEventListener("click", () => {
-        dom.newsAchievements.classList.remove("display");
-        localStorage.setItem("ui.newsAchievements", "hide");
-      });
-    }
   }
 }
 function setSnap() {
@@ -621,8 +612,12 @@ function setExportAction() {
   });
 }
 function createDataJSON() {
+  let appBase = window.location.href;
+  if (!appBase.endsWith("/")) {
+    appBase = appBase.substring(0, appBase.lastIndexOf("/") + 1);
+  }
   const data = {
-    help: "To restore your data, visit https://frogtab.com/help#importing-your-data",
+    help: `To restore your data, visit ${appBase}help#importing-your-data`,
     date: localStorage.getItem("date"),
     today: localStorage.getItem("value.today").trim(),
     inbox: localStorage.getItem("value.inbox").trim(),
@@ -671,8 +666,8 @@ async function saveToFile() {
 }
 async function startApp() {
   setAchievements();
-  setSnap();
   setExportAction();
+  setSnap();
   if (isNewDay()) {
     updateValues();
   }
@@ -857,7 +852,7 @@ async function startApp() {
       if (reloadIcon != requestedIcon) {
         const reloadParams = new URLSearchParams(window.location.search);
         reloadParams.set("reload", Date.now().toString());
-        const reloadLocation = `/icon-${reloadIcon}?${reloadParams.toString()}`;
+        const reloadLocation = `icon-${reloadIcon}?${reloadParams.toString()}`;
         try {
           // Before committing to the reload, verify that we can load the new location
           await fetch(reloadLocation);
@@ -899,7 +894,6 @@ if (localStorage.getItem("restore") !== null) {
   const backupData = JSON.parse(localStorage.getItem("restore"));
   const uiSnap = localStorage.getItem("ui.snap");
   const uiTheme = localStorage.getItem("ui.theme");
-  const uiNewsAchievements = localStorage.getItem("ui.newsAchievements");
   localStorage.clear();
   localStorage.setItem("date", backupData.date);
   localStorage.setItem("value.today", backupData.today);
@@ -918,7 +912,6 @@ if (localStorage.getItem("restore") !== null) {
   }
   localStorage.setItem("ui.snap", uiSnap);
   localStorage.setItem("ui.theme", uiTheme);
-  localStorage.setItem("ui.newsAchievements", uiNewsAchievements);
 }
 if (localStorage.getItem("date") === null) {
   localStorage.setItem("date", (new Date()).toDateString());
@@ -926,7 +919,6 @@ if (localStorage.getItem("date") === null) {
 if (localStorage.getItem("value.today") === null) {
   // This is the user's first time opening Frogtab
   localStorage.setItem("value.today", "");
-  localStorage.setItem("ui.newsAchievements", "hide");
   showWelcome = true;
 }
 if (localStorage.getItem("value.inbox") === null) {
@@ -943,9 +935,6 @@ if (localStorage.getItem("ui.snap") === null) {
 if (localStorage.getItem("ui.theme") === null) {
   localStorage.setItem("ui.theme", "system");
 }
-if (localStorage.getItem("ui.newsAchievements") === null) {
-  localStorage.setItem("ui.newsAchievements", "show");
-}
 document.documentElement.setAttribute("data-theme", localStorage.getItem("ui.theme"));
 const requestedIcon = document.documentElement.getAttribute("data-icon");
 const requestedReload = (new URLSearchParams(window.location.search)).get('reload');
@@ -956,7 +945,6 @@ const dom = {
   icon16: document.getElementById("icon16"),
   icon32: document.getElementById("icon32"),
   welcome: document.getElementById("welcome"),
-  newsAchievements: document.getElementById("news-achievements"),
   editor: {
     today: document.getElementById("editor-today"),
     inbox: document.getElementById("editor-inbox")
@@ -989,6 +977,7 @@ let timeoutSave = {
 };
 let timeoutShowInfo;
 let lastActive = Date.now();
+const serverBase = document.documentElement.getAttribute("data-server-base");
 let hasUserID = false;
 let verifiedUser = false;
 let lastAppend = 0;

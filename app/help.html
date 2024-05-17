@@ -1,27 +1,27 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="system">
+<html lang="en" data-server-base="https://frogtab.com" data-registration="long" data-vibe="" data-theme="system">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Learn how to get started with Frogtab and explore Frogtab's features in detail">
     <title>Frogtab Help</title>
-    <link rel="icon" href="/favicons/icon-16.png" sizes="16x16" type="image/png">
-    <link rel="icon" href="/favicons/icon-32.png" sizes="32x32" type="image/png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/favicons/icon-180-apple.png">
-    <link rel="manifest" href="/manifest.webmanifest">
-    <link rel="stylesheet" href="/simple.min.css?sha1=713346e8ca6500a33f266eca1e1c7bafd070c8fb">
-    <link rel="stylesheet" href="/simple-customizations.css?sha1=398af5fa50e4b2eb92a49bcd369425a11d399e5b">
+    <link rel="icon" href="favicons/icon-16.png" sizes="16x16" type="image/png">
+    <link rel="icon" href="favicons/icon-32.png" sizes="32x32" type="image/png">
+    <link rel="apple-touch-icon" sizes="180x180" href="favicons/icon-180-apple.png">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="stylesheet" href="simple.min.css?sha1=713346e8ca6500a33f266eca1e1c7bafd070c8fb">
+    <link rel="stylesheet" href="simple-customizations.css?sha1=8c0ee0206de7057bbb327a7a3eaf3fe0b82801c6">
   </head>
   <body>
     <header>
       <nav></nav>
       <h1>Frogtab Help</h1>
       <p>
-        <a href="/" target="_blank">Frogtab</a> is a lightweight task manager that<br>
+        <a href="." target="_blank">Frogtab</a> is a lightweight task manager that<br>
         helps you stay focused on today's priorities
       </p>
       <p>
-        <a class="button" href="#overview-of-frogtab">Get Started</a>
+        <a href="#overview-of-frogtab" class="button">Get Started</a>
       </p>
     </header>
     <main>
@@ -61,8 +61,8 @@
       </article>
       <h2 id="overview-of-frogtab">Overview of Frogtab</h2>
       <p>
-        <img class="light-only" alt="The Today view in Frogtab" src="/help-today-light.png" width="480">
-        <img class="dark-only" alt="The Today view in Frogtab (dark theme)" src="/help-today-dark.png" width="480">
+        <img class="light-only" alt="The Today view in Frogtab" src="help-today-light.png" width="480">
+        <img class="dark-only" alt="The Today view in Frogtab (dark theme)" src="help-today-dark.png" width="480">
       </p>
       <p>
         <strong>Today</strong> is your to-do list for today.
@@ -82,11 +82,11 @@
         Frogtab displays a notification badge to remind you to triage your inbox:
       </p>
       <p>
-        <img class="light-only" alt="The Inbox view in Frogtab" src="/help-inbox-light.png" width="480">
-        <img class="dark-only" alt="The Inbox view in Frogtab (dark theme)" src="/help-inbox-dark.png" width="480">
+        <img class="light-only" alt="The Inbox view in Frogtab" src="help-inbox-light.png" width="480">
+        <img class="dark-only" alt="The Inbox view in Frogtab (dark theme)" src="help-inbox-dark.png" width="480">
       </p>
       <p class="before-compact">
-        At the beginning of each day, Frogtab automatically:
+        At the beginning of each day, Frogtab:
       </p>
       <ul class="compact">
         <li>Moves any remaining tasks from Today to your inbox</li>
@@ -112,7 +112,7 @@
         </li>
         <li>
           <p>
-            Open <a href="/send" target="_blank">Send to Frogtab</a> in a new tab, then write down the task and click the send button.
+            Open <a href="send" target="_blank">Send to Frogtab</a> in a new tab, then write down the task and click the send button.
             This method is great if you want to capture the task without revealing your inbox (e.g., during a meeting).
           </p>
         </li>
@@ -133,10 +133,9 @@
         </div>
         <div id="case-unregistered">
           <p>
-            You have not registered this device.
-            To register this device, please share your experience of using Frogtab - thank you!
+            You have not registered this device.<span class="long-registration-only"> To register this device, please share your experience of using Frogtab - thank you!</span>
           </p>
-          <div>
+          <div class="long-registration-only">
             <input id="comment" style="width: 100%" type="text" placeholder="Your experience…">
           </div>
           <div>
@@ -156,7 +155,7 @@
             You have registered this device.
           </p>
           <div>
-            <button id="link">Open My Personal Link</button>
+            <a href="#" target="_blank" id="link" class="button">Open My Personal Link</a>
           </div>
           <p>
             <a href="#privacy-implications-of-registering">Learn about data privacy</a>
@@ -207,7 +206,7 @@
           <p>
             If you clear your browsing data, your personal link will stop working.
             To reactivate your personal link, <a href="#importing-your-data">import your Frogtab data</a>
-            (assuming that you've previously <a href="#exporting-your-data">made a backup</a>).
+            (assuming that you've previously <a href="#exporting-your-data">exported a backup</a>).
             Or you can re-register this device and get a new personal link.
           </p>
         </li>
@@ -235,8 +234,8 @@
             Snooze the task by writing # in front of the task:
           </p>
           <p>
-            <img class="light-only" alt="The Inbox view in Frogtab, with a snoozed task" src="/help-snoozed-light.png" width="480">
-            <img class="dark-only" alt="The Inbox view in Frogtab, with a snoozed task (dark theme)" src="/help-snoozed-dark.png" width="480">
+            <img class="light-only" alt="The Inbox view in Frogtab, with a snoozed task" src="help-snoozed-light.png" width="480">
+            <img class="dark-only" alt="The Inbox view in Frogtab, with a snoozed task (dark theme)" src="help-snoozed-dark.png" width="480">
           </p>
           <p>
             Frogtab will unsnooze the task at the beginning of the next day.
@@ -258,7 +257,7 @@
       </p>
       <h2 id="setting-up-recurring-tasks">Setting up recurring tasks</h2>
       <p>
-        If there are tasks that you usually do on the same day each week, Frogtab can automatically add the tasks to your inbox at the beginning of the appropriate day.
+        If there are tasks that you usually do on the same day each week, Frogtab can add the tasks to your inbox at the beginning of the appropriate day.
       </p>
       <p>
         To set up recurring tasks:
@@ -266,7 +265,7 @@
       <ol>
         <li>
           <p>
-            Open <a href="/week" target="_blank">Weekly Routine</a> in a new tab.
+            Open <a href="week" target="_blank">Weekly Routine</a> in a new tab.
           </p>
         </li>
         <li>
@@ -316,7 +315,7 @@
             You have enabled Achievements.
           </p>
           <div>
-            <a href="/achievements" target="_blank" class="button">Review My Completed Tasks</a>
+            <a href="achievements" target="_blank" class="button">Review My Completed Tasks</a>
           </div>
           <p>
             <a id="start-disable-achievements" href="#">Disable Achievements</a>
@@ -354,7 +353,7 @@
         </li>
       </ul>
       <p>
-        Frogtab moves the task to <a href="/achievements" target="_blank">Achievements</a> and sets the completion date to today's date.
+        Frogtab moves the task to <a href="achievements" target="_blank">Achievements</a> and sets the completion date to today's date.
       </p>
       <p>
         If you use the first method of completing a task, you can customize the completion date of the task.
@@ -463,7 +462,7 @@
                 Complete selected tasks
               </p>
               <p>
-                Only available if you've enabled <a href="/achievements" target="_blank">Achievements</a>.
+                Only available if you've enabled <a href="achievements" target="_blank">Achievements</a>.
               </p>
             </td>
             <td>
@@ -506,7 +505,7 @@
         </tbody>
       </table>
       <p>
-        For <a href="/send" target="_blank">Send to Frogtab</a>:
+        For <a href="send" target="_blank">Send to Frogtab</a>:
       </p>
       <table>
         <thead>
@@ -558,38 +557,37 @@
         Some browsers (e.g., Safari) don't support this feature. If you want this feature, you'll need to use a workaround.
       </p>
       <p>
-        To enable the workaround, use <a href="/icon-normal?reload=start" target="_blank">this version of Frogtab</a>.
+        To enable the workaround, use <a href="icon-normal?reload=start" target="_blank">this version of Frogtab</a>.
         Frogtab will periodically reload itself to update the tab icon.
         When Frogtab reloads itself, your undo history will be lost. Frogtab will only reload itself when the tab isn't active.
       </p>
       <p>
-        If your browser supports Frogtab's default way of updating the tab icon, but you prefer no badge on the tab icon, you can use <a href="/icon-normal" target="_blank">this version of Frogtab</a>.
+        If your browser supports Frogtab's default way of updating the tab icon, but you prefer no badge on the tab icon, you can use <a href="icon-normal" target="_blank">this version of Frogtab</a>.
       </p>
       <h2 id="exporting-your-data">Exporting your data</h2>
       <p>
         Your data is stored in your browser.
-        If you like, you can make a backup of your data by exporting your data in JSON format.
-        To export your data, click
+        To export a backup of your data, click
         <svg width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M3 5h18M3 12h18M3 19h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
         at the bottom of Frogtab, then click <strong>Export My Data</strong>.
       </p>
       <p>
-        Some browsers are able to directly save files on your device.
-        If your browser supports this feature, Frogtab can automatically back up your data.
-        To start automatically backing up your data, click <strong>Enable Auto-Backup</strong> at the bottom of Frogtab.
+        Some browsers support automatic backups.
+        If your browser supports this feature, click <strong>Enable Auto-Backup</strong> at the bottom of Frogtab,
+        then specify where to save the backup file.
+        Frogtab will update the backup file whenever your data changes.
       </p>
       <p>
-        If you've enabled <a href="/achievements" target="_blank">Achievements</a>,
+        If you've enabled <a href="achievements" target="_blank">Achievements</a>,
         you can export your completed tasks in <a href="http://todotxt.org/" target="_blank">todo.txt</a> format.
         To learn more, see <a href="#tracking-your-completed-tasks">Tracking your completed tasks</a>.
       </p>
       <h2 id="importing-your-data">Importing your data</h2>
       <p>
-        If you've previously made a backup of your data, you can restore your data.
-        To start the restore process, <a href="#" id="start-restore">open a backup file</a>.
+        To restore your data in your browser, <a href="#" id="start-restore">open a backup file</a>.
       </p>
       <p>
-        If you've enabled <a href="/achievements" target="_blank">Achievements</a>,
+        If you've enabled <a href="achievements" target="_blank">Achievements</a>,
         you can import completed tasks from a <a href="http://todotxt.org/" target="_blank">todo.txt</a> file.
         To learn more, see <a href="#tracking-your-completed-tasks">Tracking your completed tasks</a>.
       </p>
@@ -611,11 +609,11 @@
       <ul class="compact">
         <li>The contents of Today and Inbox</li>
         <li>Recurring tasks from your weekly routine</li>
-        <li>Your completed tasks (if you've enabled <a href="/achievements" target="_blank">Achievements</a>)</li>
+        <li>Your completed tasks (if you've enabled <a href="achievements" target="_blank">Achievements</a>)</li>
       </ul>
       <p>
         Your data is stored in your browser and isn't sent to a server.
-        If you like, you can make a backup of your data.
+        If you like, you can export a backup of your data.
         To learn more, see <a href="#exporting-your-data">Exporting your data</a>.
       </p>
       <p>
@@ -627,7 +625,7 @@
       </p>
       <h2 id="privacy-implications-of-registering">Privacy implications of registering</h2>
       <p>
-        If you choose to register this device, Frogtab generates identification and encryption credentials for this device. The credentials are stored in your browser and are included if you make a backup of your data.
+        If you choose to register this device, Frogtab generates identification and encryption credentials for this device. The credentials are stored in your browser and are included if you export a backup of your data.
       </p>
       <p>
         The credentials are also stored on a server, with the exception of a private key that Frogtab uses to decrypt tasks received from your personal link.
@@ -698,6 +696,14 @@
           new Promise(resolve => window.setTimeout(resolve, 1500))
         ]);
       }
+      function getPersonalLink() {
+        let personalLink = `${serverBase}/send#${localStorage.getItem("user.userID")}`;
+        const vibe = document.documentElement.getAttribute("data-vibe");
+        if (vibe != "") {
+          personalLink = `${personalLink}/${encodeURIComponent(vibe)}`;
+        }
+        return personalLink;
+      }
       async function verify() {
         await delayForUX(async () => {
           if (localStorage.getItem("user.userID") === null) {
@@ -705,7 +711,7 @@
           }
           let response;
           try {
-            response = await fetch("/post-verify-user", {
+            response = await fetch(`${serverBase}/open/post-verify-user`, {
               method: "POST",
               headers: {
                 "Content-Type": "application/json"
@@ -728,9 +734,7 @@
         dom.caseChecking.classList.remove("display");
         if (verifiedUser) {
           dom.caseRegistered.classList.add("display");
-          dom.link.addEventListener("click", () => {
-            window.open(`/send#${localStorage.getItem("user.userID")}`, "_blank");
-          });
+          dom.link.href = getPersonalLink();
         }
         else {
           dom.caseUnregistered.classList.add("display");
@@ -741,7 +745,7 @@
         dom.caseRegistering.classList.add("display");
         await delayForUX(async () => {
           if (openpgp === undefined) {
-            openpgp = await import("/openpgp.min.mjs?sha1=37c26b5e680e0824cde10d4ff7888cac49606a8d");
+            openpgp = await import("./openpgp.min.mjs?sha1=37c26b5e680e0824cde10d4ff7888cac49606a8d");
           }
           const encryptedComment = await openpgp.encrypt({
             message: await openpgp.createMessage({
@@ -758,7 +762,7 @@
           });
           let response;
           try {
-            response = await fetch("/post-create-user", {
+            response = await fetch(`${serverBase}/open/post-create-user`, {
               method: "POST",
               headers: {
                 "Content-Type": "application/json"
@@ -790,9 +794,7 @@
           dom.comment.value = "";
           dom.register.disabled = true;
           dom.caseRegistered.classList.add("display");
-          dom.link.addEventListener("click", () => {
-            window.open(`/send#${localStorage.getItem("user.userID")}`, "_blank");
-          });
+          dom.link.href = getPersonalLink();
         }
         else {
           dom.caseUnregistered.classList.add("display");
@@ -804,7 +806,7 @@
         await delayForUX(async () => {
           let response;
           try {
-            response = await fetch("/post-remove-user", {
+            response = await fetch(`${serverBase}/open/post-remove-user`, {
               method: "POST",
               headers: {
                 "Content-Type": "application/json"
@@ -925,14 +927,21 @@
             shortcut.classList.add("display");
           }
         });
-        dom.comment.addEventListener("input", () => {
-          dom.register.disabled = (dom.comment.value.trim() == "");
-        });
-        dom.comment.addEventListener("keydown", event => {
-          if (!dom.register.disabled && "key" in event && event.key.toLowerCase() == "enter") {
-            register();
-          }
-        });
+        if (document.documentElement.getAttribute("data-registration") == "long") {
+          dom.comment.addEventListener("input", () => {
+            dom.register.disabled = (dom.comment.value.trim() == "");
+          });
+          dom.comment.addEventListener("keydown", event => {
+            if (!dom.register.disabled && "key" in event && event.key.toLowerCase() == "enter") {
+              register();
+            }
+          });
+        }
+        else {
+          dom.comment.value = "[comment not required]";
+          dom.register.disabled = false;
+          dom.register.innerText = "Register This Device";
+        }
         dom.register.addEventListener("click", () => {
           register();
         });
@@ -1000,7 +1009,7 @@
               && localStorage.getItem("restore") !== null
             )
           ) {
-            window.location.href = "/help";
+            window.location.href = "help";
           }
         });
       }
@@ -1041,6 +1050,7 @@
         finishDisableAchievements: document.getElementById("finish-disable-achievements"),
         cancelDisableAchievements: document.getElementById("cancel-disable-achievements")
       };
+      const serverBase = document.documentElement.getAttribute("data-server-base");
       let verifiedUser = false;
       let openpgp;
       startApp();
