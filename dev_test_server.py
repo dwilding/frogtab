@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 # This script checks whether the server responds correctly to API calls
 
 import requests

@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 # This script creates a local version of Frogtab and packages it for release
 
 from pathlib import Path

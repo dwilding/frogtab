@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 # This script updates the ?sha1=... parameters in dependency references
 
 import re
