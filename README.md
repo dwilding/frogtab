@@ -112,4 +112,4 @@ For details, see [LICENSE](LICENSE).
 Frogtab uses OpenPGP.js for PGP encryption and decryption.
 OpenPGP.js is licensed under the GNU Lesser General Public License.
 For details, see [LICENSE_openpgp](LICENSE_openpgp).
-The source code of OpenPGP.js is a available at https://github.com/openpgpjs/openpgpjs.
+The source code of OpenPGP.js is available at https://github.com/openpgpjs/openpgpjs.
