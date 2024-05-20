@@ -2,8 +2,19 @@
 
 [Frogtab](https://frogtab.com) is a lightweight task manager that helps you stay focused on today's priorities.
 
-- [Full docs](https://frogtab.com/help)
-- [Dev blog](https://maybecoding.bearblog.dev/blog/)
+<p><img alt="The Today view in Frogtab" src="app/help-today-light.png" width="480"></p>
+
+Learn more about Frogtab:
+
+  - [Full docs](https://frogtab.com/help)
+  - [Dev blog](https://maybecoding.bearblog.dev/blog/)
+
+In this README:
+
+  - [Data flow](#data-flow)
+  - [JavaScript SDK](#javascript-sdk)
+  - [Acknowledgments](#acknowledgments)
+  - [License](#license)
 
 ## Data flow
 
@@ -23,12 +34,12 @@ More details:
 
  2. The server generates a user ID and an API key for your main device:
 
-    - **User ID** - The public "address" of your main device
-    - **API key** - A non-public "password" for your main device
+      - **User ID** - The public "address" of your main device
+      - **API key** - A non-public "password" for your main device
 
-    See [post-create-user.php](app/post-create-user.php).
+    See [post-create-user.php](app/open/post-create-user.php).
 
- 3. Frogtab gives you a personal link `https://frogtab.com/send#{id}`, where `{id}` is the user ID from step 2.
+ 3. Frogtab creates a personal link `https://frogtab.com/send#{id}`, where `{id}` is the user ID from step 2.
 
     You can use your personal link to send tasks to your main device.
 
@@ -49,14 +60,11 @@ More details:
 
      The server clears the queue as soon as your main device has downloaded the encrypted tasks.
 
-     See [post-remove-messages.php](app/post-remove-messages.php).
+     See [post-remove-messages.php](app/open/post-remove-messages.php).
 
  9. Frogtab decrypts the tasks using the private key from step 1.
 
-    See the `verifyUserAndAppendMessages` function in [index.html](app/index.html).
-
-Frogtab uses [OpenPGP.js](https://github.com/openpgpjs/openpgpjs) for PGP encryption and decryption.
-OpenPGP.js is licensed under the GNU Lesser General Public License.
+    See the `verifyUserAndAppendMessages` function in [main.js](app/main.js).
 
 ## JavaScript SDK
 
@@ -87,3 +95,21 @@ send("Hello Frogtab!").then(success => {
 Replace `USER ID GOES HERE` by the ID from the URL of your personal link.
 
 To learn more, see [this blog post](https://maybecoding.bearblog.dev/adding-a-private-feedback-box-to-bear/).
+
+## Acknowledgments
+
+  - [Simple.css](https://simplecss.org)
+  - [OpenPGP.js](https://openpgpjs.org)
+  - [ramsey/uuid](https://uuid.ramsey.dev)
+  - [iconnoir](https://iconoir.com)
+  - [mackwhyte](https://www.fiverr.com/mackwhyte)
+
+## License
+
+Frogtab is licensed under the MIT License.
+For details, see [LICENSE](LICENSE).
+
+Frogtab uses OpenPGP.js for PGP encryption and decryption.
+OpenPGP.js is licensed under the GNU Lesser General Public License.
+For details, see [LICENSE_openpgp](LICENSE_openpgp).
+The source code of OpenPGP.js is a available at https://github.com/openpgpjs/openpgpjs.
