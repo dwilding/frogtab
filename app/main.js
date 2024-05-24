@@ -579,8 +579,29 @@ function toggleSnap() {
     localStorage.setItem("ui.snap", "center");
   }
 }
-function setExportAction() {
+function setConfigureSave() {
+  if (localStorage.getItem("serviceKey") === null) {
+    dom.configureSave.classList.add("display");
+  }
+  else {
+    dom.configureSave.classList.remove("display");
+  }
+}
+function setExportAndSave() {
+  if (document.documentElement.getAttribute("data-save") == "service") {
+    dom.exportData.classList.remove("display");
+    setConfigureSave();
+    return;
+  }
+  dom.exportData.addEventListener("click", () => {
+    const dataJSON = createDataJSON();
+    const dataBlob = new Blob([dataJSON], {
+      type: "application/json; charset=utf-8"
+    });
+    dom.exportData.href = URL.createObjectURL(dataBlob);
+  });
   if ("showSaveFilePicker" in window) {
+    dom.enableSave.classList.add("display");
     dom.enableSave.addEventListener("click", async () => {
       try {
         fileHandle = await window.showSaveFilePicker({
@@ -601,17 +622,9 @@ function setExportAction() {
       dom.enableSave.classList.remove("display");
       requestSave();
     });
-    dom.enableSave.classList.add("display");
   }
-  dom.exportData.addEventListener("click", () => {
-    const dataJSON = createDataJSON();
-    const dataBlob = new Blob([dataJSON], {
-      type: "application/json; charset=utf-8"
-    });
-    dom.exportData.href = URL.createObjectURL(dataBlob);
-  });
 }
-function createDataJSON() {
+function createData() {
   let appBase = window.location.href;
   if (!appBase.endsWith("/")) {
     appBase = appBase.substring(0, appBase.lastIndexOf("/") + 1);
@@ -637,7 +650,10 @@ function createDataJSON() {
       pgpPrivateKey: localStorage.getItem("user.pgpPrivateKey")
     };
   }
-  const dataJSON = JSON.stringify(data, null, 2);
+  return data;
+}
+function createDataJSON() {
+  const dataJSON = JSON.stringify(createData(), null, 2);
   return (new TextEncoder()).encode(dataJSON);
 }
 function storeThenSave(key, value) {
@@ -645,13 +661,46 @@ function storeThenSave(key, value) {
   requestSave();
 }
 function requestSave() {
-  if (fileHandle !== null) {
+  if (document.documentElement.getAttribute("data-save") == "service" && localStorage.getItem("serviceKey") !== null) {
     window.clearTimeout(timeoutSave.id);
-    timeoutSave.id = window.setTimeout(saveToFile, 3000);
+    timeoutSave.id = window.setTimeout(saveToService, 1500);
+    timeoutSave.waiting = true;
+  }
+  if (document.documentElement.getAttribute("data-save") != "service" && fileHandle !== null) {
+    window.clearTimeout(timeoutSave.id);
+    timeoutSave.id = window.setTimeout(saveToFile, 1500);
     timeoutSave.waiting = true;
   }
 }
+async function saveToService() {
+  if (localStorage.getItem("serviceKey" === null)) {
+    timeoutSave.waiting = false;
+    return;
+  }
+  const data = createData();
+  try {
+    await fetch("services/post-service", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        key: localStorage.getItem("serviceKey"),
+        data: data
+      })
+    });
+  }
+  catch (err) {
+    localStorage.removeItem("serviceKey");
+    dom.configureSave.classList.add("display");
+  }
+  timeoutSave.waiting = false;
+}
 async function saveToFile() {
+  if (fileHandle === null) {
+    timeoutSave.waiting = false;
+    return;
+  }
   const dataJSON = createDataJSON();
   try {
     const stream = await fileHandle.createWritable();
@@ -666,7 +715,7 @@ async function saveToFile() {
 }
 async function startApp() {
   setAchievements();
-  setExportAction();
+  setExportAndSave();
   setSnap();
   if (isNewDay()) {
     updateValues();
@@ -866,6 +915,7 @@ async function startApp() {
   window.addEventListener("storage", async () => {
     document.documentElement.setAttribute("data-theme", localStorage.getItem("ui.theme"));
     setAchievements();
+    setConfigureSave();
     if (!hasUserID && localStorage.getItem("user.userID") !== null) {
       hasUserID = true;
       await verifyUserAndAppendMessages();
@@ -959,7 +1009,8 @@ const dom = {
   snapToBottom: document.getElementById("snap-to-bottom"),
   snapToCenter: document.getElementById("snap-to-center"),
   exportData: document.getElementById("export-data"),
-  enableSave: document.getElementById("enable-save")
+  enableSave: document.getElementById("enable-save"),
+  configureSave: document.getElementById("configure-save")
 };
 if (showWelcome) {
   dom.welcome.classList.add("display");
