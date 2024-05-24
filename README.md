@@ -43,7 +43,7 @@ More details:
 
     You can use your personal link to send tasks to your main device.
 
- 5. When you send a task to your main device, Frogtab first encrypts the task using the public key from step 1.
+ 5. When you send a task, Frogtab first encrypts the task using the public key from step 1.
     Frogtab then sends the encrypted task to the server.
 
     See the `encryptAndSend` function in [send.html](app/send.html).
