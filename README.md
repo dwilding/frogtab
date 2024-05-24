@@ -52,14 +52,14 @@ More details:
 
     See [post-add-message.php](app/open/post-add-message.php).
 
-  8. Frogtab on your main device periodically checks for encrypted tasks.
+ 8. Frogtab on your main device periodically checks for encrypted tasks.
 
-     The server requires the API key from step 2. This ensures that only your main device is permitted to check for encrypted tasks.
-     If there are encrypted tasks in the queue, your main device downloads the encrypted tasks.
+    The server requires the API key from step 2. This ensures that other devices cannot check for encrypted tasks.
+    If there are encrypted tasks in the queue, your main device downloads the encrypted tasks.
 
-     The server clears the queue as soon as your main device has downloaded the encrypted tasks.
+    The server clears the queue as soon as your main device has downloaded the encrypted tasks.
 
-     See [post-remove-messages.php](app/open/post-remove-messages.php).
+    See [post-remove-messages.php](app/open/post-remove-messages.php).
 
  9. Frogtab decrypts the tasks using the private key from step 1.
 
