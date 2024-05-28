@@ -37,10 +37,7 @@ flask run --port 8080
 
   - Frogtab Local doesn't rely on your browser to save backup files.
     Instead, the Flask app can save backup files.
-    This approach improves support for automatic backups.
-
-    Plus, this approach lets you customize how the Flask app saves backup files.
-    See "Adding your own backup method" below.
+    This approach improves support for automatic backups and lets you add your own backup methods. See below for details.
 
   - You can register for a personal link without sharing your experience of using Frogtab Local.
 
