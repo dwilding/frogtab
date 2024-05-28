@@ -62,7 +62,6 @@ The `data` parameter is a dictionary that contains the backup data from your bro
 The argument to `@backup` is the name of the backup method that will appear on the help page of Frogtab Local.
 
 ## License
-data
 Frogtab Local is licensed under the MIT License.
 For details, see *LICENSE*.
 
