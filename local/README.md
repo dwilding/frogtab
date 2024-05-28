@@ -58,14 +58,14 @@ Define your backup method as a function in *config.py* and apply the `@backup` d
 ```py
 @backup('Save to Desktop')
 def save_to_desktop(data):
-    write_json('/home/dave/Desktop/Frogtab_backup.json', data)
+    write_json(data, '/home/dave/Desktop/Frogtab_backup.json')
 ```
 
 The `data` parameter is a dictionary that contains the backup data from your browser.
 The argument to `@backup` is the name of the backup method that will appear on the Help page.
 
 ## License
-
+data
 Frogtab Local is licensed under the MIT License.
 For details, see *LICENSE*.
 

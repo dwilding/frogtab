@@ -28,6 +28,6 @@ def save_data(key, data):
         'success': True
     }
 
-def write_json(file_path, data):
+def write_json(data, file_path):
     with open(file_path, 'w', encoding='utf-8') as file:
         dump(data, file, indent=2, ensure_ascii=False)
