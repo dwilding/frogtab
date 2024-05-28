@@ -1,6 +1,6 @@
 from flask import Flask, send_from_directory, request
-from backend import list_services, call_service
-import services
+from functions import list_methods, save_data
+import config
 
 app = Flask(__name__, static_url_path='/')
 
@@ -15,13 +15,13 @@ def serve_file(file):
     else:
         return send_from_directory(app.static_folder, f'{file}.html')
 
-@app.route('/services/get-services')
-def get_services():
-    return list_services()
+@app.route('/save/get-methods')
+def get_methods():
+    return list_methods()
 
-@app.route('/services/post-service', methods=['POST'])
-def post_service():
+@app.route('/save/post-data', methods=['POST'])
+def post_data():
     body = request.get_json()
     key = body['key']
-    call_service(key, body['data'])
-    return f'Called {key}'
+    save_data(key, body['data'])
+    return key

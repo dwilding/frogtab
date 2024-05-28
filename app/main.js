@@ -580,7 +580,7 @@ function toggleSnap() {
   }
 }
 function setConfigureSave() {
-  if (localStorage.getItem("serviceKey") === null) {
+  if (localStorage.getItem("saveMethod") === null) {
     dom.configureSave.classList.add("display");
   }
   else {
@@ -588,11 +588,6 @@ function setConfigureSave() {
   }
 }
 function setExportAndSave() {
-  if (document.documentElement.getAttribute("data-save") == "service") {
-    dom.exportData.classList.remove("display");
-    setConfigureSave();
-    return;
-  }
   dom.exportData.addEventListener("click", () => {
     const dataJSON = createDataJSON();
     const dataBlob = new Blob([dataJSON], {
@@ -600,6 +595,10 @@ function setExportAndSave() {
     });
     dom.exportData.href = URL.createObjectURL(dataBlob);
   });
+  if (document.documentElement.getAttribute("data-save") == "service") {
+    setConfigureSave();
+    return;
+  }
   if ("showSaveFilePicker" in window) {
     dom.enableSave.classList.add("display");
     dom.enableSave.addEventListener("click", async () => {
@@ -661,7 +660,7 @@ function storeThenSave(key, value) {
   requestSave();
 }
 function requestSave() {
-  if (document.documentElement.getAttribute("data-save") == "service" && localStorage.getItem("serviceKey") !== null) {
+  if (document.documentElement.getAttribute("data-save") == "service" && localStorage.getItem("saveMethod") !== null) {
     window.clearTimeout(timeoutSave.id);
     timeoutSave.id = window.setTimeout(saveToService, 1500);
     timeoutSave.waiting = true;
@@ -673,25 +672,25 @@ function requestSave() {
   }
 }
 async function saveToService() {
-  if (localStorage.getItem("serviceKey" === null)) {
+  if (localStorage.getItem("saveMethod" === null)) {
     timeoutSave.waiting = false;
     return;
   }
   const data = createData();
   try {
-    await fetch("services/post-service", {
+    await fetch("save/post-data", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        key: localStorage.getItem("serviceKey"),
+        key: localStorage.getItem("saveMethod"),
         data: data
       })
     });
   }
   catch (err) {
-    localStorage.removeItem("serviceKey");
+    localStorage.removeItem("saveMethod");
     dom.configureSave.classList.add("display");
   }
   timeoutSave.waiting = false;

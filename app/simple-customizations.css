@@ -95,8 +95,15 @@ img.dark-only {
   /* Use --text = #dcdcdc for the stroke color */
   list-style-image: url('data:image/svg+xml;utf8,<svg width="22px" height="22px" viewBox="0 -3 24 21" stroke-width="1.5" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.5 8C8.5 8 11 8 15 8C15 8 15 8 15 8C15 8 20 8 20 12.7059C20 18 15 18 15 18C11.5714 18 9.71429 18 6.28571 18" stroke="%23dcdcdc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M7.5 11.5C6.13317 10.1332 5.36683 9.36683 4 8C5.36683 6.63317 6.13317 5.86683 7.5 4.5" stroke="%23dcdcdc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>');
 }
-/* Hide parts of the registration flow if short registration is configured */
+/* Hide parts of the registration flow */
 :root[data-registration="short"] .long-registration-only {
+  display: none;
+}
+/* Hide parts of the data export help */
+:root[data-save="service"] .browser-save-only {
+  display: none;
+}
+:root[data-save="browser"] .service-save-only {
   display: none;
 }
 /* Override/define other styles  */
@@ -139,6 +146,7 @@ button {
 .notice > div > p,
 .notice > div > ol,
 .notice > div > div > input,
+.notice > div > div > select,
 .notice > div > div > button,
 .notice > div > div > a.button {
   margin: 0.5rem 0;
