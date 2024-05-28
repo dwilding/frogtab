@@ -16,5 +16,12 @@ def list_methods():
     } for key in methods.keys()]
 
 def save_data(key, data):
+    if (key not in methods):
+        return {
+            'success': False
+        }
     method = methods[key]
     method['func'](data)
+    return {
+        'success': True
+    }

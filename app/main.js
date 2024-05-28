@@ -677,8 +677,14 @@ async function saveToService() {
     return;
   }
   const data = createData();
+  const onFailure = () => {
+    localStorage.removeItem("saveMethod");
+    dom.configureSave.classList.add("display");
+    timeoutSave.waiting = false;
+  };
+  let response;
   try {
-    await fetch("save/post-data", {
+    response = await fetch("save/post-data", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -690,8 +696,17 @@ async function saveToService() {
     });
   }
   catch (err) {
-    localStorage.removeItem("saveMethod");
-    dom.configureSave.classList.add("display");
+    onFailure();
+    return;
+  }
+  if (!response.ok) {
+    onFailure();
+    return;
+  }
+  const result = await response.json();
+  if (!result.success) {
+    onFailure();
+    return;
   }
   timeoutSave.waiting = false;
 }

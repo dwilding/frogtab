@@ -23,5 +23,4 @@ def get_methods():
 def post_data():
     body = request.get_json()
     key = body['key']
-    save_data(key, body['data'])
-    return key
+    return save_data(key, body['data'])
