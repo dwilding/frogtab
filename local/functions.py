@@ -1,3 +1,5 @@
+from json import dump
+
 methods = {}
 
 def backup(desc):
@@ -25,3 +27,7 @@ def save_data(key, data):
     return {
         'success': True
     }
+
+def write_json(file_path, data):
+    with open(file_path, 'w', encoding='utf-8') as file:
+        dump(data, file, indent=2, ensure_ascii=False)
