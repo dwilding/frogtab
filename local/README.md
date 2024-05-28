@@ -59,7 +59,7 @@ def save_to_desktop(data):
 ```
 
 The `data` parameter is a dictionary that contains the backup data from your browser.
-The argument to `@backup` is the name of the backup method that will appear on the Help page.
+The argument to `@backup` is the name of the backup method that will appear on the help page of Frogtab Local.
 
 ## License
 data
