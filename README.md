@@ -23,14 +23,13 @@ However, if you [register your main device](https://frogtab.com/help#registering
 the frogtab.com server creates a personal link that you can use to send tasks to your main device.
 
 If you prefer to self-host Frogtab, you can use [Frogtab Local](https://github.com/dwilding/frogtab/releases).
-Frogtab Local supports personal links, but your device will still be registered with frogtab.com.
+Frogtab Local supports personal links, but your device will be registered with frogtab.com.
 Frogtab Local does not include a self-hostable registration server.
 
 ## How your personal link works
 
  1. When you register your device, Frogtab generates a PGP key pair in your browser.
-
-    Frogtab then sends the public key to the server.
+    Your device then sends the public key to the server.
     The private key never leaves your device.
 
     See the `register` function in [help.html](app/help.html).
@@ -43,9 +42,8 @@ Frogtab Local does not include a self-hostable registration server.
     See [post-create-user.php](app/open/post-create-user.php).
 
     Your personal link is `https://frogtab.com/send#{id}`, where `{id}` is the user ID.
-    You can use your personal link to send tasks to Frogtab.
 
- 3. When you send a task, Frogtab first encrypts the task using the public key from step 1.
+ 3. When you use your personal link to send a task, Frogtab first encrypts the task using the public key from step 1.
     Frogtab then sends the encrypted task to the server.
 
     See the `encryptAndSend` function in [send.html](app/send.html).
@@ -54,7 +52,7 @@ Frogtab Local does not include a self-hostable registration server.
 
     See [post-add-message.php](app/open/post-add-message.php).
 
- 5. Frogtab periodically checks for encrypted tasks.
+ 5. Your device periodically checks for encrypted tasks.
 
     The server requires the API key from step 2. This ensures that other devices cannot check for encrypted tasks.
     If there are encrypted tasks in the queue, your device downloads the encrypted tasks.
@@ -63,13 +61,13 @@ Frogtab Local does not include a self-hostable registration server.
 
     See [post-remove-messages.php](app/open/post-remove-messages.php).
 
- 6. Frogtab decrypts the tasks using the private key from step 1.
+ 6. Your device decrypts the tasks using the private key from step 1.
 
     See the `verifyUserAndAppendMessages` function in [main.js](app/main.js).
 
 ## Using your personal link from JavaScript
 
-After registering your device, you can use the JavaScript SDK to send messages to Frogtab:
+After registering your device, you can use the JavaScript SDK to send messages to your device:
 
 ```javascript
 let encryptAndSend = null;
