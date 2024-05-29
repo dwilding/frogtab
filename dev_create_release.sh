@@ -19,7 +19,7 @@ sed -i 's/data-registration=\"long\"/data-registration=\"short\"/' static/help.h
 sed -i 's/data-vibe=\"\"/data-vibe=\"👽 Send to your inbox…\"/' static/help.html
 sed -i 's/data-save=\"browser\"/data-save=\"service\"/' static/help.html static/index.html static/icon-*.html
 
-zip -r frogtab_local_v100.zip . -x .gitignore
-mv frogtab_local_v100.zip ..
+zip -r frogtab_local_v1xx.zip . -x .gitignore
+mv frogtab_local_v1xx.zip ..
 
 cd ..

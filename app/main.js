@@ -929,7 +929,9 @@ async function startApp() {
   window.addEventListener("storage", async () => {
     document.documentElement.setAttribute("data-theme", localStorage.getItem("ui.theme"));
     setAchievements();
-    setConfigureSave();
+    if (document.documentElement.getAttribute("data-save") == "service") {
+      setConfigureSave();
+    }
     if (!hasUserID && localStorage.getItem("user.userID") !== null) {
       hasUserID = true;
       await verifyUserAndAppendMessages();
