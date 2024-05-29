@@ -4,19 +4,14 @@
 
 <p><img alt="The Today view in Frogtab" src="app/help-today-light.png" width="480"></p>
 
-Learn more about Frogtab:
-
-  - [Full docs](https://frogtab.com/help)
-  - [Dev blog](https://maybecoding.bearblog.dev/blog/)
-
 In this README:
 
-  - [Data flow](#data-flow)
-  - [JavaScript SDK](#javascript-sdk)
+  - [How your personal link works](#how-your-personal-link-works)
+  - [Using your personal link from JavaScript](#using-your-personal-link-from-javascript)
   - [Acknowledgments](#acknowledgments)
   - [License](#license)
 
-## Data flow
+## How your personal link works
 
 Your data is stored in your browser's `localStorage`.
 
@@ -65,7 +60,7 @@ More details:
 
     See the `verifyUserAndAppendMessages` function in [main.js](app/main.js).
 
-## JavaScript SDK
+## Using your personal link from JavaScript
 
 If you have [registered your main device](https://frogtab.com/help#registering-for-a-personal-link), you can use the JavaScript SDK to send messages to Frogtab on your main device.
 For example:

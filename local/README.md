@@ -39,10 +39,10 @@ flask run --port 8080
     Instead, the Flask app can save backup files.
     This approach improves support for automatic backups and lets you add your own backup methods. See below for details.
 
-  - You can register for a personal link without sharing your experience of using Frogtab Local.
+  - You can register for a personal link without sending a comment.
 
-    > **NOTE:** If you register for a personal link, Frogtab Local tries to register with frogtab.com.
-    > Frogtab Local does not include a self-hostable registration server.
+    If you register for a personal link, Frogtab Local tries to register with frogtab.com.
+    Frogtab Local does not include a self-hostable registration server.
 
   - You can customize the placeholder text of your personal link.
     This is actually possible with frogtab.com too, but you have to manually adjust the URL of your personal link.
