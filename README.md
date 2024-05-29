@@ -6,64 +6,70 @@
 
 In this README:
 
+  - [Technical overview of Frogtab](#technical-overview-of-frogtab)
   - [How your personal link works](#how-your-personal-link-works)
   - [Using your personal link from JavaScript](#using-your-personal-link-from-javascript)
   - [Acknowledgments](#acknowledgments)
   - [License](#license)
 
+## Technical overview of Frogtab
+
+Frogtab runs in your browser and stores your data in [`localStorage`](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage).
+You can export your data at any time.
+If your browser supports [`showSaveFilePicker()`](https://developer.mozilla.org/en-US/docs/Web/API/Window/showSaveFilePicker), you can also enable automatic backups.
+
+Frogtab can't sync your data between devices.
+However, if you [register your main device](https://frogtab.com/help#registering-for-a-personal-link),
+the frogtab.com server creates a personal link that you can use to send tasks to your main device.
+
+If you prefer to self-host Frogtab, you can use [Frogtab Local](https://github.com/dwilding/frogtab/releases).
+Frogtab Local supports personal links, but your device will still be registered with frogtab.com.
+Frogtab Local does not include a self-hostable registration server.
+
 ## How your personal link works
 
-Your data is stored in your browser's `localStorage`.
-
-Frogtab can't sync data between devices. However, if you [register your main device](https://frogtab.com/help#registering-for-a-personal-link), you can send tasks to your main device from any device.
-This feature uses a server to relay tasks to your main device.
-
-More details:
-
- 1. When you register your main device, Frogtab generates a PGP key pair in your browser.
+ 1. When you register your device, Frogtab generates a PGP key pair in your browser.
 
     Frogtab then sends the public key to the server.
-    The private key never leaves your main device.
+    The private key never leaves your device.
 
     See the `register` function in [help.html](app/help.html).
 
- 2. The server generates a user ID and an API key for your main device:
+ 2. The server generates a user ID and an API key for your device:
 
-      - **User ID** - The public "address" of your main device
-      - **API key** - A non-public "password" for your main device
+      - **User ID** - The public "address" of your device
+      - **API key** - A non-public "password" for your device
 
     See [post-create-user.php](app/open/post-create-user.php).
 
- 3. Frogtab creates a personal link `https://frogtab.com/send#{id}`, where `{id}` is the user ID from step 2.
+    Your personal link is `https://frogtab.com/send#{id}`, where `{id}` is the user ID.
+    You can use your personal link to send tasks to Frogtab.
 
-    You can use your personal link to send tasks to your main device.
-
- 5. When you send a task, Frogtab first encrypts the task using the public key from step 1.
+ 3. When you send a task, Frogtab first encrypts the task using the public key from step 1.
     Frogtab then sends the encrypted task to the server.
 
     See the `encryptAndSend` function in [send.html](app/send.html).
 
- 7. The server queues the encrypted task.
+ 4. The server queues the encrypted task.
 
     See [post-add-message.php](app/open/post-add-message.php).
 
- 8. Frogtab on your main device periodically checks for encrypted tasks.
+ 5. Frogtab periodically checks for encrypted tasks.
 
     The server requires the API key from step 2. This ensures that other devices cannot check for encrypted tasks.
-    If there are encrypted tasks in the queue, your main device downloads the encrypted tasks.
+    If there are encrypted tasks in the queue, your device downloads the encrypted tasks.
 
-    The server clears the queue as soon as your main device has downloaded the encrypted tasks.
+    The server clears the queue as soon as your device has downloaded the encrypted tasks.
 
     See [post-remove-messages.php](app/open/post-remove-messages.php).
 
- 9. Frogtab decrypts the tasks using the private key from step 1.
+ 6. Frogtab decrypts the tasks using the private key from step 1.
 
     See the `verifyUserAndAppendMessages` function in [main.js](app/main.js).
 
 ## Using your personal link from JavaScript
 
-If you have [registered your main device](https://frogtab.com/help#registering-for-a-personal-link), you can use the JavaScript SDK to send messages to Frogtab on your main device.
-For example:
+After registering your device, you can use the JavaScript SDK to send messages to Frogtab:
 
 ```javascript
 let encryptAndSend = null;
