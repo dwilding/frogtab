@@ -32,7 +32,7 @@ Frogtab Local does not include a self-hostable registration server.
     Your device then sends the public key to the server.
     The private key never leaves your device.
 
-    See the `register` function in [help.html](app/help.html).
+    See `register()` in [help.html](app/help.html).
 
  2. The server generates a user ID and an API key for your device:
 
@@ -46,7 +46,7 @@ Frogtab Local does not include a self-hostable registration server.
  3. When you use your personal link to send a task, Frogtab first encrypts the task using the public key from step 1.
     Frogtab then sends the encrypted task to the server.
 
-    See the `encryptAndSend` function in [send.html](app/send.html).
+    See `encryptAndSend()` in [send.html](app/send.html).
 
  4. The server queues the encrypted task.
 
@@ -63,7 +63,7 @@ Frogtab Local does not include a self-hostable registration server.
 
  6. Your device decrypts the tasks using the private key from step 1.
 
-    See the `verifyUserAndAppendMessages` function in [main.js](app/main.js).
+    See `verifyUserAndAppendMessages()` in [main.js](app/main.js).
 
 ## Using your personal link from JavaScript
 
