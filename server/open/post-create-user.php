@@ -31,6 +31,9 @@ if (!str_starts_with($pgp_public_key, '-----BEGIN PGP PUBLIC KEY BLOCK-----')) {
   respond_with_failure();
 }
 
+// Connect to database
+$db = new PDO('sqlite:' . $_SERVER['DIR_DATA'] . '/sqlite.db');
+
 // Send comment to me (optional)
 if (
   array_key_exists('comment', $request_body)
@@ -53,9 +56,6 @@ if (
 // Generate credentials
 $user_id = Uuid::uuid4()->toString();
 $api_key = Uuid::uuid4()->toString();
-
-// Connect to database
-$db = new PDO('sqlite:' . $_SERVER['DIR_DATA'] . '/sqlite.db');
 
 // Add new user
 $insert_user = $db->prepare('INSERT INTO users (user_id, api_key, pgp_public_key) VALUES (:user_id, :api_key, :pgp_public_key)');
