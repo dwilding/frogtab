@@ -32,14 +32,15 @@ if (!array_key_exists('api_key', $request_body)) {
 $api_key = $request_body['api_key'];
 
 // Connect to database
-$db = new PDO('sqlite:' . $_SERVER['APP_DIR_DATA'] . '/sqlite.db');
+$db = new PDO('sqlite:' . $_SERVER['DIR_DATA'] . '/sqlite.db');
 
-// Verify credentials and remove user
-$delete_user = $db->prepare('DELETE FROM users WHERE user_id = :user_id AND api_key = :api_key');
-$delete_user->bindParam(':user_id', $user_id);
-$delete_user->bindParam(':api_key', $api_key);
-$delete_user->execute();
-if ($delete_user->rowCount() == 0) {
+// Verify credentials
+$select_user = $db->prepare('SELECT user_id FROM users WHERE user_id = :user_id AND api_key = :api_key');
+$select_user->bindParam(':user_id', $user_id);
+$select_user->bindParam(':api_key', $api_key);
+$select_user->execute();
+$select_user_result = $select_user->fetch(PDO::FETCH_ASSOC);
+if (!$select_user_result) {
   respond_with_failure();
 }
 

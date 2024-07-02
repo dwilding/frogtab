@@ -39,7 +39,7 @@ Frogtab Local does not include a self-hostable registration server.
       - **User ID** - The public "address" of your device
       - **API key** - A non-public "password" for your device
 
-    See [post-create-user.php](app/open/post-create-user.php).
+    See [post-create-user.php](server/open/post-create-user.php).
 
     Your personal link is `https://frogtab.com/send#{id}`, where `{id}` is the user ID.
 
@@ -50,7 +50,7 @@ Frogtab Local does not include a self-hostable registration server.
 
  4. The server queues the encrypted task.
 
-    See [post-add-message.php](app/open/post-add-message.php).
+    See [post-add-message.php](server/open/post-add-message.php).
 
  5. Your device periodically checks for encrypted tasks.
 
@@ -59,7 +59,7 @@ Frogtab Local does not include a self-hostable registration server.
 
     The server clears the queue as soon as your device has downloaded the encrypted tasks.
 
-    See [post-remove-messages.php](app/open/post-remove-messages.php).
+    See [post-remove-messages.php](server/open/post-remove-messages.php).
 
  6. Your device decrypts the tasks using the private key from step 1.
 

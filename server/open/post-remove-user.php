@@ -1,7 +1,5 @@
 <?php
 
-// TODO: REMOVE THIS ENDPOINT LATER
-
 header('Content-Type: application/json');
 
 function respond_with_failure() {
@@ -34,7 +32,7 @@ if (!array_key_exists('api_key', $request_body)) {
 $api_key = $request_body['api_key'];
 
 // Connect to database
-$db = new PDO('sqlite:' . $_SERVER['APP_DIR_DATA'] . '/sqlite.db');
+$db = new PDO('sqlite:' . $_SERVER['DIR_DATA'] . '/sqlite.db');
 
 // Verify credentials and remove user
 $delete_user = $db->prepare('DELETE FROM users WHERE user_id = :user_id AND api_key = :api_key');

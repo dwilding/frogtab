@@ -35,7 +35,7 @@ if (!str_starts_with($message, '-----BEGIN PGP MESSAGE-----')) {
 }
 
 // Connect to database
-$db = new PDO('sqlite:' . $_SERVER['APP_DIR_DATA'] . '/sqlite.db');
+$db = new PDO('sqlite:' . $_SERVER['DIR_DATA'] . '/sqlite.db');
 
 // Check whether user exists
 $select_user = $db->prepare('SELECT user_id FROM users WHERE user_id = :user_id');

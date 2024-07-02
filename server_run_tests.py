@@ -4,6 +4,8 @@
 
 import requests
 
+SERVER_BASE = 'https://frogtab.com'
+
 def success_body(response):
     assert response.status_code == 200
     data = response.json()
@@ -17,7 +19,7 @@ def failure_only(response):
     assert data.keys() == {'success'}
     assert not data['success']
 
-print("TEST: Register a user")
+print('TEST: Register a user')
 PGP_PUBLIC_KEY = '''-----BEGIN PGP PUBLIC KEY BLOCK-----
 
 xjMEZQKv7RYJKwYBBAHaRw8BAQdAQ4PrjRAjxXcDCAyXk9e8uzxh7PgeOqyl
@@ -42,28 +44,33 @@ nQ63YgNib+ELXl44Hu8tEjYY65R3sBk8lCv67eY6UQKP
 =9WlR
 -----END PGP MESSAGE-----
 '''
-registration_data = success_body(requests.post('https://frogtab.com/open/post-create-user', json={
-    'pgp_public_key': PGP_PUBLIC_KEY,
-    'comment': ENCRYPTED_COMMENT
-}))
+if (SERVER_BASE == 'https://frogtab.com'):
+    registration_data = success_body(requests.post(f'{SERVER_BASE}/open/post-create-user', json={
+        'pgp_public_key': PGP_PUBLIC_KEY,
+        'comment': ENCRYPTED_COMMENT
+    }))
+else:
+    registration_data = success_body(requests.post(f'{SERVER_BASE}/open/post-create-user', json={
+        'pgp_public_key': PGP_PUBLIC_KEY
+    }))
 assert 'user' in registration_data
 assert 'user_id' in registration_data['user']
 user_id = registration_data['user']['user_id']
 assert 'api_key' in registration_data['user']
 api_key = registration_data['user']['api_key']
 
-print(f"        - user_id = {user_id}")
-print(f"        - api_key = {api_key}")
+print(f'        - user_id = {user_id}')
+print(f'        - api_key = {api_key}')
 
-print("TEST: Look up the user's public key")
-user_data = success_body(requests.get(f"https://frogtab.com/open/get-user?user_id={user_id}"))
+print('TEST: Look up the user\'s public key')
+user_data = success_body(requests.get(f'{SERVER_BASE}/open/get-user?user_id={user_id}'))
 assert 'user' in user_data
 assert 'user_id' in user_data['user']
 assert user_data['user']['user_id'] == user_id
 assert 'pgp_public_key' in user_data['user']
 assert user_data['user']['pgp_public_key'] == PGP_PUBLIC_KEY
 
-print("TEST: Send a message to the user")
+print('TEST: Send a message to the user')
 ENCRYPTED_MESSAGE_1 = '''-----BEGIN PGP MESSAGE-----
 
 wV4DMgVFzGEeJ8ESAQdAGHDeMR7jibhWOOb2epDsSBfnnvoEnfBl71uYESao
@@ -73,12 +80,12 @@ aGPnkRKd0joBEfrQpCBBgk5dk5EUagkFhpeX5H87j0aBgl58J7sJrIbVEZrZ
 =wMdo
 -----END PGP MESSAGE-----
 '''
-success_body(requests.post('https://frogtab.com/open/post-add-message', json={
+success_body(requests.post(f'{SERVER_BASE}/open/post-add-message', json={
     'user_id': user_id,
     'message': ENCRYPTED_MESSAGE_1
 }))
 
-print("TEST: Send another message to the user")
+print('TEST: Send another message to the user')
 ENCRYPTED_MESSAGE_2 = '''-----BEGIN PGP MESSAGE-----
 
 wV4DMgVFzGEeJ8ESAQdAc9bX6vREt3HHgGDIu2su4JBK3XZHYsya0tt4oAE4
@@ -88,41 +95,41 @@ as8Pa3Bs0joBMRfP12XTSJVxP86E43KBvuumh1/GesM/Lm/D2N47UnIlDdwr
 =HIoH
 -----END PGP MESSAGE-----
 '''
-success_body(requests.post('https://frogtab.com/open/post-add-message', json={
+success_body(requests.post(f'{SERVER_BASE}/open/post-add-message', json={
     'user_id': user_id,
     'message': ENCRYPTED_MESSAGE_2
 }))
 
-print("TEST: Fail to verify the user if no API key is provided")
-failure_only(requests.post('https://frogtab.com/open/post-verify-user', json={
+print('TEST: Fail to verify the user if no API key is provided')
+failure_only(requests.post(f'{SERVER_BASE}/open/post-verify-user', json={
     'user_id': user_id
 }))
 
-print("TEST: Fail to verify the user if the wrong API key is provided")
-failure_only(requests.post('https://frogtab.com/open/post-verify-user', json={
+print('TEST: Fail to verify the user if the wrong API key is provided')
+failure_only(requests.post(f'{SERVER_BASE}/open/post-verify-user', json={
     'user_id': user_id,
     'api_key': '0123456789abcdef'
 }))
 
-print("TEST: Verify the user")
-success_body(requests.post('https://frogtab.com/open/post-verify-user', json={
+print('TEST: Verify the user')
+success_body(requests.post(f'{SERVER_BASE}/open/post-verify-user', json={
     'user_id': user_id,
     'api_key': api_key
 }))
 
-print("TEST: Fail to check the user's messages if no API key is provided")
-failure_only(requests.post('https://frogtab.com/open/post-remove-messages', json={
+print('TEST: Fail to check the user\'s messages if no API key is provided')
+failure_only(requests.post(f'{SERVER_BASE}/open/post-remove-messages', json={
     'user_id': user_id
 }))
 
-print("TEST: Fail to check the user's messages if the wrong API key is provided")
-failure_only(requests.post('https://frogtab.com/open/post-remove-messages', json={
+print('TEST: Fail to check the user\'s messages if the wrong API key is provided')
+failure_only(requests.post(f'{SERVER_BASE}/open/post-remove-messages', json={
     'user_id': user_id,
     'api_key': '0123456789abcdef'
 }))
 
-print("TEST: Check the user's messages")
-message_data = success_body(requests.post('https://frogtab.com/open/post-remove-messages', json={
+print('TEST: Check the user\'s messages')
+message_data = success_body(requests.post(f'{SERVER_BASE}/open/post-remove-messages', json={
     'user_id': user_id,
     'api_key': api_key
 }))
@@ -132,8 +139,8 @@ assert len(message_data['messages']) == 2
 assert message_data['messages'][0] == ENCRYPTED_MESSAGE_1
 assert message_data['messages'][1] == ENCRYPTED_MESSAGE_2
 
-print("TEST: Now there are no messages on the server")
-message_data_none = success_body(requests.post('https://frogtab.com/open/post-remove-messages', json={
+print('TEST: Now there are no messages on the server')
+message_data_none = success_body(requests.post(f'{SERVER_BASE}/open/post-remove-messages', json={
     'user_id': user_id,
     'api_key': api_key
 }))
@@ -141,46 +148,46 @@ assert 'messages' in message_data_none
 assert isinstance(message_data_none['messages'], list)
 assert len(message_data_none['messages']) == 0
 
-print("TEST: Fail to remove the user if no API key is provided")
-failure_only(requests.post('https://frogtab.com/open/post-remove-user', json={
+print('TEST: Fail to remove the user if no API key is provided')
+failure_only(requests.post(f'{SERVER_BASE}/open/post-remove-user', json={
     'user_id': user_id
 }))
 
-print("TEST: Fail to remove the user if the wrong API key is provided")
-failure_only(requests.post('https://frogtab.com/open/post-remove-user', json={
+print('TEST: Fail to remove the user if the wrong API key is provided')
+failure_only(requests.post(f'{SERVER_BASE}/open/post-remove-user', json={
     'user_id': user_id,
     'api_key': '0123456789abcdef'
 }))
 
-print("TEST: Remove the user")
-success_body(requests.post('https://frogtab.com/open/post-remove-user', json={
+print('TEST: Remove the user')
+success_body(requests.post(f'{SERVER_BASE}/open/post-remove-user', json={
     'user_id': user_id,
     'api_key': api_key
 }))
 
-print("TEST: Fail to look up the user's public key")
-failure_only(requests.get(f"https://frogtab.com/open/get-user?user_id={user_id}"))
+print('TEST: Fail to look up the user\'s public key')
+failure_only(requests.get(f'{SERVER_BASE}/open/get-user?user_id={user_id}'))
 
-print("TEST: Fail to send a message to the user")
-failure_only(requests.post('https://frogtab.com/open/post-add-message', json={
+print('TEST: Fail to send a message to the user')
+failure_only(requests.post(f'{SERVER_BASE}/open/post-add-message', json={
     'user_id': user_id,
     'message': ENCRYPTED_MESSAGE_1
 }))
 
-print("TEST: Fail to verify the user")
-failure_only(requests.post('https://frogtab.com/open/post-verify-user', json={
+print('TEST: Fail to verify the user')
+failure_only(requests.post(f'{SERVER_BASE}/open/post-verify-user', json={
     'user_id': user_id,
     'api_key': api_key
 }))
 
-print("TEST: Fail to check the user's messages")
-failure_only(requests.post('https://frogtab.com/open/post-remove-messages', json={
+print('TEST: Fail to check the user\'s messages')
+failure_only(requests.post(f'{SERVER_BASE}/open/post-remove-messages', json={
     'user_id': user_id,
     'api_key': api_key
 }))
 
-print("TEST: Fail to remove the user")
-failure_only(requests.post('https://frogtab.com/open/post-remove-user', json={
+print('TEST: Fail to remove the user')
+failure_only(requests.post(f'{SERVER_BASE}/open/post-remove-user', json={
     'user_id': user_id,
     'api_key': api_key
 }))
