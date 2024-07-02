@@ -10,8 +10,9 @@ cp -r ../app static
 cp ../LICENSE .
 cp ../LICENSE_openpgp .
 
-sed -i 's/data-save=\"browser\"/data-save=\"service\"/' static/index.html static/icon-*.html static/help.html
-sed -i 's/data-vibe=\"\"/data-vibe=\"👽 Send to your inbox…\"/' static/help.html
+sed -i'.backup' 's/data-save=\"browser\"/data-save=\"service\"/' static/index.html static/icon-*.html static/help.html
+sed -i'.backup' 's/data-vibe=\"\"/data-vibe=\"👽 Send to your inbox…\"/' static/help.html
+rm static/*.backup
 
 zip -r frogtab_local_v1xx.zip . -x .gitignore
 mv frogtab_local_v1xx.zip ..
