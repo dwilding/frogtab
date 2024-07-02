@@ -44,7 +44,7 @@ nQ63YgNib+ELXl44Hu8tEjYY65R3sBk8lCv67eY6UQKP
 =9WlR
 -----END PGP MESSAGE-----
 '''
-if (SERVER_BASE == 'https://frogtab.com'):
+if SERVER_BASE == 'https://frogtab.com':
     registration_data = success_body(requests.post(f'{SERVER_BASE}/open/post-create-user', json={
         'pgp_public_key': PGP_PUBLIC_KEY,
         'comment': ENCRYPTED_COMMENT
