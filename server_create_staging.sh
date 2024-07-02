@@ -1,5 +1,7 @@
 #!/usr/bin/bash
 
+shopt -s dotglob
+
 rm -rf staging
 mkdir staging
 cp -r server/* staging
