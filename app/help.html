@@ -759,19 +759,24 @@
           if (openpgp === undefined) {
             openpgp = await import("./openpgp.min.mjs?sha1=d8be3df37beb5a45d966a4d4920508fe2b6f79ed");
           }
-          const encryptedComment = await openpgp.encrypt({
-            message: await openpgp.createMessage({
-              text: `Registration: ${dom.comment.value}`
-            }),
-            encryptionKeys: await openpgp.readKey({
-              armoredKey: "-----BEGIN PGP PUBLIC KEY BLOCK-----\n\nxjMEZC0XTRYJKwYBBAHaRw8BAQdAQGn1uwsmrmyNDjJEpBItytslxrvK0Iym\nKrSeCQaWOv7NNzx1c2VyXzAzYWU2YjZmLTExMzQtNGU3Yi04M2VkLWRlYWFl\nNGI1M2FmN0Bmcm9ndGFiLmNvbT7CjAQQFgoAPgWCZC0XTQQLCQcICZDHWnmD\n1b6y2wMVCAoEFgACAQIZAQKbAwIeARYhBOsq7cBWQAUaO3W7VMdaeYPVvrLb\nAACwZQD+J8iHCcZwYwO3U/5dUu0fKR9iCInWlFk23UTgzUFkCS4BAILb2Xzy\nMORtPHGaBqUP0v7XbnnigyCwC2zg1JiJ5bIOzjgEZC0XTRIKKwYBBAGXVQEF\nAQEHQCbGVL7Nh+2kYvX2W6FTK7f/n7Fo7OclmEOS3xjUzEs0AwEIB8J4BBgW\nCAAqBYJkLRdNCZDHWnmD1b6y2wKbDBYhBOsq7cBWQAUaO3W7VMdaeYPVvrLb\nAABb/gEApI8wmO4HQ82pTMg2POA/AT85AseK3lv4ds1Mz6W5p48A/jbtMsAG\nn5seyoPf02oOSmPmNr7OhtP/19HeoY6Sj1IG\n=PY9A\n-----END PGP PUBLIC KEY BLOCK-----\n"
-            })
-          });
           const pgpKey = await openpgp.generateKey({
             userIDs: [{
               email: `key+${crypto.randomUUID()}@frogtab.com`
             }]
           });
+          const requestBody = {
+            pgp_public_key: pgpKey.publicKey
+          };
+          if (document.documentElement.getAttribute("data-registration") == "long") {
+            requestBody.comment = await openpgp.encrypt({
+              message: await openpgp.createMessage({
+                text: `Registration: ${dom.comment.value}`
+              }),
+              encryptionKeys: await openpgp.readKey({
+                armoredKey: "-----BEGIN PGP PUBLIC KEY BLOCK-----\n\nxjMEZC0XTRYJKwYBBAHaRw8BAQdAQGn1uwsmrmyNDjJEpBItytslxrvK0Iym\nKrSeCQaWOv7NNzx1c2VyXzAzYWU2YjZmLTExMzQtNGU3Yi04M2VkLWRlYWFl\nNGI1M2FmN0Bmcm9ndGFiLmNvbT7CjAQQFgoAPgWCZC0XTQQLCQcICZDHWnmD\n1b6y2wMVCAoEFgACAQIZAQKbAwIeARYhBOsq7cBWQAUaO3W7VMdaeYPVvrLb\nAACwZQD+J8iHCcZwYwO3U/5dUu0fKR9iCInWlFk23UTgzUFkCS4BAILb2Xzy\nMORtPHGaBqUP0v7XbnnigyCwC2zg1JiJ5bIOzjgEZC0XTRIKKwYBBAGXVQEF\nAQEHQCbGVL7Nh+2kYvX2W6FTK7f/n7Fo7OclmEOS3xjUzEs0AwEIB8J4BBgW\nCAAqBYJkLRdNCZDHWnmD1b6y2wKbDBYhBOsq7cBWQAUaO3W7VMdaeYPVvrLb\nAABb/gEApI8wmO4HQ82pTMg2POA/AT85AseK3lv4ds1Mz6W5p48A/jbtMsAG\nn5seyoPf02oOSmPmNr7OhtP/19HeoY6Sj1IG\n=PY9A\n-----END PGP PUBLIC KEY BLOCK-----\n"
+              })
+            });
+          }
           let response;
           try {
             response = await fetch(`${serverBase}/open/post-create-user`, {
@@ -779,10 +784,7 @@
               headers: {
                 "Content-Type": "application/json"
               },
-              body: JSON.stringify({
-                pgp_public_key: pgpKey.publicKey,
-                comment: encryptedComment
-              })
+              body: JSON.stringify(requestBody)
             });
           }
           catch (err) {
@@ -803,8 +805,10 @@
         });
         dom.caseRegistering.classList.remove("display");
         if (verifiedUser) {
-          dom.comment.value = "";
-          dom.register.disabled = true;
+          if (document.documentElement.getAttribute("data-registration") == "long") {
+            dom.comment.value = "";
+            dom.register.disabled = true;
+          }
           dom.caseRegistered.classList.add("display");
           dom.link.href = getPersonalLink();
         }
@@ -987,7 +991,6 @@
           });
         }
         else {
-          dom.comment.value = "[comment not required]";
           dom.register.disabled = false;
           dom.register.innerText = "Register This Device";
         }
