@@ -1,6 +1,7 @@
 #!/usr/bin/bash
 
 rm -rf staging
+mkdir staging
 cp -r server/* staging
 cp -r app/* staging
 
