@@ -22,9 +22,7 @@ Frogtab can't sync your data between devices.
 However, if you [register your main device](https://frogtab.com/help#registering-for-a-personal-link),
 the frogtab.com server creates a personal link that you can use to send tasks to your main device.
 
-If you prefer to self-host Frogtab, you can use [Frogtab Local](https://github.com/dwilding/frogtab/releases).
-Frogtab Local supports personal links, but your device will be registered with frogtab.com.
-Frogtab Local does not include a self-hostable registration server.
+You can use Frogtab offline by running [Frogtab Local](https://github.com/dwilding/frogtab/releases) on your computer.
 
 ## How your personal link works
 
