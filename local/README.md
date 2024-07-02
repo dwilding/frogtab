@@ -4,6 +4,9 @@ Frogtab Local is a version of https://frogtab.com that you can run on your compu
 Frogtab Local is implemented as a Flask app that runs in development mode.
 You're encouraged to tinker with the app!
 
+Frogtab Local supports personal links, but your device will be registered with frogtab.com.
+Frogtab Local does not include a registration server.
+
 ## Requirements
 
   - Python 3.8 or later. See https://www.python.org/downloads/
@@ -39,7 +42,7 @@ flask run --port 8080
     Instead, the Flask app can save backup files.
     This approach improves support for automatic backups and lets you add your own backup methods. See below for details.
 
-  - You can register for a personal link from frogtab.com without sending a comment.
+  - You can register for a personal link without sending a comment.
 
   - You can customize the placeholder text of your personal link.
     This is actually possible with frogtab.com too, but you have to manually adjust the URL of your personal link.
