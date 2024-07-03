@@ -15,3 +15,5 @@ rm *.backup
 cd ..
 zip -r frogtab_local_v1xx.zip .
 mv frogtab_local_v1xx.zip ..
+
+cd ..

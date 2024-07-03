@@ -9,3 +9,5 @@ rm *.backup
 
 cd ../packages
 composer install
+
+cd ../..
