@@ -1,5 +1,5 @@
-SetEnv DIR_PACKAGES /path/to/packages
-SetEnv DIR_DATA /path/to/data
+SetEnv DIR_PACKAGES /home/server/packages
+SetEnv DIR_DATA /home/server/data
 RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME}.php -f
