@@ -38,7 +38,7 @@ the frogtab.com server creates a personal link that you can use to send tasks to
       - **User ID** - The public "address" of your device
       - **API key** - A non-public "password" for your device
 
-    See [post-create-user.php](server/open/post-create-user.php).
+    See [post-create-user.php](server/public/open/post-create-user.php).
 
     Your personal link is `https://frogtab.com/send#{id}`, where `{id}` is the user ID.
 
@@ -49,7 +49,7 @@ the frogtab.com server creates a personal link that you can use to send tasks to
 
  4. The server queues the encrypted task.
 
-    See [post-add-message.php](server/open/post-add-message.php).
+    See [post-add-message.php](server/public/open/post-add-message.php).
 
  5. Your device periodically checks for encrypted tasks.
 
@@ -58,7 +58,7 @@ the frogtab.com server creates a personal link that you can use to send tasks to
 
     The server clears the queue as soon as your device has downloaded the encrypted tasks.
 
-    See [post-remove-messages.php](server/open/post-remove-messages.php).
+    See [post-remove-messages.php](server/public/open/post-remove-messages.php).
 
  6. Your device decrypts the tasks using the private key from step 1.
 
