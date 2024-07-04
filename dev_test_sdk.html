@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+  </head>
+  <body>
+    <script>
+      let encryptAndSend = null;
+
+      async function send(message) {
+        try {
+          if (!encryptAndSend) {
+            const frogtab = await import("https://frogtab.com/open/sdk.js");
+            encryptAndSend = await frogtab.connectToInbox("03ae6b6f-1134-4e7b-83ed-deaae4b53af7");
+          }
+          return await encryptAndSend(message);
+        }
+        catch (err) {
+          return false;
+        }
+      }
+
+      send("Hello Frogtab!").then(success => {
+        console.log(success);
+      });
+    </script>
+  </body>
+</html>
