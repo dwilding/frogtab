@@ -9,6 +9,7 @@ In this README:
   - [Technical overview of Frogtab](#technical-overview-of-frogtab)
   - [How your personal link works](#how-your-personal-link-works)
   - [Using your personal link from JavaScript](#using-your-personal-link-from-javascript)
+  - [Self-hosting Frogtab](#self-hosting-frogtab)
   - [Acknowledgments](#acknowledgments)
   - [License](#license)
 
@@ -92,6 +93,30 @@ send("Hello Frogtab!").then(success => {
 Replace `USER ID GOES HERE` by the ID from the URL of your personal link.
 
 To learn more, see [this blog post](https://maybecoding.bearblog.dev/adding-a-private-feedback-box-to-bear/).
+
+## Self-hosting Frogtab
+
+You'll need an Apache server that has PHP and [Composer](https://getcomposer.org/) installed.
+
+To install Frogtab on your own server:
+
+ 1. Open a shell on your server, then navigate to a directory that is accessible to PHP scripts but not accessible via the web.
+
+ 2. Enter the following commands:
+
+    ```sh
+    git clone "https://github.com/dwilding/frogtab.git"
+    cd frogtab
+    ./dev_build_server.sh
+    ```
+
+ 3. Copy the contents of *frogtab/server/public* to a directory that is accessible via the web.
+    Make sure that the *.htaccess* files in *frogtab/server/public* and *frogtab/server/public/open* are copied.
+
+Frogtab is ready! To use Frogtab, open your browser, then navigate to the web-accessible directory from step 3.
+
+The first time you register a device, Frogtab creates a SQLite database called *frogtab.db* in the directory from step 1.
+The database stores device credentials and the queue of encrypted tasks.
 
 ## Acknowledgments
 

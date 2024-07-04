@@ -5,7 +5,8 @@ Frogtab Local is implemented as a Flask app that runs in development mode.
 You're encouraged to tinker with the app!
 
 Frogtab Local supports personal links, but your device will be registered with frogtab.com.
-Frogtab Local does not include a registration server.
+If you self-host Frogtab, you can configure Frogtab Local to use your own server instead.
+See below for details.
 
 ## Requirements
 
@@ -60,6 +61,20 @@ def save_to_desktop(data):
 
 The `data` parameter is a dictionary that contains the backup data from your browser.
 The argument to `@backup` is the name of the backup method that will appear on the help page of Frogtab Local.
+
+## Using a self-hosted server for personal links
+
+If you have installed Frogtab on your own server, you can configure Frogtab Local to use your server for personal links.
+To learn how to install Frogtab on your server, see https://github.com/dwilding/frogtab#self-hosting-frogtab.
+
+After installing Frogtab on your server, modify the `data-server-base` attribute at the top of the following files:
+
+  - *static/index.html*
+  - *static/icon-normal.html*
+  - *static/icon-notify.html*
+  - *static/help.html*
+
+In the `data-server-base` attribute, replace `https://frogtab.com/` by the URL of your installation of Frogtab.
 
 ## License
 Frogtab Local is licensed under the MIT License.
