@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/sh
 
 cp LICENSE local
 cp LICENSE_openpgp local

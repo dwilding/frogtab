@@ -1,5 +1,8 @@
-#!/usr/bin/bash
+#!/bin/sh
 
+DIR_CALLER="$(pwd)"
+
+cd "$(dirname "$0")" # cd to repo root
 cp -r app/* server/public
 
 cd server/public
@@ -10,4 +13,4 @@ rm *.backup
 cd ../packages
 composer install
 
-cd ../..
+cd "$DIR_CALLER"
