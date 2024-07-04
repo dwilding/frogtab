@@ -1,11 +1,14 @@
 import * as openpgp from "https://unpkg.com/openpgp@5.x/dist/openpgp.min.mjs";
 
+
 // v2 interface
+
+const apiBase = import.meta.url.replace(/\/sdk\.js.*$/, "");
 
 export async function connectToInbox(userID) {
   let responseGetUser;
   try {
-    responseGetUser = await fetch(`https://frogtab.com/open/get-user?user_id=${encodeURIComponent(userID)}`);
+    responseGetUser = await fetch(`${apiBase}/get-user?user_id=${encodeURIComponent(userID)}`);
   }
   catch (err) {
     throw new Error("Cannot connect to inbox");
@@ -29,7 +32,7 @@ export async function connectToInbox(userID) {
     });
     let responseAddMessage;
     try {
-      responseAddMessage = await fetch("https://frogtab.com/open/post-add-message", {
+      responseAddMessage = await fetch(`${apiBase}/post-add-message`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -50,6 +53,7 @@ export async function connectToInbox(userID) {
     return resultAddMessage.success;
   };
 }
+
 
 // v1 interface
 
