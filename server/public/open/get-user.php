@@ -16,7 +16,7 @@ if (empty($_GET['user_id'])) {
 $user_id = $_GET['user_id'];
 
 // Connect to database
-$db = new PDO('sqlite:' . $_SERVER['DIR_DATA'] . '/sqlite.db');
+$db = new PDO('sqlite:' . $_SERVER['FILE_SQLITEDB']);
 
 // Try to select user
 $select_user = $db->prepare('SELECT user_id, pgp_public_key FROM users WHERE user_id = :user_id');

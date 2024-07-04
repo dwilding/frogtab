@@ -32,7 +32,7 @@ if (!array_key_exists('api_key', $request_body)) {
 $api_key = $request_body['api_key'];
 
 // Connect to database
-$db = new PDO('sqlite:' . $_SERVER['DIR_DATA'] . '/sqlite.db');
+$db = new PDO('sqlite:' . $_SERVER['FILE_SQLITEDB']);
 
 // Verify credentials
 $select_user = $db->prepare('SELECT user_id FROM users WHERE user_id = :user_id AND api_key = :api_key');

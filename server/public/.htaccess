@@ -1,8 +1,0 @@
-SetEnv DIR_PACKAGES /home/server/packages
-SetEnv DIR_DATA /home/server/data
-RewriteEngine On
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME}.php -f
-RewriteRule ^([^\.]+)$ $1.php [L]
-RewriteCond %{REQUEST_FILENAME}.html -f
-RewriteRule ^([^\.]+)$ $1.html [L]

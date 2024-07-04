@@ -32,7 +32,24 @@ if (!str_starts_with($pgp_public_key, '-----BEGIN PGP PUBLIC KEY BLOCK-----')) {
 }
 
 // Connect to database
-$db = new PDO('sqlite:' . $_SERVER['DIR_DATA'] . '/sqlite.db');
+if (file_exists($_SERVER['FILE_SQLITEDB'])) {
+  $db = new PDO('sqlite:' . $_SERVER['FILE_SQLITEDB']);
+}
+else {
+  $db = new PDO('sqlite:' . $_SERVER['FILE_SQLITEDB']);
+  $db->exec('CREATE TABLE users (
+          user_id TEXT PRIMARY KEY,
+          api_key TEXT NOT NULL,
+          pgp_public_key TEXT NOT NULL
+      );'
+  );
+  $db->exec('CREATE TABLE messages (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          for TEXT NOT NULL,
+          message TEXT NOT NULL
+      );'
+  );
+}
 
 // Send comment to me (optional)
 if (
