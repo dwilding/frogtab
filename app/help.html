@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-server-base="https://frogtab.com" data-registration="short" data-vibe="" data-save="browser" data-theme="system">
+<html lang="en" data-server-base="https://frogtab.com/" data-registration="short" data-vibe="" data-save="browser" data-theme="system">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -709,7 +709,7 @@
         ]);
       }
       function getPersonalLink() {
-        let personalLink = `${serverBase}/send#${localStorage.getItem("user.userID")}`;
+        let personalLink = `${serverBase}send#${localStorage.getItem("user.userID")}`;
         const vibe = document.documentElement.getAttribute("data-vibe");
         if (vibe != "") {
           personalLink = `${personalLink}/${encodeURIComponent(vibe)}`;
@@ -723,7 +723,7 @@
           }
           let response;
           try {
-            response = await fetch(`${serverBase}/open/post-verify-user`, {
+            response = await fetch(`${serverBase}open/post-verify-user`, {
               method: "POST",
               headers: {
                 "Content-Type": "application/json"
@@ -779,7 +779,7 @@
           }
           let response;
           try {
-            response = await fetch(`${serverBase}/open/post-create-user`, {
+            response = await fetch(`${serverBase}open/post-create-user`, {
               method: "POST",
               headers: {
                 "Content-Type": "application/json"
@@ -822,7 +822,7 @@
         await delayForUX(async () => {
           let response;
           try {
-            response = await fetch(`${serverBase}/open/post-remove-user`, {
+            response = await fetch(`${serverBase}open/post-remove-user`, {
               method: "POST",
               headers: {
                 "Content-Type": "application/json"

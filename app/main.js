@@ -501,7 +501,7 @@ async function verifyUserAndAppendMessages() {
   lastAppend = Date.now();
   let response;
   try {
-    response = await fetch(`${serverBase}/open/post-remove-messages`, {
+    response = await fetch(`${serverBase}open/post-remove-messages`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
