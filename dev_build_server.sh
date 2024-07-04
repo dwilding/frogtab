@@ -16,9 +16,9 @@ SetEnv FILE_SQLITEDB "$DIR_CALLER/frogtab.db"
 RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME}.php -f
-RewriteRule ^([^\.]+)$ $1.php [L]
+RewriteRule ^([^\.]+)$ \$1.php [L]
 RewriteCond %{REQUEST_FILENAME}.html -f
-RewriteRule ^([^\.]+)$ $1.html [L]
+RewriteRule ^([^\.]+)$ \$1.html [L]
 EOF
 
 cd ../packages
