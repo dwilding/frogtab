@@ -1,5 +1,7 @@
+from pathlib import Path
 from json import dump
 
+working_dir = Path.cwd()
 methods = {}
 
 def backup(desc):

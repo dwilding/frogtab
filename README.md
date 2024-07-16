@@ -8,6 +8,7 @@ In this README:
 
   - [Technical overview of Frogtab](#technical-overview-of-frogtab)
   - [How your personal link works](#how-your-personal-link-works)
+  - [Customizing the placeholder text of your personal link](#customizing-the-placeholder-text-of-your-personal-link)
   - [Using your personal link from JavaScript](#using-your-personal-link-from-javascript)
   - [Self-hosting Frogtab](#self-hosting-frogtab)
   - [Acknowledgments](#acknowledgments)
@@ -65,6 +66,17 @@ the frogtab.com server creates a personal link that you can use to send tasks to
 
     See `verifyUserAndAppendMessages()` in [main.js](app/main.js).
 
+## Customizing the placeholder text of your personal link
+
+By default, the placeholder text of your personal link is "Send to your inbox…".
+You can override the default placeholder text to help you identify the device that you're sending tasks to.
+
+To override the default placeholder text, add `/{text}` to the end of your personal link, where `{text}` is your preferred placeholder text.
+Make sure that any special characters in the placeholder text are correctly [percent-encoded](https://developer.mozilla.org/en-US/docs/Glossary/Percent-encoding) in your personal link.
+For example, to use "Send to Linux desktop…" as the placeholder text, add `/Send%20to%20Linux%20desktop%E2%80%A6` to the end of your personal link.
+
+To override the default placeholder text and automatically use the correct encoding, open your personal link in your browser, then enter `setPlaceholder("Custom placeholder text")` in the web console.
+
 ## Using your personal link from JavaScript
 
 After registering your device, you can use the JavaScript SDK to send messages to your device:
@@ -90,7 +102,7 @@ send("Hello Frogtab!").then(success => {
 });
 ```
 
-Replace `USER ID GOES HERE` by the ID from the URL of your personal link.
+Replace `USER ID GOES HERE` by the ID from your personal link.
 
 To learn more, see [this blog post](https://maybecoding.bearblog.dev/adding-a-private-feedback-box-to-bear/).
 
@@ -133,7 +145,7 @@ This database stores device credentials and the queue of encrypted tasks.
 Frogtab is licensed under the MIT License.
 For details, see [LICENSE](LICENSE).
 
-Frogtab uses OpenPGP.js for PGP encryption and decryption.
+Frogtab uses OpenPGP.js for PGP encryption.
+The source code of OpenPGP.js is available at https://github.com/openpgpjs/openpgpjs.
 OpenPGP.js is licensed under the GNU Lesser General Public License.
 For details, see [LICENSE_openpgp](LICENSE_openpgp).
-The source code of OpenPGP.js is available at https://github.com/openpgpjs/openpgpjs.

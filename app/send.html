@@ -222,6 +222,11 @@
             }
             catch (err) {}
           }
+          setPlaceholder = (text = "Send to your inbox…") => {
+            window.history.replaceState(null, "", `#${userID}/${encodeURIComponent(text)}`);
+            dom.editor.placeholder = text;
+            return text;
+          };
           setSendCloud();
         }
         dom.send.addEventListener("mouseenter", () => {
@@ -254,6 +259,7 @@
       let userID = null;
       let pgpPublicKeyObj = null;
       let openpgp;
+      let setPlaceholder;
       startApp();
     </script>
   </body>

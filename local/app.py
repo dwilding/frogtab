@@ -1,6 +1,6 @@
 from flask import Flask, send_from_directory, request
-from functions import list_methods, save_data
-import config
+from frogtab_helpers import list_methods, save_data
+from config import local_port
 
 app = Flask(__name__, static_url_path='/')
 
@@ -24,3 +24,6 @@ def post_data():
     body = request.get_json()
     key = body['key']
     return save_data(key, body['data'])
+
+if __name__ == '__main__':
+    app.run(port=local_port)

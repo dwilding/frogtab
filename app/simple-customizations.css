@@ -99,6 +99,9 @@ img.dark-only {
 :root[data-registration="short"] .long-registration-only {
   display: none;
 }
+:root[data-registration="long"] .short-registration-only {
+  display: none;
+}
 /* Hide parts of the data export help */
 :root[data-save="service"] .browser-save-only {
   display: none;

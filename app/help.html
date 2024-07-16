@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-server-base="https://frogtab.com/" data-registration="short" data-vibe="" data-save="browser" data-theme="system">
+<html lang="en" data-server-base="https://frogtab.com/" data-registration="short" data-save="browser" data-theme="system">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,7 +10,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="favicons/icon-180-apple.png">
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="stylesheet" href="simple.min.css?sha1=24725a1eaf66103ed47a6d30f82c9273a50334c1">
-    <link rel="stylesheet" href="simple-customizations.css?sha1=51841d44b30c46cb6a3b9b4fea851fdfeff06b2d">
+    <link rel="stylesheet" href="simple-customizations.css?sha1=0bb2de2dbacefa4f4c8ede18700f56ad4fa48fea">
   </head>
   <body>
     <header>
@@ -133,7 +133,7 @@
         </div>
         <div id="case-unregistered">
           <p>
-            You have not registered this device.<span class="long-registration-only"> To register this device, please share your experience of using Frogtab - thank you!</span>
+            You have not registered this device<span class="short-registration-only"> with <span class="server-hostname"></span></span>.<span class="long-registration-only"> To register this device, please share your experience of using Frogtab - thank you!</span>
           </p>
           <div class="long-registration-only">
             <input id="comment" style="width: 100%" type="text" placeholder="Your experience…">
@@ -152,7 +152,7 @@
         </div>
         <div id="case-registered">
           <p>
-            You have registered this device.
+            You have registered this device<span class="short-registration-only"> with <span class="server-hostname"></span></span>.
           </p>
           <div>
             <a href="#" target="_blank" id="link" class="button">Open My Personal Link</a>
@@ -576,17 +576,13 @@
       <div class="notice display service-save-only">
         <div class="display">
           <p>
-            The Flask app supports automatic backups. Select a backup method:
+            To enable automatic backups, select a backup method:
           </p>
           <div>
             <select id="save-method">
               <option value="none" selected>None</option>
             </select>
           </div>
-          <p>
-            You can add your own backup methods by modifying the Flask app.
-            To learn more, see the README file.
-          </p>
         </div>
       </div>
       <p>
@@ -709,12 +705,7 @@
         ]);
       }
       function getPersonalLink() {
-        let personalLink = `${serverBase}send#${localStorage.getItem("user.userID")}`;
-        const vibe = document.documentElement.getAttribute("data-vibe");
-        if (vibe != "") {
-          personalLink = `${personalLink}/${encodeURIComponent(vibe)}`;
-        }
-        return personalLink;
+        return `${serverBase}send#${localStorage.getItem("user.userID")}`;
       }
       async function verify() {
         await delayForUX(async () => {
@@ -761,7 +752,7 @@
           }
           const pgpKey = await openpgp.generateKey({
             userIDs: [{
-              email: `key+${crypto.randomUUID()}@frogtab.com`
+              email: "frogtab@example.com"
             }]
           });
           const requestBody = {
@@ -1107,6 +1098,12 @@
         cancelDisableAchievements: document.getElementById("cancel-disable-achievements")
       };
       const serverBase = document.documentElement.getAttribute("data-server-base");
+      const serverHostname = (new URL(serverBase, window.location.origin)).hostname;
+      // ^ If serverBase is absolute, gets hostname from serverBase
+      //   If serverBase is relative, gets hostname from window.location.origin
+      for (const element of document.querySelectorAll(".server-hostname")) {
+        element.innerText = serverHostname;
+      }
       let verifiedUser = false;
       let openpgp;
       startApp();

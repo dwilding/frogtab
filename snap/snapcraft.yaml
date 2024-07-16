@@ -1,0 +1,43 @@
+name: frogtab
+version: 1.04snap1
+title: Frogtab Local
+summary: Run the Frogtab task manager on localhost
+description: |
+  Frogtab Local is a version of https://frogtab.com that you can run on your computer. With Frogab Local, you can:
+
+    * Use Frogtab offline
+    * Enable automatic backups in any browser
+
+  **Running Frogtab Local**
+
+  To run Frogtab Local, use the `frogtab` command after installing this snap.
+
+  You should see the message `Running on http://127.0.0.1:5000`.
+  You can ignore the warning about a development server.
+
+  To access Frogtab, open http://127.0.0.1:5000 in your browser.
+
+  To specify a different port, modify the `local_port` variable in _~/snap/frogtab/common/config.py_, then run `frogtab` again.
+
+  **License**
+
+  Frogtab Local is licensed under the MIT License.
+
+  Frogtab Local uses OpenPGP.js for PGP encryption.
+  The source code of OpenPGP.js is available at https://github.com/openpgpjs/openpgpjs.
+  OpenPGP.js is licensed under the GNU Lesser General Public License.
+grade: stable
+confinement: strict
+base: core22
+apps:
+  frogtab:
+    command: bin/run.sh
+    plugs: [network-bind]
+parts:
+  python-environment:
+    plugin: python
+    source: .
+    python-requirements: ['flask/requirements.txt']
+  source:
+    plugin: dump
+    source: .
