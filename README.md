@@ -20,8 +20,10 @@ Frogtab runs in your browser and stores your data in [`localStorage`](https://de
 You can export your data at any time.
 If your browser supports [`showSaveFilePicker()`](https://developer.mozilla.org/en-US/docs/Web/API/Window/showSaveFilePicker), you can also enable automatic backups.
 
-You can use Frogtab offline by running [Frogtab Local](https://github.com/dwilding/frogtab/releases) on your computer.
+You can use Frogtab offline by running Frogtab Local on your computer.
 Frogtab Local also enables automatic backups in any browser.
+If you use Linux, you can [install Frogtab Local from the Snap Store](https://snapcraft.io/frogtab).
+Otherwise, you can [download and run the latest release](https://github.com/dwilding/frogtab/releases).
 
 Frogtab can't sync your data between devices.
 However, if you [register your main device](https://frogtab.com/help#registering-for-a-personal-link),
