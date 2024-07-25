@@ -872,7 +872,7 @@ async function startApp() {
     }
   });
   if (localStorage.getItem("user.userID") !== null) {
-    hasUserID = true;
+    userIDTested = localStorage.getItem("user.userID");
     await verifyUserAndAppendMessages();
     if (verifiedUser) {
       setNotifyStatus();
@@ -932,8 +932,8 @@ async function startApp() {
     if (document.documentElement.getAttribute("data-save") == "service") {
       setConfigureSave();
     }
-    if (!hasUserID && localStorage.getItem("user.userID") !== null) {
-      hasUserID = true;
+    if (localStorage.getItem("user.userID") !== null && userIDTested !== localStorage.getItem("user.userID")) {
+      userIDTested = localStorage.getItem("user.userID");
       await verifyUserAndAppendMessages();
       if (verifiedUser) {
         // Since the user has probably just sent a test message,
@@ -942,8 +942,8 @@ async function startApp() {
         lastAppend -= 480000;
       }
     }
-    else if (hasUserID && localStorage.getItem("user.userID") === null) {
-      hasUserID = false;
+    else if (localStorage.getItem("user.userID") === null && userIDTested !== null) {
+      userIDTested = null;
       verifiedUser = false;
       dom.fetchConnected.classList.remove("display");
     }
@@ -1045,7 +1045,7 @@ let timeoutSave = {
 let timeoutShowInfo;
 let lastActive = Date.now();
 const serverBase = document.documentElement.getAttribute("data-server-base");
-let hasUserID = false;
+let userIDTested = null;
 let verifiedUser = false;
 let lastAppend = 0;
 let openpgp;
