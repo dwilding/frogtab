@@ -13,6 +13,7 @@ In this README:
   - [Self-hosting Frogtab](#self-hosting-frogtab)
   - [Acknowledgments](#acknowledgments)
   - [License](#license)
+  - [Changelog](#changelog)
 
 ## Technical overview of Frogtab
 
@@ -151,3 +152,15 @@ Frogtab uses OpenPGP.js for PGP encryption.
 The source code of OpenPGP.js is available at https://github.com/openpgpjs/openpgpjs.
 OpenPGP.js is licensed under the GNU Lesser General Public License.
 For details, see [LICENSE_openpgp](LICENSE_openpgp).
+
+## Changelog
+
+| Date | Change | Available in Server | Frogtab Local Version |
+| --- | --- | --- | --- |
+| Jul 16, 2024 | Changed the Flask app to run via Python instead of the `flask` command. The port is now specified in *config.py* | No | v1.04 |
+| Jul 16, 2024 | Changed the name of the built-in backup method to show the backup directory instead of the filename | No | v1.04 |
+| Jul 16, 2024 | Identified the registration server in "Registering for a personal link" on the help page | Yes | v1.04 |
+| Jul 16, 2024 | Removed the `data-vibe` attribute and documented how to [customize the placeholder text of your personal link](#customizing-the-placeholder-text-of-your-personal-link) | Yes | v1.04 |
+| Jul 4, 2024 | Improved support & docs for self-hosted servers | Yes | v1.03 |
+| Jul 2, 2024 | Fixed a bug with the registration button | Yes | v1.02 |
+| Jul 2, 2024 | Updated Simple.css and OpenPGP.js | Yes | v1.02 |
