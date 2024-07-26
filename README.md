@@ -157,6 +157,8 @@ For details, see [LICENSE_openpgp](LICENSE_openpgp).
 
 | Date | Change | Available in Server | Frogtab Local Version |
 | --- | --- | --- | --- |
+| Jul 26, 2024 | Added a variable in *config.py* that specifies the server to use for personal links | No | v1.05 |
+| Jul 26, 2024 | Fixed a registration bug that occurred after importing an old backup file | Yes | v1.05 |
 | Jul 16, 2024 | Changed the Flask app to run via Python instead of the `flask` command. The port is now specified in *config.py* | No | v1.04 |
 | Jul 16, 2024 | Changed the name of the built-in backup method to show the backup directory instead of the filename | No | v1.04 |
 | Jul 16, 2024 | Identified the registration server in "Registering for a personal link" on the help page | Yes | v1.04 |

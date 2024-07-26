@@ -57,14 +57,7 @@ The argument to `@backup` is the name of the backup method that will appear in t
 If you have installed Frogtab on your own server, you can configure Frogtab Local to use your server for personal links.
 To learn how to install Frogtab on your server, see https://github.com/dwilding/frogtab#self-hosting-frogtab.
 
-After installing Frogtab on your server, modify the `data-server-base` attribute at the top of the following files:
-
-  - *static/index.html*
-  - *static/icon-normal.html*
-  - *static/icon-notify.html*
-  - *static/help.html*
-
-In the `data-server-base` attribute, replace `https://frogtab.com/` by the URL of your installation of Frogtab.
+After installing Frogtab on your server, set the `registration_server` variable in *config.py* to the URL of your installation of Frogtab.
 
 ## License
 

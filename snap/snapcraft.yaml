@@ -1,5 +1,5 @@
 name: frogtab
-version: 1.04snap1
+version: 1.05snap1
 title: Frogtab Local
 summary: Run the Frogtab task manager on localhost
 description: |
@@ -7,6 +7,8 @@ description: |
 
     * Use Frogtab offline
     * Enable automatic backups in any browser
+
+  If you use Ubuntu, see https://maybecoding.bearblog.dev/running-the-frogtab-task-manager-on-ubuntu/ to learn how to set up Frogtab Local.
 
   **Running Frogtab Local**
 
@@ -19,6 +21,13 @@ description: |
 
   To specify a different port, modify the `local_port` variable in _~/snap/frogtab/common/config.py_, then run `frogtab` again.
 
+  **Using a self-hosted server for personal links**
+
+  If you have installed Frogtab on your own server, you can configure Frogtab Local to use your server for personal links.
+  To learn how to install Frogtab on your server, see https://github.com/dwilding/frogtab#self-hosting-frogtab.
+
+  After installing Frogtab on your server, set the `registration_server` variable in _~/snap/frogtab/common/config.py_ to the URL of your installation of Frogtab.
+
   **License**
 
   Frogtab Local is licensed under the MIT License.
@@ -26,6 +35,13 @@ description: |
   Frogtab Local uses OpenPGP.js for PGP encryption.
   The source code of OpenPGP.js is available at https://github.com/openpgpjs/openpgpjs.
   OpenPGP.js is licensed under the GNU Lesser General Public License.
+
+  **Changelog**
+
+  1.05snap1:
+
+    * Added a variable in _~/snap/frogtab/common/config.py_ that specifies the server to use for personal links
+    * Fixed a registration bug that occurred after importing an old backup file
 grade: stable
 confinement: strict
 base: core22

@@ -1,6 +1,7 @@
 local/LICENSE
 local/LICENSE_openpgp
 local/static
+local/templates
 local/__pycache__
 local/Frogtab_backup.json
 snapcraft
