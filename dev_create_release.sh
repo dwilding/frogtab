@@ -30,7 +30,7 @@ cp -r snap/* snapcraft
 cd snapcraft
 mkdir flask
 mv static templates app.py frogtab_helpers.py requirements.txt flask
-# snapcraft pack
-# mv frogtab_*.snap ..
+snapcraft pack
+mv frogtab_*.snap ..
 
 cd ..
