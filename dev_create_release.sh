@@ -24,7 +24,6 @@ cd ..
 rm -rf snapcraft
 cp -r local snapcraft
 rm -f snapcraft/README.md
-rm -f snapcraft/CHANGELOG.md
 cp -r snap/* snapcraft
 
 cd snapcraft
