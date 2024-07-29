@@ -1,10 +1,12 @@
 #!/usr/bin/python3
 
-# This script checks whether the server responds correctly to API calls
-
 import requests
+import argparse
 
-SERVER_BASE = 'https://frogtab.com'
+parser = argparse.ArgumentParser(description='Checks whether the registration server responds correctly to API calls')
+parser.add_argument('server', nargs='?', default='https://frogtab.com/', help='URL of the registration server')
+args = parser.parse_args()
+server_base = args.server
 
 def success_body(response):
     assert response.status_code == 200
@@ -44,13 +46,13 @@ nQ63YgNib+ELXl44Hu8tEjYY65R3sBk8lCv67eY6UQKP
 =9WlR
 -----END PGP MESSAGE-----
 '''
-if SERVER_BASE == 'https://frogtab.com':
-    registration_data = success_body(requests.post(f'{SERVER_BASE}/open/post-create-user', json={
+if server_base == 'https://frogtab.com/':
+    registration_data = success_body(requests.post(f'{server_base}open/post-create-user', json={
         'pgp_public_key': PGP_PUBLIC_KEY,
         'comment': ENCRYPTED_COMMENT
     }))
 else:
-    registration_data = success_body(requests.post(f'{SERVER_BASE}/open/post-create-user', json={
+    registration_data = success_body(requests.post(f'{server_base}open/post-create-user', json={
         'pgp_public_key': PGP_PUBLIC_KEY
     }))
 assert 'user' in registration_data
@@ -63,7 +65,7 @@ print(f'        - user_id = {user_id}')
 print(f'        - api_key = {api_key}')
 
 print('TEST: Look up the user\'s public key')
-user_data = success_body(requests.get(f'{SERVER_BASE}/open/get-user?user_id={user_id}'))
+user_data = success_body(requests.get(f'{server_base}open/get-user?user_id={user_id}'))
 assert 'user' in user_data
 assert 'user_id' in user_data['user']
 assert user_data['user']['user_id'] == user_id
@@ -80,7 +82,7 @@ aGPnkRKd0joBEfrQpCBBgk5dk5EUagkFhpeX5H87j0aBgl58J7sJrIbVEZrZ
 =wMdo
 -----END PGP MESSAGE-----
 '''
-success_body(requests.post(f'{SERVER_BASE}/open/post-add-message', json={
+success_body(requests.post(f'{server_base}open/post-add-message', json={
     'user_id': user_id,
     'message': ENCRYPTED_MESSAGE_1
 }))
@@ -95,41 +97,41 @@ as8Pa3Bs0joBMRfP12XTSJVxP86E43KBvuumh1/GesM/Lm/D2N47UnIlDdwr
 =HIoH
 -----END PGP MESSAGE-----
 '''
-success_body(requests.post(f'{SERVER_BASE}/open/post-add-message', json={
+success_body(requests.post(f'{server_base}open/post-add-message', json={
     'user_id': user_id,
     'message': ENCRYPTED_MESSAGE_2
 }))
 
 print('TEST: Fail to verify the user if no API key is provided')
-failure_only(requests.post(f'{SERVER_BASE}/open/post-verify-user', json={
+failure_only(requests.post(f'{server_base}open/post-verify-user', json={
     'user_id': user_id
 }))
 
 print('TEST: Fail to verify the user if the wrong API key is provided')
-failure_only(requests.post(f'{SERVER_BASE}/open/post-verify-user', json={
+failure_only(requests.post(f'{server_base}open/post-verify-user', json={
     'user_id': user_id,
     'api_key': '0123456789abcdef'
 }))
 
 print('TEST: Verify the user')
-success_body(requests.post(f'{SERVER_BASE}/open/post-verify-user', json={
+success_body(requests.post(f'{server_base}open/post-verify-user', json={
     'user_id': user_id,
     'api_key': api_key
 }))
 
 print('TEST: Fail to check the user\'s messages if no API key is provided')
-failure_only(requests.post(f'{SERVER_BASE}/open/post-remove-messages', json={
+failure_only(requests.post(f'{server_base}open/post-remove-messages', json={
     'user_id': user_id
 }))
 
 print('TEST: Fail to check the user\'s messages if the wrong API key is provided')
-failure_only(requests.post(f'{SERVER_BASE}/open/post-remove-messages', json={
+failure_only(requests.post(f'{server_base}open/post-remove-messages', json={
     'user_id': user_id,
     'api_key': '0123456789abcdef'
 }))
 
 print('TEST: Check the user\'s messages')
-message_data = success_body(requests.post(f'{SERVER_BASE}/open/post-remove-messages', json={
+message_data = success_body(requests.post(f'{server_base}open/post-remove-messages', json={
     'user_id': user_id,
     'api_key': api_key
 }))
@@ -140,7 +142,7 @@ assert message_data['messages'][0] == ENCRYPTED_MESSAGE_1
 assert message_data['messages'][1] == ENCRYPTED_MESSAGE_2
 
 print('TEST: Now there are no messages on the server')
-message_data_none = success_body(requests.post(f'{SERVER_BASE}/open/post-remove-messages', json={
+message_data_none = success_body(requests.post(f'{server_base}open/post-remove-messages', json={
     'user_id': user_id,
     'api_key': api_key
 }))
@@ -149,45 +151,45 @@ assert isinstance(message_data_none['messages'], list)
 assert len(message_data_none['messages']) == 0
 
 print('TEST: Fail to remove the user if no API key is provided')
-failure_only(requests.post(f'{SERVER_BASE}/open/post-remove-user', json={
+failure_only(requests.post(f'{server_base}open/post-remove-user', json={
     'user_id': user_id
 }))
 
 print('TEST: Fail to remove the user if the wrong API key is provided')
-failure_only(requests.post(f'{SERVER_BASE}/open/post-remove-user', json={
+failure_only(requests.post(f'{server_base}open/post-remove-user', json={
     'user_id': user_id,
     'api_key': '0123456789abcdef'
 }))
 
 print('TEST: Remove the user')
-success_body(requests.post(f'{SERVER_BASE}/open/post-remove-user', json={
+success_body(requests.post(f'{server_base}open/post-remove-user', json={
     'user_id': user_id,
     'api_key': api_key
 }))
 
 print('TEST: Fail to look up the user\'s public key')
-failure_only(requests.get(f'{SERVER_BASE}/open/get-user?user_id={user_id}'))
+failure_only(requests.get(f'{server_base}open/get-user?user_id={user_id}'))
 
 print('TEST: Fail to send a message to the user')
-failure_only(requests.post(f'{SERVER_BASE}/open/post-add-message', json={
+failure_only(requests.post(f'{server_base}open/post-add-message', json={
     'user_id': user_id,
     'message': ENCRYPTED_MESSAGE_1
 }))
 
 print('TEST: Fail to verify the user')
-failure_only(requests.post(f'{SERVER_BASE}/open/post-verify-user', json={
+failure_only(requests.post(f'{server_base}open/post-verify-user', json={
     'user_id': user_id,
     'api_key': api_key
 }))
 
 print('TEST: Fail to check the user\'s messages')
-failure_only(requests.post(f'{SERVER_BASE}/open/post-remove-messages', json={
+failure_only(requests.post(f'{server_base}open/post-remove-messages', json={
     'user_id': user_id,
     'api_key': api_key
 }))
 
 print('TEST: Fail to remove the user')
-failure_only(requests.post(f'{SERVER_BASE}/open/post-remove-user', json={
+failure_only(requests.post(f'{server_base}open/post-remove-user', json={
     'user_id': user_id,
     'api_key': api_key
 }))
