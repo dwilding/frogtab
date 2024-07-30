@@ -32,7 +32,12 @@ if (!array_key_exists('api_key', $request_body)) {
 $api_key = $request_body['api_key'];
 
 // Connect to database
-$db = new PDO('sqlite:' . $_SERVER['FILE_SQLITEDB']);
+if (file_exists($_SERVER['FILE_SQLITEDB'])) {
+  $db = new PDO('sqlite:' . $_SERVER['FILE_SQLITEDB']);
+}
+else {
+  respond_with_failure();
+}
 
 // Verify credentials and remove user
 $delete_user = $db->prepare('DELETE FROM users WHERE user_id = :user_id AND api_key = :api_key');
