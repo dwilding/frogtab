@@ -112,6 +112,10 @@ To learn more, see [this blog post](https://maybecoding.bearblog.dev/adding-a-pr
 ## Self-hosting Frogtab
 
 You'll need an Apache server that has PHP and [Composer](https://getcomposer.org/) installed.
+Apache must have the following modules enabled:
+
+  * mod_rewrite
+  * mod_headers
 
 To install Frogtab on your own server:
 
@@ -120,7 +124,7 @@ To install Frogtab on your own server:
  2. Enter the following commands:
 
     ```sh
-    git clone "https://github.com/dwilding/frogtab.git"
+    git clone https://github.com/dwilding/frogtab.git
     cd frogtab
     ./dev_build_server.sh
     ```
@@ -157,6 +161,7 @@ For details, see [LICENSE_openpgp](LICENSE_openpgp).
 
 | Date | Change | Available in Server | Frogtab Local Version |
 | --- | --- | --- | --- |
+| Jul 30, 2024 | Fixed a registration bug that occurred after reinstalling Frogtab on the server | Yes | No change |
 | Jul 26, 2024 | Added a variable in *config.py* that specifies the server to use for personal links | No | v1.05 |
 | Jul 26, 2024 | Fixed a registration bug that occurred after importing an old backup file | Yes | v1.05 |
 | Jul 16, 2024 | Changed the Flask app to run via Python instead of the `flask` command. The port is now specified in *config.py* | No | v1.04 |
