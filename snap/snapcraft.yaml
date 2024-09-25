@@ -38,6 +38,12 @@ description: |
 
   **Changelog**
 
+  1.06snap1:
+
+    * You can now stop Frogtab Local via your browser. See the bottom of the help page
+    * Reorganized the help page and explained the Achievements feature in a more approachable way
+    * Changed the ID format of generated key pairs, for better compatibility with GnuPG
+
   1.05snap1:
 
     * Added a variable in _~/snap/frogtab/common/config.py_ that specifies the server to use for personal links

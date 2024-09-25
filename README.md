@@ -2,7 +2,7 @@
 
 [Frogtab](https://frogtab.com) is a lightweight task manager that helps you stay focused on today's priorities.
 
-<p><img alt="The Today view in Frogtab" src="app/help-today-light.png" width="480"></p>
+<p><img alt="The Today view in Frogtab" src="./demo.png" width="480"></p>
 
 In this README:
 
@@ -18,6 +18,7 @@ In this README:
 From my dev blog:
 
   - [Running the Frogtab task manager on Ubuntu](https://maybecoding.bearblog.dev/running-the-frogtab-task-manager-on-ubuntu/)
+  - [Making a command-line tool for your Frogtab personal link](https://maybecoding.bearblog.dev/making-a-command-line-tool-for-your-frogtab-personal-link/)
 
 ## Technical overview of Frogtab
 
@@ -165,6 +166,9 @@ For details, see [LICENSE_openpgp](LICENSE_openpgp).
 
 | Date | Change | Available in Server | Frogtab Local Version |
 | --- | --- | --- | --- |
+| Sep ??, 2024 | You can now stop Frogtab Local via your browser. See the bottom of the help page | No | v1.06 |
+| Sep ??, 2024 | Reorganized the help page and explained the [Achievements](https://frogtab.com/help#tracking-your-completed-tasks) feature in a more approachable way | Yes | v1.06 |
+| Sep ??, 2024 | Changed the ID format of generated key pairs, for better compatibility with GnuPG | Yes | v1.06 |
 | Sep 25, 2024 | You can now download public keys from the server. See [code_samples.md](code_samples.md) | Yes | Not applicable |
 | Jul 30, 2024 | Fixed a registration bug that occurred after reinstalling Frogtab on the server | Yes | Not applicable |
 | Jul 26, 2024 | Added a variable in *config.py* that specifies the server to use for personal links | No | v1.05 |

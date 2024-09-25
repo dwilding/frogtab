@@ -10,7 +10,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="favicons/icon-180-apple.png">
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="stylesheet" href="simple.min.css?sha1=24725a1eaf66103ed47a6d30f82c9273a50334c1">
-    <link rel="stylesheet" href="simple-customizations.css?sha1=0bb2de2dbacefa4f4c8ede18700f56ad4fa48fea">
+    <link rel="stylesheet" href="simple-customizations.css?sha1=e020f6d61518703ceeaaed7fa67e930abf8afcac">
   </head>
   <body>
     <header>
@@ -42,28 +42,26 @@
           <li><a href="#tracking-your-completed-tasks">Tracking your completed tasks</a></li>
         </ul>
         <p class="before-compact">
-          <strong>Quick Reference</strong>
-        </p>
-        <ul class="compact">
-          <li><a href="#keyboard-shortcuts">Keyboard shortcuts</a></li>
-          <li><a href="#changing-the-theme">Changing the theme</a></li>
-          <li><a href="#customizing-the-tab-icon">Customizing the tab icon</a></li>
-          <li><a href="#exporting-your-data">Exporting your data</a></li>
-          <li><a href="#importing-your-data">Importing your data</a></li>
-        </ul>
-        <p class="before-compact">
-          <strong>Data Privacy</strong>
+          <strong>Data &amp; Privacy</strong>
         </p>
         <ul class="compact">
           <li><a href="#overview-of-data-privacy">Overview of data privacy</a></li>
           <li><a href="#privacy-implications-of-registering">Privacy implications of registering</a></li>
+          <li><a href="#exporting-your-data">Exporting your data</a></li>
+          <li><a href="#importing-your-data">Importing your data</a></li>
+        </ul>
+        <p class="before-compact">
+          <strong>Quick Reference</strong>
+        </p>
+        <ul class="compact">
+          <li><a href="#keyboard-shortcuts">Keyboard shortcuts</a></li>
+          <li><a href="#completion-commands">Completion commands</a></li>
+          <li><a href="#customizing-the-tab-icon">Customizing the tab icon</a></li>
+          <li><a href="#changing-the-theme">Changing the theme</a></li>
         </ul>
       </article>
       <h2 id="overview-of-frogtab">Overview of Frogtab</h2>
-      <p>
-        <img class="light-only" alt="The Today view in Frogtab" src="help-today-light.png" width="480">
-        <img class="dark-only" alt="The Today view in Frogtab (dark theme)" src="help-today-dark.png" width="480">
-      </p>
+      <iframe src="demo.html?sha1=24916007b4a3b89c8e41bee6d6eddd395251fea0#today/Conduct%20a%20pond%20safety%20inspection%0A%0AArrange%20a%20moonlit%20croaking%20concert/false"></iframe>
       <p>
         <strong>Today</strong> is your to-do list for today.
         Begin the day by writing down everything you'd like to accomplish.
@@ -81,10 +79,7 @@
       <p>
         Frogtab displays a notification badge to remind you to triage your inbox:
       </p>
-      <p>
-        <img class="light-only" alt="The Inbox view in Frogtab" src="help-inbox-light.png" width="480">
-        <img class="dark-only" alt="The Inbox view in Frogtab (dark theme)" src="help-inbox-dark.png" width="480">
-      </p>
+      <iframe src="demo.html?sha1=24916007b4a3b89c8e41bee6d6eddd395251fea0#inbox/Why%20has%20the%20water%20clarity%20changed%3F/true"></iframe>
       <p class="before-compact">
         At the beginning of each day, Frogtab:
       </p>
@@ -233,10 +228,7 @@
           <p>
             Snooze the task by writing # in front of the task:
           </p>
-          <p>
-            <img class="light-only" alt="The Inbox view in Frogtab, with a snoozed task" src="help-snoozed-light.png" width="480">
-            <img class="dark-only" alt="The Inbox view in Frogtab, with a snoozed task (dark theme)" src="help-snoozed-dark.png" width="480">
-          </p>
+          <iframe src="demo.html?sha1=24916007b4a3b89c8e41bee6d6eddd395251fea0#inbox/%23%20This%20is%20snoozed%0A%0AThis%20is%20not%20snoozed/true"></iframe>
           <p>
             Frogtab will unsnooze the task at the beginning of the next day.
           </p>
@@ -270,22 +262,14 @@
         </li>
         <li>
           <p>
-            Select a day, then write down your recurring tasks for that day. For example:
+            Select a day, then write down your recurring tasks for that day. For&nbsp;example:
           </p>
-          <blockquote>
-            Mon&nbsp; Tue&nbsp; <strong>Wed</strong>&nbsp; Thu&nbsp; Fri&nbsp; Sat&nbsp; Sun
-            <hr>
-            Host this week's Wild Wednesday!
-          </blockquote>
+          <iframe src="demo-week.html?sha1=c3c8c091f05477e19bb0aabc0e1b05982d34c6df#wed/Host%20this%20week%27s%20Wild%20Wednesday%21"></iframe>
           <p>
             If you like planning in the evening, write down your recurring tasks under the previous day,
-            with # in front of each task. For example:
+            with # in front of each task. For&nbsp;example:
           </p>
-          <blockquote>
-            Mon&nbsp; <strong>Tue</strong>&nbsp; Wed&nbsp; Thu&nbsp; Fri&nbsp; Sat&nbsp; Sun
-            <hr>
-            # Host this week's Wild Wednesday!
-          </blockquote>
+          <iframe src="demo-week.html?sha1=c3c8c091f05477e19bb0aabc0e1b05982d34c6df#tue/%23%20Host%20this%20week%27s%20Wild%20Wednesday%21"></iframe>
           <p>
             You'll then be able to see the recurring tasks one day in advance.
             When Frogtab adds the tasks to your inbox, they'll be snoozed (because of the #), so they won't cause Frogtab to display a notification badge.
@@ -337,50 +321,145 @@
         </div>
       </div>
       <p>
-        To complete a task, use either of the following methods:
+        To complete a task, put your cursor anywhere in the task, then press <kbd>⌘</kbd>&nbsp;+&nbsp;<kbd>K</kbd> (macOS) or <kbd>Ctrl</kbd>&nbsp;+&nbsp;<kbd>K</kbd> (Windows/Linux).
+        Frogtab moves the task to your <a href="achievements" target="_blank">completed tasks</a>.
+      </p>
+      <p>
+        When you complete a task, Frogtab sets the completion date to today's date.
+        To control the completion date, use a <a href="#completion-commands" title="Completion commands">completion command</a> instead of <kbd>⌘</kbd>&nbsp;+&nbsp;<kbd>K</kbd> or <kbd>Ctrl</kbd>&nbsp;+&nbsp;<kbd>K</kbd>.
+      </p>
+      <p>
+        If you accidentally complete a task, you can mark it as incomplete and remove it from your completed tasks.
+        Click <strong>Edit</strong> at the top of the Achievements page, select
+        <strong>Today</strong> or <strong>Inbox</strong> as the new location for the task, then click the task to move it.
+      </p>
+      <p>
+        To import completed tasks from outside Frogtab, see <a href="#importing-your-data">Importing your data</a>.
+      </p>
+      <h2 id="overview-of-data-privacy">Overview of data privacy</h2>
+      <p class="before-compact">
+        Frogtab stores the following data that you create:
+      </p>
+      <ul class="compact">
+        <li>The contents of Today and Inbox</li>
+        <li>Recurring tasks from your weekly routine</li>
+        <li>Your completed tasks (part of the <a href="#tracking-your-completed-tasks" title="Tracking your completed tasks">Achievements</a> feature)</li>
+      </ul>
+      <p>
+        Your data is stored in your browser and isn't sent to a server.
+        If you like, you can export a backup of your data.
+        To learn more, see <a href="#exporting-your-data">Exporting your data</a>.
+      </p>
+      <p>
+        If you choose to register this device, you'll get a personal link that you can use to send tasks to Frogtab from any device.
+        To learn more, see <a href="#registering-for-a-personal-link">Registering for a personal link</a> and <a href="#privacy-implications-of-registering">Privacy implications of registering</a>.
+      </p>
+      <p>
+        Frogtab doesn't use cookies, collect PII, serve ads, or track you in any way.
+      </p>
+      <h2 id="privacy-implications-of-registering">Privacy implications of registering</h2>
+      <p>
+        If you choose to register this device, Frogtab generates identification and encryption credentials for this device. The credentials are stored in your browser and are included if you export a backup of your data.
+      </p>
+      <p>
+        The credentials are also stored on a server, with the exception of a private key that Frogtab uses to decrypt tasks received from your personal link.
+        You can delete the credentials from the server at any time.
+        To delete the credentials, go to <a href="#registering-for-a-personal-link">Registering for a personal link</a>, then click <strong>Forget this device</strong>.
+      </p>
+      <p>
+        More details about how your personal link works:
       </p>
       <ul>
         <li>
           <p>
-            Put the cursor at the beginning of the task, then press <kbd>X</kbd>, <kbd>Space</kbd>, and <kbd>Enter</kbd> one-by-one.
-            In other words, write "x " in front of the task, then press Enter.
+            When you use your personal link to send a task to Frogtab, the task is first encrypted on the sending device.
+            The encrypted task is then sent to the server.
           </p>
         </li>
         <li>
           <p>
-            Put the cursor anywhere in the task, then press <kbd>⌘</kbd>&nbsp;+&nbsp;<kbd>K</kbd> (for macOS) or <kbd>Ctrl</kbd>&nbsp;+&nbsp;<kbd>K</kbd> (for Windows/Linux).
+            Only this device is permitted to download the encrypted task from the server.
+            After downloading the encrypted task, Frogtab decrypts the task using a private key that never leaves this device.
+          </p>
+        </li>
+        <li>
+          <p>
+            The server deletes the encrypted task as soon as it has been downloaded.
           </p>
         </li>
       </ul>
       <p>
-        Frogtab moves the task to <a href="achievements" target="_blank">Achievements</a> and sets the completion date to today's date.
+        For technical details, see <a href="https://github.com/dwilding/frogtab#how-your-personal-link-works" target="_blank">How your personal link works</a> in GitHub.
+      </p>
+      <h2 id="exporting-your-data">Exporting your data</h2>
+      <p>
+        Your data is stored in your browser.
+        To export a backup of your data, click
+        <svg width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M3 5h18M3 12h18M3 19h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        at the bottom of Frogtab, then click <strong>Export My Data</strong>.
+      </p>
+      <p class="browser-save-only">
+        Some browsers support automatic backups.
+        If your browser supports automatic backups, click <strong>Enable Auto-Backup</strong> at the bottom of Frogtab, then specify where to save the backup file.
+        Frogtab will update the backup file whenever your data changes.
+      </p>
+      <p class="browser-save-only">
+        If your browser doesn't support automatic backups, you won't see Enable Auto-Backup.
+        If you want automatic backups, you'll need to run <a href="https://github.com/dwilding/frogtab/releases" target="_blank">Frogtab Local</a> on your computer.
+      </p>
+      <div class="notice display service-save-only">
+        <div class="display">
+          <p>
+            To enable automatic backups, select a backup method:
+          </p>
+          <div>
+            <select id="save-method">
+              <option value="none" selected>None</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <p>
+        As part of the <a href="#tracking-your-completed-tasks" title="Tracking your completed tasks">Achievements</a> feature,
+        you can export your completed tasks in <a href="http://todotxt.org/" target="_blank">todo.txt</a> format.
+        To export your completed tasks, click <strong>Edit</strong> at the top of the Achievements page,
+        then click <strong>Export a todo.txt file</strong>.
+      </p>
+      <h2 id="importing-your-data">Importing your data</h2>
+      <p>
+        To restore your data in your browser, <a href="#" id="start-restore">import a backup file</a>.
       </p>
       <p>
-        If you use the first method of completing a task, you can customize the completion date of the task.
-        To set the completion date to yesterday's date, write "x -1 " in front of the task, then press Enter.
-        For 2 days ago, write "x -2 ", and so on.
-        You can also specify a day from the past week.
-        For example, for the most recent Friday, write "x fri ".
-      </p>
-      <p>
-        More details about completed tasks:
-      </p>
-      <ul>
-        <li>
+        As part of the <a href="#tracking-your-completed-tasks" title="Tracking your completed tasks">Achievements</a> feature,
+        you can import completed tasks in <a href="http://todotxt.org/" target="_blank">todo.txt</a> format:
+        <ul>
+          <li>
+            <p>
+              If you haven't completed any tasks in Frogtab, click <strong>Import</strong> at the top of the Achievements page, then select a todo.txt file.
+            </p></li>
+          <li>
+            <p>
+              If you have completed some tasks in Frogtab, you'll need to manually merge your Frogtab completed tasks with your completed tasks from outside Frogtab.
+            </p>
+            <p>
+              Click <strong>Edit</strong> at the top of the Achievements page, then click <strong>Export a todo.txt file</strong>.
+              The todo.txt file contains your Frogtab completed tasks.
+              Edit the todo.txt file to include your completed tasks from outside Frogtab, then click <strong>Import the todo.txt file</strong> and select the updated todo.txt file.
+            </p>
+          </li>
+        </ul>
+     </p>
+      <input type="file" id="choose-backup-file" style="display: none" accept=".json">
+      <div id="staged-restore" class="notice">
+        <div class="display">
           <p>
-            If you accidentally complete a task, you can mark it as incomplete and remove it from your completed tasks.
-            Click <strong>Edit</strong> at the top of the Achievements page, select
-            <strong>Today</strong> or <strong>Inbox</strong> as the new location for the task, then click the task to move it.
+            Frogtab will restore your data from <strong id="restore-date"></strong> when you next reload Frogtab.
           </p>
-        </li>
-        <li>
-          <p>
-            You can import and export completed tasks in <a href="http://todotxt.org/" target="_blank">todo.txt</a> format.
-            If there are tasks listed on the Achievements page, click <strong>Edit</strong> at the top of the page.
-            Otherwise, click <strong>Import</strong> at the top of the page.
-          </p>
-        </li>
-      </ul>
+          <div>
+            <button id="cancel-restore">Don't Restore My Data</button>
+          </div>
+        </div>
+      </div>
       <h2 id="keyboard-shortcuts">Keyboard shortcuts</h2>
       <p>
         <label>
@@ -462,7 +541,8 @@
                 Complete selected tasks
               </p>
               <p>
-                Only available if you've enabled <a href="achievements" target="_blank">Achievements</a>.
+                Part of the <a href="#tracking-your-completed-tasks" title="Tracking your completed tasks">Achievements</a> feature.
+                Frogtab moves the tasks to your <a href="achievements" target="_blank">completed tasks</a>.
               </p>
             </td>
             <td>
@@ -528,6 +608,48 @@
           </tr>
         </tbody>
       </table>
+      <h2 id="completion-commands">Completion commands</h2>
+      <p>
+        Completion commands are part of the <a href="#tracking-your-completed-tasks" title="Tracking your completed tasks">Achievements</a> feature.
+        You can use completion commands to control the completion date when completing tasks.
+      </p>
+      <p>
+        The following commands are available:
+      </p>
+      <ul>
+        <li>
+          <p>
+            <code>x -<em>n</em></code>, where <em>n</em> is a number.
+            Completes a task and sets the completion date to <em>n</em>&nbsp;days in the past.
+          </p>
+        </li>
+        <li>
+          <p>
+            <code>x <em>day</em></code>, where <em>day</em> is one of <code>mon</code> through <code>sun</code>.
+            Completes a task and sets the completion date to <em>day</em> from the past week.
+          </p>
+        </li>
+      </ul>
+      <p>
+        To use a command, write the command in front of a task, then press <kbd>Enter</kbd>.
+        For&nbsp;example:
+      </p>
+      <p>
+        TODO: Add demo video
+      </p>
+      <h2 id="customizing-the-tab-icon">Customizing the tab icon</h2>
+      <p>
+        Whenever Frogtab displays a notification badge, Frogtab tries to put a badge on the tab icon too.
+        Some browsers (e.g., Safari) don't support this feature. If you want this feature, you'll need to use a workaround.
+      </p>
+      <p>
+        To enable the workaround, use <a href="icon-normal?reload=start" target="_blank">this version of Frogtab</a>.
+        Frogtab will periodically reload itself to update the tab icon.
+        When Frogtab reloads itself, your undo history will be lost. Frogtab will only reload itself when the tab isn't active.
+      </p>
+      <p>
+        If your browser supports Frogtab's default way of updating the tab icon, but you prefer no badge on the tab icon, you can use <a href="icon-normal" target="_blank">this version of Frogtab</a>.
+      </p>
       <h2 id="changing-the-theme">Changing the theme</h2>
       <div class="notice display">
         <div class="display">
@@ -547,124 +669,6 @@
           </div>
         </div>
       </div>
-      <h2 id="customizing-the-tab-icon">Customizing the tab icon</h2>
-      <p>
-        Whenever Frogtab displays a notification badge, Frogtab tries to put a badge on the tab icon too.
-        Some browsers (e.g., Safari) don't support this feature. If you want this feature, you'll need to use a workaround.
-      </p>
-      <p>
-        To enable the workaround, use <a href="icon-normal?reload=start" target="_blank">this version of Frogtab</a>.
-        Frogtab will periodically reload itself to update the tab icon.
-        When Frogtab reloads itself, your undo history will be lost. Frogtab will only reload itself when the tab isn't active.
-      </p>
-      <p>
-        If your browser supports Frogtab's default way of updating the tab icon, but you prefer no badge on the tab icon, you can use <a href="icon-normal" target="_blank">this version of Frogtab</a>.
-      </p>
-      <h2 id="exporting-your-data">Exporting your data</h2>
-      <p>
-        Your data is stored in your browser.
-        To export a backup of your data, click
-        <svg width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M3 5h18M3 12h18M3 19h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-        at the bottom of Frogtab, then click <strong>Export My Data</strong>.
-      </p>
-      <p class="browser-save-only">
-        Some browsers support automatic backups.
-        If your browser supports this feature, click <strong>Enable Auto-Backup</strong> at the bottom of Frogtab,
-        then specify where to save the backup file.
-        Frogtab will update the backup file whenever your data changes.
-      </p>
-      <div class="notice display service-save-only">
-        <div class="display">
-          <p>
-            To enable automatic backups, select a backup method:
-          </p>
-          <div>
-            <select id="save-method">
-              <option value="none" selected>None</option>
-            </select>
-          </div>
-        </div>
-      </div>
-      <p>
-        If you've enabled <a href="achievements" target="_blank">Achievements</a>,
-        you can export your completed tasks in <a href="http://todotxt.org/" target="_blank">todo.txt</a> format.
-        To learn more, see <a href="#tracking-your-completed-tasks">Tracking your completed tasks</a>.
-      </p>
-      <h2 id="importing-your-data">Importing your data</h2>
-      <p>
-        To restore your data in your browser, <a href="#" id="start-restore">open a backup file</a>.
-      </p>
-      <p>
-        If you've enabled <a href="achievements" target="_blank">Achievements</a>,
-        you can import completed tasks from a <a href="http://todotxt.org/" target="_blank">todo.txt</a> file.
-        To learn more, see <a href="#tracking-your-completed-tasks">Tracking your completed tasks</a>.
-      </p>
-      <input type="file" id="choose-backup-file" style="display: none" accept=".json">
-      <div id="staged-restore" class="notice">
-        <div class="display">
-          <p>
-            Frogtab will restore your data from <strong id="restore-date"></strong> when you next reload Frogtab.
-          </p>
-          <div>
-            <button id="cancel-restore">Don't Restore My Data</button>
-          </div>
-        </div>
-      </div>
-      <h2 id="overview-of-data-privacy">Overview of data privacy</h2>
-      <p class="before-compact">
-        Frogtab stores the following data that you create:
-      </p>
-      <ul class="compact">
-        <li>The contents of Today and Inbox</li>
-        <li>Recurring tasks from your weekly routine</li>
-        <li>Your completed tasks (if you've enabled <a href="achievements" target="_blank">Achievements</a>)</li>
-      </ul>
-      <p>
-        Your data is stored in your browser and isn't sent to a server.
-        If you like, you can export a backup of your data.
-        To learn more, see <a href="#exporting-your-data">Exporting your data</a>.
-      </p>
-      <p>
-        If you choose to register this device, you'll get a personal link that you can use to send tasks to Frogtab from any device.
-        To learn more, see <a href="#registering-for-a-personal-link">Registering for a personal link</a> and <a href="#privacy-implications-of-registering">Privacy implications of registering</a>.
-      </p>
-      <p>
-        Frogtab doesn't use cookies, collect PII, serve ads, or track you in any way.
-      </p>
-      <h2 id="privacy-implications-of-registering">Privacy implications of registering</h2>
-      <p>
-        If you choose to register this device, Frogtab generates identification and encryption credentials for this device. The credentials are stored in your browser and are included if you export a backup of your data.
-      </p>
-      <p>
-        The credentials are also stored on a server, with the exception of a private key that Frogtab uses to decrypt tasks received from your personal link.
-        You can delete the credentials from the server at any time.
-        To delete the credentials, go to <a href="#registering-for-a-personal-link">Registering for a personal link</a>, then click <strong>Forget this device</strong>.
-      </p>
-      <p>
-        More details about how your personal link works:
-      </p>
-      <ul>
-        <li>
-          <p>
-            When you use your personal link to send a task to Frogtab, the task is first encrypted on the sending device.
-            The encrypted task is then sent to the server.
-          </p>
-        </li>
-        <li>
-          <p>
-            Only this device is permitted to download the encrypted task from the server.
-            After downloading the encrypted task, Frogtab decrypts the task using a private key that never leaves this device.
-          </p>
-        </li>
-        <li>
-          <p>
-            The server deletes the encrypted task as soon as it has been downloaded.
-          </p>
-        </li>
-      </ul>
-      <p>
-        For technical details, see <a href="https://github.com/dwilding/frogtab#how-your-personal-link-works" target="_blank">How your personal link works</a> in GitHub.
-      </p>
     </main>
     <footer>
       <p>
@@ -683,7 +687,10 @@
       <p>
         <a href="https://github.com/dwilding/frogtab" target="_blank">Source code</a>
         •
-        <a href="https://maybecoding.bearblog.dev/blog/" target="_blank">Dev blog</a>
+        <a href="https://maybecoding.bearblog.dev/blog/?q=frogtab-featured" target="_blank">Dev blog</a>
+      </p>
+      <p id="stop-service" class="service-save-only">
+        <a href="#" id="action-stop-service">Stop Frogtab Local</a>
       </p>
     </footer>
     <script>
@@ -743,6 +750,15 @@
           dom.caseUnregistered.classList.add("display");
         }
       }
+      function generateRandomHex(length) {
+        chars = "0123456789abcdef";
+        let randomHex = "";
+        for (let i = 0; i < length; i++) {
+          charRandom = chars.charAt(Math.floor(Math.random() * chars.length));
+          randomHex = `${randomHex}${charRandom}`;
+        }
+        return randomHex;
+      }
       async function register() {
         dom.caseUnregistered.classList.remove("display");
         dom.caseRegistering.classList.add("display");
@@ -752,7 +768,8 @@
           }
           const pgpKey = await openpgp.generateKey({
             userIDs: [{
-              email: "frogtab@example.com"
+              name: "Frogtab",
+              comment: `${generateRandomHex(3)}-${generateRandomHex(3)}`
             }]
           });
           const requestBody = {
@@ -929,6 +946,19 @@
         setAchievements();
         if (document.documentElement.getAttribute("data-save") == "service") {
           fetchSaveMethods();
+          document.getElementById("action-stop-service").addEventListener("click", async event => {
+            event.preventDefault();
+            try {
+              await fetch("save/post-stop", {
+                method: "POST"
+              });
+            }
+            catch (err) {}
+            await delayForUX(() => {
+              document.getElementById("stop-service").innerText = "Stopping…";
+            });
+            document.getElementById("stop-service").remove();
+          });
         }
         dom.themeLight.addEventListener("change", () => {
           document.documentElement.setAttribute("data-theme", "light");

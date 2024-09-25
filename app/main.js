@@ -582,6 +582,7 @@ function toggleSnap() {
 function setConfigureSave() {
   if (localStorage.getItem("saveMethod") === null) {
     dom.configureSave.classList.add("display");
+    dom.popupSavePaused.classList.remove("display");
   }
   else {
     dom.configureSave.classList.remove("display");
@@ -677,7 +678,7 @@ async function saveToService() {
     return;
   }
   const data = createData();
-  const onFailure = () => {
+  const onServiceFailure = () => {
     localStorage.removeItem("saveMethod");
     dom.configureSave.classList.add("display");
     timeoutSave.waiting = false;
@@ -696,16 +697,22 @@ async function saveToService() {
     });
   }
   catch (err) {
-    onFailure();
+    if (showWelcome) {
+      dom.welcome.classList.remove("display");
+      showWelcome = false;
+    }
+    dom.popupSavePaused.classList.add("display");
+    timeoutSave.waiting = false;
     return;
   }
+  dom.popupSavePaused.classList.remove("display");
   if (!response.ok) {
-    onFailure();
+    onServiceFailure();
     return;
   }
   const result = await response.json();
   if (!result.success) {
-    onFailure();
+    onServiceFailure();
     return;
   }
   timeoutSave.waiting = false;
@@ -1026,12 +1033,14 @@ const dom = {
   snapToCenter: document.getElementById("snap-to-center"),
   exportData: document.getElementById("export-data"),
   enableSave: document.getElementById("enable-save"),
-  configureSave: document.getElementById("configure-save")
+  configureSave: document.getElementById("configure-save"),
+  popupSavePaused: document.getElementById("popup-save-paused")
 };
 if (showWelcome) {
   dom.welcome.classList.add("display");
   dom.welcome.addEventListener("click", () => {
     dom.welcome.classList.remove("display");
+    showWelcome = false;
   });
 }
 const storedIcons = {};

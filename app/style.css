@@ -118,19 +118,21 @@ a.popup:hover {
   flex: 2;
   padding: 0.6rem 0;
   min-height: 20px;
+  cursor: default;
 }
 .tab-name {
   margin-left: 0.6rem;
   color: var(--secondary-text);
-  cursor: pointer;
-}
-.tab-name:hover {
-  color: var(--body-text);
 }
 .tab-name.selected {
   color: var(--body-text);
   font-weight: bold;
-  cursor: default;
+}
+:root:not([data-purpose="demo"]) .tab-name:not(.selected) {
+  cursor: pointer;
+}
+:root:not([data-purpose="demo"]) .tab-name:hover {
+  color: var(--body-text);
 }
 .tab-name.notify + .tab-icon {
   visibility: visible;
@@ -178,7 +180,7 @@ textarea {
 textarea::placeholder {
   color: var(--secondary-text);
 }
-textarea:focus {
+:root:not([data-purpose="demo"]) textarea:focus {
   border-color: var(--highlight);
 }
 textarea.display {
@@ -202,10 +204,12 @@ textarea.display {
   margin-left: 0.6rem;
   color: var(--secondary-text);
   text-decoration: none;
-  cursor: pointer;
   display: none;
 }
-.action-instruction:hover {
+:root:not([data-purpose="demo"]) .action-instruction {
+  cursor: pointer;
+}
+:root:not([data-purpose="demo"]) .action-instruction:hover {
   color: var(--body-text);
 }
 .action-instruction.display {

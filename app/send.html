@@ -9,7 +9,7 @@
     <link rel="icon" href="favicons/icon-32.png" sizes="32x32" type="image/png">
     <link rel="apple-touch-icon" sizes="180x180" href="favicons/icon-180-apple.png">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?sha1=f7b3e85916bd60de3022658696e22a5a1c70a139">
+    <link rel="stylesheet" href="style.css?sha1=c7f813f2228b385916b4f288ae7ebde9b02a691e">
   </head>
   <body>
     <div class="container restricted">
@@ -209,7 +209,7 @@
         }
       }
       async function startApp() {
-        const matches = window.location.hash.match(/#([0-9a-f-]{36})(\/([^\/]*))?/);
+        const matches = window.location.hash.match(/^#([0-9a-f-]{36})(\/([^\/]*))?$/);
         if (document.documentElement.getAttribute("data-location") == "local" || matches === null) {
           setSendLocal();
         }
