@@ -4,24 +4,27 @@
     <meta charset="utf-8">
   </head>
   <body>
+    <p id="status">
+      Sending…
+    </p>
     <script>
       let encryptAndSend = null;
 
-      async function send(message) {
+      async function send(task) {
         try {
           if (!encryptAndSend) {
             const frogtab = await import("https://frogtab.com/open/sdk.js");
             encryptAndSend = await frogtab.connectToInbox("03ae6b6f-1134-4e7b-83ed-deaae4b53af7");
           }
-          return await encryptAndSend(message);
+          return await encryptAndSend(task);
         }
         catch (err) {
           return false;
         }
       }
 
-      send("Hello Frogtab!").then(success => {
-        console.log(success);
+      send("TEST TASK").then(success => {
+        document.getElementById("status").textContent = `Result: ${String(success)}`;
       });
     </script>
   </body>
