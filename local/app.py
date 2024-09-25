@@ -9,7 +9,6 @@ except ImportError:
     local_port = 5000
 
 try:
-    
     from config import registration_server
 except ImportError:
     registration_server = 'https://frogtab.com/'
