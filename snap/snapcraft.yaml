@@ -1,5 +1,5 @@
 name: frogtab
-version: 1.05snap1
+version: 1.06snap1
 title: Frogtab Local
 summary: Run the Frogtab task manager on localhost
 description: |
@@ -44,10 +44,10 @@ description: |
     * Fixed a registration bug that occurred after importing an old backup file
 grade: stable
 confinement: strict
-base: core22
+base: core24
 apps:
   frogtab:
-    command: bin/run.sh
+    command: bin/frogtab
     plugs: [network-bind]
 parts:
   python-environment:
