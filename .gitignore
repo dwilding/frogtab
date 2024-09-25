@@ -9,5 +9,6 @@ frogtab_*.zip
 frogtab_*.snap
 server/public/*
 !server/public/open
+!server/public/*.php
 server/packages/*
 !server/packages/composer.json

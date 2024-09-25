@@ -9,11 +9,15 @@ In this README:
   - [Technical overview of Frogtab](#technical-overview-of-frogtab)
   - [How your personal link works](#how-your-personal-link-works)
   - [Customizing the placeholder text of your personal link](#customizing-the-placeholder-text-of-your-personal-link)
-  - [Using your personal link from JavaScript](#using-your-personal-link-from-javascript)
+  - [Sending tasks via JavaScript](#sending-tasks-via-javascript)
   - [Self-hosting Frogtab](#self-hosting-frogtab)
   - [Acknowledgments](#acknowledgments)
   - [License](#license)
   - [Changelog](#changelog)
+
+From my dev blog:
+
+  - [Running the Frogtab task manager on Ubuntu](https://maybecoding.bearblog.dev/running-the-frogtab-task-manager-on-ubuntu/)
 
 ## Technical overview of Frogtab
 
@@ -80,34 +84,34 @@ For example, to use "Send to Linux desktop…" as the placeholder text, add `/Se
 
 To override the default placeholder text and automatically use the correct encoding, open your personal link in your browser, then enter `setPlaceholder("Custom placeholder text")` in the web console.
 
-## Using your personal link from JavaScript
+## Sending tasks via JavaScript
 
-After registering your device, you can use the JavaScript SDK to send messages to your device:
+After registering your device, you can use the JavaScript SDK to send tasks to your device:
 
 ```javascript
 let encryptAndSend = null;
 
-async function send(message) {
+async function send(task) {
   try {
     if (!encryptAndSend) {
       const frogtab = await import("https://frogtab.com/open/sdk.js");
-      encryptAndSend = await frogtab.connectToInbox("USER ID GOES HERE");
+      encryptAndSend = await frogtab.connectToInbox("YOUR_ID");
     }
-    return await encryptAndSend(message);
+    return await encryptAndSend(task);
   }
   catch (err) {
     return false;
   }
 }
 
-send("Hello Frogtab!").then(success => {
+send("Record a demo of the latest product features").then(success => {
   console.log(success);
 });
 ```
 
-Replace `USER ID GOES HERE` by the ID from your personal link.
+Replace `YOUR_ID` by the ID from your personal link.
 
-To learn more, see [this blog post](https://maybecoding.bearblog.dev/adding-a-private-feedback-box-to-bear/).
+For a detailed example, see [Adding a private feedback box to Bear](https://maybecoding.bearblog.dev/adding-a-private-feedback-box-to-bear/).
 
 ## Self-hosting Frogtab
 
@@ -161,7 +165,8 @@ For details, see [LICENSE_openpgp](LICENSE_openpgp).
 
 | Date | Change | Available in Server | Frogtab Local Version |
 | --- | --- | --- | --- |
-| Jul 30, 2024 | Fixed a registration bug that occurred after reinstalling Frogtab on the server | Yes | No change |
+| Sep 25, 2024 | You can now download public keys from the server. See [code_samples.md](code_samples.md) | Yes | Not applicable |
+| Jul 30, 2024 | Fixed a registration bug that occurred after reinstalling Frogtab on the server | Yes | Not applicable |
 | Jul 26, 2024 | Added a variable in *config.py* that specifies the server to use for personal links | No | v1.05 |
 | Jul 26, 2024 | Fixed a registration bug that occurred after importing an old backup file | Yes | v1.05 |
 | Jul 16, 2024 | Changed the Flask app to run via Python instead of the `flask` command. The port is now specified in *config.py* | No | v1.04 |

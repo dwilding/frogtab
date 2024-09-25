@@ -13,7 +13,7 @@ cat <<EOF > .htaccess
 SetEnv DIR_PACKAGES "$DIR_PACKAGES"
 SetEnv FILE_SQLITEDB "$DIR_PARENT/frogtab.db"
 RewriteEngine On
-RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^key_([0-9a-f-]{36})\.asc$ get-public-key.php?user_id=\$1 [L]
 RewriteCond %{REQUEST_FILENAME}.php -f
 RewriteRule ^([^\.]+)$ \$1.php [L]
 RewriteCond %{REQUEST_FILENAME}.html -f

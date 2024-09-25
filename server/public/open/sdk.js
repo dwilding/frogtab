@@ -6,51 +6,59 @@ import * as openpgp from "https://unpkg.com/openpgp@5.x/dist/openpgp.min.mjs";
 const apiBase = import.meta.url.replace(/sdk\.js.*$/, "");
 
 export async function connectToInbox(userID) {
+  const userDetails = await getUserDetails(userID);
+  return userDetails.encryptAndSend;
+}
+
+export async function getUserDetails(userID) {
   let responseGetUser;
   try {
     responseGetUser = await fetch(`${apiBase}get-user?user_id=${encodeURIComponent(userID)}`);
   }
   catch (err) {
-    throw new Error("Cannot connect to inbox");
+    throw new Error("Unable to get user details");
   }
   if (!responseGetUser.ok) {
-    throw new Error("Cannot connect to inbox");
+    throw new Error("Unable to get user details");
   }
   const resultGetUser = await responseGetUser.json();
   if (!resultGetUser.success) {
-    throw new Error("Cannot connect to inbox");
+    throw new Error("Unable to get user details");
   }
   const pgpPublicKeyObj = await openpgp.readKey({
     armoredKey: resultGetUser.user.pgp_public_key
   });
-  return async plainMessage => {
-    const encryptedMessage = await openpgp.encrypt({
-      message: await openpgp.createMessage({
-        text: plainMessage
-      }),
-      encryptionKeys: pgpPublicKeyObj
-    });
-    let responseAddMessage;
-    try {
-      responseAddMessage = await fetch(`${apiBase}post-add-message`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          user_id: userID,
-          message: encryptedMessage
-        })
+  return {
+    pgpPublicKeyID: pgpPublicKeyObj.getUserIDs()[0],
+    encryptAndSend: async plainMessage => {
+      const encryptedMessage = await openpgp.encrypt({
+        message: await openpgp.createMessage({
+          text: plainMessage
+        }),
+        encryptionKeys: pgpPublicKeyObj
       });
+      let responseAddMessage;
+      try {
+        responseAddMessage = await fetch(`${apiBase}post-add-message`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            user_id: userID,
+            message: encryptedMessage
+          })
+        });
+      }
+      catch (err) {
+        return false;
+      }
+      if (!responseAddMessage.ok) {
+        return false;
+      }
+      const resultAddMessage = await responseAddMessage.json();
+      return resultAddMessage.success;
     }
-    catch (err) {
-      return false;
-    }
-    if (!responseAddMessage.ok) {
-      return false;
-    }
-    const resultAddMessage = await responseAddMessage.json();
-    return resultAddMessage.success;
   };
 }
 
