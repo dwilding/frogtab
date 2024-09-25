@@ -46,13 +46,13 @@ getKeyID("YOUR_ID").then(keyID => {
 1. Download your public key:
 
   ```
-  curl https://frogtab.com/key_YOUR_ID.asc
+  curl https://frogtab.com/key_YOUR_ID.asc > frogtab.asc
   ```
 
 2. Import your public key into GnuPG and change the trust level of the key:
 
   ```
-  gpg --import key_YOUR_ID.asc
+  gpg --import frogtab.asc
   gpg --edit-key "KEY_ID"
   gpg> trust
   gpg> 5
