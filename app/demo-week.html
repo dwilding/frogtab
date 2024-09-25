@@ -28,7 +28,6 @@
       const matches = window.location.hash.match(/#(\w+)\/([^\/]+)/);
       if (matches !== null) {
         for (const tab of ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]) {
-          console.log(tab);
           if (tab == matches[1]) {
             document.getElementById(`tab-${tab}`).classList.add("selected");
           }

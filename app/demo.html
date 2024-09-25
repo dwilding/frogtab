@@ -29,7 +29,6 @@
       const matches = window.location.hash.match(/#(\w+)\/([^\/]+)\/(false|true)/);
       if (matches !== null) {
         for (const tab of ['today', 'inbox']) {
-          console.log(tab);
           if (tab == matches[1]) {
             document.getElementById(`tab-${tab}`).classList.add("selected");
           }
