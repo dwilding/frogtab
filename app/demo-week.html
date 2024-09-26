@@ -31,6 +31,7 @@
         for (const tab of ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]) {
           if (tab == matches[1]) {
             document.getElementById(`tab-${tab}`).classList.add("selected");
+            document.getElementById("editor").setAttribute("aria-labelledby", `tab-${tab}`);
           }
           else {
             document.getElementById(`tab-${tab}`).classList.remove("selected");
