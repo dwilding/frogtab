@@ -10,7 +10,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="favicons/icon-180-apple.png">
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="stylesheet" href="simple.min.css?sha1=24725a1eaf66103ed47a6d30f82c9273a50334c1">
-    <link rel="stylesheet" href="simple-customizations.css?sha1=670b088625030bf744b1a191a1eecac301ad25c0">
+    <link rel="stylesheet" href="simple-customizations.css?sha1=8ea27f16ee29df158a92d2cf4b95e3c19182b5ea">
   </head>
   <body>
     <header>
@@ -61,7 +61,7 @@
         </ul>
       </article>
       <h2 id="overview-of-frogtab">Overview of Frogtab</h2>
-      <iframe title="Demo of the Today view" src="demo.html?sha1=2d878669704cca11e2b5825d923eae52852ade6c#today/Conduct%20a%20pond%20safety%20inspection%0A%0AArrange%20a%20moonlit%20croaking%20concert/false"></iframe>
+      <iframe tabindex="-1" title="Demo of the Today view" src="demo.html?sha1=2d878669704cca11e2b5825d923eae52852ade6c#today/Conduct%20a%20pond%20safety%20inspection%0A%0AArrange%20a%20moonlit%20croaking%20concert/false"></iframe>
       <p>
         <strong>Today</strong> is your to-do list for today.
         Begin the day by writing down everything you'd like to accomplish.
@@ -79,7 +79,7 @@
       <p>
         Frogtab displays a notification badge to remind you to triage your inbox:
       </p>
-      <iframe title="Demo of the Inbox view with a notification badge" src="demo.html?sha1=2d878669704cca11e2b5825d923eae52852ade6c#inbox/Why%20has%20the%20water%20clarity%20changed%3F/true"></iframe>
+      <iframe tabindex="-1" title="Demo of the Inbox view with a notification badge" src="demo.html?sha1=2d878669704cca11e2b5825d923eae52852ade6c#inbox/Why%20has%20the%20water%20clarity%20changed%3F/true"></iframe>
       <p class="before-compact">
         At the beginning of each day, Frogtab:
       </p>
@@ -228,7 +228,7 @@
           <p>
             Snooze the task by writing # in front of the task:
           </p>
-          <iframe title="Demo of the Inbox view with a snoozed task and an unsnoozed task" src="demo.html?sha1=2d878669704cca11e2b5825d923eae52852ade6c#inbox/%23%20This%20is%20snoozed%0A%0AThis%20is%20not%20snoozed/true"></iframe>
+          <iframe tabindex="-1" title="Demo of the Inbox view with a snoozed task and an unsnoozed task" src="demo.html?sha1=2d878669704cca11e2b5825d923eae52852ade6c#inbox/%23%20This%20is%20snoozed%0A%0AThis%20is%20not%20snoozed/true"></iframe>
           <p>
             Frogtab will unsnooze the task at the beginning of the next day.
           </p>
@@ -264,12 +264,12 @@
           <p>
             Select a day, then write down your recurring tasks for that day. For&nbsp;example:
           </p>
-          <iframe title="Demo of a recurring task on Wednesdays" src="demo-week.html?sha1=4d463773a67b2a5b509ee4731f12bc70df50e027#wed/Host%20this%20week%27s%20Wild%20Wednesday%21"></iframe>
+          <iframe tabindex="-1" title="Demo of a recurring task on Wednesdays" src="demo-week.html?sha1=4d463773a67b2a5b509ee4731f12bc70df50e027#wed/Host%20this%20week%27s%20Wild%20Wednesday%21"></iframe>
           <p>
             If you like planning in the evening, write down your recurring tasks under the previous day,
             with # in front of each task. For&nbsp;example:
           </p>
-          <iframe title="Demo of a recurring task on Tuesdays that will be snoozed until Wednesdays" src="demo-week.html?sha1=4d463773a67b2a5b509ee4731f12bc70df50e027#tue/%23%20Host%20this%20week%27s%20Wild%20Wednesday%21"></iframe>
+          <iframe tabindex="-1" title="Demo of a recurring task on Tuesdays that will be snoozed until Wednesdays" src="demo-week.html?sha1=4d463773a67b2a5b509ee4731f12bc70df50e027#tue/%23%20Host%20this%20week%27s%20Wild%20Wednesday%21"></iframe>
           <p>
             You'll then be able to see the recurring tasks one day in advance.
             When Frogtab adds the tasks to your inbox, they'll be snoozed (because of the #), so they won't cause Frogtab to display a notification badge.
@@ -1068,6 +1068,14 @@
           dom.confirmDisableAchievements.classList.remove("display");
           setAchievements();
         });
+        for (const element of document.querySelectorAll(".button")) {
+          element.addEventListener("keydown", event => {
+            if (event.key == " ") {
+              event.preventDefault();
+              element.click();
+            }
+          });
+        }
         window.addEventListener("storage", () => {
           document.documentElement.setAttribute("data-theme", localStorage.getItem("ui.theme"));
           updateSelectedTheme();
