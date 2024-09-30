@@ -544,14 +544,6 @@ async function verifyUserAndAppendMessages() {
   storeThenSave("value.inbox", storedInboxValue);
   dom.fetchConnected.classList.add("display");
 }
-function setAchievements() {
-  if (localStorage.getItem("achievements") !== null) {
-    dom.achievements.classList.add("display");
-  }
-  else {
-    dom.achievements.classList.remove("display");
-  }
-}
 function setSnap() {
   if (localStorage.getItem("ui.snap") == "bottom") {
     dom.container.classList.add("docked");
@@ -735,7 +727,6 @@ async function saveToFile() {
   timeoutSave.waiting = false;
 }
 async function startApp() {
-  setAchievements();
   setExportAndSave();
   setSnap();
   if (isNewDay()) {
@@ -935,7 +926,6 @@ async function startApp() {
   }, 15000);
   window.addEventListener("storage", async () => {
     document.documentElement.setAttribute("data-theme", localStorage.getItem("ui.theme"));
-    setAchievements();
     if (document.documentElement.getAttribute("data-save") == "service") {
       setConfigureSave();
     }
@@ -1028,7 +1018,6 @@ const dom = {
   fetchConnected: document.getElementById("fetch-connected"),
   menuButton: document.getElementById("menu-button"),
   menu: document.getElementById("menu"),
-  achievements: document.getElementById("achievements"),
   snapToBottom: document.getElementById("snap-to-bottom"),
   snapToCenter: document.getElementById("snap-to-center"),
   exportData: document.getElementById("export-data"),

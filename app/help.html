@@ -36,10 +36,10 @@
         <ul class="compact">
           <li><a href="#overview-of-frogtab">Overview of Frogtab</a></li>
           <li><a href="#adding-tasks-to-your-inbox">Adding tasks to your inbox</a></li>
-          <li><a href="#registering-for-a-personal-link">Registering for a personal link</a></li>
           <li><a href="#triaging-your-inbox">Triaging your inbox</a></li>
           <li><a href="#setting-up-recurring-tasks">Setting up recurring tasks</a></li>
           <li><a href="#tracking-your-completed-tasks">Tracking your completed tasks</a></li>
+          <li><a href="#registering-for-a-personal-link">Registering for a personal link</a></li>
         </ul>
         <p class="before-compact">
           <strong>Data &amp; Privacy</strong>
@@ -113,99 +113,10 @@
         </li>
       </ul>
       <p>
-        By default, Send to Frogtab doesn't work from other devices.
-        If you want to capture tasks from other devices, you must first register for a personal link.
+        These methods don't work from other devices.
+        To capture tasks from other devices, first register for a personal link.
+        To learn more, see <a href="#registering-for-a-personal-link">Registering for a personal link</a>.
       </p>
-      <h2 id="registering-for-a-personal-link">Registering for a personal link</h2>
-      <p>
-        If you choose to register this device, you'll get a personal link that you can use to send tasks to Frogtab from any device.
-      </p>
-      <div class="notice display">
-        <div id="case-checking" class="display">
-          <p>
-            Checking this device…
-          </p>
-        </div>
-        <div id="case-unregistered">
-          <p>
-            You have not registered this device<span class="short-registration-only"> with <span class="server-hostname"></span></span>.<span id="comment-label" class="long-registration-only"> To register this device, please share your experience of using Frogtab - thank you!</span>
-          </p>
-          <div class="long-registration-only">
-            <input aria-labelledby="comment-label" id="comment" style="width: 100%" type="text" placeholder="Your experience…">
-          </div>
-          <div>
-            <button id="register" disabled>Send &amp; Register</button>
-          </div>
-          <p>
-            <a href="#privacy-implications-of-registering">Learn about data privacy</a>
-          </p>
-        </div>
-        <div id="case-registering">
-          <p>
-            Registering this device…
-          </p>
-        </div>
-        <div id="case-registered">
-          <p>
-            You have registered this device<span class="short-registration-only"> with <span class="server-hostname"></span></span>.
-          </p>
-          <div>
-            <a href="#" target="_blank" id="link" class="button">Open My Personal Link</a>
-          </div>
-          <p>
-            <a href="#privacy-implications-of-registering">Learn about data privacy</a>
-          </p>
-          <p>
-            <a href="#" id="start-forget">Forget this device</a>
-          </p>
-        </div>
-        <div id="case-registered-forget">
-          <p>
-            Frogtab will forget this device when you
-            <a href="#" id="forget" title="Forget This Device">click here</a>.
-          </p>
-          <p>
-            Your personal link will be permanently deactivated.
-            To send tasks to Frogtab from any device, you'll need to re-register this device and get a new personal link.
-          </p>
-          <div>
-            <button id="cancel-forget">Don't Forget This Device</button>
-          </div>
-        </div>
-        <div id="case-forgetting">
-          <p>
-            Forgetting this device…
-          </p>
-        </div>
-      </div>
-      <p>
-        If this device is registered, you'll see a cloud icon at the top of Frogtab.
-        The cloud icon means that Frogtab is ready to receive tasks from your personal link.
-      </p>
-      <p>
-        More details about your personal link:
-      </p>
-      <ul>
-        <li>
-          <p>
-            Anyone who knows your personal link can send tasks to your inbox.
-          </p>
-        </li>
-        <li>
-          <p>
-            Tasks may take up to 10 minutes to appear in your inbox.
-            To force Frogtab to check for new tasks, reload Frogtab.
-          </p>
-        </li>
-        <li>
-          <p>
-            If you clear your browsing data, your personal link will stop working.
-            To reactivate your personal link, <a href="#importing-your-data">import your Frogtab data</a>
-            (assuming that you've previously <a href="#exporting-your-data">exported a backup</a>).
-            Or you can re-register this device and get a new personal link.
-          </p>
-        </li>
-      </ul>
       <h2 id="triaging-your-inbox">Triaging your inbox</h2>
       <p>
         The purpose of triaging your inbox is to make a decision about how to act on each of the tasks that you've captured.
@@ -336,6 +247,97 @@
       <p>
         To import completed tasks from outside Frogtab, see <a href="#importing-your-data">Importing your data</a>.
       </p>
+      <h2 id="registering-for-a-personal-link">Registering for a personal link</h2>
+      <p>
+        If you choose to register this device, you'll get a personal link that you can use to send tasks to Frogtab from any device.
+      </p>
+      <div class="notice display">
+        <div id="case-checking" class="display">
+          <p>
+            Checking this device…
+          </p>
+        </div>
+        <div id="case-unregistered">
+          <p>
+            You have not registered this device<span class="short-registration-only"> with <span class="server-hostname"></span></span>.
+            <span id="comment-label" class="long-registration-only">To register this device, please share your experience of using Frogtab - thank you!</span>
+          </p>
+          <div class="long-registration-only">
+            <input aria-labelledby="comment-label" id="comment" style="width: 100%" type="text" placeholder="Your experience…">
+          </div>
+          <div>
+            <button id="register" disabled>Send &amp; Register</button>
+          </div>
+          <p>
+            <a href="#privacy-implications-of-registering">Learn about data privacy</a>
+          </p>
+        </div>
+        <div id="case-registering">
+          <p>
+            Registering this device…
+          </p>
+        </div>
+        <div id="case-registered">
+          <p>
+            You have registered this device<span class="short-registration-only"> with <span class="server-hostname"></span></span>.
+          </p>
+          <div>
+            <a href="#" target="_blank" id="link" class="button">Open My Personal Link</a>
+          </div>
+          <p>
+            <a href="#privacy-implications-of-registering">Learn about data privacy</a>
+          </p>
+          <p>
+            <a href="#" id="start-forget">Forget this device</a>
+          </p>
+        </div>
+        <div id="case-registered-forget">
+          <p>
+            Frogtab will forget this device when you
+            <a href="#" id="forget" title="Forget This Device">click here</a>.
+          </p>
+          <p>
+            Your personal link will be permanently deactivated.
+            To send tasks to Frogtab from any device, you'll need to re-register this device and get a new personal link.
+          </p>
+          <div>
+            <button id="cancel-forget">Don't Forget This Device</button>
+          </div>
+        </div>
+        <div id="case-forgetting">
+          <p>
+            Forgetting this device…
+          </p>
+        </div>
+      </div>
+      <p>
+        If this device is registered, you'll see a cloud icon at the top of Frogtab.
+        The cloud icon means that Frogtab is ready to receive tasks from your personal link.
+      </p>
+      <p>
+        More details about your personal link:
+      </p>
+      <ul>
+        <li>
+          <p>
+            Anyone who knows your personal link can send tasks to your inbox.
+          </p>
+        </li>
+        <li>
+          <p>
+            Tasks may take up to 10 minutes to appear in your inbox.
+            To force Frogtab to check for new tasks, reload Frogtab.
+          </p>
+        </li>
+        <li>
+          <p>
+            If you clear your browsing data, your personal link will stop working.
+            To reactivate your personal link, <a href="#importing-your-data">import your Frogtab data</a>
+            (assuming that you've previously <a href="#exporting-your-data">exported a backup</a>).
+            Or you can re-register this device and get a new personal link.
+          </p>
+        </li>
+      </ul>
       <h2 id="overview-of-data-privacy">Overview of data privacy</h2>
       <p class="before-compact">
         Frogtab stores the following data that you create:
@@ -585,7 +587,7 @@
         </tbody>
       </table>
       <p>
-        For <a href="send" target="_blank">Send to Frogtab</a>:
+        For <a href="send" target="_blank">Send to Frogtab</a> and your personal link:
       </p>
       <table>
         <thead>
