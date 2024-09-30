@@ -9,30 +9,30 @@
     <link rel="icon" href="favicons/icon-32.png" sizes="32x32" type="image/png">
     <link rel="apple-touch-icon" sizes="180x180" href="favicons/icon-180-apple.png">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?sha1=c7f813f2228b385916b4f288ae7ebde9b02a691e">
+    <link rel="stylesheet" href="style.css?sha1=b3f3f8236df9321ee6441e2ff5870af57e0a19c9">
   </head>
   <body>
     <div class="container restricted">
       <div class="interface">
         <div class="tabs">
           <div class="tab">
-            <span id="tab-mon" class="tab-name selected">Mon</span>
-            <span id="tab-tue" class="tab-name">Tue</span>
-            <span id="tab-wed" class="tab-name">Wed</span>
-            <span id="tab-thu" class="tab-name">Thu</span>
-            <span id="tab-fri" class="tab-name">Fri</span>
-            <span id="tab-sat" class="tab-name">Sat</span>
-            <span id="tab-sun" class="tab-name">Sun</span>
+            <span tabindex="-1" id="tab-mon" class="tab-name selected">Mon</span>
+            <span tabindex="0" id="tab-tue" class="tab-name">Tue</span>
+            <span tabindex="0" id="tab-wed" class="tab-name">Wed</span>
+            <span tabindex="0" id="tab-thu" class="tab-name">Thu</span>
+            <span tabindex="0" id="tab-fri" class="tab-name">Fri</span>
+            <span tabindex="0" id="tab-sat" class="tab-name">Sat</span>
+            <span tabindex="0" id="tab-sun" class="tab-name">Sun</span>
           </div>
         </div>
         <div class="main">
-          <textarea aria-labelledby="tab-mon" id="editor-mon" class="display" placeholder="What do you usually do on Mondays?"></textarea>
-          <textarea aria-labelledby="tab-tue" id="editor-tue" placeholder="What do you usually do on Tuesdays?"></textarea>
-          <textarea aria-labelledby="tab-wed" id="editor-wed" placeholder="What do you usually do on Wednesdays?"></textarea>
-          <textarea aria-labelledby="tab-thu" id="editor-thu" placeholder="What do you usually do on Thursdays?"></textarea>
-          <textarea aria-labelledby="tab-fri" id="editor-fri" placeholder="What do you usually do on Fridays?"></textarea>
-          <textarea aria-labelledby="tab-sat" id="editor-sat" placeholder="What do you usually do on Saturdays?"></textarea>
-          <textarea aria-labelledby="tab-sun" id="editor-sun" placeholder="What do you usually do on Sundays?"></textarea>
+          <textarea tabindex="0" aria-labelledby="tab-mon" id="editor-mon" class="display" placeholder="What do you usually do on Mondays?"></textarea>
+          <textarea tabindex="0" aria-labelledby="tab-tue" id="editor-tue" placeholder="What do you usually do on Tuesdays?"></textarea>
+          <textarea tabindex="0" aria-labelledby="tab-wed" id="editor-wed" placeholder="What do you usually do on Wednesdays?"></textarea>
+          <textarea tabindex="0" aria-labelledby="tab-thu" id="editor-thu" placeholder="What do you usually do on Thursdays?"></textarea>
+          <textarea tabindex="0" aria-labelledby="tab-fri" id="editor-fri" placeholder="What do you usually do on Fridays?"></textarea>
+          <textarea tabindex="0" aria-labelledby="tab-sat" id="editor-sat" placeholder="What do you usually do on Saturdays?"></textarea>
+          <textarea tabindex="0" aria-labelledby="tab-sun" id="editor-sun" placeholder="What do you usually do on Sundays?"></textarea>
         </div>
       </div>
     </div>
@@ -40,7 +40,10 @@
       function switchToTab(tab) {
         if (tab != selectedTab) {
           dom[tab].classList.add("selected");
+          dom[tab].tabIndex = -1;
+          dom[tab].blur();
           dom[selectedTab].classList.remove("selected");
+          dom[selectedTab].tabIndex = 0;
           dom.editor[tab].classList.add("display");
           dom.editor[selectedTab].classList.remove("display");
           selectedTab = tab;
@@ -63,6 +66,15 @@
           });
           dom[key].addEventListener("click", () => {
             switchToTab(key);
+          });
+          dom[key].addEventListener("keydown", event => {
+            if (
+              (!event.ctrlKey && !event.metaKey && !event.shiftKey && event.key.toLowerCase() == "enter")
+              || event.key == " "
+            ) {
+              event.preventDefault();
+              dom[key].click();
+            }
           });
         }
         window.addEventListener("storage", () => {

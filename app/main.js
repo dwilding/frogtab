@@ -17,7 +17,10 @@ async function storeIcons() {
 function switchToTab(tab) {
   if (tab != selectedTab) {
     dom[tab].classList.add("selected");
+    dom[tab].tabIndex = -1;
+    dom[tab].blur();
     dom[selectedTab].classList.remove("selected");
+    dom[selectedTab].tabIndex = 0;
     dom.editor[tab].classList.add("display");
     dom.editor[selectedTab].classList.remove("display");
     selectedTab = tab;
@@ -550,10 +553,12 @@ function setSnap() {
     dom.snapToCenter.classList.add("display");
     dom.snapToBottom.classList.remove("display");
   }
-  dom.snapToBottom.addEventListener("click", () => {
+  dom.snapToBottom.addEventListener("click", event => {
+    event.preventDefault();
     toggleSnap();
   });
-  dom.snapToCenter.addEventListener("click", () => {
+  dom.snapToCenter.addEventListener("click", event => {
+    event.preventDefault();
     toggleSnap();
   });
 }
@@ -594,7 +599,8 @@ function setExportAndSave() {
   }
   if ("showSaveFilePicker" in window) {
     dom.enableSave.classList.add("display");
-    dom.enableSave.addEventListener("click", async () => {
+    dom.enableSave.addEventListener("click", async event => {
+      event.preventDefault();
       try {
         fileHandle = await window.showSaveFilePicker({
           suggestedName: `Frogtab_backup.json`,
@@ -772,6 +778,15 @@ async function startApp() {
     switchToTab("today");
     refreshInfo();
   });
+  dom.today.addEventListener("keydown", event => {
+    if (
+      (!event.ctrlKey && !event.metaKey && !event.shiftKey && event.key.toLowerCase() == "enter")
+      || event.key == " "
+    ) {
+      event.preventDefault();
+      dom.today.click();
+    }
+  });
   dom.editor.inbox.addEventListener("input", event => {
     if (event.inputType == "insertText" && localStorage.getItem("achievements") !== null) {
       addSpaceForCompletionOffset(dom.editor.inbox);
@@ -818,13 +833,29 @@ async function startApp() {
     switchToTab("inbox");
     refreshInfo();
   });
+  dom.inbox.addEventListener("keydown", event => {
+    if (
+      (!event.ctrlKey && !event.metaKey && !event.shiftKey && event.key.toLowerCase() == "enter")
+      || event.key == " "
+    ) {
+      event.preventDefault();
+      dom.inbox.click();
+    }
+  });
   dom.menuButton.addEventListener("click", event => {
+    event.preventDefault();
     if (!dom.menu.classList.contains("display")) {
       event.stopPropagation();
       dom.menu.classList.add("display");
     }
   });
   document.addEventListener("click", () => {
+    dom.menu.classList.remove("display");
+  });
+  dom.editor.today.addEventListener("focusin", () => {
+    dom.menu.classList.remove("display");
+  });
+  dom.editor.inbox.addEventListener("focusin", () => {
     dom.menu.classList.remove("display");
   });
   document.addEventListener("visibilitychange", () => {
@@ -868,7 +899,18 @@ async function startApp() {
       event.preventDefault();
       toggleSnap();
     }
+    else if (event.key.toLowerCase() == "escape") {
+      dom.menu.classList.remove("display");
+    }
   });
+  for (const element of document.querySelectorAll("a")) {
+    element.addEventListener("keydown", event => {
+      if (event.key == " ") {
+        event.preventDefault();
+        element.click();
+      }
+    });
+  }
   if (localStorage.getItem("user.userID") !== null) {
     userIDTested = localStorage.getItem("user.userID");
     await verifyUserAndAppendMessages();

@@ -24,13 +24,13 @@
       <div id="case-disabled" class="conditional display">
         <p>
           To track your completed tasks, first enable the Achievements feature.
-          <a href="help#tracking-your-completed-tasks" title="Tracking your completed tasks">Learn more</a>
+          <a tabindex="0" href="help#tracking-your-completed-tasks" title="Tracking your completed tasks">Learn more</a>
         </p>
       </div>
       <div id="case-enabled-empty" class="conditional">
         <p class="actions">
-          <a id="actions-import" href="#" class="display">Import</a>
-          <a id="actions-import" href="help#tracking-your-completed-tasks" target="_blank" title="Tracking your completed tasks" class="display">Help</a>
+          <a tabindex="0" id="actions-import" href="#" class="display">Import</a>
+          <a tabindex="0" id="actions-import" href="help#tracking-your-completed-tasks" target="_blank" title="Tracking your completed tasks" class="display">Help</a>
         </p>
         <p>
           You haven't completed any tasks!
@@ -38,9 +38,9 @@
       </div>
       <div id="case-enabled" class="conditional">
         <p class="actions">
-          <a id="actions-edit" href="#">Edit</a>
-          <a id="actions-done" href="#">Done</a>
-          <a id="actions-import" href="help#tracking-your-completed-tasks" target="_blank" title="Tracking your completed tasks" class="display">Help</a>
+          <a tabindex="0" id="actions-edit" href="#">Edit</a>
+          <a tabindex="0" id="actions-done" href="#">Done</a>
+          <a tabindex="0" id="actions-import" href="help#tracking-your-completed-tasks" target="_blank" title="Tracking your completed tasks" class="display">Help</a>
         </p>
         <div id="select-editmode" class="notice">
           <div class="display">
@@ -50,18 +50,18 @@
             </p>
             <div>
               <label>
-                <input id="editmode-to-today" type="radio" name="editmodes" checked> Today
+                <input tabindex="0" id="editmode-to-today" type="radio" name="editmodes" checked> Today
               </label>
               <label>
-                <input id="editmode-to-inbox" type="radio" name="editmodes"> Inbox
+                <input tabindex="0" id="editmode-to-inbox" type="radio" name="editmodes"> Inbox
               </label>
             </div>
             <p class="before-compact">
               To make other changes to your completed tasks:
             </p>
             <ol>
-              <li><a id="actions-edit-export" href="#" download="Frogtab_achievements.txt">Export a todo.txt file</a>, then edit the todo.txt file</li>
-              <li><a id="actions-edit-import" href="#">Import the todo.txt file</a></li>
+              <li><a tabindex="0" id="actions-edit-export" href="#" download="Frogtab_achievements.txt">Export a todo.txt file</a>, then edit the todo.txt file</li>
+              <li><a tabindex="0" id="actions-edit-import" href="#">Import the todo.txt file</a></li>
             </ol>
           </div>
         </div>
@@ -69,7 +69,7 @@
           <div class="display">
             <p>
               Frogtab will import completed tasks when you
-              <a id="finish-import" href="#" title="Import Completed Tasks">click here</a>.
+              <a tabindex="0" id="finish-import" href="#" title="Import Completed Tasks">click here</a>.
             </p>
             <p>
               Your existing completed tasks will be deleted.
@@ -231,7 +231,7 @@
               setView();
             });
             domTaskText.addEventListener("keydown", event => {
-              if (event.key.toLowerCase() == "enter") {
+              if (!event.ctrlKey && !event.metaKey && !event.shiftKey && event.key.toLowerCase() == "enter") {
                 domTaskText.click();
               }
             });

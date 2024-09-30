@@ -109,6 +109,10 @@ a.popup:hover {
   border: 2px solid var(--highlight);
   background-color: var(--highlight);
 }
+a.popup:focus-visible {
+  outline: 2px solid var(--highlight-dimmed);
+  outline-offset: 1px;
+}
 .tabs {
   display: flex;
   box-sizing: border-box;
@@ -131,7 +135,8 @@ a.popup:hover {
 :root:not([data-purpose="demo"]) .tab-name:not(.selected) {
   cursor: pointer;
 }
-:root:not([data-purpose="demo"]) .tab-name:hover {
+:root:not([data-purpose="demo"]) .tab-name:hover,
+:root:not([data-purpose="demo"]) .tab-name:focus {
   color: var(--body-text);
 }
 .tab-name.notify + .tab-icon {
@@ -209,7 +214,8 @@ textarea.display {
 :root:not([data-purpose="demo"]) .action-instruction {
   cursor: pointer;
 }
-:root:not([data-purpose="demo"]) .action-instruction:hover {
+:root:not([data-purpose="demo"]) .action-instruction:hover,
+:root:not([data-purpose="demo"]) .action-instruction:focus {
   color: var(--body-text);
 }
 .action-instruction.display {
@@ -243,7 +249,8 @@ textarea.display {
   text-decoration: none;
   cursor: pointer;
 }
-.action-menu-item.clickable:hover {
+.action-menu-item.clickable:hover,
+.action-menu-item.clickable:focus {
   color: var(--body-text);
 }
 .action-menu-item.spacer {
@@ -275,4 +282,8 @@ textarea.display {
 .circle-button.enabled.long-hover > svg {
   transform: translate(-45%, -60%) rotate(-30deg);
   transition: transform 0.1s ease;
+}
+.circle-button.enabled:focus-visible {
+  outline: 2px solid var(--highlight);
+  outline-offset: 1px;
 }

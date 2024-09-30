@@ -9,12 +9,12 @@
     <link rel="icon" href="favicons/icon-32.png" sizes="32x32" type="image/png" id="icon32">
     <link rel="apple-touch-icon" sizes="180x180" href="favicons/icon-180-apple.png">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?sha1=c7f813f2228b385916b4f288ae7ebde9b02a691e">
+    <link rel="stylesheet" href="style.css?sha1=b3f3f8236df9321ee6441e2ff5870af57e0a19c9">
   </head>
   <body>
     <div id="container" class="container">
       <div class="interface">
-        <a id="welcome" class="popup" href="help#overview-of-frogtab" target="_blank">
+        <a tabindex="0" id="welcome" class="popup" href="help#overview-of-frogtab" target="_blank">
           Welcome! Click here to get started
         </a>
         <div id="popup-save-paused" class="popup">
@@ -22,8 +22,8 @@
         </div>
         <div class="tabs">
           <div class="tab">
-            <span id="tab-today" class="tab-name selected">Today</span>
-            <span id="tab-inbox" class="tab-name">Inbox</span>
+            <span tabindex="-1" id="tab-today" class="tab-name selected">Today</span>
+            <span tabindex="0" id="tab-inbox" class="tab-name">Inbox</span>
             <span class="tab-icon">⬤</span>
           </div>
           <div class="tab info">
@@ -32,28 +32,28 @@
           </div>
         </div>
         <div class="main">
-          <textarea aria-labelledby="tab-today" id="editor-today" class="display"></textarea>
-          <textarea aria-labelledby="tab-inbox" id="editor-inbox"></textarea>
+          <textarea tabindex="0" aria-labelledby="tab-today" id="editor-today" class="display"></textarea>
+          <textarea tabindex="0" aria-labelledby="tab-inbox" id="editor-inbox"></textarea>
         </div>
         <div class="actions">
           <div class="action">
-            <span id="menu-button" class="action-instruction display" title="Menu"><svg role="img" aria-label="Menu icon" width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M3 5h18M3 12h18M3 19h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
-            <span id="enable-save" class="action-instruction">Enable Auto-Backup</span>
-            <a id="configure-save" class="action-instruction" href="help#exporting-your-data" target="_blank">Configure Auto-Backup</a>
+            <a tabindex="0" id="menu-button" class="action-instruction display" title="Menu" href="#"><svg role="img" aria-label="Menu icon" width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M3 5h18M3 12h18M3 19h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
+            <a tabindex="0" id="enable-save" class="action-instruction" href="#">Enable Auto-Backup</span>
+            <a tabindex="0" id="configure-save" class="action-instruction" href="help#exporting-your-data" target="_blank">Configure Auto-Backup</a>
           </div>
           <div id="menu" class="action-menu">
-            <a class="action-menu-item display clickable" href="help" target="_blank">Help &amp; Privacy</a>
-            <a id="export-data" class="action-menu-item display clickable" href="#" download="Frogtab_backup.json">Export My Data</a>
+            <a tabindex="0" class="action-menu-item display clickable" href="help" target="_blank">Help &amp; Privacy</a>
+            <a tabindex="0" id="export-data" class="action-menu-item display clickable" href="#" download="Frogtab_backup.json">Export My Data</a>
             <div class="action-menu-item display spacer"></div>
-            <a class="action-menu-item display clickable" href="week" target="_blank">Weekly Routine</a>
-            <a class="action-menu-item display clickable" href="achievements" target="_blank">Achievements</a>
+            <a tabindex="0" class="action-menu-item display clickable" href="week" target="_blank">Weekly Routine</a>
+            <a tabindex="0" class="action-menu-item display clickable" href="achievements" target="_blank">Achievements</a>
             <div class="action-menu-item display spacer"></div>
-            <span id="snap-to-bottom" class="action-menu-item display clickable">Snap to Bottom</span>
-            <span id="snap-to-center" class="action-menu-item clickable">Snap to Center</span>
+            <a tabindex="0" id="snap-to-bottom" class="action-menu-item display clickable" href="#">Snap to Bottom</span>
+            <a tabindex="0" id="snap-to-center" class="action-menu-item clickable" href="#">Snap to Center</span>
           </div>
         </div>
       </div>
     </div>
-    <script src="main.js?sha1=263e9d6b8b19099006e27aed3ff0711358e7fb22"></script>
+    <script src="main.js?sha1=5bddb07e1623537546a38ec9242b2a2b36e7f848"></script>
   </body>
 </html>

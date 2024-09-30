@@ -9,7 +9,7 @@
     <link rel="icon" href="favicons/icon-32.png" sizes="32x32" type="image/png">
     <link rel="apple-touch-icon" sizes="180x180" href="favicons/icon-180-apple.png">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?sha1=c7f813f2228b385916b4f288ae7ebde9b02a691e">
+    <link rel="stylesheet" href="style.css?sha1=b3f3f8236df9321ee6441e2ff5870af57e0a19c9">
   </head>
   <body>
     <div class="container restricted">
@@ -30,11 +30,11 @@
           <svg role="img" aria-label="Warning icon" width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M20.043 21H3.957c-1.538 0-2.5-1.664-1.734-2.997l8.043-13.988c.77-1.337 2.699-1.337 3.468 0l8.043 13.988C22.543 19.336 21.58 21 20.043 21zM12 9v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path><path d="M12 17.01l.01-.011" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>Failed to send. Please try again
         </div>
         <div class="main">
-          <textarea id="editor" class="display" placeholder="Send to your inbox…"></textarea>
+          <textarea tabindex="0" id="editor" class="display" placeholder="Send to your inbox…"></textarea>
         </div>
         <div class="actions">
           <div class="action primary">
-            <span id="send" class="circle-button" title="Send"><svg role="img" aria-label="Send icon" width="24px" height="24px" viewBox="0 0 24 24" stroke-width="1.5" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M22 12L3 20l3.563-8L3 4l19 8zM6.5 12H22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
+            <span tabindex="-1" id="send" class="circle-button" title="Send"><svg role="img" aria-label="Send icon" width="24px" height="24px" viewBox="0 0 24 24" stroke-width="1.5" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M22 12L3 20l3.563-8L3 4l19 8zM6.5 12H22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
           </div>
         </div>
       </div>
@@ -57,6 +57,7 @@
         window.setTimeout(() => {
           dom.send.classList.remove("enabled");
           dom.send.classList.remove("long-hover");
+          dom.send.tabIndex = -1;
         }, 300);
         if (localStorage.getItem("value.inbox") === null) {
           localStorage.setItem("value.inbox", "");
@@ -108,6 +109,7 @@
         window.setTimeout(() => {
           dom.send.classList.remove("enabled");
           dom.send.classList.remove("long-hover");
+          dom.send.tabIndex = -1;
         }, 300);
         if (dom.popups.connected.classList.contains("display")) {
           dom.popups.connected.classList.remove("display");
@@ -123,6 +125,7 @@
             }
             dom.editor.value = `${value}${valueToSend}`;
             dom.send.classList.add("enabled");
+            dom.send.tabIndex = 0;
           }, 600);
         };
         let success;
@@ -147,14 +150,25 @@
         dom.send.addEventListener("click", () => {
           tryToSendLocal();
         });
+        dom.send.addEventListener("keydown", event => {
+          if (
+            (!event.ctrlKey && !event.metaKey && !event.shiftKey && event.key.toLowerCase() == "enter")
+            || event.key == " "
+          ) {
+            event.preventDefault();
+            dom.send.click();
+          }
+        });
         dom.editor.addEventListener("input", () => {
           const value = dom.editor.value.trim();
           if (value != "") {
             dom.send.classList.add("enabled");
             dom.send.classList.remove("short-hover");
+            dom.send.tabIndex = 0;
           }
           else {
             dom.send.classList.remove("enabled");
+            dom.send.tabIndex = -1;
           }
         });
       }
@@ -196,16 +210,28 @@
         dom.send.addEventListener("click", () => {
           tryToSendCloud();
         });
+        dom.send.addEventListener("keydown", event => {
+          if (
+            (!event.ctrlKey && !event.metaKey && !event.shiftKey && event.key.toLowerCase() == "enter")
+            || event.key == " "
+          ) {
+            event.preventDefault();
+            dom.send.click();
+          }
+        });
         dom.editor.addEventListener("input", () => {
           if (dom.editor.value.trim() != "") {
             dom.send.classList.add("enabled");
+            dom.send.tabIndex = 0;
           }
           else {
             dom.send.classList.remove("enabled");
+            dom.send.tabIndex = -1;
           }
         });
         if (dom.editor.value.trim() != "") {
           dom.send.classList.add("enabled");
+          dom.send.tabIndex = 0;
         }
       }
       async function startApp() {
