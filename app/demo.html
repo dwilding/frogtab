@@ -43,6 +43,10 @@
           document.getElementById("tab-inbox").classList.add("notify");
         }
       }
+      if (localStorage.getItem("ui.theme") === null) {
+        localStorage.setItem("ui.theme", "system");
+      }
+      document.documentElement.setAttribute("data-theme", localStorage.getItem("ui.theme"));
       window.addEventListener("storage", () => {
         document.documentElement.setAttribute("data-theme", localStorage.getItem("ui.theme"));
       });

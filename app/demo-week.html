@@ -39,6 +39,10 @@
         }
         document.getElementById("editor").value = decodeURIComponent(matches[2]);
       }
+      if (localStorage.getItem("ui.theme") === null) {
+        localStorage.setItem("ui.theme", "system");
+      }
+      document.documentElement.setAttribute("data-theme", localStorage.getItem("ui.theme"));
       window.addEventListener("storage", () => {
         document.documentElement.setAttribute("data-theme", localStorage.getItem("ui.theme"));
       });
