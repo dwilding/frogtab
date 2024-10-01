@@ -431,6 +431,17 @@
       <p>
         To restore your data in your browser, <a tabindex="0" href="#" id="start-restore">import a backup file</a>.
       </p>
+      <input type="file" id="choose-backup-file" style="display: none" accept=".json">
+      <div id="staged-restore" class="notice">
+        <div class="display">
+          <p>
+            Frogtab will restore your data from <strong id="restore-date"></strong> when you next reload Frogtab.
+          </p>
+          <div>
+            <button tabindex="0" id="cancel-restore">Don't Restore My Data</button>
+          </div>
+        </div>
+      </div>
       <p>
         As part of the <a tabindex="0" href="#tracking-your-completed-tasks" title="Tracking your completed tasks">Achievements</a> feature,
         you can import completed tasks in <a tabindex="0" href="http://todotxt.org/" target="_blank">todo.txt</a> format:
@@ -450,18 +461,7 @@
             </p>
           </li>
         </ul>
-     </p>
-      <input type="file" id="choose-backup-file" style="display: none" accept=".json">
-      <div id="staged-restore" class="notice">
-        <div class="display">
-          <p>
-            Frogtab will restore your data from <strong id="restore-date"></strong> when you next reload Frogtab.
-          </p>
-          <div>
-            <button tabindex="0" id="cancel-restore">Don't Restore My Data</button>
-          </div>
-        </div>
-      </div>
+      </p>
       <h2 id="keyboard-shortcuts">Keyboard shortcuts</h2>
       <p>
         <label>
