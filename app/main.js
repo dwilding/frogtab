@@ -849,6 +849,18 @@ async function startApp() {
       dom.menu.classList.add("display");
     }
   });
+  dom.menuButton.addEventListener("keydown", event => {
+    if (dom.menu.classList.contains("display") && event.key.toLowerCase() == "arrowdown") {
+      event.preventDefault();
+      const elements = document.querySelectorAll("[data-menu-seq].display");
+      elements[0].focus();
+    }
+    else if (dom.menu.classList.contains("display") && event.key.toLowerCase() == "arrowup") {
+      event.preventDefault();
+      const elements = document.querySelectorAll("[data-menu-seq].display");
+      elements[elements.length - 1].focus();
+    }
+  });
   document.addEventListener("click", () => {
     dom.menu.classList.remove("display");
   });
@@ -857,6 +869,23 @@ async function startApp() {
   });
   dom.editor.inbox.addEventListener("focusin", () => {
     dom.menu.classList.remove("display");
+  });
+  dom.menu.addEventListener("keydown", event => {
+    if (event.target.hasAttribute("data-menu-seq") && event.key.toLowerCase() == "arrowdown") {
+      event.preventDefault();
+      const elements = document.querySelectorAll("[data-menu-seq].display");
+      const thisIndex = parseInt(event.target.getAttribute("data-menu-seq"), 10);
+      const nextIndex = (thisIndex + 1) % elements.length;
+      elements[nextIndex].focus();
+    }
+    else if (event.target.hasAttribute("data-menu-seq") && event.key.toLowerCase() == "arrowup") {
+      event.preventDefault();
+      event.preventDefault();
+      const elements = document.querySelectorAll("[data-menu-seq].display");
+      const thisIndex = parseInt(event.target.getAttribute("data-menu-seq"), 10);
+      const prevIndex = (thisIndex - 1 + elements.length) % elements.length;
+      elements[prevIndex].focus();
+    }
   });
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
