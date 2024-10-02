@@ -42,7 +42,7 @@
           <a tabindex="0" id="actions-done" href="#">Done</a>
           <a tabindex="0" id="actions-import" href="help#tracking-your-completed-tasks" target="_blank" title="Tracking your completed tasks" class="display">Help</a>
         </p>
-        <div id="select-editmode" class="notice">
+        <div tabindex="-1" id="select-editmode" class="notice">
           <div class="display">
             <p>
               Click tasks to mark them as incomplete.
@@ -65,7 +65,7 @@
             </ol>
           </div>
         </div>
-        <div id="confirm-import" class="notice">
+        <div tabindex="-1" id="confirm-import" class="notice">
           <div class="display">
             <p>
               Frogtab will import completed tasks when you
@@ -75,7 +75,7 @@
               Your existing completed tasks will be deleted.
             </p>
             <div>
-              <button id="cancel-import">Don't Import Completed Tasks</button>
+              <button tabindex="0" id="cancel-import">Don't Import Completed Tasks</button>
             </div>
           </div>
         </div>
@@ -274,6 +274,7 @@
         dom.actions.edit.classList.remove("display");
         dom.actions.done.classList.add("display");
         dom.selectEditmode.classList.add("display");
+        dom.selectEditmode.focus();
         dom.confirmImport.classList.remove("display");
         dom.tasks.classList.add("editing");
         dom.tasks.classList.add("selectable");
@@ -285,6 +286,7 @@
         editingState = "editing/importing";
         dom.selectEditmode.classList.remove("display");
         dom.confirmImport.classList.add("display");
+        dom.confirmImport.focus();
         dom.tasks.classList.remove("selectable");
         for (const element of document.querySelectorAll(".task-text")) {
           element.tabIndex = -1;

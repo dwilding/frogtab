@@ -194,7 +194,7 @@
       <p>
         If you enable the Achievements feature, Frogtab can record your completed tasks.
       </p>
-      <div id="achievements-disabled" class="notice display">
+      <div tabindex="-1" id="achievements-disabled" class="notice display">
         <div class="display">
           <p>
             You have not enabled Achievements.
@@ -204,7 +204,7 @@
           </div>
         </div>
       </div>
-      <div id="achievements-enabled" class="notice">
+      <div tabindex="-1" id="achievements-enabled" class="notice">
         <div class="display">
           <p>
             You have enabled Achievements.
@@ -217,7 +217,7 @@
           </p>
         </div>
       </div>
-      <div id="confirm-disable-achievements" class="notice">
+      <div tabindex="-1" id="confirm-disable-achievements" class="notice">
         <div class="display">
           <p>
             Frogtab will disable Achievements when you
@@ -251,13 +251,15 @@
       <p>
         If you choose to register this device, you'll get a personal link that you can use to send tasks to Frogtab from any device.
       </p>
-      <div class="notice display">
-        <div id="case-checking" class="display">
+      <div id="case-checking" class="notice display">
+        <div class="display">
           <p>
             Checking this device…
           </p>
         </div>
-        <div id="case-unregistered">
+      </div>
+      <div tabindex="-1" id="case-unregistered" class="notice">
+        <div class="display">
           <p>
             You have not registered this device<span class="short-registration-only"> with <span class="server-hostname"></span></span>.
             <span id="comment-label" class="long-registration-only">To register this device, please share your experience of using Frogtab - thank you!</span>
@@ -272,12 +274,16 @@
             <a tabindex="0" href="#privacy-implications-of-registering">Learn about data privacy</a>
           </p>
         </div>
-        <div id="case-registering">
+      </div>
+      <div id="case-registering" class="notice">
+        <div class="display">
           <p>
             Registering this device…
           </p>
         </div>
-        <div id="case-registered">
+      </div>
+      <div tabindex="-1" id="case-registered" class="notice">
+        <div class="display">
           <p>
             You have registered this device<span class="short-registration-only"> with <span class="server-hostname"></span></span>.
           </p>
@@ -291,7 +297,9 @@
             <a tabindex="0" href="#" id="start-forget">Forget this device</a>
           </p>
         </div>
-        <div id="case-registered-forget">
+      </div>
+      <div tabindex="-1" id="case-registered-forget" class="notice">
+        <div class="display">
           <p>
             Frogtab will forget this device when you
             <a tabindex="0" href="#" id="forget" title="Forget This Device">click here</a>.
@@ -304,7 +312,9 @@
             <button tabindex="0" id="cancel-forget">Don't Forget This Device</button>
           </div>
         </div>
-        <div id="case-forgetting">
+      </div>
+      <div id="case-forgetting" class="notice">
+        <div class="display">
           <p>
             Forgetting this device…
           </p>
@@ -432,7 +442,7 @@
         To restore your data in your browser, <a tabindex="0" href="#" id="start-restore">import a backup file</a>.
       </p>
       <input type="file" id="choose-backup-file" style="display: none" accept=".json">
-      <div id="staged-restore" class="notice">
+      <div tabindex="-1" id="staged-restore" class="notice">
         <div class="display">
           <p>
             Frogtab will restore your data from <strong id="restore-date"></strong> when you next reload Frogtab.
@@ -820,10 +830,12 @@
             dom.register.disabled = true;
           }
           dom.caseRegistered.classList.add("display");
+          dom.caseRegistered.focus();
           dom.link.href = getPersonalLink();
         }
         else {
           dom.caseUnregistered.classList.add("display");
+          dom.caseUnregistered.focus();
         }
       }
       async function forget() {
@@ -862,9 +874,11 @@
         dom.caseForgetting.classList.remove("display");
         if (verifiedUser) {
           dom.caseRegistered.classList.add("display");
+          dom.caseRegistered.focus();
         }
         else {
           dom.caseUnregistered.classList.add("display");
+          dom.caseUnregistered.focus();
         }
       }
       function tryToStageRestore(backupJSON) {
@@ -888,6 +902,7 @@
           year: "numeric"
         });
         dom.stagedRestore.classList.add("display");
+        dom.stagedRestore.focus();
         dom.restoreDate.textContent = backupDate;
         dom.cancelRestore.addEventListener("click", () => {
           localStorage.removeItem("restore");
@@ -897,8 +912,10 @@
       function setAchievements() {
         if (localStorage.getItem("achievements") !== null) {
           dom.achievementsDisabled.classList.remove("display");
-          dom.achievementsEnabled.classList.add("display");
-          if (dom.confirmDisableAchievements.classList.contains("display")) {
+          if (!dom.confirmDisableAchievements.classList.contains("display")) {
+            dom.achievementsEnabled.classList.add("display");
+          }
+          else {
             dom.achievementsEnabled.classList.remove("display");
           }
         }
@@ -1024,6 +1041,7 @@
           event.preventDefault();
           dom.caseRegistered.classList.remove("display");
           dom.caseRegisteredForget.classList.add("display");
+          dom.caseRegisteredForget.focus();
         });
         dom.forget.addEventListener("click", async event => {
           event.preventDefault();
@@ -1032,6 +1050,7 @@
         dom.cancelForget.addEventListener("click", () => {
           dom.caseRegisteredForget.classList.remove("display");
           dom.caseRegistered.classList.add("display");
+          dom.caseRegistered.focus();
         });
         if (localStorage.getItem("restore") !== null) {
           setRestoreStatus(JSON.parse(localStorage.getItem("restore")));
@@ -1055,20 +1074,24 @@
         dom.enableAchievements.addEventListener("click", () => {
           localStorage.setItem("achievements", "[]");
           setAchievements();
+          dom.achievementsEnabled.focus();
         });
         dom.startDisableAchievements.addEventListener("click", event => {
           event.preventDefault();
           dom.confirmDisableAchievements.classList.add("display");
+          dom.confirmDisableAchievements.focus();
           setAchievements();
         });
         dom.finishDisableAchievements.addEventListener("click", event => {
           event.preventDefault();
           localStorage.removeItem("achievements");
           setAchievements();
+          dom.achievementsDisabled.focus();
         });
         dom.cancelDisableAchievements.addEventListener("click", () => {
           dom.confirmDisableAchievements.classList.remove("display");
           setAchievements();
+          dom.achievementsEnabled.focus();
         });
         for (const element of document.querySelectorAll(".button")) {
           element.addEventListener("keydown", event => {

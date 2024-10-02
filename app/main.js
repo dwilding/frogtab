@@ -785,6 +785,7 @@ async function startApp() {
     ) {
       event.preventDefault();
       dom.today.click();
+      dom.editor.today.focus();
     }
   });
   dom.editor.inbox.addEventListener("input", event => {
@@ -840,6 +841,7 @@ async function startApp() {
     ) {
       event.preventDefault();
       dom.inbox.click();
+      dom.editor.inbox.focus();
     }
   });
   dom.menuButton.addEventListener("click", event => {
