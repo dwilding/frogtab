@@ -41,7 +41,9 @@ description: |
   1.06snap1:
 
     * You can now stop Frogtab Local via your browser. See the bottom of the help page
-    * Reorganized the help page and explained the Achievements feature in a more approachable way
+    * Reorganized the menu to always show Achievements. Removed Send to Frogtab from the menu
+    * Reorganized the help page and explained Achievements in a more approachable way
+    * Improved keyboard accessibility
     * Changed the ID format of generated key pairs, for better compatibility with GnuPG
 
   1.05snap1:

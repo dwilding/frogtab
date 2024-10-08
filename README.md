@@ -166,9 +166,11 @@ For details, see [LICENSE_openpgp](LICENSE_openpgp).
 
 | Date | Change | Available in Server | Frogtab Local Version |
 | --- | --- | --- | --- |
-| Sep ??, 2024 | You can now stop Frogtab Local via your browser. See the bottom of the help page | No | v1.06 |
-| Sep ??, 2024 | Reorganized the help page and explained the [Achievements](https://frogtab.com/help#tracking-your-completed-tasks) feature in a more approachable way | Yes | v1.06 |
-| Sep ??, 2024 | Changed the ID format of generated key pairs, for better compatibility with GnuPG | Yes | v1.06 |
+| Oct ??, 2024 | You can now stop Frogtab Local via your browser. See the bottom of the help page | No | v1.06 |
+| Oct ??, 2024 | Reorganized the menu to always show Achievements. Removed Send to Frogtab from the menu | Yes | v1.06 |
+| Oct ??, 2024 | Reorganized the help page and explained Achievements in a more approachable way | Yes | v1.06 |
+| Oct ??, 2024 | Improved keyboard accessibility | Yes | v1.06 |
+| Oct ??, 2024 | Changed the ID format of generated key pairs, for better compatibility with GnuPG | Yes | v1.06 |
 | Sep 25, 2024 | You can now download public keys from the server. See [code_samples.md](code_samples.md) | Yes | Not applicable |
 | Jul 30, 2024 | Fixed a registration bug that occurred after reinstalling Frogtab on the server | Yes | Not applicable |
 | Jul 26, 2024 | Added a variable in *config.py* that specifies the server to use for personal links | No | v1.05 |
@@ -179,4 +181,3 @@ For details, see [LICENSE_openpgp](LICENSE_openpgp).
 | Jul 16, 2024 | Removed the `data-vibe` attribute and documented how to [customize the placeholder text of your personal link](#customizing-the-placeholder-text-of-your-personal-link) | Yes | v1.04 |
 | Jul 4, 2024 | Improved support & docs for self-hosted servers | Yes | v1.03 |
 | Jul 2, 2024 | Fixed a bug with the registration button | Yes | v1.02 |
-| Jul 2, 2024 | Updated Simple.css and OpenPGP.js | Yes | v1.02 |
