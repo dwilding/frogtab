@@ -220,8 +220,10 @@
           }
         });
         dom.editor.addEventListener("input", () => {
-          if (dom.editor.value.trim() != "") {
+          const value = dom.editor.value.trim();
+          if (value != "") {
             dom.send.classList.add("enabled");
+            dom.send.classList.remove("short-hover");
             dom.send.tabIndex = 0;
           }
           else {
@@ -229,10 +231,6 @@
             dom.send.tabIndex = -1;
           }
         });
-        if (dom.editor.value.trim() != "") {
-          dom.send.classList.add("enabled");
-          dom.send.tabIndex = 0;
-        }
       }
       async function startApp() {
         const matches = window.location.hash.match(/^#([0-9a-f-]{36})(\/([^\/]*))?$/);
