@@ -852,13 +852,15 @@ async function startApp() {
     }
   });
   dom.menuButton.addEventListener("keydown", event => {
-    if (dom.menu.classList.contains("display") && event.key.toLowerCase() == "arrowdown") {
+    if (event.key.toLowerCase() == "arrowdown") {
       event.preventDefault();
+      dom.menu.classList.add("display");
       const elements = document.querySelectorAll("[data-menu-seq].display");
       elements[0].focus();
     }
-    else if (dom.menu.classList.contains("display") && event.key.toLowerCase() == "arrowup") {
+    else if (event.key.toLowerCase() == "arrowup") {
       event.preventDefault();
+      dom.menu.classList.add("display");
       const elements = document.querySelectorAll("[data-menu-seq].display");
       elements[elements.length - 1].focus();
     }
@@ -932,6 +934,7 @@ async function startApp() {
     }
     else if (event.key.toLowerCase() == "escape") {
       dom.menu.classList.remove("display");
+      dom.menuButton.focus();
     }
   });
   for (const element of document.querySelectorAll("a")) {
