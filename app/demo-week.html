@@ -21,23 +21,27 @@
           </div>
         </div>
         <div class="main">
-          <textarea id="editor" class="display" readonly></textarea>
+          <textarea tabindex="0" id="editor" class="display" readonly></textarea>
         </div>
       </div>
     </div>
     <script>
+      const domEditor = document.getElementById("editor");
       const matches = window.location.hash.match(/#(\w+)\/([^\/]+)/);
       if (matches !== null) {
         for (const tab of ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]) {
           if (tab == matches[1]) {
             document.getElementById(`tab-${tab}`).classList.add("selected");
-            document.getElementById("editor").setAttribute("aria-labelledby", `tab-${tab}`);
+            domEditor.setAttribute("aria-labelledby", `tab-${tab}`);
           }
           else {
             document.getElementById(`tab-${tab}`).classList.remove("selected");
           }
         }
-        document.getElementById("editor").value = decodeURIComponent(matches[2]);
+        domEditor.value = decodeURIComponent(matches[2]);
+        domEditor.addEventListener("focus", () => {
+          domEditor.setSelectionRange(0, domEditor.value.length);
+        });
       }
       if (localStorage.getItem("ui.theme") === null) {
         localStorage.setItem("ui.theme", "system");
