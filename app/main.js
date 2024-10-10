@@ -890,6 +890,9 @@ async function startApp() {
       const prevIndex = (thisIndex - 1 + elements.length) % elements.length;
       elements[prevIndex].focus();
     }
+    else if (event.key.toLowerCase() == "escape") {
+      dom.menuButton.focus();
+    }
   });
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
@@ -934,7 +937,6 @@ async function startApp() {
     }
     else if (event.key.toLowerCase() == "escape") {
       dom.menu.classList.remove("display");
-      dom.menuButton.focus();
     }
   });
   for (const element of document.querySelectorAll("a")) {
