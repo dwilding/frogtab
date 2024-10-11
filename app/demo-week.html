@@ -40,7 +40,9 @@
         }
         domEditor.value = decodeURIComponent(matches[2]);
         domEditor.addEventListener("focus", () => {
-          domEditor.setSelectionRange(0, domEditor.value.length);
+          window.setTimeout(() => {
+            domEditor.setSelectionRange(0, domEditor.value.length);
+          }, 0);
         });
       }
       if (localStorage.getItem("ui.theme") === null) {
