@@ -119,6 +119,7 @@ For a detailed example, see [Adding a private feedback box to Bear](https://mayb
 You'll need an Apache server that has PHP and [Composer](https://getcomposer.org/) installed.
 Apache must have the following modules enabled:
 
+  * mod_mime
   * mod_rewrite
   * mod_headers
 
