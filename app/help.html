@@ -626,29 +626,50 @@
         You can use completion commands to control the completion date when completing tasks.
       </p>
       <p>
-        The following commands are available:
-      </p>
-      <ul>
-        <li>
-          <p>
-            <code>x -<em>n</em></code>, where <em>n</em> is a number.
-            Completes a task and sets the completion date to <em>n</em>&nbsp;days in the past.
-          </p>
-        </li>
-        <li>
-          <p>
-            <code>x <em>day</em></code>, where <em>day</em> is one of <code>mon</code> through <code>sun</code>.
-            Completes a task and sets the completion date to <em>day</em> from the past week.
-          </p>
-        </li>
-      </ul>
-      <p>
         To use a command, write the command in front of a task, then press <kbd>Enter</kbd>.
-        For&nbsp;example:
       </p>
-      <p>
-        <mark>TODO: Add demo video</mark>
-      </p>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 50%">Command</th>
+            <th style="width: 50%">Example</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <p>
+                <code>x -<em>n</em></code>, where <em>n</em> is a number
+              </p>
+              <p>
+                Completes a task and sets the completion date to <em>n</em>&nbsp;days in the past.
+              </p>
+            </td>
+            <td>
+              <p>
+                To set the completion date of a task to yesterday's date,
+                write <code>x -1</code> in front of the task, then press <kbd>Enter</kbd>.
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <p>
+                <code>x <em>day</em></code>, where <em>day</em> is one of <code>mon</code> to <code>sun</code>
+              </p>
+              <p>
+                Completes a task and sets the completion date to <em>day</em> from the past week.
+              </p>
+            </td>
+            <td>
+              <p>
+                To set the completion date of a task to the most recent Friday,
+                write <code>x fri</code> in front of the task, then press <kbd>Enter</kbd>.
+              </p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
       <h2 id="customizing-the-tab-icon">Customizing the tab icon</h2>
       <p>
         Whenever Frogtab displays a notification badge, Frogtab tries to put a badge on the tab icon too.
