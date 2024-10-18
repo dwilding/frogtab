@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" data-purpose="demo" data-theme="system">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo of Frogtab</title>
+    <link rel="stylesheet" href="style.css?sha1=b3f3f8236df9321ee6441e2ff5870af57e0a19c9">
+  </head>
+  <body>
+    <div id="container" class="container restricted demo">
+      <div class="interface">
+        <div class="tabs">
+          <div class="tab">
+            <span id="tab-today" class="tab-name selected">Today</span>
+            <span id="tab-inbox" class="tab-name">Inbox</span>
+            <span class="tab-icon">⬤</span>
+          </div>
+        </div>
+        <div class="main">
+          <textarea tabindex="0" id="editor" class="display" readonly></textarea>
+        </div>
+        <div class="actions">
+          <div class="action">
+            <span class="action-instruction display"><svg role="img" aria-label="Menu icon" width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M3 5h18M3 12h18M3 19h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      const domEditor = document.getElementById("editor");
+      const matches = window.location.hash.match(/#(\w+)\/([^\/]+)\/(false|true)/);
+      if (matches !== null) {
+        for (const tab of ['today', 'inbox']) {
+          if (tab == matches[1]) {
+            document.getElementById(`tab-${tab}`).classList.add("selected");
+            domEditor.setAttribute("aria-labelledby", `tab-${tab}`);
+          }
+          else {
+            document.getElementById(`tab-${tab}`).classList.remove("selected");
+          }
+        }
+        domEditor.value = decodeURIComponent(matches[2]);
+        domEditor.addEventListener("focus", () => {
+          window.setTimeout(() => {
+            domEditor.setSelectionRange(0, domEditor.value.length);
+          }, 0);
+        });
+        if (matches[3] == "true") {
+          document.getElementById("tab-inbox").classList.add("notify");
+        }
+      }
+      if (localStorage.getItem("ui.theme") === null) {
+        localStorage.setItem("ui.theme", "system");
+      }
+      document.documentElement.setAttribute("data-theme", localStorage.getItem("ui.theme"));
+      window.addEventListener("storage", () => {
+        document.documentElement.setAttribute("data-theme", localStorage.getItem("ui.theme"));
+      });
+    </script>
+  </body>
+</html>

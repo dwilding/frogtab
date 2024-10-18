@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" data-purpose="demo" data-theme="system">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo of Weekly Routine</title>
+    <link rel="stylesheet" href="style.css?sha1=b3f3f8236df9321ee6441e2ff5870af57e0a19c9">
+  </head>
+  <body>
+    <div id="container" class="container restricted demo">
+      <div class="interface">
+        <div class="tabs">
+          <div class="tab">
+            <span id="tab-mon" class="tab-name selected">Mon</span>
+            <span id="tab-tue" class="tab-name">Tue</span>
+            <span id="tab-wed" class="tab-name">Wed</span>
+            <span id="tab-thu" class="tab-name">Thu</span>
+            <span id="tab-fri" class="tab-name">Fri</span>
+            <span id="tab-sat" class="tab-name">Sat</span>
+            <span id="tab-sun" class="tab-name">Sun</span>
+          </div>
+        </div>
+        <div class="main">
+          <textarea tabindex="0" id="editor" class="display" readonly></textarea>
+        </div>
+      </div>
+    </div>
+    <script>
+      const domEditor = document.getElementById("editor");
+      const matches = window.location.hash.match(/#(\w+)\/([^\/]+)/);
+      if (matches !== null) {
+        for (const tab of ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]) {
+          if (tab == matches[1]) {
+            document.getElementById(`tab-${tab}`).classList.add("selected");
+            domEditor.setAttribute("aria-labelledby", `tab-${tab}`);
+          }
+          else {
+            document.getElementById(`tab-${tab}`).classList.remove("selected");
+          }
+        }
+        domEditor.value = decodeURIComponent(matches[2]);
+        domEditor.addEventListener("focus", () => {
+          window.setTimeout(() => {
+            domEditor.setSelectionRange(0, domEditor.value.length);
+          }, 0);
+        });
+      }
+      if (localStorage.getItem("ui.theme") === null) {
+        localStorage.setItem("ui.theme", "system");
+      }
+      document.documentElement.setAttribute("data-theme", localStorage.getItem("ui.theme"));
+      window.addEventListener("storage", () => {
+        document.documentElement.setAttribute("data-theme", localStorage.getItem("ui.theme"));
+      });
+    </script>
+  </body>
+</html>

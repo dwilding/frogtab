@@ -1,5 +1,7 @@
-from flask import Flask, render_template, send_from_directory, request
+from flask import Flask, render_template, send_from_directory, request, make_response
 from frogtab_helpers import list_methods, save_data
+from os import getpid, kill
+from signal import SIGINT
 
 try:
     from config import local_port
@@ -45,6 +47,11 @@ def post_data():
     body = request.get_json()
     key = body['key']
     return save_data(key, body['data'])
+
+@app.route('/save/post-stop', methods=['POST'])
+def post_stop():
+    kill(getpid(), SIGINT)
+    return make_response('', 204)
 
 if __name__ == '__main__':
     app.run(port=local_port)

@@ -5,4 +5,4 @@ if test ! -e config.py; then
   cp "$SNAP/config.py" .
 fi
 export PYTHONPATH=".:$PYTHONPATH"
-"$SNAP/bin/python3" "$SNAP/flask/app.py" > /dev/null
+exec "$SNAP/bin/python3" "$SNAP/flask/app.py" > /dev/null

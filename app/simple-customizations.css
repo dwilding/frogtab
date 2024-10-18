@@ -14,20 +14,18 @@
   --marked: #ffdd33;
   --disabled: #efefef;
 }
-img.dark-only {
-  display: none;
-}
 .checklist li {
   /* Use --text = #212121 for the stroke color */
-  list-style-image: url('data:image/svg+xml;utf8,<svg width="22px" height="22px" stroke-width="1.5" viewBox="0 -3 24 21" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 13L9 17L19 7" stroke="%23212121" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>');
+  list-style-image: url('data:image/svg+xml;utf8,<svg role="img" aria-label="Check icon" width="22px" height="22px" stroke-width="1.5" viewBox="0 -3 24 21" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 13L9 17L19 7" stroke="%23212121" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>');
 }
 .checklist.editing li {
   /* Use --text-light = #585858 for the stroke color */
-  list-style-image: url('data:image/svg+xml;utf8,<svg width="22px" height="22px" stroke-width="1.5" viewBox="0 -3 24 21" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 13L9 17L19 7" stroke="%23585858" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>');
+  list-style-image: url('data:image/svg+xml;utf8,<svg role="img" aria-label="Check icon" width="22px" height="22px" stroke-width="1.5" viewBox="0 -3 24 21" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 13L9 17L19 7" stroke="%23585858" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>');
 }
-.checklist.editing.selectable li.inner-hover {
+.checklist.editing.selectable li.inner-hover,
+.checklist.editing.selectable li:focus-within {
   /* Use --text = #212121 for the stroke color */
-  list-style-image: url('data:image/svg+xml;utf8,<svg width="22px" height="22px" viewBox="0 -3 24 21" stroke-width="1.5" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.5 8C8.5 8 11 8 15 8C15 8 15 8 15 8C15 8 20 8 20 12.7059C20 18 15 18 15 18C11.5714 18 9.71429 18 6.28571 18" stroke="%23212121" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M7.5 11.5C6.13317 10.1332 5.36683 9.36683 4 8C5.36683 6.63317 6.13317 5.86683 7.5 4.5" stroke="%23212121" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>');
+  list-style-image: url('data:image/svg+xml;utf8,<svg role="img" aria-label="Back arrow icon" width="22px" height="22px" viewBox="0 -3 24 21" stroke-width="1.5" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.5 8C8.5 8 11 8 15 8C15 8 15 8 15 8C15 8 20 8 20 12.7059C20 18 15 18 15 18C11.5714 18 9.71429 18 6.28571 18" stroke="%23212121" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M7.5 11.5C6.13317 10.1332 5.36683 9.36683 4 8C5.36683 6.63317 6.13317 5.86683 7.5 4.5" stroke="%23212121" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>');
 }
 /* Dark theme case 1: System is dark and Frogtab is set to match system */
 @media (prefers-color-scheme: dark) {
@@ -44,23 +42,18 @@ img.dark-only {
     --preformatted: #ccc;
     --disabled: #111;
   }
-  :root[data-theme="system"] img.dark-only {
-    display: inline;
-  }
-  :root[data-theme="system"] img.light-only {
-    display: none;
-  }
   :root[data-theme="system"] .checklist li {
     /* Use --text = #dcdcdc for the stroke color */
-    list-style-image: url('data:image/svg+xml;utf8,<svg width="22px" height="22px" stroke-width="1.5" viewBox="0 -3 24 21" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 13L9 17L19 7" stroke="%23dcdcdc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>');
+    list-style-image: url('data:image/svg+xml;utf8,<svg role="img" aria-label="Check icon" width="22px" height="22px" stroke-width="1.5" viewBox="0 -3 24 21" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 13L9 17L19 7" stroke="%23dcdcdc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>');
   }
   :root[data-theme="system"] .checklist.editing li {
     /* Use --text-light = #ababab for the stroke color */
-    list-style-image: url('data:image/svg+xml;utf8,<svg width="22px" height="22px" stroke-width="1.5" viewBox="0 -3 24 21" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 13L9 17L19 7" stroke="%23ababab" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>');
+    list-style-image: url('data:image/svg+xml;utf8,<svg role="img" aria-label="Check icon" width="22px" height="22px" stroke-width="1.5" viewBox="0 -3 24 21" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 13L9 17L19 7" stroke="%23ababab" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>');
   }
-  :root[data-theme="system"] .checklist.editing.selectable li.inner-hover {
+  :root[data-theme="system"] .checklist.editing.selectable li.inner-hover,
+  :root[data-theme="system"] .checklist.editing.selectable li:focus-within {
     /* Use --text = #dcdcdc for the stroke color */
-    list-style-image: url('data:image/svg+xml;utf8,<svg width="22px" height="22px" viewBox="0 -3 24 21" stroke-width="1.5" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.5 8C8.5 8 11 8 15 8C15 8 15 8 15 8C15 8 20 8 20 12.7059C20 18 15 18 15 18C11.5714 18 9.71429 18 6.28571 18" stroke="%23dcdcdc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M7.5 11.5C6.13317 10.1332 5.36683 9.36683 4 8C5.36683 6.63317 6.13317 5.86683 7.5 4.5" stroke="%23dcdcdc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>');
+    list-style-image: url('data:image/svg+xml;utf8,<svg role="img" aria-label="Back arrow icon" width="22px" height="22px" viewBox="0 -3 24 21" stroke-width="1.5" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.5 8C8.5 8 11 8 15 8C15 8 15 8 15 8C15 8 20 8 20 12.7059C20 18 15 18 15 18C11.5714 18 9.71429 18 6.28571 18" stroke="%23dcdcdc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M7.5 11.5C6.13317 10.1332 5.36683 9.36683 4 8C5.36683 6.63317 6.13317 5.86683 7.5 4.5" stroke="%23dcdcdc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>');
   }
 }
 /* Dark theme case 2: Frogtab is set to dark */
@@ -77,23 +70,18 @@ img.dark-only {
   --preformatted: #ccc;
   --disabled: #111;
 }
-:root[data-theme="dark"] img.dark-only {
-  display: inline;
-}
-:root[data-theme="dark"] img.light-only {
-  display: none;
-}
 :root[data-theme="dark"] .checklist li {
   /* Use --text = #dcdcdc for the stroke color */
-  list-style-image: url('data:image/svg+xml;utf8,<svg width="22px" height="22px" stroke-width="1.5" viewBox="0 -3 24 21" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 13L9 17L19 7" stroke="%23dcdcdc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>');
+  list-style-image: url('data:image/svg+xml;utf8,<svg role="img" aria-label="Check icon" width="22px" height="22px" stroke-width="1.5" viewBox="0 -3 24 21" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 13L9 17L19 7" stroke="%23dcdcdc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>');
 }
 :root[data-theme="dark"] .checklist.editing li {
   /* Use --text-light = #ababab for the stroke color */
-  list-style-image: url('data:image/svg+xml;utf8,<svg width="22px" height="22px" stroke-width="1.5" viewBox="0 -3 24 21" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 13L9 17L19 7" stroke="%23ababab" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>');
+  list-style-image: url('data:image/svg+xml;utf8,<svg role="img" aria-label="Check icon" width="22px" height="22px" stroke-width="1.5" viewBox="0 -3 24 21" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 13L9 17L19 7" stroke="%23ababab" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>');
 }
-:root[data-theme="dark"] .checklist.editing.selectable li.inner-hover {
+:root[data-theme="dark"] .checklist.editing.selectable li.inner-hover,
+:root[data-theme="dark"] .checklist.editing.selectable li:focus-within {
   /* Use --text = #dcdcdc for the stroke color */
-  list-style-image: url('data:image/svg+xml;utf8,<svg width="22px" height="22px" viewBox="0 -3 24 21" stroke-width="1.5" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.5 8C8.5 8 11 8 15 8C15 8 15 8 15 8C15 8 20 8 20 12.7059C20 18 15 18 15 18C11.5714 18 9.71429 18 6.28571 18" stroke="%23dcdcdc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M7.5 11.5C6.13317 10.1332 5.36683 9.36683 4 8C5.36683 6.63317 6.13317 5.86683 7.5 4.5" stroke="%23dcdcdc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>');
+  list-style-image: url('data:image/svg+xml;utf8,<svg role="img" aria-label="Back arrow icon" width="22px" height="22px" viewBox="0 -3 24 21" stroke-width="1.5" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.5 8C8.5 8 11 8 15 8C15 8 15 8 15 8C15 8 20 8 20 12.7059C20 18 15 18 15 18C11.5714 18 9.71429 18 6.28571 18" stroke="%23dcdcdc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M7.5 11.5C6.13317 10.1332 5.36683 9.36683 4 8C5.36683 6.63317 6.13317 5.86683 7.5 4.5" stroke="%23dcdcdc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>');
 }
 /* Hide parts of the registration flow */
 :root[data-registration="short"] .long-registration-only {
@@ -110,9 +98,6 @@ img.dark-only {
   display: none;
 }
 /* Override/define other styles  */
-img {
-  opacity: 1;
-}
 .compact {
   margin-top: 0.5rem;
 }
@@ -194,12 +179,17 @@ td > p + p {
 .checklist.editing li {
   color: var(--text-light);
 }
-.checklist.editing.selectable li.inner-hover {
+.checklist.editing.selectable li.inner-hover,
+.checklist.editing.selectable li:focus-within {
   color: var(--text);
   cursor: pointer;
 }
-blockquote {
-  font-style: normal;
+iframe {
+  max-width: 480px;
+  width: 100%;
+  height: 250px;
+  border: 0;
+  border-radius: var(--standard-border-radius);
 }
 footer a {
   color: var(--text-light) !important;

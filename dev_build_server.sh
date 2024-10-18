@@ -12,6 +12,7 @@ rm *.backup
 cat <<EOF > .htaccess
 SetEnv DIR_PACKAGES "$DIR_PACKAGES"
 SetEnv FILE_SQLITEDB "$DIR_PARENT/frogtab.db"
+AddType text/javascript .mjs
 RewriteEngine On
 RewriteRule ^key_([0-9a-f-]{36})\.asc$ get-public-key.php?user_id=\$1 [L]
 RewriteCond %{REQUEST_FILENAME}.php -f

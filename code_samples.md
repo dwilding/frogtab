@@ -43,6 +43,8 @@ getKeyID("YOUR_ID").then(keyID => {
 
 ## Terminal: Send a task
 
+For a detailed explanation, see [Making a command-line tool for your Frogtab personal link](https://maybecoding.bearblog.dev/making-a-command-line-tool-for-your-frogtab-personal-link/).
+
 1. Download your public key:
 
   ```

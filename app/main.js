@@ -17,7 +17,10 @@ async function storeIcons() {
 function switchToTab(tab) {
   if (tab != selectedTab) {
     dom[tab].classList.add("selected");
+    dom[tab].tabIndex = -1;
+    dom[tab].blur();
     dom[selectedTab].classList.remove("selected");
+    dom[selectedTab].tabIndex = 0;
     dom.editor[tab].classList.add("display");
     dom.editor[selectedTab].classList.remove("display");
     selectedTab = tab;
@@ -544,24 +547,18 @@ async function verifyUserAndAppendMessages() {
   storeThenSave("value.inbox", storedInboxValue);
   dom.fetchConnected.classList.add("display");
 }
-function setAchievements() {
-  if (localStorage.getItem("achievements") !== null) {
-    dom.achievements.classList.add("display");
-  }
-  else {
-    dom.achievements.classList.remove("display");
-  }
-}
 function setSnap() {
   if (localStorage.getItem("ui.snap") == "bottom") {
     dom.container.classList.add("docked");
     dom.snapToCenter.classList.add("display");
     dom.snapToBottom.classList.remove("display");
   }
-  dom.snapToBottom.addEventListener("click", () => {
+  dom.snapToBottom.addEventListener("click", event => {
+    event.preventDefault();
     toggleSnap();
   });
-  dom.snapToCenter.addEventListener("click", () => {
+  dom.snapToCenter.addEventListener("click", event => {
+    event.preventDefault();
     toggleSnap();
   });
 }
@@ -582,6 +579,7 @@ function toggleSnap() {
 function setConfigureSave() {
   if (localStorage.getItem("saveMethod") === null) {
     dom.configureSave.classList.add("display");
+    dom.popupSavePaused.classList.remove("display");
   }
   else {
     dom.configureSave.classList.remove("display");
@@ -601,7 +599,8 @@ function setExportAndSave() {
   }
   if ("showSaveFilePicker" in window) {
     dom.enableSave.classList.add("display");
-    dom.enableSave.addEventListener("click", async () => {
+    dom.enableSave.addEventListener("click", async event => {
+      event.preventDefault();
       try {
         fileHandle = await window.showSaveFilePicker({
           suggestedName: `Frogtab_backup.json`,
@@ -677,7 +676,7 @@ async function saveToService() {
     return;
   }
   const data = createData();
-  const onFailure = () => {
+  const onServiceFailure = () => {
     localStorage.removeItem("saveMethod");
     dom.configureSave.classList.add("display");
     timeoutSave.waiting = false;
@@ -696,16 +695,22 @@ async function saveToService() {
     });
   }
   catch (err) {
-    onFailure();
+    if (showWelcome) {
+      dom.welcome.classList.remove("display");
+      showWelcome = false;
+    }
+    dom.popupSavePaused.classList.add("display");
+    timeoutSave.waiting = false;
     return;
   }
+  dom.popupSavePaused.classList.remove("display");
   if (!response.ok) {
-    onFailure();
+    onServiceFailure();
     return;
   }
   const result = await response.json();
   if (!result.success) {
-    onFailure();
+    onServiceFailure();
     return;
   }
   timeoutSave.waiting = false;
@@ -728,7 +733,6 @@ async function saveToFile() {
   timeoutSave.waiting = false;
 }
 async function startApp() {
-  setAchievements();
   setExportAndSave();
   setSnap();
   if (isNewDay()) {
@@ -773,6 +777,16 @@ async function startApp() {
   dom.today.addEventListener("click", () => {
     switchToTab("today");
     refreshInfo();
+  });
+  dom.today.addEventListener("keydown", event => {
+    if (
+      (!event.ctrlKey && !event.metaKey && !event.shiftKey && event.key.toLowerCase() == "enter")
+      || event.key == " "
+    ) {
+      event.preventDefault();
+      dom.today.click();
+      dom.editor.today.focus();
+    }
   });
   dom.editor.inbox.addEventListener("input", event => {
     if (event.inputType == "insertText" && localStorage.getItem("achievements") !== null) {
@@ -820,14 +834,65 @@ async function startApp() {
     switchToTab("inbox");
     refreshInfo();
   });
+  dom.inbox.addEventListener("keydown", event => {
+    if (
+      (!event.ctrlKey && !event.metaKey && !event.shiftKey && event.key.toLowerCase() == "enter")
+      || event.key == " "
+    ) {
+      event.preventDefault();
+      dom.inbox.click();
+      dom.editor.inbox.focus();
+    }
+  });
   dom.menuButton.addEventListener("click", event => {
+    event.preventDefault();
     if (!dom.menu.classList.contains("display")) {
       event.stopPropagation();
       dom.menu.classList.add("display");
     }
   });
+  dom.menuButton.addEventListener("keydown", event => {
+    if (event.key.toLowerCase() == "arrowdown") {
+      event.preventDefault();
+      dom.menu.classList.add("display");
+      const elements = document.querySelectorAll("[data-menu-seq].display");
+      elements[0].focus();
+    }
+    else if (event.key.toLowerCase() == "arrowup") {
+      event.preventDefault();
+      dom.menu.classList.add("display");
+      const elements = document.querySelectorAll("[data-menu-seq].display");
+      elements[elements.length - 1].focus();
+    }
+  });
   document.addEventListener("click", () => {
     dom.menu.classList.remove("display");
+  });
+  dom.editor.today.addEventListener("focusin", () => {
+    dom.menu.classList.remove("display");
+  });
+  dom.editor.inbox.addEventListener("focusin", () => {
+    dom.menu.classList.remove("display");
+  });
+  dom.menu.addEventListener("keydown", event => {
+    if (event.target.hasAttribute("data-menu-seq") && event.key.toLowerCase() == "arrowdown") {
+      event.preventDefault();
+      const elements = document.querySelectorAll("[data-menu-seq].display");
+      const thisIndex = parseInt(event.target.getAttribute("data-menu-seq"), 10);
+      const nextIndex = (thisIndex + 1) % elements.length;
+      elements[nextIndex].focus();
+    }
+    else if (event.target.hasAttribute("data-menu-seq") && event.key.toLowerCase() == "arrowup") {
+      event.preventDefault();
+      event.preventDefault();
+      const elements = document.querySelectorAll("[data-menu-seq].display");
+      const thisIndex = parseInt(event.target.getAttribute("data-menu-seq"), 10);
+      const prevIndex = (thisIndex - 1 + elements.length) % elements.length;
+      elements[prevIndex].focus();
+    }
+    else if (event.key.toLowerCase() == "escape") {
+      dom.menuButton.focus();
+    }
   });
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
@@ -870,7 +935,18 @@ async function startApp() {
       event.preventDefault();
       toggleSnap();
     }
+    else if (event.key.toLowerCase() == "escape") {
+      dom.menu.classList.remove("display");
+    }
   });
+  for (const element of document.querySelectorAll("a")) {
+    element.addEventListener("keydown", event => {
+      if (event.key == " ") {
+        event.preventDefault();
+        element.click();
+      }
+    });
+  }
   if (localStorage.getItem("user.userID") !== null) {
     userIDTested = localStorage.getItem("user.userID");
     await verifyUserAndAppendMessages();
@@ -928,7 +1004,6 @@ async function startApp() {
   }, 15000);
   window.addEventListener("storage", async () => {
     document.documentElement.setAttribute("data-theme", localStorage.getItem("ui.theme"));
-    setAchievements();
     if (document.documentElement.getAttribute("data-save") == "service") {
       setConfigureSave();
     }
@@ -1021,17 +1096,18 @@ const dom = {
   fetchConnected: document.getElementById("fetch-connected"),
   menuButton: document.getElementById("menu-button"),
   menu: document.getElementById("menu"),
-  achievements: document.getElementById("achievements"),
   snapToBottom: document.getElementById("snap-to-bottom"),
   snapToCenter: document.getElementById("snap-to-center"),
   exportData: document.getElementById("export-data"),
   enableSave: document.getElementById("enable-save"),
-  configureSave: document.getElementById("configure-save")
+  configureSave: document.getElementById("configure-save"),
+  popupSavePaused: document.getElementById("popup-save-paused")
 };
 if (showWelcome) {
   dom.welcome.classList.add("display");
   dom.welcome.addEventListener("click", () => {
     dom.welcome.classList.remove("display");
+    showWelcome = false;
   });
 }
 const storedIcons = {};
