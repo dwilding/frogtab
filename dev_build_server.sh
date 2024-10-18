@@ -7,7 +7,7 @@ DIR_PARENT="$(cd .. && pwd)"
 cd server/public
 sed -i'.backup' 's/data-server-base=\"https:\/\/frogtab.com\/\"/data-server-base=\"\"/' index.html icon-*.html help.html
 sed -i'.backup' 's/data-location=\"local\"/data-location=\"server\"/' send.html
-sed -i'.backup' 's/\(<a tabindex="0" href="https:\/\/github.com\/dwilding\/frogtab"\)/<a href="https:\/\/snapcraft.io\/frogtab" target="_blank">Frogtab on Linux<\/a> • \1/' help.html
+sed -i'.backup' 's/\(<a tabindex="0" href="https:\/\/github.com\/dwilding\/frogtab"\)/<a tabindex="0" href="https:\/\/snapcraft.io\/frogtab" target="_blank">Frogtab on Linux<\/a> • \1/' help.html
 rm *.backup
 cat <<EOF > .htaccess
 SetEnv DIR_PACKAGES "$DIR_PACKAGES"

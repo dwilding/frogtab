@@ -14,7 +14,7 @@ rm -f Frogtab_backup.json
 cd templates
 sed -i'.backup' 's/data-server-base=\"https:\/\/frogtab.com\/\"/data-server-base=\"{{ server_base }}\"/' index.html icon-*.html help.html
 sed -i'.backup' 's/data-save=\"browser\"/data-save=\"service\"/' index.html icon-*.html help.html
-sed -i'.backup' 's/\(<a tabindex="0" href="https:\/\/github.com\/dwilding\/frogtab"\)/<a href="https:\/\/github.com\/dwilding\/frogtab\/releases\/tag\/v1.06" target="_blank">v1.06 release notes<\/a> • \1/' help.html
+sed -i'.backup' 's/\(<a tabindex="0" href="https:\/\/github.com\/dwilding\/frogtab"\)/<a tabindex="0" href="https:\/\/github.com\/dwilding\/frogtab\/releases\/tag\/v1.06" target="_blank">v1.06 release notes<\/a> • \1/' help.html
 rm *.backup
 
 cd ..
