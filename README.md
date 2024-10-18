@@ -167,12 +167,12 @@ For details, see [LICENSE_openpgp](LICENSE_openpgp).
 
 | Date | Change | Available in Server | Frogtab Local Version |
 | --- | --- | --- | --- |
-| Oct ??, 2024 | You can now stop Frogtab Local via your browser. See the bottom of the help page | No | v1.06 |
-| Oct ??, 2024 | Reorganized the menu to always show Achievements. Removed Send to Frogtab from the menu | Yes | v1.06 |
-| Oct ??, 2024 | Reorganized the help page and explained Achievements in a more approachable way | Yes | v1.06 |
-| Oct ??, 2024 | Improved keyboard accessibility | Yes | v1.06 |
-| Oct ??, 2024 | Changed the ID format of generated key pairs, for better compatibility with GnuPG | Yes | v1.06 |
-| Oct ??, 2024 | Improved portability by specifying the content type for *.mjs* files | Yes | Not applicable |
+| Oct 18, 2024 | You can now stop Frogtab Local via your browser. See the bottom of the help page | No | v1.06 |
+| Oct 18, 2024 | Reorganized the menu to always show Achievements. Removed Send to Frogtab from the menu | Yes | v1.06 |
+| Oct 18, 2024 | Reorganized the help page and explained Achievements in a more approachable way | Yes | v1.06 |
+| Oct 18, 2024 | Improved keyboard accessibility | Yes | v1.06 |
+| Oct 18, 2024 | Changed the ID format of generated key pairs, for better compatibility with GnuPG | Yes | v1.06 |
+| Oct 18, 2024 | Improved portability by specifying the content type for *.mjs* files | Yes | Not applicable |
 | Sep 25, 2024 | You can now download public keys from the server. See [code_samples.md](code_samples.md) | Yes | Not applicable |
 | Jul 30, 2024 | Fixed a registration bug that occurred after reinstalling Frogtab on the server | Yes | Not applicable |
 | Jul 26, 2024 | Added a variable in *config.py* that specifies the server to use for personal links | No | v1.05 |
