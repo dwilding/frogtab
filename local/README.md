@@ -19,7 +19,7 @@ See below for details.
 
 Open a terminal in the directory that contains *app.py*, then enter the following command:
     
-```sh
+```
 python app.py
 ```
 

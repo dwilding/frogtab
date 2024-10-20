@@ -129,7 +129,7 @@ To install Frogtab on your own server:
 
  2. Enter the following commands:
 
-    ```sh
+    ```
     git clone https://github.com/dwilding/frogtab.git
     cd frogtab
     ./dev_build_server.sh
