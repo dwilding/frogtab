@@ -956,7 +956,7 @@
       async function fetchSaveMethods() {
         let response;
         try {
-          response = await fetch("save/get-methods");
+          response = await fetch("service/get-methods");
         }
         catch (err) {
           return;
@@ -989,7 +989,7 @@
           document.getElementById("action-stop-service").addEventListener("click", async event => {
             event.preventDefault();
             try {
-              await fetch("save/post-stop", {
+              await fetch("service/post-stop", {
                 method: "POST"
               });
             }

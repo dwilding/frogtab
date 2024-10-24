@@ -1,5 +1,5 @@
 from flask import Flask, render_template, send_from_directory, request, make_response
-from frogtab_helpers import list_methods, save_data
+from frogtab_helpers import list_methods, save_data, add_message_for, remove_messages_for
 from os import getpid, kill
 from signal import SIGINT
 
@@ -38,17 +38,26 @@ def serve_file(file):
     else:
         return send_from_directory(app.static_folder, f'{file}.html')
 
-@app.route('/save/get-methods')
+@app.route('/service/get-methods')
 def get_methods():
     return list_methods()
 
-@app.route('/save/post-data', methods=['POST'])
+@app.route('/service/post-data', methods=['POST'])
 def post_data():
     body = request.get_json()
-    key = body['key']
-    return save_data(key, body['data'])
+    return save_data(body['key'], body['data'])
 
-@app.route('/save/post-stop', methods=['POST'])
+@app.route('/service/post-add-message', methods=['POST'])
+def add_message():
+    body = request.get_json()
+    return add_message_for(body['instance_id'], body['message'])
+
+@app.route('/service/post-remove-messages', methods=['POST'])
+def remove_messages():
+    body = request.get_json()    
+    return remove_messages_for(body['instance_id'])
+
+@app.route('/service/post-stop', methods=['POST'])
 def post_stop():
     kill(getpid(), SIGINT)
     return make_response('', 204)

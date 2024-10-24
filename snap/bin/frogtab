@@ -1,8 +1,15 @@
 #!/bin/sh
 
 cd "$SNAP_USER_COMMON"
-if test ! -e config.py; then
+if [ ! -e config.py ]; then
   cp "$SNAP/config.py" .
 fi
 export PYTHONPATH=".:$PYTHONPATH"
-exec "$SNAP/bin/python3" "$SNAP/flask/app.py" > /dev/null
+if [ "$#" -eq 0 ]; then
+  exec "$SNAP/bin/python3" "$SNAP/flask/app.py" > /dev/null
+elif [ "$#" -eq 3 ] && [ "$1" = --send ]; then
+  "$SNAP/bin/python3" "$SNAP/flask/send.py" "$2" "$3"
+else
+  echo "Usage: frogtab [--send <id> <task>]"
+  exit 1
+fi
