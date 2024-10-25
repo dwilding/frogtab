@@ -527,20 +527,22 @@ async function verifyUserAndAppendMessages() {
     dom.fetchConnected.classList.remove("display");
     return;
   }
-  const pgpPrivateKeyObj = await openpgp.readKey({
-    armoredKey: localStorage.getItem("user.pgpPrivateKey")
-  });
-  let storedInboxValue = localStorage.getItem("value.inbox");
-  for (const encryptedMessage of result.messages) {
-    const decrypted = await openpgp.decrypt({
-      message: await openpgp.readMessage({
-        armoredMessage: encryptedMessage
-      }),
-      decryptionKeys: pgpPrivateKeyObj
+  if (result.messages.length > 0) {
+    const pgpPrivateKeyObj = await openpgp.readKey({
+      armoredKey: localStorage.getItem("user.pgpPrivateKey")
     });
-    storedInboxValue = appendToTop(storedInboxValue, decrypted.data);
+    let storedInboxValue = localStorage.getItem("value.inbox");
+    for (const encryptedMessage of result.messages) {
+      const decrypted = await openpgp.decrypt({
+        message: await openpgp.readMessage({
+          armoredMessage: encryptedMessage
+        }),
+        decryptionKeys: pgpPrivateKeyObj
+      });
+      storedInboxValue = appendToTop(storedInboxValue, decrypted.data);
+    }
+    storeThenSave("value.inbox", storedInboxValue);
   }
-  storeThenSave("value.inbox", storedInboxValue);
   dom.fetchConnected.classList.add("display");
 }
 async function appendLocalMessages() {
@@ -563,7 +565,7 @@ async function appendLocalMessages() {
     return;
   }
   const result = await response.json();
-  if (!result.success) {
+  if (!result.success || result.messages.length == 0) {
     return;
   }
   let storedInboxValue = localStorage.getItem("value.inbox");
@@ -571,7 +573,6 @@ async function appendLocalMessages() {
     storedInboxValue = appendToTop(storedInboxValue, message);
   }
   storeThenSave("value.inbox", storedInboxValue);
-  dom.fetchConnected.classList.add("display");
 }
 function setSnap() {
   if (localStorage.getItem("ui.snap") == "bottom") {
@@ -1172,7 +1173,6 @@ let instanceID = null;
 if (document.documentElement.getAttribute("data-save") == "service") {
   usingLocalService = true;
   instanceID = decodeURIComponent(window.location.hash.substring(1));
-  console.log(instanceID);
 }
 const serverBase = document.documentElement.getAttribute("data-server-base");
 let userIDTested = null;
