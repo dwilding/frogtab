@@ -32,7 +32,7 @@ mkdir flask
 mv static templates app.py send.py frogtab_helpers.py requirements.txt flask
 
 cd flask/templates
-sed -i'.backup' 's/python send\.py/frogtab send/' help.html
+sed -i'.backup' 's/python send\.py/frogtab send/g' help.html
 rm *.backup
 
 cd ../..

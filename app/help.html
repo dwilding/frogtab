@@ -10,7 +10,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="favicons/icon-180-apple.png">
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="stylesheet" href="simple.min.css?sha1=7217da6f3e55e123bd9e735d928d8aaf05afc5a2">
-    <link rel="stylesheet" href="simple-customizations.css?sha1=8ea27f16ee29df158a92d2cf4b95e3c19182b5ea">
+    <link rel="stylesheet" href="simple-customizations.css?sha1=37543e3ca2e575b95d9a8fbc5cbc62e9b678bfa7">
   </head>
   <body>
     <header>
@@ -118,7 +118,7 @@
       </ul>
       <p>
         These methods don't work from other devices.
-        To capture tasks from other devices, first <a tabindex="0" href="#registering-for-a-personal-link" title="Registering for a personal link">register for a personal link</a>.
+        To send tasks from other devices, first <a tabindex="0" href="#registering-for-a-personal-link" title="Registering for a personal link">register for a personal link</a>.
       </p>
       <h2 id="triaging-your-inbox">Triaging your inbox</h2>
       <p>
@@ -708,7 +708,8 @@
       <div class="service-save-only">
         <h2 id="sending-tasks-via-a-terminal">Sending tasks via a terminal</h2>
         <p>
-          To enable this feature:
+          As an alternative to using <a tabindex="0" href="send" target="_blank">Send to Frogtab</a>,
+          you can send tasks to Frogtab via a terminal. To enable this feature:
         </p>
         <ol>
           <li>
@@ -731,6 +732,11 @@
         <pre><code>python send.py work "Record a new product demo"</code></pre>
         <p>
           The task will appear in your inbox after a few seconds.
+        </p>
+        <p>
+          You can't use <code>python send.py</code> to send tasks from other devices.
+          To send tasks from other devices, first <a tabindex="0" href="#registering-for-a-personal-link" title="Registering for a personal link">register for a personal link</a>,
+          then <a tabindex="0" href="https://maybecoding.bearblog.dev/making-a-command-line-tool-for-your-frogtab-personal-link/" target="_blank">make a command-line tool for your personal link</a>.
         </p>
       </div>
     </main>
