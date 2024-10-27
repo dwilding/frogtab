@@ -13,7 +13,7 @@ See *config.py* for details.
 You'll need Python 3.8 or later. See https://www.python.org/downloads/.
 
 To install the Flask app, open a terminal in the directory that contains *app.py*,
-then enter the folllwing commands:
+then enter the following commands:
 
 ```
 python -m venv .venv
