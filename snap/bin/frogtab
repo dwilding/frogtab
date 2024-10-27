@@ -11,6 +11,6 @@ if [ "$#" -eq 0 ]; then
 elif [ "$#" -eq 3 ] && [ "$1" = send ]; then
   "$SNAP/bin/python3" "$SNAP/flask/send.py" "$2" "$3"
 else
-  echo "Usage: frogtab [send <name> <task>]"
+  echo "Usage: frogtab [send <label> <task>]"
   exit 1
 fi
