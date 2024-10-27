@@ -1,5 +1,6 @@
 #!/bin/sh
 
+mkdir -p "$SNAP_USER_COMMON"
 cd "$SNAP_USER_COMMON"
 if [ ! -e config.py ]; then
   cp "$SNAP/config.py" .
@@ -10,6 +11,6 @@ if [ "$#" -eq 0 ]; then
 elif [ "$#" -eq 3 ] && [ "$1" = send ]; then
   "$SNAP/bin/python3" "$SNAP/flask/send.py" "$2" "$3"
 else
-  echo "Usage: frogtab [send <id> <task>]"
+  echo "Usage: frogtab [send <name> <task>]"
   exit 1
 fi

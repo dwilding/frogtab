@@ -1074,6 +1074,11 @@ async function startApp() {
     refreshView();
     requestSave();
   });
+  window.addEventListener("hashchange", () => {
+    if (usingLocalService) {
+      instanceID = decodeURIComponent(window.location.hash.substring(1));
+    }
+  })
 }
 
 // ******** Initial setup ********

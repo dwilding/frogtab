@@ -7,7 +7,7 @@ except ImportError:
     local_port = 5000
 
 if len(sys.argv) < 3:
-    print('Usage: python3 send.py <id> <task>')
+    print('Usage: python send.py <name> <task>')
     sys.exit(1)
 
 url = f'http://127.0.0.1:{local_port}/service/post-add-message'

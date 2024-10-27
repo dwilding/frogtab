@@ -1,5 +1,5 @@
 name: frogtab
-version: 1.07snap1beta8
+version: 1.07snap1beta11
 title: Frogtab Local
 summary: Run the Frogtab task manager on localhost
 description: |
@@ -12,7 +12,7 @@ description: |
 
   **Running Frogtab Local**
 
-  To run Frogtab Local, use the `frogtab` command after installing this snap.
+  To run Frogtab Local, use the `frogtab` command.
 
   You should see the message `Running on http://127.0.0.1:5000`.
   You can ignore the warning about a development server.
@@ -20,13 +20,6 @@ description: |
   To access Frogtab, open http://127.0.0.1:5000 in your browser.
 
   To specify a different port, modify the `local_port` variable in _~/snap/frogtab/common/config.py_, then run `frogtab` again.
-
-  **Using a self-hosted server for personal links**
-
-  If you have installed Frogtab on your own server, you can configure Frogtab Local to use your server for personal links.
-  To learn how to install Frogtab on your server, see https://github.com/dwilding/frogtab#self-hosting-frogtab.
-
-  After installing Frogtab on your server, set the `registration_server` variable in _~/snap/frogtab/common/config.py_ to the URL of your installation of Frogtab.
 
   **License**
 
@@ -48,7 +41,7 @@ description: |
 
   1.05snap1:
 
-    * Added a variable in _~/snap/frogtab/common/config.py_ that specifies the server to use for personal links
+    * Added a variable in _config.py_ that specifies the server to use for personal links
     * Fixed a registration bug that occurred after importing an old backup file
 grade: stable
 confinement: strict

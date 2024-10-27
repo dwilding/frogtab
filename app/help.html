@@ -58,6 +58,7 @@
           <li><a tabindex="0" href="#completion-commands">Completion commands</a></li>
           <li><a tabindex="0" href="#customizing-the-tab-icon">Customizing the tab icon</a></li>
           <li><a tabindex="0" href="#changing-the-theme">Changing the theme</a></li>
+          <li class="service-save-only"><a tabindex="0" href="#sending-tasks-via-a-terminal">Sending tasks via a terminal</a></li>
         </ul>
       </article>
       <h2 id="overview-of-frogtab">Overview of Frogtab</h2>
@@ -110,12 +111,14 @@
             Open <a tabindex="0" href="send" target="_blank">Send to Frogtab</a> in a new tab, then write down the task and click the send button.
             This method is great if you want to capture the task without revealing your inbox (e.g., during a meeting).
           </p>
+          <p class="service-save-only">
+            You can also <a tabindex="0" href="#sending-tasks-via-a-terminal" title="Sending tasks via a terminal">send tasks to Frogtab via a terminal</a>.
+          </p>
         </li>
       </ul>
       <p>
         These methods don't work from other devices.
-        To capture tasks from other devices, first register for a personal link.
-        To learn more, see <a tabindex="0" href="#registering-for-a-personal-link">Registering for a personal link</a>.
+        To capture tasks from other devices, first <a tabindex="0" href="#registering-for-a-personal-link" title="Registering for a personal link">register for a personal link</a>.
       </p>
       <h2 id="triaging-your-inbox">Triaging your inbox</h2>
       <p>
@@ -702,6 +705,34 @@
           </div>
         </div>
       </div>
+      <div class="service-save-only">
+        <h2 id="sending-tasks-via-a-terminal">Sending tasks via a terminal</h2>
+        <p>
+          To enable this feature:
+        </p>
+        <ol>
+          <li>
+            <p>
+              Choose a name for Frogtab.
+              For example, <code>work</code> or <code>personal</code>.
+            </p>
+          </li>
+          <li>
+            <p>
+              Modify the URL of Frogtab to include the name.
+              For example, <code><span class="origin">http://127.0.0.1:5000</span>/#work</code>.
+            </p>
+          </li>
+        </ol>
+        <p>
+          To send a task to Frogtab, use <code>python send.py</code>.
+          For example:
+        </p>
+        <pre><code>python send.py work "Record a new product demo"</code></pre>
+        <p>
+          The task will appear in your inbox after a few seconds.
+        </p>
+      </div>
     </main>
     <footer>
       <p>
@@ -984,7 +1015,7 @@
         verify();
         updateSelectedTheme();
         setAchievements();
-        if (document.documentElement.getAttribute("data-save") == "service") {
+        if (usingLocalService) {
           fetchSaveMethods();
           document.getElementById("action-stop-service").addEventListener("click", async event => {
             event.preventDefault();
@@ -995,7 +1026,7 @@
             }
             catch (err) {}
             await delayForUX(() => {
-              document.getElementById("stop-service").innerText = "Stopping…";
+              document.getElementById("stop-service").textContent = "Stopping…";
             });
             document.getElementById("stop-service").remove();
           });
@@ -1053,7 +1084,7 @@
         }
         else {
           dom.register.disabled = false;
-          dom.register.innerText = "Register This Device";
+          dom.register.textContent = "Register This Device";
         }
         dom.register.addEventListener("click", () => {
           register();
@@ -1126,7 +1157,7 @@
           document.documentElement.setAttribute("data-theme", localStorage.getItem("ui.theme"));
           updateSelectedTheme();
           setAchievements();
-          if (document.documentElement.getAttribute("data-save") == "service") {
+          if (usingLocalService) {
             setSaveMethod();
           }
           if (
@@ -1186,10 +1217,17 @@
       // ^ If serverBase is absolute, gets hostname from serverBase
       //   If serverBase is relative, gets hostname from window.location.origin
       for (const element of document.querySelectorAll(".server-hostname")) {
-        element.innerText = serverHostname;
+        element.textContent = serverHostname;
+      }
+      for (const element of document.querySelectorAll(".origin")) {
+        element.textContent = window.location.origin;
       }
       let verifiedUser = false;
       let openpgp;
+      let usingLocalService = false;
+      if (document.documentElement.getAttribute("data-save") == "service") {
+        usingLocalService = true;
+      }
       startApp();
     </script>
   </body>
