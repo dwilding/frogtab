@@ -129,7 +129,7 @@ To install Frogtab on your own server:
 
  2. Enter the following commands:
 
-    ```sh
+    ```
     git clone https://github.com/dwilding/frogtab.git
     cd frogtab
     ./dev_build_server.sh
@@ -167,6 +167,7 @@ For details, see [LICENSE_openpgp](LICENSE_openpgp).
 
 | Date | Change | Available in Server | Frogtab Local Version |
 | --- | --- | --- | --- |
+| Oct 27, 2024 | You can now send tasks to Frogtab via a terminal, without registering for a personal link | No | v1.07 |
 | Oct 18, 2024 | You can now stop Frogtab Local via your browser. See the bottom of the help page | No | v1.06 |
 | Oct 18, 2024 | Reorganized the menu to always show Achievements. Removed Send to Frogtab from the menu | Yes | v1.06 |
 | Oct 18, 2024 | Reorganized the help page and explained Achievements in a more approachable way | Yes | v1.06 |

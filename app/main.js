@@ -527,25 +527,52 @@ async function verifyUserAndAppendMessages() {
     dom.fetchConnected.classList.remove("display");
     return;
   }
-  const messages = [];
-  const pgpPrivateKeyObj = await openpgp.readKey({
-    armoredKey: localStorage.getItem("user.pgpPrivateKey")
-  });
-  for (const encryptedMessage of result.messages) {
-    const decrypted = await openpgp.decrypt({
-      message: await openpgp.readMessage({
-        armoredMessage: encryptedMessage
-      }),
-      decryptionKeys: pgpPrivateKeyObj
+  if (result.messages.length > 0) {
+    const pgpPrivateKeyObj = await openpgp.readKey({
+      armoredKey: localStorage.getItem("user.pgpPrivateKey")
     });
-    messages.push(decrypted.data);
+    let storedInboxValue = localStorage.getItem("value.inbox");
+    for (const encryptedMessage of result.messages) {
+      const decrypted = await openpgp.decrypt({
+        message: await openpgp.readMessage({
+          armoredMessage: encryptedMessage
+        }),
+        decryptionKeys: pgpPrivateKeyObj
+      });
+      storedInboxValue = appendToTop(storedInboxValue, decrypted.data);
+    }
+    storeThenSave("value.inbox", storedInboxValue);
+  }
+  dom.fetchConnected.classList.add("display");
+}
+async function appendLocalMessages() {
+  let response;
+  try {
+    response = await fetch("service/post-remove-messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        instance_id: instanceID
+      })
+    });
+  }
+  catch (err) {
+    return;
+  }
+  if (!response.ok) {
+    return;
+  }
+  const result = await response.json();
+  if (!result.success || result.messages.length == 0) {
+    return;
   }
   let storedInboxValue = localStorage.getItem("value.inbox");
-  for (const message of messages) {
+  for (const message of result.messages) {
     storedInboxValue = appendToTop(storedInboxValue, message);
   }
   storeThenSave("value.inbox", storedInboxValue);
-  dom.fetchConnected.classList.add("display");
 }
 function setSnap() {
   if (localStorage.getItem("ui.snap") == "bottom") {
@@ -593,7 +620,7 @@ function setExportAndSave() {
     });
     dom.exportData.href = URL.createObjectURL(dataBlob);
   });
-  if (document.documentElement.getAttribute("data-save") == "service") {
+  if (usingLocalService) {
     setConfigureSave();
     return;
   }
@@ -659,12 +686,12 @@ function storeThenSave(key, value) {
   requestSave();
 }
 function requestSave() {
-  if (document.documentElement.getAttribute("data-save") == "service" && localStorage.getItem("saveMethod") !== null) {
+  if (usingLocalService && localStorage.getItem("saveMethod") !== null) {
     window.clearTimeout(timeoutSave.id);
     timeoutSave.id = window.setTimeout(saveToService, 1500);
     timeoutSave.waiting = true;
   }
-  if (document.documentElement.getAttribute("data-save") != "service" && fileHandle !== null) {
+  if (!usingLocalService && fileHandle !== null) {
     window.clearTimeout(timeoutSave.id);
     timeoutSave.id = window.setTimeout(saveToFile, 1500);
     timeoutSave.waiting = true;
@@ -683,7 +710,7 @@ async function saveToService() {
   };
   let response;
   try {
-    response = await fetch("save/post-data", {
+    response = await fetch("service/post-data", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -947,12 +974,20 @@ async function startApp() {
       }
     });
   }
+  if (usingLocalService && instanceID != "") {
+    await appendLocalMessages();
+    setNotifyStatus();
+    if (selectedTab == "inbox" || (startingTab === null && notifyInbox)) {
+      switchToTab("inbox");
+      refreshInfo();
+    }
+  }
   if (localStorage.getItem("user.userID") !== null) {
     userIDTested = localStorage.getItem("user.userID");
     await verifyUserAndAppendMessages();
     if (verifiedUser) {
       setNotifyStatus();
-      if (startingTab == "inbox" || (startingTab === null && notifyInbox)) {
+      if (selectedTab == "inbox" || (startingTab === null && notifyInbox)) {
         switchToTab("inbox");
         refreshInfo();
       }
@@ -961,6 +996,9 @@ async function startApp() {
   window.setInterval(async () => {
     if (isNewDay()) {
       updateValues();
+      if (usingLocalService && instanceID != "") {
+        await appendLocalMessages();
+      }
       if (verifiedUser) {
         await verifyUserAndAppendMessages();
       }
@@ -973,10 +1011,17 @@ async function startApp() {
       }
       refreshInfo();
     }
-    else if (verifiedUser && lastAppend <= Date.now() - 600000) {
-      await verifyUserAndAppendMessages();
-      setNotifyStatus();
-      refreshView();
+    else {
+      if (usingLocalService && instanceID != "") {
+        await appendLocalMessages();
+        setNotifyStatus();
+        refreshView();
+      }
+      if (verifiedUser && lastAppend <= Date.now() - 600000) {
+        await verifyUserAndAppendMessages();
+        setNotifyStatus();
+        refreshView();
+      }
     }
     if (
       document.hidden && lastActive <= Date.now() - 30000
@@ -991,7 +1036,10 @@ async function startApp() {
       if (reloadIcon != requestedIcon) {
         const reloadParams = new URLSearchParams(window.location.search);
         reloadParams.set("reload", Date.now().toString());
-        const reloadLocation = `icon-${reloadIcon}?${reloadParams.toString()}`;
+        let reloadLocation = `icon-${reloadIcon}?${reloadParams.toString()}`;
+        if (usingLocalService && instanceID != "") {
+          reloadLocation = `${reloadLocation}#${encodeURIComponent(instanceID)}`;
+        }
         try {
           // Before committing to the reload, verify that we can load the new location
           await fetch(reloadLocation);
@@ -1004,7 +1052,7 @@ async function startApp() {
   }, 15000);
   window.addEventListener("storage", async () => {
     document.documentElement.setAttribute("data-theme", localStorage.getItem("ui.theme"));
-    if (document.documentElement.getAttribute("data-save") == "service") {
+    if (usingLocalService) {
       setConfigureSave();
     }
     if (localStorage.getItem("user.userID") !== null && userIDTested !== localStorage.getItem("user.userID")) {
@@ -1026,6 +1074,11 @@ async function startApp() {
     refreshView();
     requestSave();
   });
+  window.addEventListener("hashchange", () => {
+    if (usingLocalService) {
+      instanceID = decodeURIComponent(window.location.hash.substring(1));
+    }
+  })
 }
 
 // ******** Initial setup ********
@@ -1120,6 +1173,12 @@ let timeoutSave = {
 };
 let timeoutShowInfo;
 let lastActive = Date.now();
+let usingLocalService = false;
+let instanceID = null;
+if (document.documentElement.getAttribute("data-save") == "service") {
+  usingLocalService = true;
+  instanceID = decodeURIComponent(window.location.hash.substring(1));
+}
 const serverBase = document.documentElement.getAttribute("data-server-base");
 let userIDTested = null;
 let verifiedUser = false;

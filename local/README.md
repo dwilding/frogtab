@@ -6,22 +6,24 @@ I encourage you to tinker with the app!
 
 Frogtab Local supports personal links, but your device will be registered with frogtab.com.
 If you self-host Frogtab, you can configure Frogtab Local to use your own server instead.
-See below for details.
+See *config.py* for details.
 
-## Requirements
+## Installing the Flask app
 
-  - Python 3.8 or later. See https://www.python.org/downloads/
-  - Flask.
-    I recommend that you install Flask in a virtual environment.
-    See https://flask.palletsprojects.com/en/3.0.x/installation/#virtual-environments
+You'll need Python 3.8 or later. See https://www.python.org/downloads/.
+
+To install the Flask app, open a terminal in the directory that contains *app.py*,
+then enter the following commands:
+
+```
+python -m venv .venv
+. .venv/bin/activate
+pip install -r requirements.txt
+```
 
 ## Running the Flask app
 
-Open a terminal in the directory that contains *app.py*, then enter the following command:
-    
-```sh
-python app.py
-```
+To run the Flask app, use `python app.py`.
 
 The Flask app starts:
 
@@ -33,31 +35,6 @@ WARNING: This is a development server. Do not use it in a production deployment.
 To access Frogtab, open http://127.0.0.1:5000 in your browser.
 
 To specify a different port, modify the `local_port` variable in *config.py*, then run `python app.py` again.
-
-## Adding your own backup method
-
-Frogtab Local doesn't rely on your browser to save backup files.
-Instead, the Flask app can save backup files.
-This approach improves support for automatic backups and lets you add your own backup methods.
-
-To add your own backup method, define your backup method as a function in *config.py* and apply the `@backup` decorator to the function.
-For example:
-
-```py
-@backup('Save to Desktop')
-def save_to_desktop(data):
-    write_json(data, '/home/dave/Desktop/Frogtab_backup.json')
-```
-
-The `data` parameter is a dictionary that contains the backup data from your browser.
-The argument to `@backup` is the name of the backup method that will appear in the list of backup methods.
-
-## Using a self-hosted server for personal links
-
-If you have installed Frogtab on your own server, you can configure Frogtab Local to use your server for personal links.
-To learn how to install Frogtab on your server, see https://github.com/dwilding/frogtab#self-hosting-frogtab.
-
-After installing Frogtab on your server, set the `registration_server` variable in *config.py* to the URL of your installation of Frogtab.
 
 ## License
 
