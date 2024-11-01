@@ -14,12 +14,12 @@ rm -f Frogtab_backup.json
 cd templates
 sed -i'.backup' 's/data-server-base=\"https:\/\/frogtab\.com\/\"/data-server-base=\"{{ server_base }}\"/' index.html icon-*.html help.html
 sed -i'.backup' 's/data-save=\"browser\"/data-save=\"service\"/' index.html icon-*.html help.html
-sed -i'.backup' 's/\(<a tabindex="0" href="https:\/\/github\.com\/dwilding\/frogtab"\)/<a tabindex="0" href="https:\/\/github.com\/dwilding\/frogtab\/releases\/tag\/v1.07" target="_blank">v1.07 release notes<\/a> • \1/' help.html
+sed -i'.backup' 's/\(<a tabindex="0" href="https:\/\/github\.com\/dwilding\/frogtab"\)/<a tabindex="0" href="https:\/\/github.com\/dwilding\/frogtab\/releases\/tag\/v1.08" target="_blank">v1.08 release notes<\/a> • \1/' help.html
 rm *.backup
 
 cd ..
-zip -r frogtab_local_v107.zip .
-mv frogtab_local_v107.zip ..
+zip -r frogtab_local_v108.zip .
+mv frogtab_local_v108.zip ..
 
 cd ..
 rm -rf snapcraft
@@ -36,7 +36,7 @@ sed -i'.backup' 's/python send\.py/frogtab send/g' help.html
 rm *.backup
 
 cd ../..
-# snapcraft pack
-# mv frogtab_*.snap ..
+snapcraft pack
+mv frogtab_*.snap ..
 
 cd ..
