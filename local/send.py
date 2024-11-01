@@ -17,7 +17,11 @@ body = {
 }
 
 try:
-    requests.post(url, json=body)
+    response = requests.post(url, json=body)
 except requests.exceptions.ConnectionError:
     print('Error: Frogtab Local is not running')
+    sys.exit(1)
+
+if not response.json()['success']:
+    print(f'Error: Unable to send to Frogtab with label {sys.argv[1]}')
     sys.exit(1)

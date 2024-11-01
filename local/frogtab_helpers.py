@@ -37,7 +37,9 @@ def write_json(data, file_path):
 
 def add_message_for(instance_id, message):
     if instance_id not in messages:
-        messages[instance_id] = []
+        return {
+            'success': False
+        }
     messages[instance_id].insert(0, message)
     return {
         'success': True

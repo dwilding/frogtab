@@ -996,20 +996,28 @@ async function startApp() {
   window.setInterval(async () => {
     if (isNewDay()) {
       updateValues();
-      if (usingLocalService && instanceID != "") {
-        await appendLocalMessages();
-      }
-      if (verifiedUser) {
-        await verifyUserAndAppendMessages();
-      }
-      setNotifyStatus();
       if (notifyInbox) {
         switchToTab("inbox");
-      }
-      else {
+      } else {
         switchToTab("today");
       }
       refreshInfo();
+      if (usingLocalService && instanceID != "") {
+        await appendLocalMessages();
+        setNotifyStatus();
+        if (notifyInbox) {
+          switchToTab("inbox");
+          refreshInfo();
+        }
+      }
+      if (verifiedUser) {
+        await verifyUserAndAppendMessages();
+        setNotifyStatus();
+        if (notifyInbox) {
+          switchToTab("inbox");
+          refreshInfo();
+        }
+      }
     }
     else {
       if (usingLocalService && instanceID != "") {
@@ -1074,9 +1082,12 @@ async function startApp() {
     refreshView();
     requestSave();
   });
-  window.addEventListener("hashchange", () => {
+  window.addEventListener("hashchange", async () => {
     if (usingLocalService) {
       instanceID = decodeURIComponent(window.location.hash.substring(1));
+      await appendLocalMessages();
+      setNotifyStatus();
+      refreshView();
     }
   })
 }

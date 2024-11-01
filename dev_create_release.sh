@@ -36,7 +36,7 @@ sed -i'.backup' 's/python send\.py/frogtab send/g' help.html
 rm *.backup
 
 cd ../..
-snapcraft pack
-mv frogtab_*.snap ..
+# snapcraft pack
+# mv frogtab_*.snap ..
 
 cd ..
