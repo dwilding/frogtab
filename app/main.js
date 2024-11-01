@@ -993,30 +993,28 @@ async function startApp() {
       }
     }
   }
+  function preferInbox() {
+    setNotifyStatus();
+    if (notifyInbox) {
+      switchToTab("inbox");
+    }
+    refreshInfo();
+  }
   window.setInterval(async () => {
     if (isNewDay()) {
       updateValues();
-      if (notifyInbox) {
-        switchToTab("inbox");
-      } else {
-        switchToTab("today");
-      }
-      refreshInfo();
+      preferInbox();
       if (usingLocalService && instanceID != "") {
         await appendLocalMessages();
-        setNotifyStatus();
-        if (notifyInbox) {
-          switchToTab("inbox");
-          refreshInfo();
-        }
+        preferInbox();
       }
       if (verifiedUser) {
         await verifyUserAndAppendMessages();
-        setNotifyStatus();
-        if (notifyInbox) {
-          switchToTab("inbox");
-          refreshInfo();
-        }
+        preferInbox();
+      }
+      if (!notifyInbox) {
+        switchToTab("today");
+        refreshInfo();
       }
     }
     else {
