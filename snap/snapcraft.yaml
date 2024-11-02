@@ -1,5 +1,5 @@
 name: frogtab
-version: 1.08snap1beta1
+version: 1.08snap1
 title: Frogtab Local
 summary: Run the Frogtab task manager on localhost
 description: |
@@ -30,6 +30,10 @@ description: |
   OpenPGP.js is licensed under the GNU Lesser General Public License.
 
   **Changelog**
+
+  1.08snap1:
+
+    * Sending tasks via a terminal now fails if the label has never been used by Frogtab
 
   1.07snap1:
 

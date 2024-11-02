@@ -167,6 +167,7 @@ For details, see [LICENSE_openpgp](LICENSE_openpgp).
 
 | Date | Change | Available in Server | Frogtab Local Version |
 | --- | --- | --- | --- |
+| Nov 2, 2024 | Sending tasks via a terminal now fails if the label has never been used by Frogtab | No | v1.08 |
 | Oct 27, 2024 | You can now send tasks to Frogtab via a terminal, without registering for a personal link. See the help page | No | v1.07 |
 | Oct 18, 2024 | You can now stop Frogtab Local via your browser. See the bottom of the help page | No | v1.06 |
 | Oct 18, 2024 | Reorganized the menu to always show Achievements. Removed Send to Frogtab from the menu | Yes | v1.06 |
