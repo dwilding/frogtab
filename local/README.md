@@ -10,6 +10,10 @@ See *config.py* for details.
 
 ## Installing the Flask app
 
+These instructions explain how to install the Flask app from source.
+If you use Linux, it's easier to install Frogtab Local from the Snap Store.
+See https://snapcraft.io/frogtab.
+
 You'll need Python 3.8 or later. See https://www.python.org/downloads/.
 
 To install the Flask app, open a terminal in the directory that contains *app.py*,
