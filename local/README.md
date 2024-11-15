@@ -20,7 +20,7 @@ To install the Flask app, open a terminal in the directory that contains *app.py
 then enter the following commands:
 
 ```
-python -m venv .venv
+python3 -m venv .venv
 . .venv/bin/activate
 pip install -r requirements.txt
 ```
