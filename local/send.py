@@ -1,5 +1,5 @@
+from requests import post, exceptions
 import sys
-import requests
 
 try:
     from config import local_port
@@ -17,9 +17,13 @@ body = {
 }
 
 try:
-    response = requests.post(url, json=body)
-except requests.exceptions.ConnectionError:
-    print('Error: Frogtab Local is not running')
+    response = post(url, json=body)
+except exceptions.ConnectionError:
+    print(f'Error: Frogtab Local is not running on http://127.0.0.1:{local_port}')
+    sys.exit(1)
+
+if response.status_code != 200:
+    print(f'Error: Frogtab Local is not running on http://127.0.0.1:{local_port}')
     sys.exit(1)
 
 if not response.json()['success']:
