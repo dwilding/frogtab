@@ -69,7 +69,7 @@ For a detailed explanation, see [Making a command-line tool for your Frogtab per
   ID="YOUR_ID"
   KEY="KEY_ID"
 
-  TASK="Record a demo of the latest product features"
+  TASK="Record a new product demo"
 
   ENCRYPTED_TASK="$(echo "$TASK" | gpg --armor --encrypt --recipient "$KEY")"
   if [ $? -ne 0 ]; then
