@@ -161,6 +161,43 @@ function completeSelected(editor, storageKey, offset) {
     updateCompleted(linesCaptured, offset);
   }
 }
+function selectTaskIfNoSelection(editor) {
+  const selectionPos = editor.selectionStart;
+  if (selectionPos != editor.selectionEnd) {
+    return;
+  }
+  let newSelectionStart, newSelectionEnd;
+  const lines = editor.value.split("\n");
+  let hasCaptured = false;
+  let capturing = false;
+  let lineStart = 0;
+  let lineEnd;
+  for (const line of lines) {
+    lineEnd = lineStart + line.length;
+    const trimmedLine = line.trimStart();
+    if (lineEnd >= selectionPos) {
+      if (lineStart > selectionPos) {
+        if (capturing && trimmedLine != "") {
+          newSelectionEnd = lineStart;
+          capturing = false;
+        }
+      }
+      else if (!capturing && trimmedLine != "") {
+        newSelectionStart = lineStart;
+        hasCaptured = true;
+        capturing = true;
+      }
+    }
+    lineStart = lineEnd + 1;
+  }
+  if (hasCaptured) {
+    if (capturing) {
+      newSelectionStart = editor.value.substring(0, newSelectionStart).trimEnd().length;
+      newSelectionEnd = editor.value.length;
+    }
+    editor.setSelectionRange(newSelectionStart, newSelectionEnd);
+  }
+}
 function inboxMoveSelected() {
   const selectionStart = dom.editor.inbox.selectionStart;
   const selectionEnd = dom.editor.inbox.selectionEnd;
@@ -786,6 +823,10 @@ async function startApp() {
       todaySnoozeSelected();
       return;
     }
+    if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key == "x") {
+      selectTaskIfNoSelection(dom.editor.today);
+      return;
+    }
     if (localStorage.getItem("achievements") !== null) {
       if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key.toLowerCase() == "k") {
         event.preventDefault();
@@ -836,6 +877,10 @@ async function startApp() {
       inboxSnoozeSelected();
       setNotifyStatus();
       refreshInfo();
+      return;
+    }
+    if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key == "x") {
+      selectTaskIfNoSelection(dom.editor.inbox);
       return;
     }
     if (localStorage.getItem("achievements") !== null) {
