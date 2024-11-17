@@ -19,13 +19,14 @@ body = {
 try:
     response = post(url, json=body)
 except exceptions.ConnectionError:
-    print(f'Error: Frogtab Local is not running on http://127.0.0.1:{local_port}')
+    print(f'Error: Unable to connect to Frogtab Local on port {local_port}')
     sys.exit(1)
 
 if response.status_code != 200:
-    print(f'Error: Frogtab Local is not running on http://127.0.0.1:{local_port}')
+    print(f'Error: Unable to connect to Frogtab Local on port {local_port}')
     sys.exit(1)
 
 if not response.json()['success']:
     print(f'Error: Unable to send to Frogtab with label {sys.argv[1]}')
+    print(f'(Connected to Frogtab Local on port {local_port})')
     sys.exit(1)
