@@ -7,7 +7,10 @@ if [ ! -e config.py ]; then
 fi
 export PYTHONPATH=".:$PYTHONPATH"
 if [ "$#" -eq 0 ]; then
-  exec "$SNAP/bin/python3" "$SNAP/flask/app.py" > /dev/null
+  "$SNAP/bin/python3" "$SNAP/flask/is_not_running.py"
+  if [ $? -eq 0 ]; then
+    exec "$SNAP/bin/python3" "$SNAP/flask/app.py" > /dev/null
+  fi
 elif [ "$#" -eq 3 ] && [ "$1" = send ]; then
   "$SNAP/bin/python3" "$SNAP/flask/send.py" "$2" "$3"
 else
