@@ -7,12 +7,15 @@ if [ ! -e config.py ]; then
 fi
 export PYTHONPATH=".:$PYTHONPATH"
 if [ "$#" -eq 0 ]; then
-  "$SNAP/bin/python3" "$SNAP/flask/is_not_running.py"
-  READY_STATUS=$?
-  if [ $READY_STATUS -eq 0 ]; then
+  "$SNAP/bin/python3" "$SNAP/flask/status.py"
+  STATUS=$?
+  # 2 - No service is running on configured port
+  # 1 - A different service is running on configured port
+  # 0 - Frogtab Local is running on configured port
+  if [ $STATUS -eq 2 ]; then
     exec "$SNAP/bin/python3" "$SNAP/flask/app.py" > /dev/null
   else
-    exit $READY_STATUS
+    exit $STATUS
   fi
 elif [ "$#" -eq 3 ] && [ "$1" = send ]; then
   "$SNAP/bin/python3" "$SNAP/flask/send.py" "$2" "$3"

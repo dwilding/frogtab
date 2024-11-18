@@ -29,7 +29,7 @@ cp -r snap/* snapcraft
 
 cd snapcraft
 mkdir flask
-mv static templates app.py send.py is_not_running.py frogtab_helpers.py requirements.txt flask
+mv static templates app.py send.py status.py frogtab_helpers.py requirements.txt flask
 
 cd flask/templates
 sed -i'.backup' 's/python send\.py/frogtab send/g' help.html
