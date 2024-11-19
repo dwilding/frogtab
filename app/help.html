@@ -1060,11 +1060,7 @@
           document.documentElement.setAttribute("data-theme", "system");
           localStorage.setItem("ui.theme", "system");
         });
-        if (!(
-          navigator.platform.includes("Mac")
-          || navigator.platform.includes("iPad")
-          || navigator.platform.includes("iPhone")
-        )) {
+        if (!platformApple) {
           dom.osWinLinux.checked = true;
           for (const shortcut of document.querySelectorAll(".shortcut.mac")) {
             shortcut.classList.remove("display");
@@ -1245,6 +1241,11 @@
       if (document.documentElement.getAttribute("data-save") == "service") {
         usingLocalService = true;
       }
+      const platformApple = (
+        navigator.platform.startsWith("Mac")
+        || navigator.platform == "iPad"
+        || navigator.platform == "iPhone"
+      );
       startApp();
     </script>
   </body>

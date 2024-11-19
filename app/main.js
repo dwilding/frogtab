@@ -818,17 +818,17 @@ async function startApp() {
     storeThenSave("value.today", dom.editor.today.value);
   });
   dom.editor.today.addEventListener("keydown", event => {
-    if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key == "/") {
+    if (eventCmdOrCtrl(event) && !event.shiftKey && event.key == "/") {
       event.preventDefault();
       todaySnoozeSelected();
       return;
     }
-    if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key == "x") {
+    if (eventCmdOrCtrl(event) && !event.shiftKey && event.key == "x") {
       selectTaskIfNoSelection(dom.editor.today);
       return;
     }
     if (localStorage.getItem("achievements") !== null) {
-      if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key.toLowerCase() == "k") {
+      if (eventCmdOrCtrl(event) && !event.shiftKey && event.key.toLowerCase() == "k") {
         event.preventDefault();
         completeSelected(dom.editor.today, "value.today", "");
         return;
@@ -865,26 +865,26 @@ async function startApp() {
     refreshInfo();
   });
   dom.editor.inbox.addEventListener("keydown", event => {
-    if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() == "enter") {
+    if (eventCmdOrCtrl(event) && event.shiftKey && event.key.toLowerCase() == "enter") {
       event.preventDefault();
       inboxMoveSelected();
       setNotifyStatus();
       refreshInfo();
       return;
     }
-    if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key == "/") {
+    if (eventCmdOrCtrl(event) && !event.shiftKey && event.key == "/") {
       event.preventDefault();
       inboxSnoozeSelected();
       setNotifyStatus();
       refreshInfo();
       return;
     }
-    if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key == "x") {
+    if (eventCmdOrCtrl(event) && !event.shiftKey && event.key == "x") {
       selectTaskIfNoSelection(dom.editor.inbox);
       return;
     }
     if (localStorage.getItem("achievements") !== null) {
-      if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key.toLowerCase() == "k") {
+      if (eventCmdOrCtrl(event) && !event.shiftKey && event.key.toLowerCase() == "k") {
         event.preventDefault();
         completeSelected(dom.editor.inbox, "value.inbox", "");
         setNotifyStatus();
@@ -972,7 +972,7 @@ async function startApp() {
     }
   });
   document.body.addEventListener("keydown", event => {
-    if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key.toLowerCase() == "enter") {
+    if (eventCmdOrCtrl(event) && !event.shiftKey && event.key.toLowerCase() == "enter") {
       event.preventDefault();
       let value = dom.editor[selectedTab].value.trimStart();
       if (value != "") {
@@ -985,13 +985,13 @@ async function startApp() {
       dom.editor[selectedTab].focus();
       refreshInfo();
     }
-    else if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key.toLowerCase() == "u") {
+    else if (eventCmdOrCtrl(event) && !event.shiftKey && event.key.toLowerCase() == "u") {
       event.preventDefault();
       switchToTab("today");
       dom.editor.today.focus();
       refreshInfo();
     }
-    else if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() == "i") {
+    else if (eventCmdOrCtrl(event) && event.key.toLowerCase() == "i") {
       event.preventDefault();
       if (!event.shiftKey || !notifyInbox) {
         switchToTab("inbox");
@@ -1003,7 +1003,7 @@ async function startApp() {
         selectUnsnoozed();
       }
     }
-    else if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key.toLowerCase() == "b") {
+    else if (eventCmdOrCtrl(event) && !event.shiftKey && event.key.toLowerCase() == "b") {
       event.preventDefault();
       toggleSnap();
     }
@@ -1238,4 +1238,12 @@ let userIDTested = null;
 let verifiedUser = false;
 let lastAppend = 0;
 let openpgp;
+const platformApple = (
+  navigator.platform.startsWith("Mac")
+  || navigator.platform == "iPad"
+  || navigator.platform == "iPhone"
+);
+const eventCmdOrCtrl = event => {
+  return (platformApple && event.metaKey) || (!platformApple && event.ctrlKey);
+}
 startApp();

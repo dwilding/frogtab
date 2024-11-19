@@ -142,7 +142,7 @@
       }
       function setSendLocal() {
         document.body.addEventListener("keydown", event => {
-          if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key.toLowerCase() == "enter") {
+          if (eventCmdOrCtrl(event) && !event.shiftKey && event.key.toLowerCase() == "enter") {
             event.preventDefault();
             tryToSendLocal();
           }
@@ -202,7 +202,7 @@
         }
         dom.popups.connected.classList.add("display");
         document.body.addEventListener("keydown", event => {
-          if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key.toLowerCase() == "enter") {
+          if (eventCmdOrCtrl(event) && !event.shiftKey && event.key.toLowerCase() == "enter") {
             event.preventDefault();
             tryToSendCloud();
           }
@@ -284,6 +284,14 @@
       let pgpPublicKeyObj = null;
       let openpgp;
       let setPlaceholder;
+      const platformApple = (
+        navigator.platform.startsWith("Mac")
+        || navigator.platform == "iPad"
+        || navigator.platform == "iPhone"
+      );
+      const eventCmdOrCtrl = event => {
+        return (platformApple && event.metaKey) || (!platformApple && event.ctrlKey);
+      }
       startApp();
     </script>
   </body>
