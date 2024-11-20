@@ -184,6 +184,13 @@ td > p + p {
   color: var(--text);
   cursor: pointer;
 }
+.task-link {
+  margin-left: 0.25rem;
+  font-variant-caps: small-caps;
+}
+.checklist.editing li > .task-link {
+  display: none;
+}
 iframe {
   max-width: 480px;
   width: 100%;
