@@ -58,7 +58,7 @@
         }
       }
       function startApp() {
-        const weekdayToday = (new Date()).getDay();
+        const weekdayToday = (new Date()).getDay(); // no need for FrogtabDate here
         switchToTab(weekdayKeys[weekdayToday]);
         for (const key of weekdayKeys) {
           dom.editor[key].addEventListener("input", () => {

@@ -1,3 +1,73 @@
+// !! This class is duplicated in several files !!
+class FrogtabDate {
+  constructor(date = null) {
+    if (date === null) {
+      date = FrogtabDate.stringFromObject(new Date()); // today as YYYY-MM-DD
+    }
+    else if (date instanceof Date) {
+      date = FrogtabDate.stringFromObject(date); // date as YYYY-MM-DD
+    }
+    if (typeof date == "string") {
+      const match = date.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (match === null) {
+        this.object = new Date(date); // 00:00:00 in local timezone
+        this.string = FrogtabDate.stringFromObject(this.object);
+        return;
+      }
+      this.object = new Date(   // 00:00:00 in local timezone
+        parseInt(match[1]),     // year
+        parseInt(match[2]) - 1, // month index
+        parseInt(match[3])      // day
+      );
+      this.string = date;
+      return;
+    }
+    throw new TypeError("date type not supported");
+  }
+  addDays(n) {
+    this.object.setTime(this.object.getTime() + (n * 86400000));
+    this.string = FrogtabDate.stringFromObject(this.object);
+  }
+  getWeekdayIndex() {
+    return this.object.getDay();
+  }
+  getFormatted(format) {
+    return this.object.toLocaleDateString(undefined, format);
+  }
+  static stringFromObject(obj) {
+    const stringYYYY = obj.toLocaleDateString(undefined, {
+      year: "numeric"
+    });
+    const stringMM = obj.toLocaleDateString(undefined, {
+      month: "2-digit"
+    });
+    const stringDD = obj.toLocaleDateString(undefined, {
+      day: "2-digit"
+    });
+    return [stringYYYY, stringMM, stringDD].join("-");
+  }
+}
+
+function prepareLocalStorageDates() {
+  if (localStorage.getItem("date") === null) {
+    localStorage.setItem("date", (new FrogtabDate()).string);
+    return;
+  }
+  const date = new FrogtabDate(localStorage.getItem("date"));
+  if (localStorage.getItem("date") == date.string) {
+    return;
+  }
+  console.info("Migrating localStorage to yyyy-mm-dd dates…");
+  localStorage.setItem("date", date.string);
+  if (localStorage.getItem("achievements") === null) {
+    return;
+  }
+  const achievements = JSON.parse(localStorage.getItem("achievements"));
+  for (const day of achievements) {
+    day.date = (new FrogtabDate(day.date)).string;
+  }
+  localStorage.setItem("achievements", JSON.stringify(achievements));
+}
 async function storeIcons() {
   const fetched = await Promise.all([
     fetch("favicons/icon-16.png"),
@@ -489,34 +559,33 @@ function updateCompleted(lines, offset) {
   if (offset.startsWith("-")) {
     offsetDays = parseInt(offset);
   } else if (offset != "") {
-    const weekdayToday = (new Date()).getDay();
+    const weekdayToday = (new FrogtabDate()).getWeekdayIndex();
     const weekdayKeysRotated = weekdayKeys.slice(weekdayToday + 1).concat(weekdayKeys.slice(0, weekdayToday + 1));
     offsetDays = weekdayKeysRotated.indexOf(offset) - 6;
   }
-  const dateCompletedObj = new Date();
-  dateCompletedObj.setTime(dateCompletedObj.getTime() + (offsetDays * 86400000));
-  const dateCompleted = dateCompletedObj.toDateString();
+  const dateCompleted = new FrogtabDate();
+  dateCompleted.addDays(offsetDays);
   const achievements = JSON.parse(localStorage.getItem("achievements"));
   let testIndex;
   for (testIndex = 0; testIndex < achievements.length; testIndex++) {
-    if (achievements[testIndex].date == dateCompleted) {
+    if (achievements[testIndex].date == dateCompleted.string) {
       achievements[testIndex].tasks.unshift(...lines);
       storeThenSave("achievements", JSON.stringify(achievements));
       return;
     }
-    const testTime = (new Date(achievements[testIndex].date)).getTime();
-    if (testTime < dateCompletedObj.getTime()) {
+    const testTime = (new FrogtabDate(achievements[testIndex].date)).object.getTime();
+    if (testTime < dateCompleted.object.getTime()) {
       break;
     }
   }
   achievements.splice(testIndex, 0, {
-    date: dateCompleted,
+    date: dateCompleted.string,
     tasks: lines
   });
   storeThenSave("achievements", JSON.stringify(achievements));
 }
 function updateValues() {
-  const weekdayToday = (new Date()).getDay();
+  const weekdayToday = (new FrogtabDate()).getWeekdayIndex();
   const key = weekdayKeys[weekdayToday];
   const routine = localStorage.getItem(`routine.${key}`);
   const storedTodayValue = unsnoozeEverything(localStorage.getItem("value.today"));
@@ -527,7 +596,7 @@ function updateValues() {
   storeThenSave("value.inbox", storedInboxValue);
 }
 function isNewDay() {
-  const dateToday = (new Date()).toDateString();
+  const dateToday = (new FrogtabDate()).string;
   if (localStorage.getItem("date") == dateToday) {
     return false;
   }
@@ -1161,9 +1230,7 @@ if (localStorage.getItem("restore") !== null) {
   localStorage.setItem("ui.snap", uiSnap);
   localStorage.setItem("ui.theme", uiTheme);
 }
-if (localStorage.getItem("date") === null) {
-  localStorage.setItem("date", (new Date()).toDateString());
-}
+prepareLocalStorageDates();
 if (localStorage.getItem("value.today") === null) {
   // This is the user's first time opening Frogtab
   localStorage.setItem("value.today", "");

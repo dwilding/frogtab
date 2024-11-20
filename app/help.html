@@ -775,6 +775,56 @@
       </p>
     </footer>
     <script>
+      // !! This class is duplicated in several files !!
+      class FrogtabDate {
+        constructor(date = null) {
+          if (date === null) {
+            date = FrogtabDate.stringFromObject(new Date()); // today as YYYY-MM-DD
+          }
+          else if (date instanceof Date) {
+            date = FrogtabDate.stringFromObject(date); // date as YYYY-MM-DD
+          }
+          if (typeof date == "string") {
+            const match = date.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+            if (match === null) {
+              this.object = new Date(date); // 00:00:00 in local timezone
+              this.string = FrogtabDate.stringFromObject(this.object);
+              return;
+            }
+            this.object = new Date(   // 00:00:00 in local timezone
+              parseInt(match[1]),     // year
+              parseInt(match[2]) - 1, // month index
+              parseInt(match[3])      // day
+            );
+            this.string = date;
+            return;
+          }
+          throw new TypeError("date type not supported");
+        }
+        addDays(n) {
+          this.object.setTime(this.object.getTime() + (n * 86400000));
+          this.string = FrogtabDate.stringFromObject(this.object);
+        }
+        getWeekdayIndex() {
+          return this.object.getDay();
+        }
+        getFormatted(format) {
+          return this.object.toLocaleDateString(undefined, format);
+        }
+        static stringFromObject(obj) {
+          const stringYYYY = obj.toLocaleDateString(undefined, {
+            year: "numeric"
+          });
+          const stringMM = obj.toLocaleDateString(undefined, {
+            month: "2-digit"
+          });
+          const stringDD = obj.toLocaleDateString(undefined, {
+            day: "2-digit"
+          });
+          return [stringYYYY, stringMM, stringDD].join("-");
+        }
+      }
+
       function updateSelectedTheme() {
         if (localStorage.getItem("ui.theme") == "light") {
           dom.themeLight.checked = true;
@@ -965,7 +1015,7 @@
         setRestoreStatus(backupData);
       }
       function setRestoreStatus(backupData) {
-        const backupDate = (new Date(backupData.date)).toLocaleDateString(undefined, {
+        const backupDate = (new FrogtabDate(backupData.date)).getFormatted({
           day: "numeric",
           month: "short",
           year: "numeric"

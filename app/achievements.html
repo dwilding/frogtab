@@ -84,51 +84,104 @@
       <input type="file" id="choose-todotxt-file" style="display: none" accept=".txt">
     </main>
     <script>
+      // !! This class is duplicated in several files !!
+      class FrogtabDate {
+        constructor(date = null) {
+          if (date === null) {
+            date = FrogtabDate.stringFromObject(new Date()); // today as YYYY-MM-DD
+          }
+          else if (date instanceof Date) {
+            date = FrogtabDate.stringFromObject(date); // date as YYYY-MM-DD
+          }
+          if (typeof date == "string") {
+            const match = date.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+            if (match === null) {
+              this.object = new Date(date); // 00:00:00 in local timezone
+              this.string = FrogtabDate.stringFromObject(this.object);
+              return;
+            }
+            this.object = new Date(   // 00:00:00 in local timezone
+              parseInt(match[1]),     // year
+              parseInt(match[2]) - 1, // month index
+              parseInt(match[3])      // day
+            );
+            this.string = date;
+            return;
+          }
+          throw new TypeError("date type not supported");
+        }
+        addDays(n) {
+          this.object.setTime(this.object.getTime() + (n * 86400000));
+          this.string = FrogtabDate.stringFromObject(this.object);
+        }
+        getWeekdayIndex() {
+          return this.object.getDay();
+        }
+        getFormatted(format) {
+          return this.object.toLocaleDateString(undefined, format);
+        }
+        static stringFromObject(obj) {
+          const stringYYYY = obj.toLocaleDateString(undefined, {
+            year: "numeric"
+          });
+          const stringMM = obj.toLocaleDateString(undefined, {
+            month: "2-digit"
+          });
+          const stringDD = obj.toLocaleDateString(undefined, {
+            day: "2-digit"
+          });
+          return [stringYYYY, stringMM, stringDD].join("-");
+        }
+      }
+
+      function prepareLocalStorageDates() {
+        if (localStorage.getItem("date") === null) {
+          localStorage.setItem("date", (new FrogtabDate()).string);
+          return;
+        }
+        const date = new FrogtabDate(localStorage.getItem("date"));
+        if (localStorage.getItem("date") == date.string) {
+          return;
+        }
+        console.info("Migrating localStorage to yyyy-mm-dd dates…");
+        localStorage.setItem("date", date.string);
+        if (localStorage.getItem("achievements") === null) {
+          return;
+        }
+        const achievements = JSON.parse(localStorage.getItem("achievements"));
+        for (const day of achievements) {
+          day.date = (new FrogtabDate(day.date)).string;
+        }
+        localStorage.setItem("achievements", JSON.stringify(achievements));
+      }
       function buildWeekdayNameByDate() {
         const weekdayNameByDate = {};
-        const dateObj = new Date();
+        const date = new FrogtabDate();
         for (let i = 0; i < 7; i++) {
-          weekdayNameByDate[dateObj.toDateString()] = weekdayNames[dateObj.getDay()];
-          dateObj.setTime(dateObj.getTime() - 86400000);
+          weekdayNameByDate[date.string] = weekdayNames[date.getWeekdayIndex()];
+          date.addDays(-1);
         }
         return weekdayNameByDate;
       }
       function formatDateForPage(date, weekdayNameByDate) {
-        let formatted;
-        if (date in weekdayNameByDate) {
-          formatted = (new Date(date)).toLocaleDateString(undefined, {
+        if (date.string in weekdayNameByDate) {
+          const dayAndMonth = date.getFormatted({
             day: "numeric",
             month: "short"
           });
-          formatted = `${formatted} (${weekdayNameByDate[date]})`;
+          return `${dayAndMonth} (${weekdayNameByDate[date.string]})`;
         }
-        else {
-          formatted = (new Date(date)).toLocaleDateString(undefined, {
-            day: "numeric",
-            month: "short",
-            year: "numeric"
-          });
-        }
-        return formatted;
-      }
-      function formatDateForTodotxt(date) {
-        const dateObj = new Date(date);
-        const dateDD = dateObj.toLocaleDateString(undefined, {
-          day: "2-digit"
-        });
-        const dateMM = dateObj.toLocaleDateString(undefined, {
-          month: "2-digit"
-        });
-        const dateYYYY = dateObj.toLocaleDateString(undefined, {
+        return date.getFormatted({
+          day: "numeric",
+          month: "short",
           year: "numeric"
         });
-        return [dateYYYY, dateMM, dateDD].join("-");
       }
       function createTodotxt() {
         const data = [];
         for (const day of achievementsParsed) {
           for (const task of day.tasks) {
-            data.push(`x ${formatDateForTodotxt(day.date)} ${task}`);
+            data.push(`x ${day.date} ${task}`);
           }
         }
         return (new TextEncoder()).encode(data.join("\n"));
@@ -137,29 +190,26 @@
         const tasksByTime = {};
         const lines = todotxt.split("\n");
         for (const line of lines) {
-          const match = line.match(/^\s*x\s+((\d{4})-(\d{2})-(\d{2}))\s+(\d{4}-\d{2}-\d{2}\s+)?/);
+          const match = line.match(/^\s*x\s+(\d{4}-\d{2}-\d{2})\s+(\d{4}-\d{2}-\d{2}\s+)?/);
           if (match === null) {
             continue;
           }
           const taskText = line.substring(match[0].length).trimEnd();
-          const dayDateObj = new Date(
-            parseInt(match[2]),     // year
-            parseInt(match[3]) - 1, // month index
-            parseInt(match[4])      // day
-          );
-          const dayTime = dayDateObj.getTime().toString();
-          if (dayTime in tasksByTime) {
-            tasksByTime[dayTime].push(taskText);
+          const taskDate = new FrogtabDate(match[1]);
+          const taskTimeStr = taskDate.object.getTime().toString();
+          if (taskTimeStr in tasksByTime) {
+            tasksByTime[taskTimeStr].push(taskText);
           }
           else {
-            tasksByTime[dayTime] = [taskText];
+            tasksByTime[taskTimeStr] = [taskText];
           }
         }
         const parsed = [];
-        for (const time of Object.keys(tasksByTime).map(str => parseInt(str)).sort().reverse()) {
+        const timeInts = Object.keys(tasksByTime).map(str => parseInt(str));
+        for (const timeInt of timeInts.sort().reverse()) {
           parsed.push({
-            date: (new Date(time)).toDateString(),
-            tasks: tasksByTime[time.toString()]
+            date: (new FrogtabDate(new Date(timeInt))).string,
+            tasks: tasksByTime[timeInt.toString()]
           });
         }
         return parsed;
@@ -206,7 +256,10 @@
           domTaskListDate.className = "before-compact";
           const domTaskListDateText = document.createElement("strong");
           domTaskListDate.appendChild(domTaskListDateText);
-          domTaskListDateText.textContent = formatDateForPage(day.date, weekdayNameByDate);
+          domTaskListDateText.textContent = formatDateForPage(
+            new FrogtabDate(day.date),
+            weekdayNameByDate
+          );
           const domTaskList = document.createElement("ul");
           dom.tasks.appendChild(domTaskList);
           domTaskList.className = "compact";
@@ -377,6 +430,7 @@
       }
 
       // ******** Initial setup ********
+      prepareLocalStorageDates();
       if (localStorage.getItem("ui.theme") === null) {
         localStorage.setItem("ui.theme", "system");
       }
