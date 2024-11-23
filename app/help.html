@@ -775,7 +775,8 @@
       </p>
     </footer>
     <script>
-      // !! This class is duplicated in several files !!
+      // ******** Shared helpers ********
+
       class FrogtabDate {
         constructor(date = null) {
           if (date === null) {
@@ -825,6 +826,31 @@
         }
       }
 
+      function matchKeyboardEvent(event, modifierSpec, key) {
+        if (!("key" in event)) {
+          return false;
+        }
+        let testCmdCtrl = (platformApple && event.metaKey) || (!platformApple && event.ctrlKey);
+        if (!modifierSpec.includes("c")) {
+          testCmdCtrl = !testCmdCtrl;
+        }
+        let testShift = event.shiftKey;
+        if (!modifierSpec.includes("s")) {
+          testShift = !testShift;
+        }
+        return testCmdCtrl && testShift & event.key.toLowerCase() == key && !event.altKey;
+      }
+
+      function delayForUX(f) {
+        return Promise.all([
+          f(),
+          new Promise(resolve => window.setTimeout(resolve, 1500))
+        ]);
+      }
+
+
+      // ******** Other helpers ********
+
       function updateSelectedTheme() {
         if (localStorage.getItem("ui.theme") == "light") {
           dom.themeLight.checked = true;
@@ -836,12 +862,7 @@
           dom.themeSystem.checked = true;
         }
       }
-      function delayForUX(f) {
-        return Promise.all([
-          f(),
-          new Promise(resolve => window.setTimeout(resolve, 1500))
-        ]);
-      }
+
       function getPersonalLink() {
         return `${serverBase}send#${localStorage.getItem("user.userID")}`;
       }
@@ -881,6 +902,7 @@
           dom.caseUnregistered.classList.add("display");
         }
       }
+
       function generateRandomHex(length) {
         chars = "0123456789abcdef";
         let randomHex = "";
@@ -890,6 +912,7 @@
         }
         return randomHex;
       }
+
       async function register() {
         dom.caseUnregistered.classList.remove("display");
         dom.caseRegistering.classList.add("display");
@@ -957,6 +980,7 @@
           dom.caseUnregistered.focus();
         }
       }
+
       async function forget() {
         dom.caseRegisteredForget.classList.remove("display");
         dom.caseForgetting.classList.add("display");
@@ -1000,6 +1024,7 @@
           dom.caseUnregistered.focus();
         }
       }
+
       function tryToStageRestore(backupJSON) {
         let backupData;
         try {
@@ -1014,6 +1039,7 @@
         localStorage.setItem("restore", backupJSON);
         setRestoreStatus(backupData);
       }
+
       function setRestoreStatus(backupData) {
         const backupDate = (new FrogtabDate(backupData.date)).getFormatted({
           day: "numeric",
@@ -1028,6 +1054,7 @@
           dom.stagedRestore.classList.remove("display");
         });
       }
+
       function setAchievements() {
         if (localStorage.getItem("achievements") !== null) {
           dom.achievementsDisabled.classList.remove("display");
@@ -1044,6 +1071,7 @@
           dom.confirmDisableAchievements.classList.remove("display");
         }
       }
+
       function setSaveMethod() {
         let saveMethod = localStorage.getItem("saveMethod");
         if (saveMethod === null) {
@@ -1051,6 +1079,7 @@
         }
         dom.saveMethod.value = saveMethod;
       }
+
       async function fetchSaveMethods() {
         let response;
         try {
@@ -1078,6 +1107,7 @@
           localStorage.setItem("saveMethod", dom.saveMethod.value);
         });
       }
+
       async function startApp() {
         verify();
         updateSelectedTheme();
@@ -1140,7 +1170,7 @@
             dom.register.disabled = (dom.comment.value.trim() == "");
           });
           dom.comment.addEventListener("keydown", event => {
-            if (!dom.register.disabled && "key" in event && event.key.toLowerCase() == "enter") {
+            if (!dom.register.disabled && matchKeyboardEvent(event, "", "enter")) {
               register();
             }
           });
@@ -1210,7 +1240,7 @@
         });
         for (const element of document.querySelectorAll(".button")) {
           element.addEventListener("keydown", event => {
-            if (event.key == " ") {
+            if (matchKeyboardEvent(event, "", " ")) {
               event.preventDefault();
               element.click();
             }
@@ -1238,7 +1268,9 @@
         });
       }
 
+
       // ******** Initial setup ********
+
       if (localStorage.getItem("ui.theme") === null) {
         localStorage.setItem("ui.theme", "system");
       }

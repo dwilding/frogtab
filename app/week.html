@@ -37,6 +37,26 @@
       </div>
     </div>
     <script>
+      // ******** Shared helpers ********
+
+      function matchKeyboardEvent(event, modifierSpec, key) {
+        if (!("key" in event)) {
+          return false;
+        }
+        let testCmdCtrl = (platformApple && event.metaKey) || (!platformApple && event.ctrlKey);
+        if (!modifierSpec.includes("c")) {
+          testCmdCtrl = !testCmdCtrl;
+        }
+        let testShift = event.shiftKey;
+        if (!modifierSpec.includes("s")) {
+          testShift = !testShift;
+        }
+        return testCmdCtrl && testShift & event.key.toLowerCase() == key && !event.altKey;
+      }
+
+
+      // ******** Other helpers ********
+
       function switchToTab(tab) {
         if (tab != selectedTab) {
           dom[tab].classList.add("selected");
@@ -50,6 +70,7 @@
         }
         refreshView();
       }
+
       function refreshView() {
         if (dom.editor[selectedTab].value != localStorage.getItem(`routine.${selectedTab}`)) {
           dom.editor[selectedTab].value = localStorage.getItem(`routine.${selectedTab}`);
@@ -57,6 +78,7 @@
           dom.editor[selectedTab].setSelectionRange(0, 0);
         }
       }
+
       function startApp() {
         const weekdayToday = (new Date()).getDay(); // no need for FrogtabDate here
         switchToTab(weekdayKeys[weekdayToday]);
@@ -68,10 +90,7 @@
             switchToTab(key);
           });
           dom[key].addEventListener("keydown", event => {
-            if (
-              (!event.ctrlKey && !event.metaKey && !event.shiftKey && event.key.toLowerCase() == "enter")
-              || event.key == " "
-            ) {
+            if (matchKeyboardEvent(event, "", "enter") || matchKeyboardEvent(event, "", " ")) {
               event.preventDefault();
               dom[key].click();
               dom.editor[key].focus();
@@ -84,7 +103,9 @@
         });
       }
 
+
       // ******** Initial setup ********
+
       if (localStorage.getItem("ui.theme") === null) {
         localStorage.setItem("ui.theme", "system");
       }
@@ -101,6 +122,11 @@
         dom[key] = document.getElementById(`tab-${key}`);
       }
       let selectedTab = "mon";
+      const platformApple = (
+        navigator.platform.startsWith("Mac")
+        || navigator.platform == "iPad"
+        || navigator.platform == "iPhone"
+      );
       startApp();
     </script>
   </body>

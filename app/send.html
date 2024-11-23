@@ -40,12 +40,33 @@
       </div>
     </div>
     <script>
+      // ******** Shared helpers ********
+
+      function matchKeyboardEvent(event, modifierSpec, key) {
+        if (!("key" in event)) {
+          return false;
+        }
+        let testCmdCtrl = (platformApple && event.metaKey) || (!platformApple && event.ctrlKey);
+        if (!modifierSpec.includes("c")) {
+          testCmdCtrl = !testCmdCtrl;
+        }
+        let testShift = event.shiftKey;
+        if (!modifierSpec.includes("s")) {
+          testShift = !testShift;
+        }
+        return testCmdCtrl && testShift & event.key.toLowerCase() == key && !event.altKey;
+      }
+
       function delayForUX(f) {
         return Promise.all([
           f(),
           new Promise(resolve => window.setTimeout(resolve, 1500))
         ]);
       }
+
+
+      // ******** Other helpers ********
+
       function tryToSendLocal() {
         const valueToSend = dom.editor.value.trim();
         if (valueToSend == "") {
@@ -69,6 +90,7 @@
         valueInbox = `${valueToSend}${valueInbox}`;
         localStorage.setItem("value.inbox", valueInbox);
       }
+
       async function encryptAndSend(plainMessage) {
         const encryptedMessage = await openpgp.encrypt({
           message: await openpgp.createMessage({
@@ -98,6 +120,7 @@
         const result = await response.json();
         return result.success;
       }
+
       async function tryToSendCloud() {
         const valueToSend = dom.editor.value.trim();
         if (valueToSend == "") {
@@ -140,9 +163,10 @@
         dom.popups.failure.classList.remove("display");
         dom.popups.connected.classList.add("display");
       }
+
       function setSendLocal() {
         document.body.addEventListener("keydown", event => {
-          if (eventCmdOrCtrl(event) && !event.shiftKey && event.key.toLowerCase() == "enter") {
+          if (matchKeyboardEvent(event, "c", "enter")) {
             event.preventDefault();
             tryToSendLocal();
           }
@@ -151,10 +175,7 @@
           tryToSendLocal();
         });
         dom.send.addEventListener("keydown", event => {
-          if (
-            (!event.ctrlKey && !event.metaKey && !event.shiftKey && event.key.toLowerCase() == "enter")
-            || event.key == " "
-          ) {
+          if (matchKeyboardEvent(event, "", "enter") || matchKeyboardEvent(event, "", " ")) {
             event.preventDefault();
             dom.send.click();
           }
@@ -172,6 +193,7 @@
           }
         });
       }
+
       async function setSendCloud() {
         dom.popups.connecting.classList.add("display");
         await delayForUX(async () => {
@@ -202,7 +224,7 @@
         }
         dom.popups.connected.classList.add("display");
         document.body.addEventListener("keydown", event => {
-          if (eventCmdOrCtrl(event) && !event.shiftKey && event.key.toLowerCase() == "enter") {
+          if (matchKeyboardEvent(event, "c", "enter")) {
             event.preventDefault();
             tryToSendCloud();
           }
@@ -211,10 +233,7 @@
           tryToSendCloud();
         });
         dom.send.addEventListener("keydown", event => {
-          if (
-            (!event.ctrlKey && !event.metaKey && !event.shiftKey && event.key.toLowerCase() == "enter")
-            || event.key == " "
-          ) {
+          if (matchKeyboardEvent(event, "", "enter") || matchKeyboardEvent(event, "", " ")) {
             event.preventDefault();
             dom.send.click();
           }
@@ -232,6 +251,7 @@
           }
         });
       }
+
       async function startApp() {
         const matches = window.location.hash.match(/^#([0-9a-f-]{36})(\/([^\/]*))?$/);
         if (document.documentElement.getAttribute("data-location") == "local" || matches === null) {
@@ -264,7 +284,9 @@
         });
       }
 
+
       // ******** Initial setup ********
+
       if (localStorage.getItem("ui.theme") === null) {
         localStorage.setItem("ui.theme", "system");
       }
@@ -289,9 +311,6 @@
         || navigator.platform == "iPad"
         || navigator.platform == "iPhone"
       );
-      const eventCmdOrCtrl = event => {
-        return (platformApple && event.metaKey) || (!platformApple && event.ctrlKey);
-      }
       startApp();
     </script>
   </body>

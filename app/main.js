@@ -1,4 +1,5 @@
-// !! This class is duplicated in several files !!
+// ******** Shared helpers ********
+
 class FrogtabDate {
   constructor(date = null) {
     if (date === null) {
@@ -68,6 +69,25 @@ function prepareLocalStorageDates() {
   }
   localStorage.setItem("achievements", JSON.stringify(achievements));
 }
+
+function matchKeyboardEvent(event, modifierSpec, key) {
+  if (!("key" in event)) {
+    return false;
+  }
+  let testCmdCtrl = (platformApple && event.metaKey) || (!platformApple && event.ctrlKey);
+  if (!modifierSpec.includes("c")) {
+    testCmdCtrl = !testCmdCtrl;
+  }
+  let testShift = event.shiftKey;
+  if (!modifierSpec.includes("s")) {
+    testShift = !testShift;
+  }
+  return testCmdCtrl && testShift & event.key.toLowerCase() == key && !event.altKey;
+}
+
+
+// ******** Other helpers ********
+
 async function storeIcons() {
   const fetched = await Promise.all([
     fetch("favicons/icon-16.png"),
@@ -84,6 +104,7 @@ async function storeIcons() {
   storedIcons.icon16Notify = await getObjectURL(2);
   storedIcons.icon32Notify = await getObjectURL(3);
 }
+
 function switchToTab(tab) {
   if (tab != selectedTab) {
     dom[tab].classList.add("selected");
@@ -97,9 +118,19 @@ function switchToTab(tab) {
   }
   refreshView();
 }
+
+function preferInbox() {
+  setNotifyStatus();
+  if (notifyInbox) {
+    switchToTab("inbox");
+  }
+  refreshInfo();
+}
+
 function checkValue(value) {
   return value.match(/^\s*[^\s#]/m) !== null;
 }
+
 function setNotifyStatus() {
   const storedInboxValue = localStorage.getItem("value.inbox");
   if (checkValue(storedInboxValue) && !notifyInbox) {
@@ -119,6 +150,7 @@ function setNotifyStatus() {
     }
   }
 }
+
 function refreshView() {
   if (dom.editor[selectedTab].value != localStorage.getItem(`value.${selectedTab}`)) {
     dom.editor[selectedTab].value = localStorage.getItem(`value.${selectedTab}`);
@@ -127,6 +159,7 @@ function refreshView() {
     refreshInfo();
   }
 }
+
 function refreshInfo() {
   dom.info.classList.remove("display");
   window.clearTimeout(timeoutShowInfo);
@@ -136,6 +169,7 @@ function refreshInfo() {
     }, 30000);
   }
 }
+
 function addSpaceForCompletionOffset(editor) {
   const cursorPos = editor.selectionEnd;
   const lineStart = editor.value.lastIndexOf("\n", editor.selectionEnd - 1) + 1;
@@ -152,6 +186,7 @@ function addSpaceForCompletionOffset(editor) {
   editor.value = `${beforeLine}${textToCursor.toLowerCase()} ${afterCursor}`;
   editor.setSelectionRange(cursorPos, cursorPos);
 }
+
 function extractCompletionOffset(editor) {
   if (editor.selectionStart != editor.selectionEnd) {
     return null;
@@ -179,6 +214,7 @@ function extractCompletionOffset(editor) {
   }
   return match[3];
 }
+
 function completeSelected(editor, storageKey, offset) {
   const selectionStart = editor.selectionStart;
   const selectionEnd = editor.selectionEnd;
@@ -231,6 +267,7 @@ function completeSelected(editor, storageKey, offset) {
     updateCompleted(linesCaptured, offset);
   }
 }
+
 function selectTaskIfNoSelection(editor) {
   const selectionPos = editor.selectionStart;
   if (selectionPos != editor.selectionEnd) {
@@ -268,6 +305,7 @@ function selectTaskIfNoSelection(editor) {
     editor.setSelectionRange(newSelectionStart, newSelectionEnd);
   }
 }
+
 function inboxMoveSelected() {
   const selectionStart = dom.editor.inbox.selectionStart;
   const selectionEnd = dom.editor.inbox.selectionEnd;
@@ -330,6 +368,7 @@ function inboxMoveSelected() {
     storeThenSave("value.today", storedTodayValue);
   }
 }
+
 function todaySnoozeSelected() {
   const selectionStart = dom.editor.today.selectionStart;
   const selectionEnd = dom.editor.today.selectionEnd;
@@ -392,6 +431,7 @@ function todaySnoozeSelected() {
     storeThenSave("value.inbox", storedInboxValue);
   }
 }
+
 function inboxSnoozeSelected() {
   const selectionStart = dom.editor.inbox.selectionStart;
   const selectionEnd = dom.editor.inbox.selectionEnd;
@@ -466,6 +506,7 @@ function inboxSnoozeSelected() {
     dom.editor.inbox.setSelectionRange(newSelectionPos, newSelectionPos);
   }
 }
+
 function selectUnsnoozed() {
   const lines = dom.editor.inbox.value.split("\n");
   const linesUnsnoozed = [];
@@ -498,6 +539,7 @@ function selectUnsnoozed() {
   dom.editor.inbox.scrollTop = 0;
   dom.editor.inbox.focus();
 }
+
 function appendToBottom(original, value) {
   const valueToAppend = value.trim();
   if (valueToAppend == "") {
@@ -509,6 +551,7 @@ function appendToBottom(original, value) {
   }
   return `${updated}${valueToAppend}`;
 }
+
 function appendToTop(original, value) {
   const valueToAppend = value.trim();
   if (valueToAppend == "") {
@@ -520,6 +563,7 @@ function appendToTop(original, value) {
   }
   return `${valueToAppend}${updated}`;
 }
+
 function appendToTopAndRemoveDupes(original, value) {
   let updated = original;
   const lines = value.split("\n");
@@ -531,6 +575,7 @@ function appendToTopAndRemoveDupes(original, value) {
   }
   return appendToTop(updated, value);
 }
+
 function removeDupesOfLine(original, trimmedLineTest) {
   const lines = original.split("\n");
   const linesUpdated = [];
@@ -551,9 +596,11 @@ function removeDupesOfLine(original, trimmedLineTest) {
   }
   return updated;
 }
+
 function unsnoozeEverything(original) {
   return original.replaceAll(/^( *#)+ */gm, "");
 }
+
 function updateCompleted(lines, offset) {
   let offsetDays = 0;
   if (offset.startsWith("-")) {
@@ -584,6 +631,7 @@ function updateCompleted(lines, offset) {
   });
   storeThenSave("achievements", JSON.stringify(achievements));
 }
+
 function updateValues() {
   const weekdayToday = (new FrogtabDate()).getWeekdayIndex();
   const key = weekdayKeys[weekdayToday];
@@ -595,6 +643,7 @@ function updateValues() {
   storeThenSave("value.today", "");
   storeThenSave("value.inbox", storedInboxValue);
 }
+
 function isNewDay() {
   const dateToday = (new FrogtabDate()).string;
   if (localStorage.getItem("date") == dateToday) {
@@ -603,6 +652,7 @@ function isNewDay() {
   storeThenSave("date", dateToday);
   return true;
 }
+
 async function verifyUserAndAppendMessages() {
   if (openpgp === undefined) {
     openpgp = await import("./openpgp.min.mjs?sha1=280298d02f97111053fdb1215ac5011e0c7bd4fb");
@@ -651,6 +701,7 @@ async function verifyUserAndAppendMessages() {
   }
   dom.fetchConnected.classList.add("display");
 }
+
 async function appendLocalMessages() {
   let response;
   try {
@@ -680,6 +731,7 @@ async function appendLocalMessages() {
   }
   storeThenSave("value.inbox", storedInboxValue);
 }
+
 function setSnap() {
   if (localStorage.getItem("ui.snap") == "bottom") {
     dom.container.classList.add("docked");
@@ -695,6 +747,7 @@ function setSnap() {
     toggleSnap();
   });
 }
+
 function toggleSnap() {
   if (localStorage.getItem("ui.snap") == "center") {
     dom.container.classList.add("docked");
@@ -709,6 +762,7 @@ function toggleSnap() {
     localStorage.setItem("ui.snap", "center");
   }
 }
+
 function setConfigureSave() {
   if (localStorage.getItem("saveMethod") === null) {
     dom.configureSave.classList.add("display");
@@ -718,6 +772,7 @@ function setConfigureSave() {
     dom.configureSave.classList.remove("display");
   }
 }
+
 function setExportAndSave() {
   dom.exportData.addEventListener("click", () => {
     const dataJSON = createDataJSON();
@@ -755,6 +810,7 @@ function setExportAndSave() {
     });
   }
 }
+
 function createData() {
   let appBase = window.location.href;
   if (!appBase.endsWith("/")) {
@@ -783,14 +839,17 @@ function createData() {
   }
   return data;
 }
+
 function createDataJSON() {
   const dataJSON = JSON.stringify(createData(), null, 2);
   return (new TextEncoder()).encode(dataJSON);
 }
+
 function storeThenSave(key, value) {
   localStorage.setItem(key, value);
   requestSave();
 }
+
 function requestSave() {
   if (usingLocalService && localStorage.getItem("saveMethod") !== null) {
     window.clearTimeout(timeoutSave.id);
@@ -803,6 +862,7 @@ function requestSave() {
     timeoutSave.waiting = true;
   }
 }
+
 async function saveToService() {
   if (localStorage.getItem("saveMethod" === null)) {
     timeoutSave.waiting = false;
@@ -848,6 +908,7 @@ async function saveToService() {
   }
   timeoutSave.waiting = false;
 }
+
 async function saveToFile() {
   if (fileHandle === null) {
     timeoutSave.waiting = false;
@@ -865,6 +926,7 @@ async function saveToFile() {
   }
   timeoutSave.waiting = false;
 }
+
 async function startApp() {
   setExportAndSave();
   setSnap();
@@ -887,22 +949,22 @@ async function startApp() {
     storeThenSave("value.today", dom.editor.today.value);
   });
   dom.editor.today.addEventListener("keydown", event => {
-    if (eventCmdOrCtrl(event) && !event.shiftKey && event.key == "/") {
+    if (matchKeyboardEvent(event, "c", "/")) {
       event.preventDefault();
       todaySnoozeSelected();
       return;
     }
-    if (eventCmdOrCtrl(event) && !event.shiftKey && event.key == "x") {
+    if (matchKeyboardEvent(event, "c", "x")) {
       selectTaskIfNoSelection(dom.editor.today);
       return;
     }
     if (localStorage.getItem("achievements") !== null) {
-      if (eventCmdOrCtrl(event) && !event.shiftKey && event.key.toLowerCase() == "k") {
+      if (matchKeyboardEvent(event, "c", "k")) {
         event.preventDefault();
         completeSelected(dom.editor.today, "value.today", "");
         return;
       }
-      if (!event.ctrlKey && !event.metaKey && !event.shiftKey && event.key.toLowerCase() == "enter") {
+      if (matchKeyboardEvent(event, "", "enter")) {
         const offset = extractCompletionOffset(dom.editor.today);
         if (offset !== null) {
           event.preventDefault();
@@ -916,10 +978,7 @@ async function startApp() {
     refreshInfo();
   });
   dom.today.addEventListener("keydown", event => {
-    if (
-      (!event.ctrlKey && !event.metaKey && !event.shiftKey && event.key.toLowerCase() == "enter")
-      || event.key == " "
-    ) {
+    if (matchKeyboardEvent(event, "", "enter") || matchKeyboardEvent(event, "", " ")) {
       event.preventDefault();
       dom.today.click();
       dom.editor.today.focus();
@@ -934,33 +993,33 @@ async function startApp() {
     refreshInfo();
   });
   dom.editor.inbox.addEventListener("keydown", event => {
-    if (eventCmdOrCtrl(event) && event.shiftKey && event.key.toLowerCase() == "enter") {
+    if (matchKeyboardEvent(event, "cs", "enter")) {
       event.preventDefault();
       inboxMoveSelected();
       setNotifyStatus();
       refreshInfo();
       return;
     }
-    if (eventCmdOrCtrl(event) && !event.shiftKey && event.key == "/") {
+    if (matchKeyboardEvent(event, "c", "/")) {
       event.preventDefault();
       inboxSnoozeSelected();
       setNotifyStatus();
       refreshInfo();
       return;
     }
-    if (eventCmdOrCtrl(event) && !event.shiftKey && event.key == "x") {
+    if (matchKeyboardEvent(event, "c", "x")) {
       selectTaskIfNoSelection(dom.editor.inbox);
       return;
     }
     if (localStorage.getItem("achievements") !== null) {
-      if (eventCmdOrCtrl(event) && !event.shiftKey && event.key.toLowerCase() == "k") {
+      if (matchKeyboardEvent(event, "c", "k")) {
         event.preventDefault();
         completeSelected(dom.editor.inbox, "value.inbox", "");
         setNotifyStatus();
         refreshInfo();
         return;
       }
-      if (!event.ctrlKey && !event.metaKey && !event.shiftKey && event.key.toLowerCase() == "enter") {
+      if (matchKeyboardEvent(event, "", "enter")) {
         const offset = extractCompletionOffset(dom.editor.inbox);
         if (offset !== null) {
           event.preventDefault();
@@ -976,10 +1035,7 @@ async function startApp() {
     refreshInfo();
   });
   dom.inbox.addEventListener("keydown", event => {
-    if (
-      (!event.ctrlKey && !event.metaKey && !event.shiftKey && event.key.toLowerCase() == "enter")
-      || event.key == " "
-    ) {
+    if (matchKeyboardEvent(event, "", "enter") || matchKeyboardEvent(event, "", " ")) {
       event.preventDefault();
       dom.inbox.click();
       dom.editor.inbox.focus();
@@ -993,13 +1049,13 @@ async function startApp() {
     }
   });
   dom.menuButton.addEventListener("keydown", event => {
-    if (event.key.toLowerCase() == "arrowdown") {
+    if (matchKeyboardEvent(event, "", "arrowdown")) {
       event.preventDefault();
       dom.menu.classList.add("display");
       const elements = document.querySelectorAll("[data-menu-seq].display");
       elements[0].focus();
     }
-    else if (event.key.toLowerCase() == "arrowup") {
+    else if (matchKeyboardEvent(event, "", "arrowup")) {
       event.preventDefault();
       dom.menu.classList.add("display");
       const elements = document.querySelectorAll("[data-menu-seq].display");
@@ -1016,14 +1072,14 @@ async function startApp() {
     dom.menu.classList.remove("display");
   });
   dom.menu.addEventListener("keydown", event => {
-    if (event.target.hasAttribute("data-menu-seq") && event.key.toLowerCase() == "arrowdown") {
+    if (event.target.hasAttribute("data-menu-seq") && matchKeyboardEvent(event, "", "arrowdown")) {
       event.preventDefault();
       const elements = document.querySelectorAll("[data-menu-seq].display");
       const thisIndex = parseInt(event.target.getAttribute("data-menu-seq"), 10);
       const nextIndex = (thisIndex + 1) % elements.length;
       elements[nextIndex].focus();
     }
-    else if (event.target.hasAttribute("data-menu-seq") && event.key.toLowerCase() == "arrowup") {
+    else if (event.target.hasAttribute("data-menu-seq") && matchKeyboardEvent(event, "", "arrowup")) {
       event.preventDefault();
       event.preventDefault();
       const elements = document.querySelectorAll("[data-menu-seq].display");
@@ -1031,7 +1087,7 @@ async function startApp() {
       const prevIndex = (thisIndex - 1 + elements.length) % elements.length;
       elements[prevIndex].focus();
     }
-    else if (event.key.toLowerCase() == "escape") {
+    else if (matchKeyboardEvent(event, "", "escape")) {
       dom.menuButton.focus();
     }
   });
@@ -1041,7 +1097,7 @@ async function startApp() {
     }
   });
   document.body.addEventListener("keydown", event => {
-    if (eventCmdOrCtrl(event) && !event.shiftKey && event.key.toLowerCase() == "enter") {
+    if (matchKeyboardEvent(event, "c", "enter")) {
       event.preventDefault();
       let value = dom.editor[selectedTab].value.trimStart();
       if (value != "") {
@@ -1054,35 +1110,41 @@ async function startApp() {
       dom.editor[selectedTab].focus();
       refreshInfo();
     }
-    else if (eventCmdOrCtrl(event) && !event.shiftKey && event.key.toLowerCase() == "u") {
+    else if (matchKeyboardEvent(event, "c", "u")) {
       event.preventDefault();
       switchToTab("today");
       dom.editor.today.focus();
       refreshInfo();
     }
-    else if (eventCmdOrCtrl(event) && event.key.toLowerCase() == "i") {
+    else if (matchKeyboardEvent(event, "c", "i")) {
       event.preventDefault();
-      if (!event.shiftKey || !notifyInbox) {
+      switchToTab("inbox");
+      dom.editor.inbox.focus();
+      refreshInfo();
+    }
+    else if (matchKeyboardEvent(event, "cs", "i")) {
+      event.preventDefault();
+      if (notifyInbox) {
+        switchToTab("inbox");
+        selectUnsnoozed();
+      }
+      else {
         switchToTab("inbox");
         dom.editor.inbox.focus();
         refreshInfo();
       }
-      else {
-        switchToTab("inbox");
-        selectUnsnoozed();
-      }
     }
-    else if (eventCmdOrCtrl(event) && !event.shiftKey && event.key.toLowerCase() == "b") {
+    else if (matchKeyboardEvent(event, "c", "b")) {
       event.preventDefault();
       toggleSnap();
     }
-    else if (event.key.toLowerCase() == "escape") {
+    else if (matchKeyboardEvent(event, "", "escape")) {
       dom.menu.classList.remove("display");
     }
   });
   for (const element of document.querySelectorAll("a")) {
     element.addEventListener("keydown", event => {
-      if (event.key == " ") {
+      if (matchKeyboardEvent(event, "", " ")) {
         event.preventDefault();
         element.click();
       }
@@ -1106,13 +1168,6 @@ async function startApp() {
         refreshInfo();
       }
     }
-  }
-  function preferInbox() {
-    setNotifyStatus();
-    if (notifyInbox) {
-      switchToTab("inbox");
-    }
-    refreshInfo();
   }
   window.setInterval(async () => {
     if (isNewDay()) {
@@ -1204,7 +1259,9 @@ async function startApp() {
   })
 }
 
+
 // ******** Initial setup ********
+
 let showWelcome = false;
 const weekdayKeys = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
 if (localStorage.getItem("restore") !== null) {
@@ -1310,7 +1367,4 @@ const platformApple = (
   || navigator.platform == "iPad"
   || navigator.platform == "iPhone"
 );
-const eventCmdOrCtrl = event => {
-  return (platformApple && event.metaKey) || (!platformApple && event.ctrlKey);
-}
 startApp();

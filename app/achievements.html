@@ -84,7 +84,8 @@
       <input type="file" id="choose-todotxt-file" style="display: none" accept=".txt">
     </main>
     <script>
-      // !! This class is duplicated in several files !!
+      // ******** Shared helpers ********
+
       class FrogtabDate {
         constructor(date = null) {
           if (date === null) {
@@ -154,6 +155,25 @@
         }
         localStorage.setItem("achievements", JSON.stringify(achievements));
       }
+
+      function matchKeyboardEvent(event, modifierSpec, key) {
+        if (!("key" in event)) {
+          return false;
+        }
+        let testCmdCtrl = (platformApple && event.metaKey) || (!platformApple && event.ctrlKey);
+        if (!modifierSpec.includes("c")) {
+          testCmdCtrl = !testCmdCtrl;
+        }
+        let testShift = event.shiftKey;
+        if (!modifierSpec.includes("s")) {
+          testShift = !testShift;
+        }
+        return testCmdCtrl && testShift & event.key.toLowerCase() == key && !event.altKey;
+      }
+
+
+      // ******** Other helpers ********
+
       function buildWeekdayNameByDate() {
         const weekdayNameByDate = {};
         const date = new FrogtabDate();
@@ -163,6 +183,7 @@
         }
         return weekdayNameByDate;
       }
+
       function formatDateForPage(date, weekdayNameByDate) {
         if (date.string in weekdayNameByDate) {
           const dayAndMonth = date.getFormatted({
@@ -177,6 +198,7 @@
           year: "numeric"
         });
       }
+
       function createTodotxt() {
         const data = [];
         for (const day of achievementsParsed) {
@@ -186,6 +208,7 @@
         }
         return (new TextEncoder()).encode(data.join("\n"));
       }
+
       function parseTodotxt(todotxt) {
         const tasksByTime = {};
         const lines = todotxt.split("\n");
@@ -214,6 +237,7 @@
         }
         return parsed;
       }
+
       function moveTaskBack(indexDay, indexTask) {
         const taskText = achievementsParsed[indexDay].tasks[indexTask];
         if (dom.editmodes.toToday.checked) {
@@ -247,6 +271,7 @@
         achievementsCached = JSON.stringify(achievementsParsed);
         localStorage.setItem("achievements", achievementsCached);
       }
+
       function displayTasks() {
         const weekdayNameByDate = buildWeekdayNameByDate();
         for (let indexDay = 0; indexDay < achievementsParsed.length; indexDay++) {
@@ -285,7 +310,7 @@
               setView();
             });
             domTaskText.addEventListener("keydown", event => {
-              if (!event.ctrlKey && !event.metaKey && !event.shiftKey && event.key.toLowerCase() == "enter") {
+              if (matchKeyboardEvent(event, "", "enter")) {
                 domTaskText.click();
               }
             });
@@ -307,18 +332,21 @@
           }
         }
       }
+
       function setViewDisabled() {
         dom.caseDisabled.classList.add("display");
         dom.caseEnabledEmpty.classList.remove("display");
         dom.caseEnabled.classList.remove("display");
         editingState = "";
       }
+
       function setViewEnabledEmpty() {
         dom.caseDisabled.classList.remove("display");
         dom.caseEnabledEmpty.classList.add("display");
         dom.caseEnabled.classList.remove("display");
         editingState = "";
       }
+
       function setViewEnabled() {
         dom.caseDisabled.classList.remove("display");
         dom.caseEnabledEmpty.classList.remove("display");
@@ -338,6 +366,7 @@
           viewEnabledSetEditing();
         }
       }
+
       function viewEnabledSetEditing() {
         editingState = "editing";
         dom.actions.edit.classList.remove("display");
@@ -351,6 +380,7 @@
           element.tabIndex = 0;
         }
       }
+
       function viewEnabledEditingSetImporting() {
         editingState = "editing/importing";
         dom.selectEditmode.classList.remove("display");
@@ -362,6 +392,7 @@
         }
         editingState = "editing/importing"
       }
+
       function setView() {
         if (achievementsCached === null) {
           setViewDisabled();
@@ -374,6 +405,7 @@
         }
         setViewEnabled();
       }
+
       function startApp() {
         setView();
         dom.actions.import.addEventListener("click", event => {
@@ -445,7 +477,9 @@
         });
       }
 
+
       // ******** Initial setup ********
+
       prepareLocalStorageDates();
       if (localStorage.getItem("ui.theme") === null) {
         localStorage.setItem("ui.theme", "system");
@@ -479,6 +513,11 @@
       let achievementsParsed;
       let achievementsStaged;
       let editingState = "";
+      const platformApple = (
+        navigator.platform.startsWith("Mac")
+        || navigator.platform == "iPad"
+        || navigator.platform == "iPhone"
+      );
       startApp();
     </script>
   </body>
