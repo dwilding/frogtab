@@ -10,7 +10,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="favicons/icon-180-apple.png">
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="stylesheet" href="simple.min.css?sha1=7660de36ed47ee62dcbba0a58f50211966c317e3">
-    <link rel="stylesheet" href="simple-customizations.css?sha1=216dae1fe9a665429f4be60ea17f6f25652a40e5">
+    <link rel="stylesheet" href="simple-customizations.css?sha1=37543e3ca2e575b95d9a8fbc5cbc62e9b678bfa7">
   </head>
   <body>
     <header>
@@ -289,13 +289,12 @@
           dom.tasks.appendChild(domTaskList);
           domTaskList.className = "compact";
           for (let indexTask = 0; indexTask < day.tasks.length; indexTask++) {
-            let taskText = day.tasks[indexTask];
             const domTaskListItem = document.createElement("li");
             domTaskList.appendChild(domTaskListItem);
             const domTaskText = document.createElement("span");
             domTaskListItem.appendChild(domTaskText);
             domTaskText.className = "task-text";
-            domTaskText.textContent = taskText;
+            domTaskText.textContent = day.tasks[indexTask];
             domTaskText.addEventListener("mouseenter", () => {
               domTaskListItem.classList.add("inner-hover");
             });
@@ -314,21 +313,6 @@
                 domTaskText.click();
               }
             });
-            const match = taskText.match(/\s+(https?:\/\/[^\s]+)$/);
-            if (match == null) {
-              continue;
-            }
-            taskText = taskText.substring(0, taskText.length - match[0].length);
-            domTaskText.textContent = taskText;
-            domTaskListItem.appendChild(document.createTextNode(" "));
-            const domTaskLink = document.createElement("a");
-            domTaskListItem.appendChild(domTaskLink);
-            domTaskLink.className = "task-link";
-            domTaskLink.tabIndex = 0;
-            domTaskLink.href = match[1];
-            domTaskLink.target = "_blank";
-            domTaskLink.title = `Reference for completed task: ${taskText}`;
-            domTaskLink.textContent = "ref";
           }
         }
       }
