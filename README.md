@@ -169,7 +169,9 @@ For details, see [LICENSE_openpgp](LICENSE_openpgp).
 | --- | --- | --- | --- |
 | Nov ?, 2024 | The `frogtab` command now displays a status message if Frogtab Local is already running (Linux snap only) | No | v1.09 |
 | Nov ?, 2024 | You can now use ⌘+X (macOS) or Ctrl+X (Windows/Linux) to cut tasks when no text is selected | Yes | v1.09 |
+| Nov ?, 2024 | Prevented Frogtab from overriding keyboard shortcuts that use the Option key (macOS) or the Alt key (Windows/Linux) | Yes | v1.09 |
 | Nov ?, 2024 | Prevented the Control key from activating Frogtab's keyboard shortcuts on macOS | Yes | v1.09 |
+| Nov ?, 2024 | Changed the format of dates in backup files. You can still import old backup files | Yes | v1.09 |
 | Nov 2, 2024 | Sending tasks via a terminal now fails if the label has never been used by Frogtab | No | v1.08 |
 | Oct 27, 2024 | You can now send tasks to Frogtab via a terminal, without registering for a personal link. See the help page | No | v1.07 |
 | Oct 18, 2024 | You can now stop Frogtab Local via your browser. See the bottom of the help page | No | v1.06 |

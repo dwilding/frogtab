@@ -35,6 +35,8 @@ description: |
 
     * The `frogtab` command now displays a status message if Frogtab Local is already running
     * You can now use Ctrl+X to cut tasks when no text is selected
+    * Prevented Frogtab from overriding keyboard shortcuts that use the Alt key
+    * Changed the format of dates in backup files. You can still import old backup files
 
   1.08snap1:
 
