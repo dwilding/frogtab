@@ -275,7 +275,7 @@ function selectTaskIfNoSelection(editor) {
   }
   let newSelectionStart, newSelectionEnd;
   const lines = editor.value.split("\n");
-  let hasCaptured = false;
+  let taskCaptured = null;
   let capturing = false;
   let lineStart = 0;
   let lineEnd;
@@ -291,18 +291,26 @@ function selectTaskIfNoSelection(editor) {
       }
       else if (!capturing && trimmedLine != "") {
         newSelectionStart = lineStart;
-        hasCaptured = true;
+        taskCaptured = trimmedLine;
         capturing = true;
       }
     }
     lineStart = lineEnd + 1;
   }
-  if (hasCaptured) {
+  if (taskCaptured !== null) {
     if (capturing) {
       newSelectionStart = editor.value.substring(0, newSelectionStart).trimEnd().length;
       newSelectionEnd = editor.value.length;
     }
     editor.setSelectionRange(newSelectionStart, newSelectionEnd);
+    const tryTotrimClipboard = () => {
+      editor.removeEventListener("keyup", tryTotrimClipboard);
+      try {
+        navigator.clipboard.writeText(taskCaptured.trimEnd());
+      }
+      catch {}
+    };
+    editor.addEventListener("keyup", tryTotrimClipboard);
   }
 }
 
