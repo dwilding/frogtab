@@ -4,9 +4,17 @@
 
 <p><img alt="The Today view in Frogtab" src="./demo.png" width="480"></p>
 
+Frogtab runs in your browser and stores your data in [`localStorage`](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage).
+You can export your data at any time.
+If your browser supports [`showSaveFilePicker()`](https://developer.mozilla.org/en-US/docs/Web/API/Window/showSaveFilePicker), you can also enable automatic backups.
+
+Frogtab can't sync your data between devices.
+However, if you [register your main device](https://frogtab.com/help#registering-for-a-personal-link),
+the frogtab.com server creates a personal link that you can use to send tasks to your main device.
+
 In this README:
 
-  - [Technical overview of Frogtab](#technical-overview-of-frogtab)
+  - [Using Frogtab offline](#using-frogtab-offline)
   - [How your personal link works](#how-your-personal-link-works)
   - [Customizing the placeholder text of your personal link](#customizing-the-placeholder-text-of-your-personal-link)
   - [Sending tasks via JavaScript](#sending-tasks-via-javascript)
@@ -20,20 +28,16 @@ From my dev blog:
   - [Running the Frogtab task manager on Ubuntu](https://maybecoding.bearblog.dev/running-the-frogtab-task-manager-on-ubuntu/)
   - [Making a command-line tool for your Frogtab personal link](https://maybecoding.bearblog.dev/making-a-command-line-tool-for-your-frogtab-personal-link/)
 
-## Technical overview of Frogtab
+## Using Frogtab offline
 
-Frogtab runs in your browser and stores your data in [`localStorage`](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage).
-You can export your data at any time.
-If your browser supports [`showSaveFilePicker()`](https://developer.mozilla.org/en-US/docs/Web/API/Window/showSaveFilePicker), you can also enable automatic backups.
+Frogtab Local is a version of [frogtab.com](https://frogtab.com) that you can run on your computer. With Frogab Local, you can:
 
-You can use Frogtab offline by running Frogtab Local on your computer.
-Frogtab Local also enables automatic backups in any browser.
-If you use Linux, you can [install Frogtab Local from the Snap Store](https://snapcraft.io/frogtab).
-Otherwise, you can [download and run the latest release](https://github.com/dwilding/frogtab/releases).
+  - Use Frogtab offline
+  - Enable automatic backups in any browser
+  - Send tasks to Frogtab via a terminal
 
-Frogtab can't sync your data between devices.
-However, if you [register your main device](https://frogtab.com/help#registering-for-a-personal-link),
-the frogtab.com server creates a personal link that you can use to send tasks to your main device.
+To set up Frogtab Local, [download and run the latest release](https://github.com/dwilding/frogtab/releases).
+If you use Linux, it's easier to [install Frogtab Local from the Snap Store](https://snapcraft.io/frogtab).
 
 ## How your personal link works
 
