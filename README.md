@@ -1,6 +1,6 @@
 # Frogtab — Private, peaceful task management
 
-[Frogtab](https://frogtab.com) is a lightweight task manager that helps you stay focused on today's priorities.
+Frogtab is a lightweight task manager that helps you stay focused on today's priorities.
 
 <p><img alt="The Today view in Frogtab" src="./demo.png" width="480"></p>
 
