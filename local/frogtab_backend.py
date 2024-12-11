@@ -2,18 +2,10 @@ from pathlib import Path
 from json import dump
 
 
-working_dir = Path.cwd()
-
-
-def write_json(data, file_path):
-    with open(file_path, 'w', encoding='utf-8') as file:
-        dump(data, file, indent=2, ensure_ascii=False)
-
-
-class FrogtabLocalBackend():
+class AppBackend():
     def __init__(self):
         self._methods = {}
-        self._messages = {}
+        self._messages = []
 
     def set_method(self, desc, func):
         self._methods[func.__name__] = {
@@ -38,33 +30,32 @@ class FrogtabLocalBackend():
             'success': True
         }
 
-    def add_message_for(self, instance_id, message):
-        if instance_id not in self._messages:
-            return {
-                'success': False
-            }
-        self._messages[instance_id].insert(0, message)
+    def add_message(self, message):
+        self._messages.insert(0, message)
         return {
             'success': True
         }
 
-    def remove_messages_for(self, instance_id):
-        if instance_id not in self._messages:
-            self._messages[instance_id] = []
-        num_messages = len(self._messages[instance_id])
-        removed_messages = [self._messages[instance_id].pop() for _ in range(num_messages)]
+    def remove_messages(self):
+        num_messages = len(self._messages)
+        removed_messages = [self._messages.pop() for _ in range(num_messages)]
         return {
             'success': True,
             'messages': removed_messages
         }
 
 
-backend = FrogtabLocalBackend()
+backend = AppBackend()
 
 
-# Defines the @backup decorator for use in config.py
 def backup(desc):
     def decorator(func):
         backend.set_method(desc, func)
         return func
     return decorator
+
+
+@backup(f'Save file to {Path.cwd()}')
+def save_file(data):
+    with open('Frogtab_backup.json', 'w', encoding='utf-8') as file:
+        dump(data, file, indent=2, ensure_ascii=False)

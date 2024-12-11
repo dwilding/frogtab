@@ -58,7 +58,6 @@
           <li><a tabindex="0" href="#completion-commands">Completion commands</a></li>
           <li><a tabindex="0" href="#customizing-the-tab-icon">Customizing the tab icon</a></li>
           <li><a tabindex="0" href="#changing-the-theme">Changing the theme</a></li>
-          <li class="service-save-only"><a tabindex="0" href="#sending-tasks-via-a-terminal">Sending tasks via a terminal</a></li>
         </ul>
       </article>
       <h2 id="overview-of-frogtab">Overview of Frogtab</h2>
@@ -112,7 +111,8 @@
             This method is great if you want to capture the task without revealing your inbox (e.g., during a meeting).
           </p>
           <p class="service-save-only">
-            You can also <a tabindex="0" href="#sending-tasks-via-a-terminal" title="Sending tasks via a terminal">send tasks to Frogtab via a terminal</a>.
+            You can also send tasks to Frogtab via a terminal</a>.
+            To send a task to Frogtab, use <code>python app.py send &lt;task&gt;</code>.
           </p>
         </li>
       </ul>
@@ -715,40 +715,6 @@
             </label>
           </div>
         </div>
-      </div>
-      <div class="service-save-only">
-        <h2 id="sending-tasks-via-a-terminal">Sending tasks via a terminal</h2>
-        <p>
-          As an alternative to using <a tabindex="0" href="send" target="_blank">Send to Frogtab</a>,
-          you can send tasks to Frogtab via a terminal. To enable this feature:
-        </p>
-        <ol>
-          <li>
-            <p>
-              Choose a label for Frogtab.
-              For example, <code>work</code> or <code>personal</code>.
-            </p>
-          </li>
-          <li>
-            <p>
-              Modify the URL of Frogtab to include the label.
-              For example, <code><span class="origin">http://127.0.0.1:5000</span>/#work</code>.
-            </p>
-          </li>
-        </ol>
-        <p>
-          To send a task to Frogtab, use <code>python send.py</code>.
-          For example:
-        </p>
-        <pre><code>python send.py work "Record a new product demo"</code></pre>
-        <p>
-          The task will appear in your inbox after a few seconds.
-        </p>
-        <p>
-          You can't use <code>python send.py</code> to send tasks from other devices.
-          To send tasks from other devices, first <a tabindex="0" href="#registering-for-a-personal-link" title="Registering for a personal link">register for a personal link</a>,
-          then <a tabindex="0" href="https://maybecoding.bearblog.dev/making-a-command-line-tool-for-your-frogtab-personal-link/" target="_blank">make a command-line tool for your personal link</a>.
-        </p>
       </div>
     </main>
     <footer>

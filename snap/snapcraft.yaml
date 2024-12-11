@@ -1,5 +1,5 @@
 name: frogtab
-version: 1.09snap1beta13
+version: 2.00snap1beta4
 title: Frogtab Local
 summary: Run the Frogtab task manager on localhost
 description: |
@@ -69,7 +69,7 @@ parts:
   python-environment:
     plugin: python
     source: .
-    python-requirements: ['flask/requirements.txt']
+    python-requirements: ['src/requirements.txt']
   source:
     plugin: dump
     source: .

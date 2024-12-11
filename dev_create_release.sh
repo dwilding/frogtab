@@ -8,18 +8,19 @@ cd local
 rm -rf templates
 mkdir templates
 mv static/index.html static/icon-*.html static/help.html templates
+rm -rf .venv
 rm -rf __pycache__
 rm -f Frogtab_backup.json
 
 cd templates
 sed -i'.backup' 's/data-server-base=\"https:\/\/frogtab\.com\/\"/data-server-base=\"{{ server_base }}\"/' index.html icon-*.html help.html
 sed -i'.backup' 's/data-save=\"browser\"/data-save=\"service\"/' index.html icon-*.html help.html
-sed -i'.backup' 's/\(<a tabindex="0" href="https:\/\/github\.com\/dwilding\/frogtab"\)/<a tabindex="0" href="https:\/\/github.com\/dwilding\/frogtab\/releases\/tag\/v1.09" target="_blank">v1.09 release notes<\/a> • \1/' help.html
+sed -i'.backup' 's/\(<a tabindex="0" href="https:\/\/github\.com\/dwilding\/frogtab"\)/<a tabindex="0" href="https:\/\/github.com\/dwilding\/frogtab\/releases\/tag\/v2.00" target="_blank">v2.00 release notes<\/a> • \1/' help.html
 rm *.backup
 
 cd ..
-zip -r frogtab_local_v109.zip .
-mv frogtab_local_v109.zip ..
+zip -r frogtab_local_v200.zip .
+mv frogtab_local_v200.zip ..
 
 cd ..
 rm -rf snapcraft
@@ -28,11 +29,11 @@ rm -f snapcraft/README.md
 cp -r snap/* snapcraft
 
 cd snapcraft
-mkdir flask
-mv static templates app.py lib.py send.py status.py frogtab_helpers.py requirements.txt flask
+mkdir src
+mv static templates app.py frogtab_backend.py frogtab_flask.py requirements.txt src
 
-cd flask/templates
-sed -i'.backup' 's/python send\.py/frogtab send/g' help.html
+cd src/templates
+sed -i'.backup' 's/python app\.py/frogtab/g' help.html
 rm *.backup
 
 cd ../..

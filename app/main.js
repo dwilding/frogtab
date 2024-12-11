@@ -717,10 +717,7 @@ async function appendLocalMessages() {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        instance_id: instanceID
-      })
+      }
     });
   }
   catch (err) {
@@ -1158,7 +1155,7 @@ async function startApp() {
       }
     });
   }
-  if (usingLocalService && instanceID != "") {
+  if (usingLocalService) {
     await appendLocalMessages();
     setNotifyStatus();
     if (selectedTab == "inbox" || (startingTab === null && notifyInbox)) {
@@ -1181,7 +1178,7 @@ async function startApp() {
     if (isNewDay()) {
       updateValues();
       preferInbox();
-      if (usingLocalService && instanceID != "") {
+      if (usingLocalService) {
         await appendLocalMessages();
         preferInbox();
       }
@@ -1195,7 +1192,7 @@ async function startApp() {
       }
     }
     else {
-      if (usingLocalService && instanceID != "") {
+      if (usingLocalService) {
         await appendLocalMessages();
         setNotifyStatus();
         refreshView();
@@ -1220,9 +1217,6 @@ async function startApp() {
         const reloadParams = new URLSearchParams(window.location.search);
         reloadParams.set("reload", Date.now().toString());
         let reloadLocation = `icon-${reloadIcon}?${reloadParams.toString()}`;
-        if (usingLocalService && instanceID != "") {
-          reloadLocation = `${reloadLocation}#${encodeURIComponent(instanceID)}`;
-        }
         try {
           // Before committing to the reload, verify that we can load the new location
           await fetch(reloadLocation);
@@ -1257,14 +1251,6 @@ async function startApp() {
     refreshView();
     requestSave();
   });
-  window.addEventListener("hashchange", async () => {
-    if (usingLocalService) {
-      instanceID = decodeURIComponent(window.location.hash.substring(1));
-      await appendLocalMessages();
-      setNotifyStatus();
-      refreshView();
-    }
-  })
 }
 
 
@@ -1360,10 +1346,8 @@ let timeoutSave = {
 let timeoutShowInfo;
 let lastActive = Date.now();
 let usingLocalService = false;
-let instanceID = null;
 if (document.documentElement.getAttribute("data-save") == "service") {
   usingLocalService = true;
-  instanceID = decodeURIComponent(window.location.hash.substring(1));
 }
 const serverBase = document.documentElement.getAttribute("data-server-base");
 let userIDTested = null;
