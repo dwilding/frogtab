@@ -721,11 +721,14 @@ async function appendLocalMessages() {
     });
   }
   catch (err) {
+    repotServiceDown();
     return;
   }
   if (!response.ok) {
+    repotServiceDown();
     return;
   }
+  reportServiceUp();
   const result = await response.json();
   if (!result.success || result.messages.length == 0) {
     return;
@@ -893,19 +896,15 @@ async function saveToService() {
     });
   }
   catch (err) {
-    if (showWelcome) {
-      dom.welcome.classList.remove("display");
-      showWelcome = false;
-    }
-    dom.popupSavePaused.classList.add("display");
+    repotServiceDown();
     timeoutSave.waiting = false;
     return;
   }
-  dom.popupSavePaused.classList.remove("display");
   if (!response.ok) {
-    onServiceFailure();
+    repotServiceDown();
     return;
   }
+  reportServiceUp();
   const result = await response.json();
   if (!result.success) {
     onServiceFailure();
@@ -930,6 +929,18 @@ async function saveToFile() {
     dom.enableSave.classList.add("display");
   }
   timeoutSave.waiting = false;
+}
+
+function repotServiceDown() {
+  if (showWelcome) {
+    dom.welcome.classList.remove("display");
+    showWelcome = false;
+  }
+  dom.popupSavePaused.classList.add("display");
+}
+
+function reportServiceUp() {
+  dom.popupSavePaused.classList.remove("display");
 }
 
 async function startApp() {
