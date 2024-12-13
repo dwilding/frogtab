@@ -40,4 +40,10 @@ cd ../..
 snapcraft pack
 mv frogtab_*.snap ..
 
+cd ../local
+python3 -m venv .venv
+. .venv/bin/activate
+pip install -r requirements.txt
+deactivate
+
 cd ..
