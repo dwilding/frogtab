@@ -37,8 +37,10 @@ sed -i'.backup' 's/python app\.py/frogtab/g' help.html
 rm *.backup
 
 cd ../..
-snapcraft pack
-mv frogtab_*.snap ..
+if [ "$1" != "--no-pack" ]; then
+    snapcraft pack
+    mv frogtab_*.snap ..
+fi
 
 cd ../local
 python3 -m venv .venv
