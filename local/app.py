@@ -56,6 +56,8 @@ def main():
         Command.status()
     if args == ['stop']:
         Command.stop()
+    if len(args) == 1 and args[0] == 'send':
+        Command.send_interactive()
     if len(args) == 2 and args[0] == 'send':
         Command.send(args[1])
     print('Usage: TODO')
@@ -165,8 +167,7 @@ To access Frogtab, open {config.url_display} in your browser''')
                 'message': task
             })
         except exceptions.ConnectionError:
-            Command.start_then_send(task)
-            return
+            Command.start_then_send(task) # Also calls sys.exit()
         if response.status_code != 200:
             print(ServiceStatus.UNEXPECTED_APP.value)
             sys.exit(1)
@@ -216,6 +217,21 @@ To access Frogtab, open {config.url_display} in your browser''')
             print(f'Unable to start Frogtab Local (port {config.local_port})')
             sys.exit(1)
         print(started_status.value)
+        sys.exit(1)
+
+    @staticmethod
+    def send_interactive():
+        task = ''
+        try:
+            task = input("> ")
+        except KeyboardInterrupt:
+            print()
+            sys.exit(130)
+        except EOFError:
+            print()
+            sys.exit(1)
+        if task:
+            Command.send(task) # Also calls sys.exit()
         sys.exit(1)
 
 
