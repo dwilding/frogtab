@@ -12,6 +12,7 @@ from requests import get, post, exceptions
 class Config():
     def __init__(self, file):
         self.load_external(file)
+        # TODO: Verify that backup file can be written (by trying to write it?)
         self.set_flask_config()
         self.local_host = f'http://127.0.0.1:{self.local_port}'
         self.url_display = self.local_host
@@ -225,7 +226,6 @@ To access Frogtab, open {config.url_display} in your browser''')
         try:
             task = input("> ")
         except KeyboardInterrupt:
-            print()
             sys.exit(130)
         except EOFError:
             print()
