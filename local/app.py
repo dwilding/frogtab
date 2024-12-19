@@ -17,7 +17,7 @@ class Config():
         self.local_host = f'http://127.0.0.1:{self.local_port}'
         self.url_display = self.local_host
         self.tick_display = '✓'
-        if not getenv('NO_COLOR'):
+        if isatty(sys.stdout.fileno()) and not getenv('NO_COLOR'):
             self.tick_display = f'\033[32m{self.tick_display}\033[0m' # Make the tick green
             self.url_display = f'\033[96m{self.url_display}\033[0m' # Make the URL bright cyan
 
