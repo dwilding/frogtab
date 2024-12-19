@@ -1,5 +1,5 @@
 import sys
-from os import getenv
+from os import getenv, isatty
 from subprocess import Popen, DEVNULL
 from time import sleep
 from urllib import parse
@@ -58,7 +58,7 @@ def main():
     if args == ['stop']:
         Command.stop()
     if len(args) == 1 and args[0] == 'send':
-        Command.send_interactive()
+        Command.send_from_stdin()
     if len(args) == 2 and args[0] == 'send':
         Command.send(args[1])
     print('Usage: TODO')
@@ -221,15 +221,18 @@ To access Frogtab, open {config.url_display} in your browser''')
         sys.exit(1)
 
     @staticmethod
-    def send_interactive():
+    def send_from_stdin():
         task = ''
-        try:
-            task = input("> ")
-        except KeyboardInterrupt:
-            sys.exit(130)
-        except EOFError:
-            print()
-            sys.exit(1)
+        if isatty(sys.stdin.fileno()):
+            try:
+                task = input("> ")
+            except KeyboardInterrupt:
+                sys.exit(130)
+            except EOFError:
+                print()
+                sys.exit(1)
+        else:
+            task = sys.stdin.read()
         if task:
             Command.send(task) # Also calls sys.exit()
         sys.exit(1)
