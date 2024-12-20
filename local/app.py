@@ -45,21 +45,21 @@ config = Config('config.ini')
 
 def main():
     args = sys.argv[1:]
-    if not args or args == ['start']:
-        Command.start()
+    if not args:
+        Command.send_from_stdin()
     if args == ['-V'] or args == ['--version']:
         print('Frogtab Local v2.00')
         sys.exit(0)
     if args == ['-h'] or args == ['--help'] or args == ['help']:
         print('Help: TODO')
         sys.exit(0)
+    if args == ['start']:
+        Command.start()
     if args == ['status']:
         Command.status()
     if args == ['stop']:
         Command.stop()
-    if len(args) == 1 and args[0] == 'send':
-        Command.send_from_stdin()
-    if len(args) == 2 and args[0] == 'send':
+    if len(args) == 2 and args[0] == 'send-task':
         Command.send(args[1])
     print('Usage: TODO')
     sys.exit(2)
@@ -224,6 +224,7 @@ To access Frogtab, open {config.url_display} in your browser''')
     def send_from_stdin():
         task = ''
         if isatty(sys.stdin.fileno()):
+            print('Add a task to your inbox:')
             try:
                 task = input("> ")
             except KeyboardInterrupt:
