@@ -30,10 +30,10 @@ cp -r snap/* snapcraft
 
 cd snapcraft
 mkdir src
-mv static templates app.py frogtab_backend.py frogtab_flask.py requirements.txt src
+mv static templates frogtab.py frogtab_backend.py frogtab_flask.py requirements.txt src
 
 cd src/templates
-sed -i'.backup' 's/python app\.py/frogtab/g' help.html
+sed -i'.backup' 's/python frogtab\.py/frogtab/g' help.html
 rm *.backup
 
 cd ../..

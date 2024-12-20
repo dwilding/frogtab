@@ -6,4 +6,4 @@ if [ ! -e config.ini ]; then
   cp "$SNAP/config.ini" .
 fi
 export FROGTAB_FLASK_SCRIPT="$SNAP/src/frogtab_flask.py"
-python "$SNAP/src/app.py" "$@"
+python "$SNAP/src/frogtab.py" "$@"
