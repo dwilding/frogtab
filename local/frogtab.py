@@ -47,10 +47,10 @@ def main():
     args = sys.argv[1:]
     if not args:
         Command.send_from_stdin()
-    if args == ['-V'] or args == ['--version']:
+    if args == ['version'] or args == ['--version'] or args == ['-V']:
         print('Frogtab Local v2.00')
         sys.exit(0)
-    if args == ['-h'] or args == ['--help'] or args == ['help']:
+    if args == ['help'] or args == ['--help'] or args == ['-h']:
         print('Help: TODO')
         sys.exit(0)
     if args == ['start']:
