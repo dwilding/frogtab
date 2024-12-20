@@ -80,7 +80,7 @@ If you use Linux, it's easier to [install Frogtab Local from the Snap Store](htt
 
 ## Customizing the placeholder text of your personal link
 
-By default, the placeholder text of your personal link is "Send to your inbox…".
+By default, the placeholder text of your personal link is "Add a task to your inbox…".
 You can override the default placeholder text to help you identify the device that you're sending tasks to.
 
 To override the default placeholder text, add `/{text}` to the end of your personal link, where `{text}` is your preferred placeholder text.
