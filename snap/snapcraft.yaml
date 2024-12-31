@@ -1,5 +1,5 @@
 name: frogtab
-version: 2.00snap1beta7
+version: 2.00snap1beta10
 title: Frogtab Local
 summary: Run the Frogtab task manager on localhost
 description: |
@@ -7,57 +7,67 @@ description: |
 
     * Use Frogtab offline
     * Enable automatic backups in any browser
+    * Send tasks to Frogtab via a terminal
 
-  If you use Ubuntu, see https://maybecoding.bearblog.dev/running-the-frogtab-task-manager-on-ubuntu/ to learn how to set up Frogtab Local.
+  For a walkthrough of how to set up Frogtab Local on Ubuntu, see https://maybecoding.bearblog.dev/running-the-frogtab-task-manager-on-ubuntu/.
 
-  **Running Frogtab Local**
 
-  To run Frogtab Local, use the `frogtab` command.
+  **Starting Frogtab Local**
 
-  You should see the message `Running on http://127.0.0.1:5000`.
-  You can ignore the warning about a development server.
+  To start Frogtab Local, run the following command:
 
-  To access Frogtab, open http://127.0.0.1:5000 in your browser.
+  ```
+  $ frogtab start
+  ```
 
-  To specify a different port, modify the `local_port` variable in _~/snap/frogtab/common/config.py_, then run `frogtab` again.
+  Frogtab Local starts:
+
+  ```
+  ✓ Started Frogtab Local
+  To access Frogtab, open http://127.0.0.1:5000 in your browser
+  ```
+
+  To change the port, first run `frogtab stop`. Then modify the `local_port` property in *~/snap/frogtab/common/config.py* and run `frogtab start` again.
+
+
+  ** Sending tasks to Frogtab
+
+  To send a task to Frogtab:
+
+   1. Run the following command:
+
+      ```
+      $ frogtab
+      ```
+
+   2. Type the task, then press Enter. For example:
+
+      ```
+      Add a task to your inbox:
+      > Record a demo video
+      ✓ Sent task to Frogtab
+      ```
+
+
+  **Command reference**
+
+  Here's the output of `frogtab help`:
+
+  ```
+  TODO
+  ```
+
+
+  **Release notes**
+
+  https://github.com/dwilding/frogtab/releases
+
 
   **License**
 
   Frogtab Local is licensed under the MIT License.
 
-  Frogtab Local uses OpenPGP.js for PGP encryption.
-  The source code of OpenPGP.js is available at https://github.com/openpgpjs/openpgpjs.
-  OpenPGP.js is licensed under the GNU Lesser General Public License.
-
-  **Changelog**
-
-  1.09snap1:
-
-    * The `frogtab` command now displays a status message if Frogtab Local is already running
-    * You can now use Ctrl+X to cut tasks when no text is selected
-    * Prevented Frogtab from overriding keyboard shortcuts that use the Alt key
-    * Changed the format of dates in backup files. You can still import old backup files
-
-  1.08snap1:
-
-    * Sending tasks via a terminal now fails if the label has never been used by Frogtab
-
-  1.07snap1:
-
-    * You can now send tasks to Frogtab via a terminal, without registering for a personal link. See the help page
-
-  1.06snap1:
-
-    * You can now stop Frogtab Local via your browser. See the bottom of the help page
-    * Reorganized the menu to always show Achievements. Removed Send to Frogtab from the menu
-    * Reorganized the help page and explained Achievements in a more approachable way
-    * Improved keyboard accessibility
-    * Changed the ID format of generated key pairs, for better compatibility with GnuPG
-
-  1.05snap1:
-
-    * Added a variable in _config.py_ that specifies the server to use for personal links
-    * Fixed a registration bug that occurred after importing an old backup file
+  Frogtab Local uses OpenPGP.js for PGP encryption. The source code of OpenPGP.js is available at https://github.com/openpgpjs/openpgpjs. OpenPGP.js is licensed under the GNU Lesser General Public License.
 grade: stable
 confinement: strict
 base: core24

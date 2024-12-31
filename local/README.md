@@ -1,51 +1,79 @@
 # Frogtab Local
 
-Frogtab Local is a version of https://frogtab.com that you can run on your computer.
-Frogtab Local is implemented as a Flask app that runs in development mode.
-I encourage you to tinker with the app!
+Frogtab Local is a version of https://frogtab.com that you can run on your computer. With Frogab Local, you can:
 
-Frogtab Local supports personal links, but your device will be registered with frogtab.com.
-If you self-host Frogtab, you can configure Frogtab Local to use your own server instead.
-See *config.py* for details.
+  - Use Frogtab offline
+  - Enable automatic backups in any browser
+  - Send tasks to Frogtab via a terminal
 
-## Installing the Flask app
+Frogtab Local supports personal links, but your device will be registered with frogtab.com. If you self-host Frogtab, you can configure Frogtab Local to use your own server instead. For details, see *config.ini*.
 
-These instructions explain how to install the Flask app from source.
-If you use Linux, it's easier to install Frogtab Local from the Snap Store.
-See https://snapcraft.io/frogtab.
 
-You'll need Python 3.8 or later. See https://www.python.org/downloads/.
+## Installing Frogtab Local
 
-To install the Flask app, open a terminal in the directory that contains *app.py*,
-then enter the following commands:
+These instructions explain how to install Frogtab Local from source. You'll need Python 3.8 or later. See https://www.python.org/downloads/.
+
+If you use Linux, I recommend that you install Frogtab Local from the Snap Store instead. See https://snapcraft.io/frogtab.
+
+To install Frogtab Local from source, run the following commands:
 
 ```
-python3 -m venv .venv
-. .venv/bin/activate
-pip install -r requirements.txt
+$ python3 -m venv .venv
+$ . .venv/bin/activate
+$ pip install -r requirements.txt
 ```
 
-## Running the Flask app
 
-To run the Flask app, use `python app.py`.
+## Starting Frogtab Local
 
-The Flask app starts:
+To start Frogtab Local, run the following commands:
 
 ```
-WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
- * Running on http://127.0.0.1:5000
+$ . .venv/bin/activate
+$ python frogtab.py start
 ```
 
-To access Frogtab, open http://127.0.0.1:5000 in your browser.
+Frogtab Local starts:
 
-To specify a different port, modify the `local_port` variable in *config.py*, then run `python app.py` again.
+```
+✓ Started Frogtab Local
+To access Frogtab, open http://127.0.0.1:5000 in your browser
+```
+
+To change the port, first run `python frogtab.py stop`. Then modify the `local_port` property in *config.ini* and run `python frogtab.py start` again.
+
+
+## Sending tasks to Frogtab
+
+To send a task to Frogtab:
+
+ 1. Run the following commands:
+
+    ```
+    $ . .venv/bin/activate
+    $ python frogtab.py
+    ```
+
+ 2. Type the task, then press Enter. For example:
+
+    ```
+    Add a task to your inbox:
+    > Record a demo video
+    ✓ Sent task to Frogtab
+    ```
+
+
+## Command reference
+
+Here's the output of `python frogtab.py help`:
+
+```
+TODO
+```
+
 
 ## License
 
-Frogtab Local is licensed under the MIT License.
-For details, see *LICENSE*.
+Frogtab Local is licensed under the MIT License. For details, see *LICENSE*.
 
-Frogtab Local uses OpenPGP.js for PGP encryption.
-The source code of OpenPGP.js is available at https://github.com/openpgpjs/openpgpjs.
-OpenPGP.js is licensed under the GNU Lesser General Public License.
-For details, see *LICENSE_openpgp*.
+Frogtab Local uses OpenPGP.js for PGP encryption. The source code of OpenPGP.js is available at https://github.com/openpgpjs/openpgpjs. OpenPGP.js is licensed under the GNU Lesser General Public License. For details, see *LICENSE_openpgp*.

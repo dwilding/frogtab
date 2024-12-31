@@ -22,7 +22,7 @@ async function send(task) {
   }
 }
 
-send("Record a demo of the latest product features").then(success => {
+send("Record a demo video").then(success => {
   console.log(success);
 });
 ```
@@ -69,7 +69,7 @@ For a detailed explanation, see [Making a command-line tool for your Frogtab per
   ID="YOUR_ID"
   KEY="KEY_ID"
 
-  TASK="Record a new product demo"
+  TASK="Record a demo video"
 
   ENCRYPTED_TASK="$(echo "$TASK" | gpg --armor --encrypt --recipient "$KEY")"
   if [ $? -ne 0 ]; then

@@ -87,7 +87,7 @@ To override the default placeholder text, add `/{text}` to the end of your perso
 Make sure that any special characters in the placeholder text are correctly [percent-encoded](https://developer.mozilla.org/en-US/docs/Glossary/Percent-encoding) in your personal link.
 For example, to use "Send to Linux desktop…" as the placeholder text, add `/Send%20to%20Linux%20desktop%E2%80%A6` to the end of your personal link.
 
-To override the default placeholder text and automatically use the correct encoding, open your personal link in your browser, then enter `setPlaceholder("Custom placeholder text")` in the web console.
+To override the default placeholder text and automatically use the correct encoding, open your personal link in your browser, then run `setPlaceholder("Custom placeholder text")` in the web console.
 
 ## Sending tasks via JavaScript
 
@@ -109,7 +109,7 @@ async function send(task) {
   }
 }
 
-send("Record a demo of the latest product features").then(success => {
+send("Record a demo video").then(success => {
   console.log(success);
 });
 ```
@@ -131,7 +131,7 @@ To install Frogtab on your own server:
 
  1. Open a shell on your server, then navigate to a directory that is accessible to PHP scripts but not accessible via the web.
 
- 2. Enter the following commands:
+ 2. Run the following commands:
 
     ```
     git clone https://github.com/dwilding/frogtab.git
