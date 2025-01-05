@@ -1,19 +1,21 @@
 import sys
 from os import getpid, kill
 from signal import SIGINT
-from json import loads
 from flask import Flask, render_template, send_from_directory, request, make_response
 from logging import getLogger
-from frogtab_backend import backend
 
 
-# Set config
+from config import Config
+from service import backend
+
+
+# Load config
 
 args = sys.argv[1:]
 if len(args) != 1:
-    print('Usage: python frogtab_flask.py <json_config>')
     sys.exit(2)
-config = loads(args[0])
+config = Config(args[0])
+config.fetch()
 app = Flask(__name__, static_url_path='/')
 
 
@@ -21,19 +23,19 @@ app = Flask(__name__, static_url_path='/')
 
 @app.route('/')
 def serve_index():
-    return render_template('index.html', server_base=config['registration_server'])
+    return render_template('index.html', server_base=config.registration_server)
 
 @app.route('/icon-normal')
 def serve_icon_normal():
-    return render_template('icon-normal.html', server_base=config['registration_server'])
+    return render_template('icon-normal.html', server_base=config.registration_server)
 
 @app.route('/icon-notify')
 def serve_icon_notify():
-    return render_template('icon-notify.html', server_base=config['registration_server'])
+    return render_template('icon-notify.html', server_base=config.registration_server)
 
 @app.route('/help')
 def serve_help():
-    return render_template('help.html', server_base=config['registration_server'])
+    return render_template('help.html', server_base=config.registration_server)
 
 @app.route('/<string:file>')
 def serve_file(file):
@@ -72,4 +74,4 @@ def post_stop():
 # Start Flask
 
 getLogger('werkzeug').disabled = True
-app.run(port=config['local_port'])
+app.run(port=config.local_port)

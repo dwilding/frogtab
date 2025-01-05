@@ -4,44 +4,36 @@ from subprocess import Popen, DEVNULL
 from time import sleep
 from urllib import parse
 from enum import Enum
-from configparser import ConfigParser
+from pathlib import Path
 from json import dumps
 from requests import get, post, exceptions
 
 
-class Config():
-    def __init__(self, file):
-        self.load_external(file)
-        # TODO: Verify that backup file can be written (by trying to write it?)
-        self.set_flask_config()
-        self.local_host = f'http://127.0.0.1:{self.local_port}'
-        self.url_display = self.local_host
-        self.tick_display = '✓'
-        if isatty(sys.stdout.fileno()) and not getenv('NO_COLOR'):
-            self.tick_display = f'\033[32m{self.tick_display}\033[0m' # Make the tick green
-            self.url_display = f'\033[96m{self.url_display}\033[0m' # Make the URL bright cyan
-
-    def load_external(self, file):
-        # TODO: Check that file exists
-        config = ConfigParser()
-        config.read(file)
-        # TODO: Handle missing data in the config
-        self.local_port = config['Frogtab Local']['local_port']
-        self.registration_server = config['Frogtab Local']['registration_server']
-        # TODO: Override config if environment variables are set
-
-    def set_flask_config(self):
-        self.flask_script = getenv('FROGTAB_FLASK_SCRIPT')
-        if not self.flask_script:
-            self.flask_script = 'frogtab_flask.py'
-        self.flask_config = dumps({
-            'local_port': self.local_port,
-            'registration_server': self.registration_server
-        }, ensure_ascii=False)
+from internal import Config
 
 
-config = Config('config.ini')
+# Load config
 
+config_file = getenv('FROGTAB_CONFIG_FILE')
+if not config_file:
+    config_file = 'config.json'
+config = Config(config_file)
+config.fetch()
+# TODO: If config file does not exist, try looking for config.py and importing port & server (for compat)
+# TODO: Check that config file is writeable by calling config.store()
+local_host = f'http://127.0.0.1:{config.local_port}' # TODO: Delete this after moving HTTP parts to client.py
+
+
+# Prepare variables for printing
+
+display_url = f'http://127.0.0.1:{config.local_port}'
+display_tick = '✓'
+if isatty(sys.stdout.fileno()) and not getenv('NO_COLOR'):
+    display_tick = f'\033[32m{display_tick}\033[0m' # Make the tick green
+    display_url = f'\033[96m{display_url}\033[0m' # Make the URL bright cyan
+
+
+# CLI
 
 def main():
     args = sys.argv[1:]
@@ -67,7 +59,7 @@ def main():
 
 class ServiceStatus(Enum):
     SERVICE_RUNNING = f'''Frogtab Local is running on port {config.local_port}
-To access Frogtab, open {config.url_display} in your browser'''
+To access Frogtab, open {display_url} in your browser'''
     NO_CONNECTION = f'Frogtab Local is not running on port {config.local_port}'
     UNEXPECTED_APP = f'A different app is using port {config.local_port}'
 
@@ -76,7 +68,7 @@ class Service():
     @staticmethod
     def probe() -> ServiceStatus:
         try:
-            response = get(f'{config.local_host}/service/get-methods')
+            response = get(f'{local_host}/service/get-methods')
         except exceptions.ConnectionError:
             return ServiceStatus.NO_CONNECTION
         if response.status_code != 200:
@@ -103,10 +95,13 @@ class Service():
 
     @staticmethod
     def start() -> ServiceStatus:
+        flask_script = getenv('FROGTAB_FLASK_SCRIPT')
+        if not flask_script:
+            flask_script = Path('internal/flask_script.py')
         Popen([
             'python',
-            config.flask_script,
-            config.flask_config
+            flask_script,
+            config.config_file
         ], stdout=DEVNULL)
         return Service.wait(lambda status: status == ServiceStatus.SERVICE_RUNNING)
 
@@ -127,8 +122,8 @@ class Command():
         if status == ServiceStatus.NO_CONNECTION:
             started_status = Service.start()
             if started_status == ServiceStatus.SERVICE_RUNNING:
-                print(f'''{config.tick_display} Started Frogtab Local
-To access Frogtab, open {config.url_display} in your browser''')
+                print(f'''{display_tick} Started Frogtab Local
+To access Frogtab, open {display_url} in your browser''')
                 sys.exit(0)
             if started_status == ServiceStatus.NO_CONNECTION:
                 print(f'Unable to start Frogtab Local (port {config.local_port})')
@@ -144,7 +139,7 @@ To access Frogtab, open {config.url_display} in your browser''')
     @staticmethod
     def stop():
         try:
-            response = post(f'{config.local_host}/service/post-stop')
+            response = post(f'{local_host}/service/post-stop')
         except exceptions.ConnectionError:
             print(ServiceStatus.NO_CONNECTION.value)
             sys.exit(0)
@@ -153,7 +148,7 @@ To access Frogtab, open {config.url_display} in your browser''')
             sys.exit(1)
         stopped_status = Service.wait(lambda status: status != ServiceStatus.SERVICE_RUNNING)
         if stopped_status == ServiceStatus.NO_CONNECTION:
-            print(f'{config.tick_display} Stopped Frogtab Local')
+            print(f'{display_tick} Stopped Frogtab Local')
             sys.exit(0)
         if stopped_status == ServiceStatus.SERVICE_RUNNING:
             print(f'Unable to stop Frogtab Local (port {config.local_port})')
@@ -164,7 +159,7 @@ To access Frogtab, open {config.url_display} in your browser''')
     @staticmethod
     def send(task):
         try:
-            response = post(f'{config.local_host}/service/post-add-message', json={
+            response = post(f'{local_host}/service/post-add-message', json={
                 'message': task
             })
         except exceptions.ConnectionError:
@@ -183,7 +178,7 @@ To access Frogtab, open {config.url_display} in your browser''')
         if not response_json['success']:
             print(f'Unable to send task to Frogtab (port {config.local_port})')
             sys.exit(1)
-        print(f'{config.tick_display} Sent task to Frogtab')
+        print(f'{display_tick} Sent task to Frogtab')
         sys.exit(0)
 
     @staticmethod
@@ -191,7 +186,7 @@ To access Frogtab, open {config.url_display} in your browser''')
         started_status = Service.start()
         if started_status == ServiceStatus.SERVICE_RUNNING:
             try:
-                response = post(f'{config.local_host}/service/post-add-message', json={
+                response = post(f'{local_host}/service/post-add-message', json={
                     'message': task
                 })
             except exceptions.ConnectionError:
@@ -211,8 +206,8 @@ To access Frogtab, open {config.url_display} in your browser''')
             if not response_json['success']:
                 print(f'Unable to send task to Frogtab (port {config.local_port})')
                 sys.exit(1)
-            print(f'''{config.tick_display} Started Frogtab Local and sent task to Frogtab
-To access Frogtab, open {config.url_display} in your browser''')
+            print(f'''{display_tick} Started Frogtab Local and sent task to Frogtab
+To access Frogtab, open {display_url} in your browser''')
             sys.exit(0)
         if started_status == ServiceStatus.NO_CONNECTION:
             print(f'Unable to start Frogtab Local (port {config.local_port})')
