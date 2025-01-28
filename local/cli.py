@@ -1,238 +1,225 @@
-import sys
-from os import getenv, isatty
-from subprocess import Popen, DEVNULL
-from time import sleep
-from urllib import parse
-from enum import Enum
 from pathlib import Path
-from json import dumps
-from requests import get, post, exceptions
+
+import sys
+import os
+import shutil
+import subprocess
+import json
+
+import client
 
 
-from internal import Config
+class Environment:
+    def __init__(self):
+        self.set_default_config()
+        self.config_file = os.getenv('FROGTAB_CONFIG_FILE')
+        if not self.config_file:
+            self.config_file = 'config.json'
+        if Path(self.config_file).is_file():
+            self.read_config() # TODO: What if the read fails?
+        else:
+            self.try_legacy_read_config()
+            self.write_config() # TODO: What if the write fails?
+        self.tty_in = os.isatty(sys.stdin.fileno())
+        self.tty_out = os.isatty(sys.stdout.fileno())
+        self.set_display_variables()
 
+    def set_default_config(self):
+        self.port = 5000
+        self.backup_file = 'Frogtab_backup.json'
+        self.registration_server = 'https://frogtab.com/'
 
-# Load config
+    def set_config_from_dict(self, config: dict):
+        if 'port' in config:
+            self.port = config['port']
+        if 'backupFile' in config:
+            self.backup_file = config['backupFile']
+        if 'registrationServer' in config:
+            self.registration_server = config['registrationServer']
 
-config_file = getenv('FROGTAB_CONFIG_FILE')
-if not config_file:
-    config_file = 'config.json'
-config = Config(config_file)
-config.fetch()
-# TODO: If config file does not exist, try looking for config.py and importing port & server (for compat)
-# TODO: Check that config file is writeable by calling config.store()
-local_host = f'http://127.0.0.1:{config.local_port}' # TODO: Delete this after moving HTTP parts to client.py
+    def read_config(self):
+        with open(self.config_file, 'r', encoding='utf-8') as file:
+            config = json.load(file)
+        self.set_config_from_dict(config)
 
+    def try_legacy_read_config(self):
+        if not Path('config.py').is_file() or Path('migrated').exists():
+            return
+        # Move config.py to a dedicated subdir of the working dir
+        shutil.copytree(Path(__file__).parent / 'legacy', 'migrated')
+        shutil.move('config.py', 'migrated')
+        result = subprocess.run(
+            ['python', Path('migrated') / 'read_config.py'],
+            capture_output=True,
+            text=True
+        )
+        config = json.loads(result.stdout)
+        self.set_config_from_dict(config)
 
-# Prepare variables for printing
+    def write_config(self):
+        config = {
+            'port': self.port,
+            'backupFile': self.backup_file,
+            'registrationServer': self.registration_server
+        }
+        with open(self.config_file, 'w', encoding='utf-8') as file:
+            json.dump(config, file, indent=2, ensure_ascii=False)
 
-display_url = f'http://127.0.0.1:{config.local_port}'
-display_tick = '✓'
-if isatty(sys.stdout.fileno()) and not getenv('NO_COLOR'):
-    display_tick = f'\033[32m{display_tick}\033[0m' # Make the tick green
-    display_url = f'\033[96m{display_url}\033[0m' # Make the URL bright cyan
+    def set_display_variables(self):
+        self.display_url = f'http://localhost:{self.port}'
+        self.display_tick = '✓'
+        if self.tty_out and not os.getenv('NO_COLOR'):
+            self.display_url = f'\033[96m{self.display_url}\033[0m' # bright cyan
+            self.display_tick = f'\033[32m{self.display_tick}\033[0m' # green
 
+    def start_server(self):
+        self.write_config() # TODO: What if the write fails?
+        subprocess.Popen([
+            'python',
+            Path(__file__).parent / 'local_server' / 'run.py',
+            self.config_file
+        ], stdout=subprocess.DEVNULL)
 
-# CLI
 
 def main():
     args = sys.argv[1:]
     if not args:
-        Command.send_from_stdin()
-    if args == ['version'] or args == ['--version'] or args == ['-V']:
-        print('Frogtab Local v2.00')
+        env = Environment()
+        send_then_exit(env)
+    if args == ['--version'] or args == ['-V']:
+        print('Frogtab Local 2.0.0')
         sys.exit(0)
     if args == ['help'] or args == ['--help'] or args == ['-h']:
-        print('Help: TODO')
+        print_help()
         sys.exit(0)
     if args == ['start']:
-        Command.start()
-    if args == ['status']:
-        Command.status()
+        env = Environment()
+        start_then_exit(env)
     if args == ['stop']:
-        Command.stop()
-    if len(args) == 2 and args[0] == 'send-task':
-        Command.send(args[1])
-    print('Usage: TODO')
+        env = Environment()
+        stop_then_exit(env)
+    if len(args) == 2 and args[0] == 'set-port' and args[1]:
+        try:
+            port = int(args[1])
+        except ValueError:
+            print('Port must be an integer')
+            sys.exit(2)
+        if port < 1024:
+            print('Port must be at least 1024')
+            sys.exit(2)
+        env = Environment()
+        set_port_then_exit(env, port)
+    print_usage()
     sys.exit(2)
 
-
-class ServiceStatus(Enum):
-    SERVICE_RUNNING = f'''Frogtab Local is running on port {config.local_port}
-To access Frogtab, open {display_url} in your browser'''
-    NO_CONNECTION = f'Frogtab Local is not running on port {config.local_port}'
-    UNEXPECTED_APP = f'A different app is using port {config.local_port}'
-
-
-class Service():
-    @staticmethod
-    def probe() -> ServiceStatus:
+def send_then_exit(env: Environment):
+    try:
+        running = client.get_status(env.port)
+    except client.UnknownAppError:
+        exit_on_unknown_app(env)
+    started = False
+    if not running:
+        start(env)
+        started = True
+    task = ''
+    if env.tty_in:
+        print('Add a task to your inbox:')
         try:
-            response = get(f'{local_host}/service/get-methods')
-        except exceptions.ConnectionError:
-            return ServiceStatus.NO_CONNECTION
-        if response.status_code != 200:
-            return ServiceStatus.UNEXPECTED_APP
-        response_json = response.json()
-        try:
-            response_json = response.json()
-        except exceptions.JSONDecodeError:
-            return ServiceStatus.UNEXPECTED_APP
-        if not isinstance(response_json, list):
-            return ServiceStatus.UNEXPECTED_APP
-        return ServiceStatus.SERVICE_RUNNING
+            task = input('> ')
+        except KeyboardInterrupt:
+            sys.exit(130)
+        except EOFError:
+            print()
+            sys.exit(2)
+    else:
+        task = sys.stdin.read()
+    if not task:
+        sys.exit(2)
+    try:
+        submitted = client.post_add_message(env.port, task)
+    except client.NotRunningError:
+        print(f'Frogtab Local is not running on port {env.port}')
+        sys.exit(1)
+    except client.UnknownAppError:
+        exit_on_unknown_app()
+    if not submitted:
+        print(f'Unable to send task to Frogtab (port {env.port})')
+        sys.exit(1)
+    if started:
+        print(f'''{env.display_tick} Started Frogtab Local and sent task to Frogtab
+To access Frogtab, open {env.display_url} in your browser''')
+    else:
+        print(f'{env.display_tick} Sent task to Frogtab')
+    sys.exit(0)
 
-    @staticmethod
-    def wait(test) -> ServiceStatus:
-        delay = 0.2
-        for attempt in range(4):
-            sleep(delay)
-            status = Service.probe()
-            if test(status):
-                break
-            delay *= 2
-        return status
+def exit_on_unknown_app(env: Environment):
+    print(f'A different app is using port {env.port}')
+    sys.exit(1)
 
-    @staticmethod
-    def start() -> ServiceStatus:
-        flask_script = getenv('FROGTAB_FLASK_SCRIPT')
-        if not flask_script:
-            flask_script = Path('internal/flask_script.py')
-        Popen([
-            'python',
-            flask_script,
-            config.config_file
-        ], stdout=DEVNULL)
-        return Service.wait(lambda status: status == ServiceStatus.SERVICE_RUNNING)
-
-
-class Command():
-    @staticmethod
-    def status():
-        status = Service.probe()
-        if status in {ServiceStatus.SERVICE_RUNNING, ServiceStatus.NO_CONNECTION}:
-            print(status.value)
-            sys.exit(0)
-        print(status.value)
+def start(env: Environment):
+    env.start_server()
+    try:
+        running = client.get_status_with_retry(env.port, True)
+    except client.UnknownAppError:
+        exit_on_unknown_app(env)
+    if not running:
+        print(f'Unable to start Frogtab Local (port {env.port})')
         sys.exit(1)
 
-    @staticmethod
-    def start():
-        status = Service.probe()
-        if status == ServiceStatus.NO_CONNECTION:
-            started_status = Service.start()
-            if started_status == ServiceStatus.SERVICE_RUNNING:
-                print(f'''{display_tick} Started Frogtab Local
-To access Frogtab, open {display_url} in your browser''')
-                sys.exit(0)
-            if started_status == ServiceStatus.NO_CONNECTION:
-                print(f'Unable to start Frogtab Local (port {config.local_port})')
-                sys.exit(1)
-            print(started_status.value)
-            sys.exit(1)
-        if status == ServiceStatus.SERVICE_RUNNING:
-            print(status.value)
-            sys.exit(0)
-        print(status.value)
-        sys.exit(1)
+def start_then_exit(env: Environment):
+    try:
+        running = client.get_status(env.port)
+    except client.UnknownAppError:
+        exit_on_unknown_app(env)
+    if running:
+        print(f'Frogtab Local is running on port {env.port}')
+    else:
+        start(env)
+        print(f'''{env.display_tick} Started Frogtab Local
+To access Frogtab, open {env.display_url} in your browser''')
+    sys.exit(0)
 
-    @staticmethod
-    def stop():
-        try:
-            response = post(f'{local_host}/service/post-stop')
-        except exceptions.ConnectionError:
-            print(ServiceStatus.NO_CONNECTION.value)
-            sys.exit(0)
-        if response.status_code != 204:
-            print(ServiceStatus.UNEXPECTED_APP.value)
-            sys.exit(1)
-        stopped_status = Service.wait(lambda status: status != ServiceStatus.SERVICE_RUNNING)
-        if stopped_status == ServiceStatus.NO_CONNECTION:
-            print(f'{display_tick} Stopped Frogtab Local')
-            sys.exit(0)
-        if stopped_status == ServiceStatus.SERVICE_RUNNING:
-            print(f'Unable to stop Frogtab Local (port {config.local_port})')
-            sys.exit(1)
-        print(stopped_status.value)
-        sys.exit(1)
-
-    @staticmethod
-    def send(task):
-        try:
-            response = post(f'{local_host}/service/post-add-message', json={
-                'message': task
-            })
-        except exceptions.ConnectionError:
-            Command.start_then_send(task) # Also calls sys.exit()
-        if response.status_code != 200:
-            print(ServiceStatus.UNEXPECTED_APP.value)
-            sys.exit(1)
-        try:
-            response_json = response.json()
-        except exceptions.JSONDecodeError:
-            print(ServiceStatus.UNEXPECTED_APP.value)
-            sys.exit(1)
-        if not isinstance(response_json, dict) or 'success' not in response_json:
-            print(ServiceStatus.UNEXPECTED_APP.value)
-            sys.exit(1)
-        if not response_json['success']:
-            print(f'Unable to send task to Frogtab (port {config.local_port})')
-            sys.exit(1)
-        print(f'{display_tick} Sent task to Frogtab')
+def stop_then_exit(env: Environment):
+    try:
+        submitted = client.post_stop(env.port)
+    except client.UnknownAppError:
+        exit_on_unknown_app(env)
+    if not submitted:
+        print(f'Frogtab Local is not running on port {env.port}')
         sys.exit(0)
-
-    @staticmethod
-    def start_then_send(task):
-        started_status = Service.start()
-        if started_status == ServiceStatus.SERVICE_RUNNING:
-            try:
-                response = post(f'{local_host}/service/post-add-message', json={
-                    'message': task
-                })
-            except exceptions.ConnectionError:
-                print(ServiceStatus.NO_CONNECTION.value)
-                sys.exit(1)
-            if response.status_code != 200:
-                print(ServiceStatus.UNEXPECTED_APP.value)
-                sys.exit(1)
-            try:
-                response_json = response.json()
-            except exceptions.JSONDecodeError:
-                print(ServiceStatus.UNEXPECTED_APP.value)
-                sys.exit(1)
-            if not isinstance(response_json, dict) or 'success' not in response_json:
-                print(ServiceStatus.UNEXPECTED_APP.value)
-                sys.exit(1)
-            if not response_json['success']:
-                print(f'Unable to send task to Frogtab (port {config.local_port})')
-                sys.exit(1)
-            print(f'''{display_tick} Started Frogtab Local and sent task to Frogtab
-To access Frogtab, open {display_url} in your browser''')
-            sys.exit(0)
-        if started_status == ServiceStatus.NO_CONNECTION:
-            print(f'Unable to start Frogtab Local (port {config.local_port})')
-            sys.exit(1)
-        print(started_status.value)
+    try:
+        running = client.get_status_with_retry(env.port, False)
+    except client.UnknownAppError:
+        exit_on_unknown_app(env)
+    if running:
+        print(f'Unable to stop Frogtab Local (port {env.port})')
         sys.exit(1)
+    print(f'{env.display_tick} Stopped Frogtab Local')
+    sys.exit(0)
 
-    @staticmethod
-    def send_from_stdin():
-        task = ''
-        if isatty(sys.stdin.fileno()):
-            print('Add a task to your inbox:')
-            try:
-                task = input("> ")
-            except KeyboardInterrupt:
-                sys.exit(130)
-            except EOFError:
-                print()
-                sys.exit(1)
-        else:
-            task = sys.stdin.read()
-        if task:
-            Command.send(task) # Also calls sys.exit()
+def set_port_then_exit(env: Environment, port: int):
+    if port == env.port:
+        print(f'Frogtab Local is already configured to use port {port}')
+        sys.exit(0)
+    try:
+        running = client.get_status(env.port)
+    except client.UnknownAppError:
+        running = False
+    if running:
+        print(f'''Frogtab Local is running on port {env.port}
+Stop Frogtab Local before changing the port''')
         sys.exit(1)
+    old_port = env.port
+    env.port = port
+    env.write_config() # TODO: What if this fails?
+    print(f'{env.display_tick} Changed port from {old_port} to {port}')
+    sys.exit(0)
 
+def print_help():
+    print('help') # TODO
+
+def print_usage():
+    print('usage') # TODO
 
 if __name__ == '__main__':
     main()

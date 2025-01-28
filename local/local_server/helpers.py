@@ -1,5 +1,28 @@
 from pathlib import Path
-from json import dump
+
+import json
+
+
+class Config:
+    def __init__(self, config_file):
+        self.config_file = config_file
+        self.read()
+
+    def read(self):
+        with open(self.config_file, 'r', encoding='utf-8') as file:
+            config_dict = json.load(file)
+            self.port = config_dict['port']
+            self.backup_file = config_dict['backupFile']
+            self.registration_server = config_dict['registrationServer']
+
+    def write(self):
+        config_dict = {
+            'port': self.port,
+            'backupFile': str(self.backup_file),
+            'registrationServer': self.registration_server
+        }
+        with open(self.config_file, 'w', encoding='utf-8') as file:
+            json.dump(config_dict, file, indent=2, ensure_ascii=False)
 
 
 class AppBackend():
@@ -58,4 +81,4 @@ def backup(desc):
 @backup(f'Save file to {Path.cwd()}')
 def save_file(data):
     with open('Frogtab_backup.json', 'w', encoding='utf-8') as file:
-        dump(data, file, indent=2, ensure_ascii=False)
+        json.dump(data, file, indent=2, ensure_ascii=False)

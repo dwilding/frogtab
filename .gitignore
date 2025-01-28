@@ -1,10 +1,13 @@
 local/LICENSE
 local/LICENSE_openpgp
 local/Frogtab_backup.json
+local/config.json
+local/config.py
+local/migrated
 local/.venv
-local/internal/static
-local/internal/templates
-local/internal/__pycache__
+local/**/__pycache__
+local/local_server/static
+local/local_server/templates
 snapcraft
 frogtab_*.zip
 frogtab_*.snap
