@@ -8,6 +8,40 @@ import json
 
 import client
 
+def main():
+    args = sys.argv[1:]
+    if not args:
+        env = Environment()
+        send_then_exit(env)
+    if args == ['--version'] or args == ['-V']:
+        print('Frogtab Local 2.0.0')
+        sys.exit(0)
+    if args == ['help'] or args == ['--help'] or args == ['-h']:
+        print_help()
+        sys.exit(0)
+    if args == ['start']:
+        env = Environment()
+        start_then_exit(env)
+    if args == ['stop']:
+        env = Environment()
+        stop_then_exit(env)
+    if len(args) == 2 and args[0] == 'set-port' and args[1]:
+        try:
+            port = int(args[1])
+        except ValueError:
+            print('Port must be an integer')
+            sys.exit(2)
+        if port < 1024:
+            print('Port must be at least 1024')
+            sys.exit(2)
+        env = Environment()
+        if port == env.port:
+            print(f'Frogtab Local is already configured to use port {port}')
+            sys.exit(0)
+        write_port_then_exit(env, port)
+    print_usage()
+    sys.exit(2)
+
 
 class Environment:
     def __init__(self):
@@ -80,37 +114,6 @@ class Environment:
             self.config_file
         ], stdout=subprocess.DEVNULL)
 
-
-def main():
-    args = sys.argv[1:]
-    if not args:
-        env = Environment()
-        send_then_exit(env)
-    if args == ['--version'] or args == ['-V']:
-        print('Frogtab Local 2.0.0')
-        sys.exit(0)
-    if args == ['help'] or args == ['--help'] or args == ['-h']:
-        print_help()
-        sys.exit(0)
-    if args == ['start']:
-        env = Environment()
-        start_then_exit(env)
-    if args == ['stop']:
-        env = Environment()
-        stop_then_exit(env)
-    if len(args) == 2 and args[0] == 'set-port' and args[1]:
-        try:
-            port = int(args[1])
-        except ValueError:
-            print('Port must be an integer')
-            sys.exit(2)
-        if port < 1024:
-            print('Port must be at least 1024')
-            sys.exit(2)
-        env = Environment()
-        set_port_then_exit(env, port)
-    print_usage()
-    sys.exit(2)
 
 def send_then_exit(env: Environment):
     try:
@@ -197,10 +200,7 @@ def stop_then_exit(env: Environment):
     print(f'{env.display_tick} Stopped Frogtab Local')
     sys.exit(0)
 
-def set_port_then_exit(env: Environment, port: int):
-    if port == env.port:
-        print(f'Frogtab Local is already configured to use port {port}')
-        sys.exit(0)
+def write_port_then_exit(env: Environment, port: int):
     try:
         running = client.get_status(env.port)
     except client.UnknownAppError:
