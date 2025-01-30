@@ -12,8 +12,10 @@ def get_running(port: int) -> bool:
         response = requests.get(f'http://localhost:{port}/service/get-running')
     except requests.exceptions.ConnectionError:
         return False
-    if response.status_code != 204:
+    if not 'X-Frogtab-Local' in response.headers:
         raise UnknownAppError
+    if response.status_code != 204:
+        raise RuntimeError(f'unexpected response (port {port})')
     return True
 
 def wait_for_running(port: int):
@@ -39,8 +41,10 @@ def post_stop(port: int) -> bool:
         response = requests.post(f'http://localhost:{port}/service/post-stop')
     except requests.exceptions.ConnectionError:
         return False
-    if response.status_code != 204:
+    if not 'X-Frogtab-Local' in response.headers:
         raise UnknownAppError
+    if response.status_code != 204:
+        raise RuntimeError(f'unexpected response (port {port})')
     return True
 
 def post_add_message(port: int, message: str):
@@ -50,5 +54,7 @@ def post_add_message(port: int, message: str):
         })
     except requests.exceptions.ConnectionError:
         raise NotRunningError
-    if response.status_code != 204:
+    if not 'X-Frogtab-Local' in response.headers:
         raise UnknownAppError
+    if response.status_code != 204:
+        raise RuntimeError(f'unexpected response (port {port})')

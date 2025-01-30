@@ -72,7 +72,13 @@ def post_stop():
 def get_running():
     return flask.make_response('', 204)
 
-# Start Flask
+
+# Configure and run Flask
+
+@app.after_request
+def add_custom_header(response):
+    response.headers['X-Frogtab-Local'] = 1 # Value is not significant
+    return response
 
 logging.getLogger('werkzeug').disabled = True
 app.run(port=config.port)
