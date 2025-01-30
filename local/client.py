@@ -7,26 +7,32 @@ class NotRunningError(Exception):
 class UnknownAppError(Exception):
     pass
 
-def get_status_with_retry(port: int, want_running: bool) -> bool:
-    delay = 0.2
-    for attempt in range(4):
-        time.sleep(delay)
-        running = get_status(port)
-        if running == want_running:
-            return running
-        delay *= 2
-    return running
-
-def get_status(port: int) -> bool:
+def get_running(port: int) -> bool:
     try:
-        response = requests.get(f'http://localhost:{port}/service/get-status')
+        response = requests.get(f'http://localhost:{port}/service/get-running')
     except requests.exceptions.ConnectionError:
         return False
     if response.status_code != 200:
         raise UnknownAppError
-    if response.text != 'Frogtab Local is running':
-        raise UnknownAppError
     return True
+
+def wait_for_running(port: int):
+    delay = 0.2
+    for attempt in range(4):
+        time.sleep(delay)
+        if get_running(port):
+            return
+        delay *= 2
+    raise RuntimeError(f'local server is not running (port {port})')
+
+def wait_for_not_running(port: int):
+    delay = 0.2
+    for attempt in range(4):
+        time.sleep(delay)
+        if not get_running(port):
+            return
+        delay *= 2
+    raise RuntimeError(f'local server is running (port {port})')
 
 def post_stop(port: int) -> bool:
     try:

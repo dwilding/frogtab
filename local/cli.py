@@ -117,7 +117,7 @@ class Environment:
 
 def send_then_exit(env: Environment):
     try:
-        running = client.get_status(env.port)
+        running = client.get_running(env.port)
     except client.UnknownAppError:
         exit_on_unknown_app(env)
     started = False
@@ -162,16 +162,13 @@ def exit_on_unknown_app(env: Environment):
 def start(env: Environment):
     env.start_server()
     try:
-        running = client.get_status_with_retry(env.port, True)
+        client.wait_for_running(env.port)
     except client.UnknownAppError:
         exit_on_unknown_app(env)
-    if not running:
-        print(f'Unable to start Frogtab Local (port {env.port})')
-        sys.exit(1)
 
 def start_then_exit(env: Environment):
     try:
-        running = client.get_status(env.port)
+        running = client.get_running(env.port)
     except client.UnknownAppError:
         exit_on_unknown_app(env)
     if running:
@@ -191,18 +188,15 @@ def stop_then_exit(env: Environment):
         print(f'Frogtab Local is not running on port {env.port}')
         sys.exit(0)
     try:
-        running = client.get_status_with_retry(env.port, False)
+        client.wait_for_not_running(env.port)
     except client.UnknownAppError:
         exit_on_unknown_app(env)
-    if running:
-        print(f'Unable to stop Frogtab Local (port {env.port})')
-        sys.exit(1)
     print(f'{env.display_tick} Stopped Frogtab Local')
     sys.exit(0)
 
 def write_port_then_exit(env: Environment, port: int):
     try:
-        running = client.get_status(env.port)
+        running = client.get_running(env.port)
     except client.UnknownAppError:
         running = False
     if running:

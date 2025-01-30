@@ -44,10 +44,6 @@ def serve_file(file):
 
 # Define service routes
 
-@app.route('/service/get-status')
-def get_status():
-    return 'Frogtab Local is running'
-
 @app.route('/service/get-methods')
 def get_methods():
     return backend.methods()
@@ -71,6 +67,9 @@ def post_stop():
     os.kill(os.getpid(), signal.SIGINT)
     return flask.make_response('', 204)
 
+@app.route('/service/get-running')
+def get_running():
+    return ''
 
 # Start Flask
 
