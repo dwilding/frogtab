@@ -12,7 +12,7 @@ def get_running(port: int) -> bool:
         response = requests.get(f'http://localhost:{port}/service/get-running')
     except requests.exceptions.ConnectionError:
         return False
-    if response.status_code != 200:
+    if response.status_code != 204:
         raise UnknownAppError
     return True
 
@@ -43,19 +43,12 @@ def post_stop(port: int) -> bool:
         raise UnknownAppError
     return True
 
-def post_add_message(port: int, message: str) -> bool:
+def post_add_message(port: int, message: str):
     try:
         response = requests.post(f'http://localhost:{port}/service/post-add-message', json={
             'message': message
         })
     except requests.exceptions.ConnectionError:
         raise NotRunningError
-    if response.status_code != 200:
+    if response.status_code != 204:
         raise UnknownAppError
-    try:
-        response_json = response.json()
-    except requests.exceptions.JSONDecodeError:
-        raise UnknownAppError
-    if not isinstance(response_json, dict) or 'success' not in response_json:
-        raise UnknownAppError
-    return response_json['success']

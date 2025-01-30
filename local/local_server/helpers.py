@@ -55,9 +55,6 @@ class AppBackend():
 
     def add_message(self, message):
         self._messages.insert(0, message)
-        return {
-            'success': True
-        }
 
     def remove_messages(self):
         num_messages = len(self._messages)

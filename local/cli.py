@@ -139,15 +139,12 @@ def send_then_exit(env: Environment):
     if not task:
         sys.exit(2)
     try:
-        submitted = client.post_add_message(env.port, task)
+        client.post_add_message(env.port, task)
     except client.NotRunningError:
         print(f'Frogtab Local is not running on port {env.port}')
         sys.exit(1)
     except client.UnknownAppError:
         exit_on_unknown_app()
-    if not submitted:
-        print(f'Unable to send task to Frogtab (port {env.port})')
-        sys.exit(1)
     if started:
         print(f'''{env.display_tick} Started Frogtab Local and sent task to Frogtab
 To access Frogtab, open {env.display_url} in your browser''')

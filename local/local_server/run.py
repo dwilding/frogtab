@@ -56,7 +56,8 @@ def post_data():
 @app.route('/service/post-add-message', methods=['POST'])
 def add_message():
     body = flask.request.get_json()
-    return backend.add_message(body['message'])
+    backend.add_message(body['message'])
+    return flask.make_response('', 204)
 
 @app.route('/service/post-remove-messages', methods=['POST'])
 def remove_messages():
@@ -69,7 +70,7 @@ def post_stop():
 
 @app.route('/service/get-running')
 def get_running():
-    return ''
+    return flask.make_response('', 204)
 
 # Start Flask
 
