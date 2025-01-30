@@ -23,7 +23,7 @@ def wait_for_running(port: int):
         if get_running(port):
             return
         delay *= 2
-    raise RuntimeError(f'local server is not running (port {port})')
+    raise RuntimeError(f'timeout (port {port})')
 
 def wait_for_not_running(port: int):
     delay = 0.2
@@ -32,7 +32,7 @@ def wait_for_not_running(port: int):
         if not get_running(port):
             return
         delay *= 2
-    raise RuntimeError(f'local server is running (port {port})')
+    raise RuntimeError(f'timeout (port {port})')
 
 def post_stop(port: int) -> bool:
     try:
