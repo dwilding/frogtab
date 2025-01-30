@@ -13,6 +13,10 @@ args = sys.argv[1:]
 if len(args) != 1:
     sys.exit(2)
 config = Config(args[0])
+
+
+# Create a Flask app
+
 app = flask.Flask(__name__, static_url_path='/')
 
 
@@ -73,12 +77,15 @@ def get_running():
     return flask.make_response('', 204)
 
 
-# Configure and run Flask
+# Add a custom response header to identify Frogtab Local
 
 @app.after_request
 def add_custom_header(response):
     response.headers['X-Frogtab-Local'] = 1 # Value is not significant
     return response
+
+
+# Run Flask
 
 logging.getLogger('werkzeug').disabled = True
 app.run(port=config.port)
