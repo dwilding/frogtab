@@ -6,8 +6,8 @@ local/config.py
 local/migrated
 local/.venv
 local/**/__pycache__
-local/local_server/static
-local/local_server/templates
+local/frogctl/local_server/static
+local/frogctl/local_server/templates
 snapcraft
 frogtab_*.zip
 frogtab_*.snap
