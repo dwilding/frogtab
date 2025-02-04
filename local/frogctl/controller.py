@@ -78,9 +78,27 @@ class Controller():
     def port(self) -> int:
         return self._config['port']
 
+    @property
+    def backup_file(self) -> str:
+        return self._config['backupFile']
+
+    @property
+    def registration_server(self) -> str:
+        return self._config['registrationServer']
+
     def set_port(self, port: int) -> None:
         self._require_not_running()
         self._config['port'] = port
+        self._write_config()
+
+    def set_backup_file(self, backup_file: str) -> None:
+        self._require_not_running()
+        self._config['backupFile'] = backup_file
+        self._write_config()
+
+    def set_registration_server(self, registration_server: str) -> None:
+        self._require_not_running()
+        self._config['registrationServer'] = registration_server
         self._write_config()
 
     def _read_config(self) -> None:
