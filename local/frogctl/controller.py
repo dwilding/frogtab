@@ -26,7 +26,7 @@ class Controller():
                 'backupFile': 'Frogtab_backup.json',
                 'registrationServer': 'https://frogtab.com/'
             }
-        self._write_config(config)
+            self._write_config(config)
         self.port = config['port']
 
     def is_running(self) -> bool:
