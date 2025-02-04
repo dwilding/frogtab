@@ -19,15 +19,14 @@ class Controller():
     def __init__(self, config_file: str):
         self.config_file = config_file
         if Path(config_file).is_file():
-            config = self._read_config()
+            self._read_config()
         else:
-            config = {
+            self._config = {
                 'port': 5000,
                 'backupFile': 'Frogtab_backup.json',
                 'registrationServer': 'https://frogtab.com/'
             }
-            self._write_config(config)
-        self.port = config['port']
+            self._write_config()
 
     def is_running(self) -> bool:
         try:
@@ -75,12 +74,29 @@ class Controller():
         if response.status_code != 204:
             raise RuntimeError(f'unexpected response (port {self.port})')
 
+    @property
+    def port(self) -> int:
+        return self._config['port']
+
+    def set_port(self, port: int) -> None:
+        self._require_not_running()
+        self._config['port'] = port
+        self._write_config()
+
+    def _read_config(self) -> None:
+        with open(self.config_file, 'r', encoding='utf-8') as file:
+            self._config = json.load(file)
+
+    def _write_config(self) -> None:
+        with open(self.config_file, 'w', encoding='utf-8') as file:
+            json.dump(self._config, file, indent=2, ensure_ascii=False)
+
     def _wait_for_connection(self) -> None:
         delay = 0.2
         for attempt in range(4):
             time.sleep(delay)
             try:
-                response = requests.get(f'http://localhost:{self.port}/service/get-running')
+                requests.get(f'http://localhost:{self.port}/service/get-running')
             except requests.exceptions.ConnectionError:
                 delay *= 2
                 continue
@@ -92,28 +108,16 @@ class Controller():
         for attempt in range(4):
             time.sleep(delay)
             try:
-                response = requests.get(f'http://localhost:{self.port}/service/get-running')
+                requests.get(f'http://localhost:{self.port}/service/get-running')
             except requests.exceptions.ConnectionError:
                 return
             delay *= 2
         raise RuntimeError(f'timeout (port {self.port})')
 
-    def set_port(self, port: int) -> None:
+    def _require_not_running(self) -> None:
         try:
             running = self.is_running()
         except WrongAppError:
             running = False
         if running:
             raise RunningError
-        config = self._read_config()
-        config['port'] = port
-        self._write_config(config)
-        self.port = port
-
-    def _read_config(self) -> dict:
-        with open(self.config_file, 'r', encoding='utf-8') as file:
-            return json.load(file)
-
-    def _write_config(self, config: dict) -> None:
-        with open(self.config_file, 'w', encoding='utf-8') as file:
-            json.dump(config, file, indent=2, ensure_ascii=False)
