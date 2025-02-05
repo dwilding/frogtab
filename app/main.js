@@ -85,6 +85,20 @@ function matchKeyboardEvent(event, modifierSpec, key) {
   return testCmdCtrl && testShift & event.key.toLowerCase() == key && !event.altKey;
 }
 
+function generateRandomHex(length) {
+  chars = "0123456789abcdef";
+  let randomHex = "";
+  for (let i = 0; i < length; i++) {
+    charRandom = chars.charAt(Math.floor(Math.random() * chars.length));
+    randomHex = `${randomHex}${charRandom}`;
+  }
+  return randomHex;
+}
+
+function attr(name) {
+  return document.documentElement.getAttribute(`data-${name}`);
+}
+
 
 // ******** Other helpers ********
 
@@ -136,7 +150,7 @@ function setNotifyStatus() {
   if (checkValue(storedInboxValue) && !notifyInbox) {
     notifyInbox = true;
     dom.inbox.classList.add("notify");
-    if (requestedIcon === null) {
+    if (attr("icon") === null) {
       dom.icon16.href = storedIcons.icon16Notify;
       dom.icon32.href = storedIcons.icon32Notify;
     }
@@ -144,7 +158,7 @@ function setNotifyStatus() {
   else if (!checkValue(storedInboxValue) && notifyInbox) {
     notifyInbox = false;
     dom.inbox.classList.remove("notify");
-    if (requestedIcon === null) {
+    if (attr("icon") === null) {
       dom.icon16.href = storedIcons.icon16;
       dom.icon32.href = storedIcons.icon32;
     }
@@ -668,7 +682,7 @@ async function verifyUserAndAppendMessages() {
   lastAppend = Date.now();
   let response;
   try {
-    response = await fetch(`${serverBase}open/post-remove-messages`, {
+    response = await fetch(`${attr("server-base")}open/post-remove-messages`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -710,36 +724,6 @@ async function verifyUserAndAppendMessages() {
   dom.fetchConnected.classList.add("display");
 }
 
-async function appendLocalMessages() {
-  let response;
-  try {
-    response = await fetch("service/post-remove-messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      }
-    });
-  }
-  catch (err) {
-    repotServiceDown();
-    return;
-  }
-  if (!response.ok) {
-    repotServiceDown();
-    return;
-  }
-  reportServiceUp();
-  const result = await response.json();
-  if (!result.success || result.messages.length == 0) {
-    return;
-  }
-  let storedInboxValue = localStorage.getItem("value.inbox");
-  for (const message of result.messages) {
-    storedInboxValue = appendToTop(storedInboxValue, message);
-  }
-  storeThenSave("value.inbox", storedInboxValue);
-}
-
 function setSnap() {
   if (localStorage.getItem("ui.snap") == "bottom") {
     dom.container.classList.add("docked");
@@ -771,16 +755,6 @@ function toggleSnap() {
   }
 }
 
-function setConfigureSave() {
-  if (localStorage.getItem("saveMethod") === null) {
-    dom.configureSave.classList.add("display");
-    dom.popupSavePaused.classList.remove("display");
-  }
-  else {
-    dom.configureSave.classList.remove("display");
-  }
-}
-
 function setExportAndSave() {
   dom.exportData.addEventListener("click", () => {
     const dataJSON = createDataJSON();
@@ -789,11 +763,7 @@ function setExportAndSave() {
     });
     dom.exportData.href = URL.createObjectURL(dataBlob);
   });
-  if (usingLocalService) {
-    setConfigureSave();
-    return;
-  }
-  if ("showSaveFilePicker" in window) {
+  if (attr("save") == "browser" && "showSaveFilePicker" in window) {
     dom.enableSave.classList.add("display");
     dom.enableSave.addEventListener("click", async event => {
       event.preventDefault();
@@ -858,61 +828,6 @@ function storeThenSave(key, value) {
   requestSave();
 }
 
-function requestSave() {
-  if (usingLocalService && localStorage.getItem("saveMethod") !== null) {
-    window.clearTimeout(timeoutSave.id);
-    timeoutSave.id = window.setTimeout(saveToService, 1500);
-    timeoutSave.waiting = true;
-  }
-  if (!usingLocalService && fileHandle !== null) {
-    window.clearTimeout(timeoutSave.id);
-    timeoutSave.id = window.setTimeout(saveToFile, 1500);
-    timeoutSave.waiting = true;
-  }
-}
-
-async function saveToService() {
-  if (localStorage.getItem("saveMethod" === null)) {
-    timeoutSave.waiting = false;
-    return;
-  }
-  const data = createData();
-  const onServiceFailure = () => {
-    localStorage.removeItem("saveMethod");
-    dom.configureSave.classList.add("display");
-    timeoutSave.waiting = false;
-  };
-  let response;
-  try {
-    response = await fetch("service/post-data", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        key: localStorage.getItem("saveMethod"),
-        data: data
-      })
-    });
-  }
-  catch (err) {
-    repotServiceDown();
-    timeoutSave.waiting = false;
-    return;
-  }
-  if (!response.ok) {
-    repotServiceDown();
-    return;
-  }
-  reportServiceUp();
-  const result = await response.json();
-  if (!result.success) {
-    onServiceFailure();
-    return;
-  }
-  timeoutSave.waiting = false;
-}
-
 async function saveToFile() {
   if (fileHandle === null) {
     timeoutSave.waiting = false;
@@ -931,7 +846,126 @@ async function saveToFile() {
   timeoutSave.waiting = false;
 }
 
-function repotServiceDown() {
+function requestSave() {
+  if (attr("save") == "service") {
+    window.clearTimeout(timeoutSave.id);
+    timeoutSave.id = window.setTimeout(saveToService, 1500);
+    timeoutSave.waiting = true;
+  }
+  if (attr("save") == "browser" && fileHandle !== null) {
+    window.clearTimeout(timeoutSave.id);
+    timeoutSave.id = window.setTimeout(saveToFile, 1500);
+    timeoutSave.waiting = true;
+  }
+}
+
+async function tryLocalPair() {
+  if (localStorage.getItem("localKey") === null) {
+    localStorage.setItem("localKey", generateRandomHex(20))
+  }
+  let response;
+  try {
+    response = await fetch("service/post-pair", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        key: localStorage.getItem("localKey"),
+        force: forceLocalPair
+      })
+    });
+  }
+  catch (err) {
+    reportServiceDown();
+    return;
+  }
+  if (!response.ok) {
+    reportServiceDown();
+    return;
+  }
+  reportServiceUp();
+  const result = await response.json();
+  if (!result.success) {
+    reportServiceFailure();
+  }
+}
+
+async function saveToService() {
+  if (attr("save") == "none") {
+    timeoutSave.waiting = false;
+    return;
+  }
+  const data = createData();
+  let response;
+  try {
+    response = await fetch("service/post-data", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        key: localStorage.getItem("localKey"),
+        data: data
+      })
+    });
+  }
+  catch (err) {
+    reportServiceDown();
+    timeoutSave.waiting = false;
+    return;
+  }
+  if (!response.ok) {
+    reportServiceDown();
+    timeoutSave.waiting = false;
+    return;
+  }
+  reportServiceUp();
+  const result = await response.json();
+  if (!result.success) {
+    reportServiceFailure();
+  }
+  timeoutSave.waiting = false;
+}
+
+async function appendLocalMessages() {
+  let response;
+  try {
+    response = await fetch("service/post-remove-messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        key: localStorage.getItem("localKey")
+      })
+    });
+  }
+  catch (err) {
+    reportServiceDown();
+    return;
+  }
+  if (!response.ok) {
+    reportServiceDown();
+    return;
+  }
+  reportServiceUp();
+  const result = await response.json();
+  if (!result.success) {
+    reportServiceFailure();
+    return;
+  }
+  if (result.messages.length == 0) {
+    return;
+  }
+  let storedInboxValue = localStorage.getItem("value.inbox");
+  for (const message of result.messages) {
+    storedInboxValue = appendToTop(storedInboxValue, message);
+  }
+  storeThenSave("value.inbox", storedInboxValue);
+}
+
+function reportServiceDown() {
   if (showWelcome) {
     dom.welcome.classList.remove("display");
     showWelcome = false;
@@ -943,14 +977,22 @@ function reportServiceUp() {
   dom.popupSavePaused.classList.remove("display");
 }
 
+function reportServiceFailure() {
+  document.documentElement.setAttribute("data-save", "none");
+  localStorage.removeItem("localKey");
+  console.log("FAILED")
+  // TODO: How do we report this to the user?
+}
+
 async function startApp() {
-  setExportAndSave();
   setSnap();
+  setExportAndSave();
+  await tryLocalPair();
   if (isNewDay()) {
     updateValues();
   }
   switchToTab("today");
-  if (requestedIcon === null) {
+  if (attr("icon") === null) {
     await storeIcons();
   }
   setNotifyStatus();
@@ -1166,7 +1208,7 @@ async function startApp() {
       }
     });
   }
-  if (usingLocalService) {
+  if (attr("save") == "service") {
     await appendLocalMessages();
     setNotifyStatus();
     if (selectedTab == "inbox" || (startingTab === null && notifyInbox)) {
@@ -1189,7 +1231,7 @@ async function startApp() {
     if (isNewDay()) {
       updateValues();
       preferInbox();
-      if (usingLocalService) {
+      if (attr("save") == "service") {
         await appendLocalMessages();
         preferInbox();
       }
@@ -1203,7 +1245,7 @@ async function startApp() {
       }
     }
     else {
-      if (usingLocalService) {
+      if (attr("save") == "service") {
         await appendLocalMessages();
         setNotifyStatus();
         refreshView();
@@ -1216,7 +1258,7 @@ async function startApp() {
     }
     if (
       document.hidden && lastActive <= Date.now() - 30000
-      && requestedIcon !== null && requestedReload !== null
+      && attr("icon") !== null && requestedReload !== null
       && !timeoutSave.waiting
       && localStorage.getItem("restore") === null
     ) {
@@ -1224,7 +1266,7 @@ async function startApp() {
       if (notifyInbox) {
         reloadIcon = "notify";
       }
-      if (reloadIcon != requestedIcon) {
+      if (reloadIcon != attr("icon")) {
         const reloadParams = new URLSearchParams(window.location.search);
         reloadParams.set("reload", Date.now().toString());
         let reloadLocation = `icon-${reloadIcon}?${reloadParams.toString()}`;
@@ -1240,9 +1282,6 @@ async function startApp() {
   }, 15000);
   window.addEventListener("storage", async () => {
     document.documentElement.setAttribute("data-theme", localStorage.getItem("ui.theme"));
-    if (usingLocalService) {
-      setConfigureSave();
-    }
     if (localStorage.getItem("user.userID") !== null && userIDTested !== localStorage.getItem("user.userID")) {
       userIDTested = localStorage.getItem("user.userID");
       await verifyUserAndAppendMessages();
@@ -1268,8 +1307,10 @@ async function startApp() {
 // ******** Initial setup ********
 
 let showWelcome = false;
+let forceLocalPair = false;
 const weekdayKeys = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
 if (localStorage.getItem("restore") !== null) {
+  forceLocalPair = true;
   const backupData = JSON.parse(localStorage.getItem("restore"));
   const uiSnap = localStorage.getItem("ui.snap");
   const uiTheme = localStorage.getItem("ui.theme");
@@ -1313,7 +1354,6 @@ if (localStorage.getItem("ui.theme") === null) {
   localStorage.setItem("ui.theme", "system");
 }
 document.documentElement.setAttribute("data-theme", localStorage.getItem("ui.theme"));
-const requestedIcon = document.documentElement.getAttribute("data-icon");
 const requestedReload = (new URLSearchParams(window.location.search)).get('reload');
 const startingTab = localStorage.getItem("tab");
 localStorage.removeItem("tab");
@@ -1336,7 +1376,6 @@ const dom = {
   snapToCenter: document.getElementById("snap-to-center"),
   exportData: document.getElementById("export-data"),
   enableSave: document.getElementById("enable-save"),
-  configureSave: document.getElementById("configure-save"),
   popupSavePaused: document.getElementById("popup-save-paused")
 };
 if (showWelcome) {
@@ -1356,11 +1395,6 @@ let timeoutSave = {
 };
 let timeoutShowInfo;
 let lastActive = Date.now();
-let usingLocalService = false;
-if (document.documentElement.getAttribute("data-save") == "service") {
-  usingLocalService = true;
-}
-const serverBase = document.documentElement.getAttribute("data-server-base");
 let userIDTested = null;
 let verifiedUser = false;
 let lastAppend = 0;

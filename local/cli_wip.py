@@ -5,7 +5,6 @@ import os
 
 import frogctl
 
-
 def main():
     args = sys.argv[1:]
     if args == ['--version'] or args == ['-V']:
@@ -123,7 +122,7 @@ class Environment():
         self.tty_out = os.isatty(sys.stdout.fileno())
         self.config_file = os.getenv('FROGTAB_CONFIG_FILE')
         if not self.config_file:
-            self.config_file = 'config.json'
+            self.config_file = 'Frogtab_config.json'
         if not Path(self.config_file).is_file():
             pass # TODO: Try creating from legacy config
 

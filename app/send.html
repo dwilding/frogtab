@@ -57,6 +57,10 @@
         return testCmdCtrl && testShift & event.key.toLowerCase() == key && !event.altKey;
       }
 
+      function attr(name) {
+        return document.documentElement.getAttribute(`data-${name}`);
+      }
+
       function delayForUX(f) {
         return Promise.all([
           f(),
@@ -254,7 +258,7 @@
 
       async function startApp() {
         const matches = window.location.hash.match(/^#([0-9a-f-]{36})(\/([^\/]*))?$/);
-        if (document.documentElement.getAttribute("data-location") == "local" || matches === null) {
+        if (attr("location") == "local" || matches === null) {
           setSendLocal();
         }
         else {

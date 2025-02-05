@@ -24,7 +24,11 @@ class Controller():
             self._config = {
                 'port': 5000,
                 'backupFile': 'Frogtab_backup.json',
-                'registrationServer': 'https://frogtab.com/'
+                'registrationServer': 'https://frogtab.com/',
+                'internalState': {
+                    'pairingKey': '',
+                    'messages': ''
+                }
             }
             self._write_config()
 
@@ -44,6 +48,7 @@ class Controller():
             return False
         self._read_config()
         self._write_config() # Ensure that config file is writeable
+        # TODO: Verify that backup_file is writeable?
         subprocess.Popen([
             'python',
             Path(__file__).parent / 'local_server' / 'server.py',

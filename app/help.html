@@ -97,7 +97,7 @@
         You don't need to fill in lots of information when you capture a task - you can add the task to your inbox without getting distracted.
       </p>
       <p>
-        As an alternative to editing your inbox, you can use <a tabindex="0" href="send" target="_blank">Send to Frogtab</a><span class="service-save-only"> or <code>python cli.py</code></span> to add tasks to your inbox.
+        As an alternative to editing your inbox, you can use <a tabindex="0" href="send" target="_blank">Send to Frogtab</a><span class="service-save-only"> or the <code>frogtab</code> command</span> to add tasks to your inbox.
         Sending a task to Frogtab is great if you want to capture the task without revealing your inbox (e.g., during a meeting).
       </p>
       <p>
@@ -343,9 +343,14 @@
         <li>Recurring tasks from your weekly routine</li>
         <li>Your completed tasks (part of the <a tabindex="0" href="#tracking-your-completed-tasks" title="Tracking your completed tasks">Achievements</a> feature)</li>
       </ul>
-      <p>
+      <p class="not-service-save">
         Your data is stored in your browser and isn't sent to a server.
         If you like, you can export a backup of your data.
+        To learn more, see <a tabindex="0" href="#exporting-your-data">Exporting your data</a>.
+      </p>
+      <p class="service-save-only">
+        Your data is stored in your browser and isn't sent to a server.
+        Your data is automatically backed up by Frogtab Local.
         To learn more, see <a tabindex="0" href="#exporting-your-data">Exporting your data</a>.
       </p>
       <p>
@@ -390,11 +395,15 @@
         For technical details, see <a tabindex="0" href="https://github.com/dwilding/frogtab#how-your-personal-link-works" target="_blank">How your personal link works</a> in GitHub.
       </p>
       <h2 id="exporting-your-data">Exporting your data</h2>
-      <p>
+      <p class="not-service-save">
         Your data is stored in your browser.
         To export a backup of your data, click
         <svg role="img" aria-label="Menu icon" width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M3 5h18M3 12h18M3 19h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
         at the bottom of Frogtab, then click <strong>Export My Data</strong>.
+      </p>
+      <p class="service-save-only">
+        Your data is stored in your browser and is automatically backed up by Frogtab Local.
+        To get the location of the backup, run <code>frogtab get backup-file</code>.
       </p>
       <p class="browser-save-only">
         Some browsers support automatic backups.
@@ -405,18 +414,6 @@
         If your browser doesn't support automatic backups, you won't see Enable Auto-Backup.
         If you want automatic backups, you'll need to run <a tabindex="0" href="https://github.com/dwilding/frogtab/releases" target="_blank">Frogtab Local</a> on your computer.
       </p>
-      <div class="notice display service-save-only">
-        <div class="display">
-          <p>
-            To enable automatic backups, select a backup method:
-          </p>
-          <div>
-            <select tabindex="0" id="save-method">
-              <option value="none" selected>None</option>
-            </select>
-          </div>
-        </div>
-      </div>
       <p>
         As part of the <a tabindex="0" href="#tracking-your-completed-tasks" title="Tracking your completed tasks">Achievements</a> feature,
         you can export your completed tasks in <a tabindex="0" href="http://todotxt.org/" target="_blank">todo.txt</a> format.
@@ -719,9 +716,6 @@
         •
         <a tabindex="0" href="https://maybecoding.bearblog.dev/blog/?q=frogtab-featured" target="_blank">Dev blog</a>
       </p>
-      <p id="stop-service" class="service-save-only">
-        <a tabindex="0" href="#" id="action-stop-service">Stop Frogtab Local</a>
-      </p>
     </footer>
     <script>
       // ******** Shared helpers ********
@@ -790,6 +784,20 @@
         return testCmdCtrl && testShift & event.key.toLowerCase() == key && !event.altKey;
       }
 
+      function generateRandomHex(length) {
+        chars = "0123456789abcdef";
+        let randomHex = "";
+        for (let i = 0; i < length; i++) {
+          charRandom = chars.charAt(Math.floor(Math.random() * chars.length));
+          randomHex = `${randomHex}${charRandom}`;
+        }
+        return randomHex;
+      }
+
+      function attr(name) {
+        return document.documentElement.getAttribute(`data-${name}`);
+      }
+
       function delayForUX(f) {
         return Promise.all([
           f(),
@@ -813,7 +821,7 @@
       }
 
       function getPersonalLink() {
-        return `${serverBase}send#${localStorage.getItem("user.userID")}`;
+        return `${attr("server-base")}send#${localStorage.getItem("user.userID")}`;
       }
       async function verify() {
         await delayForUX(async () => {
@@ -822,7 +830,7 @@
           }
           let response;
           try {
-            response = await fetch(`${serverBase}open/post-verify-user`, {
+            response = await fetch(`${attr("server-base")}open/post-verify-user`, {
               method: "POST",
               headers: {
                 "Content-Type": "application/json"
@@ -852,16 +860,6 @@
         }
       }
 
-      function generateRandomHex(length) {
-        chars = "0123456789abcdef";
-        let randomHex = "";
-        for (let i = 0; i < length; i++) {
-          charRandom = chars.charAt(Math.floor(Math.random() * chars.length));
-          randomHex = `${randomHex}${charRandom}`;
-        }
-        return randomHex;
-      }
-
       async function register() {
         dom.caseUnregistered.classList.remove("display");
         dom.caseRegistering.classList.add("display");
@@ -878,7 +876,7 @@
           const requestBody = {
             pgp_public_key: pgpKey.publicKey
           };
-          if (document.documentElement.getAttribute("data-registration") == "long") {
+          if (attr("registration") == "long") {
             requestBody.comment = await openpgp.encrypt({
               message: await openpgp.createMessage({
                 text: `Registration: ${dom.comment.value}`
@@ -890,7 +888,7 @@
           }
           let response;
           try {
-            response = await fetch(`${serverBase}open/post-create-user`, {
+            response = await fetch(`${attr("server-base")}open/post-create-user`, {
               method: "POST",
               headers: {
                 "Content-Type": "application/json"
@@ -916,7 +914,7 @@
         });
         dom.caseRegistering.classList.remove("display");
         if (verifiedUser) {
-          if (document.documentElement.getAttribute("data-registration") == "long") {
+          if (attr("registration") == "long") {
             dom.comment.value = "";
             dom.register.disabled = true;
           }
@@ -936,7 +934,7 @@
         await delayForUX(async () => {
           let response;
           try {
-            response = await fetch(`${serverBase}open/post-remove-user`, {
+            response = await fetch(`${attr("server-base")}open/post-remove-user`, {
               method: "POST",
               headers: {
                 "Content-Type": "application/json"
@@ -1021,62 +1019,17 @@
         }
       }
 
-      function setSaveMethod() {
-        let saveMethod = localStorage.getItem("saveMethod");
-        if (saveMethod === null) {
-          saveMethod = "none"
+      function checkForLocalUnpaired() {
+        if (attr("save") == "service" && localStorage.getItem("localKey") === null) {
+          document.documentElement.setAttribute("data-save", "none");
         }
-        dom.saveMethod.value = saveMethod;
-      }
-
-      async function fetchSaveMethods() {
-        let response;
-        try {
-          response = await fetch("service/get-methods");
-        }
-        catch (err) {
-          return;
-        }
-        if (!response.ok) {
-          return;
-        }
-        const methods = await response.json();
-        for (const method of methods) {
-          if (method.key == "none") {
-            continue;
-          }
-          dom.saveMethod.add(new Option(method.desc, method.key));
-        }
-        setSaveMethod();
-        dom.saveMethod.addEventListener("change", () => {
-          if (dom.saveMethod.value == "none") {
-            localStorage.removeItem("saveMethod");
-            return;
-          }
-          localStorage.setItem("saveMethod", dom.saveMethod.value);
-        });
       }
 
       async function startApp() {
         verify();
         updateSelectedTheme();
         setAchievements();
-        if (usingLocalService) {
-          fetchSaveMethods();
-          document.getElementById("action-stop-service").addEventListener("click", async event => {
-            event.preventDefault();
-            try {
-              await fetch("service/post-stop", {
-                method: "POST"
-              });
-            }
-            catch (err) {}
-            await delayForUX(() => {
-              document.getElementById("stop-service").textContent = "Stopping…";
-            });
-            document.getElementById("stop-service").remove();
-          });
-        }
+        checkForLocalUnpaired();
         dom.themeLight.addEventListener("change", () => {
           document.documentElement.setAttribute("data-theme", "light");
           localStorage.setItem("ui.theme", "light");
@@ -1114,7 +1067,7 @@
             shortcut.classList.add("display");
           }
         });
-        if (document.documentElement.getAttribute("data-registration") == "long") {
+        if (attr("registration") == "long") {
           dom.comment.addEventListener("input", () => {
             dom.register.disabled = (dom.comment.value.trim() == "");
           });
@@ -1199,9 +1152,7 @@
           document.documentElement.setAttribute("data-theme", localStorage.getItem("ui.theme"));
           updateSelectedTheme();
           setAchievements();
-          if (usingLocalService) {
-            setSaveMethod();
-          }
+          checkForLocalUnpaired();
           if (
             (
               dom.stagedRestore.classList.contains("display")
@@ -1242,7 +1193,6 @@
         startForget: document.getElementById("start-forget"),
         forget: document.getElementById("forget"),
         cancelForget: document.getElementById("cancel-forget"),
-        saveMethod: document.getElementById("save-method"),
         startRestore: document.getElementById("start-restore"),
         chooseBackupFile: document.getElementById("choose-backup-file"),
         stagedRestore: document.getElementById("staged-restore"),
@@ -1256,22 +1206,14 @@
         finishDisableAchievements: document.getElementById("finish-disable-achievements"),
         cancelDisableAchievements: document.getElementById("cancel-disable-achievements")
       };
-      const serverBase = document.documentElement.getAttribute("data-server-base");
-      const serverHostname = (new URL(serverBase, window.location.origin)).hostname;
-      // ^ If serverBase is absolute, gets hostname from serverBase
-      //   If serverBase is relative, gets hostname from window.location.origin
+      const serverHostname = (new URL(attr("server-base"), window.location.origin)).hostname;
+      // ^ If base is absolute, gets hostname from base
+      //   If base is relative, gets hostname from window.location.origin
       for (const element of document.querySelectorAll(".server-hostname")) {
         element.textContent = serverHostname;
       }
-      for (const element of document.querySelectorAll(".origin")) {
-        element.textContent = window.location.origin;
-      }
       let verifiedUser = false;
       let openpgp;
-      let usingLocalService = false;
-      if (document.documentElement.getAttribute("data-save") == "service") {
-        usingLocalService = true;
-      }
       const platformApple = (
         navigator.platform.startsWith("Mac")
         || navigator.platform == "iPad"
