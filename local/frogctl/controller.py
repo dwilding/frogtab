@@ -88,16 +88,19 @@ class Controller():
 
     def set_port(self, port: int) -> None:
         self._require_not_running()
+        self._read_config()
         self._config['port'] = port
         self._write_config()
 
     def set_backup_file(self, backup_file: str) -> None:
         self._require_not_running()
+        self._read_config()
         self._config['backupFile'] = backup_file
         self._write_config()
 
     def set_registration_server(self, registration_server: str) -> None:
         self._require_not_running()
+        self._read_config()
         self._config['registrationServer'] = registration_server
         self._write_config()
 
