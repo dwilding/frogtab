@@ -42,6 +42,8 @@ class Controller():
     def start(self) -> bool:
         if self.is_running():
             return False
+        self._read_config()
+        self._write_config() # Ensure that config file is writeable
         subprocess.Popen([
             'python',
             Path(__file__).parent / 'local_server' / 'server.py',
