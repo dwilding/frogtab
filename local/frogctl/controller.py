@@ -1,25 +1,20 @@
+# TODO: Catch file I/O errors and raise more descriptive errors
+#       Shall we have dedicated class methods for _read_backup_file, _read_config_file, etc
+#       Then within those methods, we can catch any errors and re-raise?
+
 from pathlib import Path
 
+import json
 import subprocess
 import requests
 import time
-import json
-
-class WrongAppError(Exception):
-    pass
-
-class NotRunningError(Exception):
-    pass
-
-class RunningError(Exception):
-    pass
 
 
 class Controller():
     def __init__(self, config_file: str):
         self.config_file = config_file
         if Path(config_file).is_file():
-            self._read_config()
+            self._config = _read_json(config_file)
         else:
             self._config = {
                 'port': 5000,
@@ -30,7 +25,7 @@ class Controller():
                     'messages': ''
                 }
             }
-            self._write_config()
+            _write_json(self._config, config_file)
 
     def is_running(self) -> bool:
         try:
@@ -46,9 +41,16 @@ class Controller():
     def start(self) -> bool:
         if self.is_running():
             return False
-        self._read_config()
-        self._write_config() # Ensure that config file is writeable
-        # TODO: Verify that backup_file is writeable?
+        # Ensure that config file is writeable
+        self._config = _read_json(self.config_file)
+        _write_json(self._config, self.config_file)
+        # Ensure that backup file is writeable
+        if Path(self.backup_file).is_file():
+            data = _read_json(self.backup_file)
+            _write_json(data, self.backup_file)
+        else:
+            _write_json({}, self.backup_file)
+        # Run the server
         subprocess.Popen([
             'python',
             Path(__file__).parent / 'local_server' / 'server.py',
@@ -95,29 +97,21 @@ class Controller():
 
     def set_port(self, port: int) -> None:
         self._require_not_running()
-        self._read_config()
+        self._config = _read_json(self.config_file)
         self._config['port'] = port
-        self._write_config()
+        _write_json(self._config, self.config_file)
 
     def set_backup_file(self, backup_file: str) -> None:
         self._require_not_running()
-        self._read_config()
+        self._config = _read_json(self.config_file)
         self._config['backupFile'] = backup_file
-        self._write_config()
+        _write_json(self._config, self.config_file)
 
     def set_registration_server(self, registration_server: str) -> None:
         self._require_not_running()
-        self._read_config()
+        self._config = _read_json(self.config_file)
         self._config['registrationServer'] = registration_server
-        self._write_config()
-
-    def _read_config(self) -> None:
-        with open(self.config_file, 'r', encoding='utf-8') as file:
-            self._config = json.load(file)
-
-    def _write_config(self) -> None:
-        with open(self.config_file, 'w', encoding='utf-8') as file:
-            json.dump(self._config, file, indent=2, ensure_ascii=False)
+        _write_json(self._config, self.config_file)
 
     def _wait_for_connection(self) -> None:
         delay = 0.2
@@ -149,3 +143,21 @@ class Controller():
             running = False
         if running:
             raise RunningError
+
+
+class WrongAppError(Exception):
+    pass
+
+class NotRunningError(Exception):
+    pass
+
+class RunningError(Exception):
+    pass
+
+def _read_json(json_file: str) -> dict:
+    with open(json_file, 'r', encoding='utf-8') as file:
+        return json.load(file)
+
+def _write_json(data: dict, json_file: str) -> None:
+    with open(json_file, 'w', encoding='utf-8') as file:
+        json.dump(data, file, indent=2, ensure_ascii=False)
