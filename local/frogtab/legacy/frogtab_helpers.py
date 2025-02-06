@@ -1,6 +1,5 @@
 from pathlib import Path
 
-
 working_dir = Path.cwd()
 
 def write_json(data, file_path):
