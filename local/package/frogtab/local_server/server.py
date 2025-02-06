@@ -14,7 +14,7 @@ def write_json(data: dict, json_file: str) -> None:
         json.dump(data, file, indent=2, ensure_ascii=False)
 
 
-# Load config (including running state)
+# Load config (including internal state)
 
 args = sys.argv[1:]
 if len(args) != 1:
@@ -73,7 +73,10 @@ def post_pair():
 @app.route('/service/post-data', methods=['POST'])
 def post_data():
     body = flask.request.get_json()
-    if body['key'] != config['internalState']['pairingKey']:
+    if not config['internalState']['pairingKey']:
+        config['internalState']['pairingKey'] = body['key']
+        write_json(config, config_file)
+    elif body['key'] != config['internalState']['pairingKey']:
         return {
             'success': False
         }
@@ -85,7 +88,10 @@ def post_data():
 @app.route('/service/post-remove-messages', methods=['POST'])
 def remove_messages():
     body = flask.request.get_json()
-    if body['key'] != config['internalState']['pairingKey']:
+    if not config['internalState']['pairingKey']:
+        config['internalState']['pairingKey'] = body['key']
+        write_json(config, config_file)
+    elif body['key'] != config['internalState']['pairingKey']:
         return {
             'success': False
         }

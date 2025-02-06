@@ -3,5 +3,6 @@
 LOCAL="$(pwd)"
 . .venv/bin/activate
 
-cd "$LOCAL/python"
+cd "$LOCAL/package"
+pip install twine
 twine upload dist/*
