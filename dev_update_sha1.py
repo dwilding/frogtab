@@ -1,6 +1,8 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
-# This script updates the ?sha1=... parameters in dependency references
+"""
+This script updates the ?sha1=... parameters in dependency references.
+"""
 
 import re
 import subprocess
