@@ -2,6 +2,8 @@ local/testing
 local/.venv
 local/python/LICENSE
 local/python/LICENSE_openpgp
+local/python/dist
+local/python/frogtab.egg-info
 local/python/frogtab/local_server/static
 local/python/frogtab/local_server/templates
 server/public/*

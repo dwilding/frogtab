@@ -23,5 +23,3 @@ EOF
 
 cd "$REPO/server/packages"
 composer install
-
-cd "$REPO"
