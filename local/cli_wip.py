@@ -8,10 +8,10 @@ import frogctl
 def main():
     args = sys.argv[1:]
     if args == ['--version'] or args == ['-V']:
-        print('Frogtab Local 2.0.0')
+        print(f'Frogtab Local {frogctl.__version__}')
         return
     if args == ['help'] or args == ['--help'] or args == ['-h']:
-        # print_help()
+        # TODO: Show help
         return
     commands = Commands()
     if not args:
@@ -26,25 +26,46 @@ def main():
     if args == ['status']:
         commands.status()
         return
-    if len(args) == 2 and args[0] == 'set-port' and args[1]:
-        try:
-            port = int(args[1])
-        except ValueError:
-            print('Port must be an integer')
-            sys.exit(2)
-        if port < 1024:
-            print('Port must be at least 1024')
-            sys.exit(2)
-        commands.set_port(port)
-        return
-    # print_usage()
+    if len(args) == 2 and args[0] == 'get':
+        if args[1] == 'port':
+            commands.get_port()
+            return
+        if args[1] == 'backup-file':
+            commands.get_backup_file()
+            return
+        if args[1] == 'registration-server':
+            commands.get_registration_server()
+            return
+    if len(args) == 3 and args[0] == 'set':
+        if args[1] == 'port':
+            try:
+                port = int(args[2])
+            except ValueError:
+                print('Port must be an integer')
+                sys.exit(2)
+            if port < 1024:
+                print('Port must be at least 1024')
+                sys.exit(2)
+            commands.set_port(port)
+            return
+        if args[1] == 'backup-file':
+            commands.set_backup_file(str(args[2]))
+            return
+        if args[1] == 'registration-server':
+            commands.set_registration_server(str(args[2]))
+            return
+    # TODO: Show usage
     sys.exit(2)
 
 
 class Commands():
     def __init__(self):
         self.env = Environment()
-        self.controller = frogctl.Controller(self.env.config_file) # TODO: Read/write might fail
+        self.controller = frogctl.Controller(
+            self.env.config_file,
+            on_read_error=Commands._exit_on_read_error,
+            on_write_error=Commands._exit_on_write_error
+        )
         self.env.set_display_variables(f'http://localhost:{self.controller.port}')
 
     def start(self) -> None:
@@ -91,16 +112,21 @@ class Commands():
             sys.exit(1)
         except frogctl.WrongAppError:
             print(f'Unable to send task to Frogtab because a different app is using port {self.controller.port}')
-            sys.exit(11)
+            sys.exit(1)
         if started:
             print(f'{self.env.display_tick} Started Frogtab Local and sent task to Frogtab')
             print(f'To access Frogtab, open {self.env.display_url} in your browser')
         else:
             print(f'{self.env.display_tick} Sent task to Frogtab')
 
-    def _exit_on_wrong_app(self):
-        print(f'A different app is using port {self.controller.port}')
-        sys.exit(11)
+    def get_port(self) -> None:
+        print(self.controller.port)
+
+    def get_backup_file(self) -> None:
+        print(self.controller.backup_file)
+
+    def get_registration_server(self) -> None:
+        print(self.controller.registration_server)
 
     def set_port(self, port: int) -> None:
         current_port = self.controller.port
@@ -112,8 +138,48 @@ class Commands():
         except frogctl.RunningError:
             print(f'Frogtab Local is running on port {self.controller.port}')
             print('Stop Frogtab Local before changing the port')
-            sys.exit(10)
+            sys.exit(1)
         print(f'{self.env.display_tick} Changed port from {current_port} to {port}')
+
+    def set_backup_file(self, backup_file: str) -> None:
+        current_backup_file = self.controller.backup_file
+        if backup_file == current_backup_file:
+            print(f'Frogtab Local is already configured to use backup file \'{backup_file}\'')
+            return
+        try:
+            self.controller.set_backup_file(backup_file)
+        except frogctl.RunningError:
+            print(f'Frogtab Local is running on port {self.controller.port}')
+            print('Stop Frogtab Local before changing the backup file')
+            sys.exit(1)
+        print(f'{self.env.display_tick} Changed backup file from \'{current_backup_file}\' to \'{backup_file}\'')
+
+    def set_registration_server(self, registration_server: str) -> None:
+        current_registration_server = self.controller.registration_server
+        if registration_server == current_registration_server:
+            print(f'Frogtab Local is already configured to use registration server \'{registration_server}\'')
+            return
+        try:
+            self.controller.set_registration_server(registration_server)
+        except frogctl.RunningError:
+            print(f'Frogtab Local is running on port {self.controller.port}')
+            print('Stop Frogtab Local before changing the registration server')
+            sys.exit(1)
+        print(f'{self.env.display_tick} Changed registration server from \'{current_registration_server}\' to \'{registration_server}\'')
+
+    def _exit_on_wrong_app(self):
+        print(f'A different app is using port {self.controller.port}')
+        sys.exit(1)
+
+    @staticmethod
+    def _exit_on_read_error(file: str):
+        print(f'Unable to read file \'{file}\'')
+        sys.exit(13)
+
+    @staticmethod
+    def _exit_on_write_error(file: str):
+        print(f'Unable to write file \'{file}\'')
+        sys.exit(13)
 
 
 class Environment():

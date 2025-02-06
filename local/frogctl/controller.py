@@ -1,8 +1,5 @@
-# TODO: Catch file I/O errors and raise more descriptive errors
-#       Shall we have dedicated class methods for _read_backup_file, _read_config_file, etc
-#       Then within those methods, we can catch any errors and re-raise?
-
 from pathlib import Path
+from typing import Callable, Any, Optional
 
 import json
 import subprocess
@@ -11,10 +8,17 @@ import time
 
 
 class Controller():
-    def __init__(self, config_file: str):
+    def __init__(
+        self,
+        config_file: str,
+        on_read_error: Optional[Callable[[str], Any]] = None,
+        on_write_error: Optional[Callable[[str], Any]] = None
+    ):
         self.config_file = config_file
+        self.on_read_error = on_read_error
+        self.on_write_error = on_write_error
         if Path(config_file).is_file():
-            self._config = _read_json(config_file)
+            self._config = self._read_json(config_file)
         else:
             self._config = {
                 'port': 5000,
@@ -25,7 +29,7 @@ class Controller():
                     'messages': ''
                 }
             }
-            _write_json(self._config, config_file)
+            self._write_json(self._config, config_file)
 
     def is_running(self) -> bool:
         try:
@@ -42,14 +46,14 @@ class Controller():
         if self.is_running():
             return False
         # Ensure that config file is writeable
-        self._config = _read_json(self.config_file)
-        _write_json(self._config, self.config_file)
+        self._config = self._read_json(self.config_file)
+        self._write_json(self._config, self.config_file)
         # Ensure that backup file is writeable
         if Path(self.backup_file).is_file():
-            data = _read_json(self.backup_file)
-            _write_json(data, self.backup_file)
+            data = self._read_json(self.backup_file)
+            self._write_json(data, self.backup_file)
         else:
-            _write_json({}, self.backup_file)
+            self._write_json({}, self.backup_file)
         # Run the server
         subprocess.Popen([
             'python',
@@ -97,21 +101,21 @@ class Controller():
 
     def set_port(self, port: int) -> None:
         self._require_not_running()
-        self._config = _read_json(self.config_file)
+        self._config = self._read_json(self.config_file)
         self._config['port'] = port
-        _write_json(self._config, self.config_file)
+        self._write_json(self._config, self.config_file)
 
     def set_backup_file(self, backup_file: str) -> None:
         self._require_not_running()
-        self._config = _read_json(self.config_file)
+        self._config = self._read_json(self.config_file)
         self._config['backupFile'] = backup_file
-        _write_json(self._config, self.config_file)
+        self._write_json(self._config, self.config_file)
 
     def set_registration_server(self, registration_server: str) -> None:
         self._require_not_running()
-        self._config = _read_json(self.config_file)
+        self._config = self._read_json(self.config_file)
         self._config['registrationServer'] = registration_server
-        _write_json(self._config, self.config_file)
+        self._write_json(self._config, self.config_file)
 
     def _wait_for_connection(self) -> None:
         delay = 0.2
@@ -144,6 +148,24 @@ class Controller():
         if running:
             raise RunningError
 
+    def _read_json(self, json_file: str) -> dict:
+        try:
+            with open(json_file, 'r', encoding='utf-8') as file:
+                return json.load(file)
+        except PermissionError:
+            if self.on_read_error:
+                self.on_read_error(json_file) # Expect this to call sys.exit()
+            raise
+
+    def _write_json(self, data: dict, json_file: str) -> None:
+        try:
+            with open(json_file, 'w', encoding='utf-8') as file:
+                json.dump(data, file, indent=2, ensure_ascii=False)
+        except PermissionError:
+            if self.on_write_error:
+                self.on_write_error(json_file) # Expect this to call sys.exit()
+            raise
+
 
 class WrongAppError(Exception):
     pass
@@ -153,11 +175,3 @@ class NotRunningError(Exception):
 
 class RunningError(Exception):
     pass
-
-def _read_json(json_file: str) -> dict:
-    with open(json_file, 'r', encoding='utf-8') as file:
-        return json.load(file)
-
-def _write_json(data: dict, json_file: str) -> None:
-    with open(json_file, 'w', encoding='utf-8') as file:
-        json.dump(data, file, indent=2, ensure_ascii=False)
