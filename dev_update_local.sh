@@ -1,6 +1,6 @@
 #!/bin/sh
 
-REPO="$(pwd)"
+REPO="$PWD"
 cp LICENSE LICENSE_openpgp local/package
 rm -rf local/package/frogtab/local_server/static
 cp -r app local/package/frogtab/local_server/static

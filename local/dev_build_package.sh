@@ -1,6 +1,6 @@
 #!/bin/sh
 
-LOCAL="$(pwd)"
+LOCAL="$PWD"
 mkdir -p testing
 rm -rf .venv
 python3 -m venv .venv

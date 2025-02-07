@@ -1,6 +1,6 @@
 #!/bin/sh
 
-LOCAL="$(pwd)"
+LOCAL="$PWD"
 . .venv/bin/activate
 
 cd "$LOCAL/package"

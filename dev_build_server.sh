@@ -1,7 +1,7 @@
 #!/bin/sh
 
-REPO="$(pwd)"
-REPO_PARENT="$(cd .. && pwd)"
+REPO="$PWD"
+REPO_PARENT="$(cd .. && echo "$PWD")"
 cp -r app/* server/public
 
 cd "$REPO/server/public"
