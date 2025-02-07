@@ -17,7 +17,7 @@ If you use Linux, I recommend that you install Frogtab Local from the Snap Store
 
 To install Frogtab Local as a Python package, run the following commands:
 
-```sh
+```
 python3 -m venv .venv
 . .venv/bin/activate
 pip install frogtab
@@ -28,7 +28,7 @@ pip install frogtab
 
 To start Frogtab Local, run the following commands:
 
-```sh
+```
 . .venv/bin/activate
 frogtab start
 ```
@@ -42,7 +42,7 @@ To access Frogtab, open http://localhost:5000 in your browser
 
 To change the port, run the following commands:
 
-```sh
+```
 frogtab stop
 frogtab set port 5001 # for example
 frogtab start
@@ -55,7 +55,7 @@ To send a task to Frogtab:
 
  1. Run the following commands:
 
-    ```sh
+    ```
     . .venv/bin/activate
     frogtab
     ```
@@ -87,7 +87,7 @@ Change/display config:
   frogtab set <setting> <value>
   frogtab get <setting>
 
-<setting> is one of:
+Available settings:
   port                 Port that Frogtab Local runs on
                        (default: 5000)
   backup-file          Location of the automatic backup of your Frogtab data
@@ -107,6 +107,6 @@ Environment variables:
 ```
 
 
-## Python package reference
+## Python reference
 
 TODO: https://github.com/dwilding/frogtab/issues/8
