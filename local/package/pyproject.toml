@@ -1,31 +1,36 @@
 [project]
 name = "frogtab"
-version = "2.0.0a2"
+version = "2.0.0b1"
 description = "Frogtab Local"
-dependencies = [
-    "Flask>=2.2.5",
-    "requests>=2.31.0",
-]
 readme = "README.md"
+license = {text="MIT"}
 authors = [
     {name="Dave Wilding", email="tech@dpw.me"},
 ]
-license = {text="MIT"}
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
+dependencies = [
+    "Flask>=2.2.5",
+    "requests>=2.31.0",
+]
+
+[project.scripts]
+frogtab = "frogtab.cli:main"
 
 [build-system]
-requires = ["setuptools"]
+requires = [
+    "setuptools",
+]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
 include-package-data = true
 
 [tool.setuptools.package-data]
-"frogtab" = [
+frogtab = [
     "legacy/**",
     "local_server/**",
 ]

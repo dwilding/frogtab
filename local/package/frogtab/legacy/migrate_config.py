@@ -28,7 +28,7 @@ config_dict = {
     'registrationServer': 'https://frogtab.com/',
     'internalState': {
         'pairingKey': '',
-        'messages': ''
+        'messages': []
     }
 }
 try:

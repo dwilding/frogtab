@@ -980,8 +980,7 @@ function reportServiceUp() {
 function reportServiceFailure() {
   document.documentElement.setAttribute("data-save", "none");
   localStorage.removeItem("localKey");
-  console.log("FAILED")
-  // TODO: How do we report this to the user?
+  // TODO: Report the failure to the user
 }
 
 async function startApp() {

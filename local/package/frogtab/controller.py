@@ -6,6 +6,8 @@ import subprocess
 import requests
 import time
 
+from .version import __version__
+
 
 class Controller():
     def __init__(
@@ -26,7 +28,7 @@ class Controller():
                 'registrationServer': 'https://frogtab.com/',
                 'internalState': {
                     'pairingKey': '',
-                    'messages': ''
+                    'messages': []
                 }
             }
             self._write_json(self._config, config_file)
@@ -38,8 +40,8 @@ class Controller():
             return False
         if not 'X-Frogtab-Local' in response.headers:
             raise WrongAppError
-        if response.status_code != 204:
-            raise RuntimeError(f'unexpected response (port {self.port})')
+        if response.headers['X-Frogtab-Local'] != __version__:
+            raise WrongVersionError
         return True
 
     def start(self) -> bool:
@@ -70,8 +72,6 @@ class Controller():
             return False
         if not 'X-Frogtab-Local' in response.headers:
             raise WrongAppError
-        if response.status_code != 204:
-            raise RuntimeError(f'unexpected response (port {self.port})')
         self._wait_for_no_connection()
         return True
 
@@ -84,8 +84,6 @@ class Controller():
             raise NotRunningError
         if not 'X-Frogtab-Local' in response.headers:
             raise WrongAppError
-        if response.status_code != 204:
-            raise RuntimeError(f'unexpected response (port {self.port})')
 
     @property
     def port(self) -> int:
@@ -145,6 +143,8 @@ class Controller():
             running = self.is_running()
         except WrongAppError:
             running = False
+        except WrongVersionError:
+            running = True
         if running:
             raise RunningError
 
@@ -168,6 +168,9 @@ class Controller():
 
 
 class WrongAppError(Exception):
+    pass
+
+class WrongVersionError(Exception):
     pass
 
 class NotRunningError(Exception):

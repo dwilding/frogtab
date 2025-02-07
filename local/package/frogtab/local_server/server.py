@@ -59,15 +59,15 @@ def serve_file(file):
 @app.route('/service/post-pair', methods=['POST'])
 def post_pair():
     body = flask.request.get_json()
-    success = False
     if body['force'] or not config['internalState']['pairingKey']:
         config['internalState']['pairingKey'] = body['key']
         write_json(config, config_file)
-        success = True
-    elif body['key'] == config['internalState']['pairingKey']:
-        success = True
+    elif body['key'] != config['internalState']['pairingKey']:
+        return {
+            'success': False
+        }
     return {
-        'success': success
+        'success': True
     }
 
 @app.route('/service/post-data', methods=['POST'])
@@ -127,7 +127,7 @@ def post_stop():
 
 @app.after_request
 def add_custom_header(response):
-    response.headers['X-Frogtab-Local'] = 1 # Value is not significant
+    response.headers['X-Frogtab-Local'] = '2.0.0b1'
     return response
 
 
