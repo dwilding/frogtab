@@ -3,10 +3,9 @@ from typing import Callable, Any, Optional
 
 import json
 import subprocess
-import requests
-import time
 
-from .version import __version__
+from .client import Client
+from .errors import WrongAppError, WrongVersionError, RunningError
 
 
 class Controller():
@@ -32,18 +31,7 @@ class Controller():
                 }
             }
             self._write_json(self._config, config_file)
-
-    def is_running(self) -> bool:
-        try:
-            response = requests.get(f'http://localhost:{self.port}/service/get-running')
-        except requests.exceptions.ConnectionError:
-            return False
-        if not 'X-Frogtab-Local' in response.headers:
-            raise WrongAppError
-        if response.headers['X-Frogtab-Local'] != __version__:
-            raise WrongVersionError
-        return True
-
+    
     def start(self) -> bool:
         if self.is_running():
             return False
@@ -62,28 +50,21 @@ class Controller():
             Path(__file__).parent / 'local_server' / 'server.py',
             self.config_file
         ], stdout=subprocess.DEVNULL)
-        self._wait_for_connection()
+        client = Client(self.port)
+        client.wait_for_connection()
         return True
+
+    def is_running(self) -> bool:
+        client = Client(self.port)
+        return client.get_is_running()
 
     def stop(self) -> bool:
-        try:
-            response = requests.post(f'http://localhost:{self.port}/service/post-stop')
-        except requests.exceptions.ConnectionError:
-            return False
-        if not 'X-Frogtab-Local' in response.headers:
-            raise WrongAppError
-        self._wait_for_no_connection()
-        return True
+        client = Client(self.port)
+        return client.post_stop()
 
     def send(self, task: str) -> None:
-        try:
-            response = requests.post(f'http://localhost:{self.port}/service/post-add-message', json={
-                'message': task
-            })
-        except requests.exceptions.ConnectionError:
-            raise NotRunningError
-        if not 'X-Frogtab-Local' in response.headers:
-            raise WrongAppError
+        client = Client(self.port)
+        return client.post_send(task)
 
     @property
     def port(self) -> int:
@@ -115,29 +96,6 @@ class Controller():
         self._config['registrationServer'] = registration_server
         self._write_json(self._config, self.config_file)
 
-    def _wait_for_connection(self) -> None:
-        delay = 0.2
-        for attempt in range(4):
-            time.sleep(delay)
-            try:
-                requests.get(f'http://localhost:{self.port}/service/get-running')
-            except requests.exceptions.ConnectionError:
-                delay *= 2
-                continue
-            return
-        raise RuntimeError(f'timeout (port {self.port})')
-
-    def _wait_for_no_connection(self) -> None:
-        delay = 0.2
-        for attempt in range(4):
-            time.sleep(delay)
-            try:
-                requests.get(f'http://localhost:{self.port}/service/get-running')
-            except requests.exceptions.ConnectionError:
-                return
-            delay *= 2
-        raise RuntimeError(f'timeout (port {self.port})')
-
     def _require_not_running(self) -> None:
         try:
             running = self.is_running()
@@ -154,7 +112,7 @@ class Controller():
                 return json.load(file)
         except PermissionError:
             if self.on_read_error:
-                self.on_read_error(json_file) # Expect this to call sys.exit()
+                self.on_read_error(json_file) # expect this to call sys.exit()
             raise
 
     def _write_json(self, data: dict, json_file: str) -> None:
@@ -163,18 +121,5 @@ class Controller():
                 json.dump(data, file, indent=2, ensure_ascii=False)
         except PermissionError:
             if self.on_write_error:
-                self.on_write_error(json_file) # Expect this to call sys.exit()
+                self.on_write_error(json_file) # expect this to call sys.exit()
             raise
-
-
-class WrongAppError(Exception):
-    pass
-
-class WrongVersionError(Exception):
-    pass
-
-class NotRunningError(Exception):
-    pass
-
-class RunningError(Exception):
-    pass

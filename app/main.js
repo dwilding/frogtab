@@ -980,7 +980,7 @@ function reportServiceUp() {
 function reportServiceFailure() {
   document.documentElement.setAttribute("data-save", "none");
   localStorage.removeItem("localKey");
-  // TODO: Report the failure to the user
+  // TODO: https://github.com/dwilding/frogtab/issues/9
 }
 
 async function startApp() {

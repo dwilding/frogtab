@@ -1,7 +1,8 @@
 import sys
 
 from .cli_environment import Environment
-from .controller import Controller, WrongAppError, WrongVersionError, NotRunningError, RunningError
+from .controller import Controller
+from .errors import WrongAppError, WrongVersionError, NotRunningError, RunningError
 
 
 class Commands():

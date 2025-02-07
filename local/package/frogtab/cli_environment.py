@@ -37,8 +37,8 @@ class Environment():
         self.display_url = url
         self.display_tick = '✓'
         if self.tty_out and not os.getenv('NO_COLOR'):
-            self.display_url = f'\033[96m{self.display_url}\033[0m' # Bright cyan
-            self.display_tick = f'\033[32m{self.display_tick}\033[0m' # Green
+            self.display_url = f'\033[96m{self.display_url}\033[0m' # bright cyan
+            self.display_tick = f'\033[32m{self.display_tick}\033[0m' # green
 
     def get_task_or_exit(self) -> str:
         task = ''

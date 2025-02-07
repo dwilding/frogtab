@@ -44,7 +44,7 @@ except ImportError:
 try:
     from config import save_file
     data = {}
-    save_file(data) # Capture the backup file path
+    save_file(data) # capture the backup file path
     config_dict['backupFile'] = data['file_path']
 except ImportError:
     pass
