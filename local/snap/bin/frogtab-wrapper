@@ -1,0 +1,12 @@
+#!/bin/sh
+
+mkdir -p "$SNAP_USER_COMMON"
+cd "$SNAP_USER_COMMON"
+if [ "$1" = "--version" ] || [ "$1" = "-V" ]; then
+    echo "Frogtab Local $SNAP_VERSION"
+elif [ "$1" = "help" ] || [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
+    WORKING_ESCAPED="$(echo "$PWD" | sed 's/[\/&]/\\&/g')"
+    echo "$(frogtab help)" | sed "s/the working directory/$WORKING_ESCAPED/g"
+else
+    "$SNAP/bin/frogtab" "$@"
+fi
