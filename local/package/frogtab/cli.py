@@ -70,7 +70,7 @@ Change/display config:
   frogtab set <setting> <value>
   frogtab get <setting>
 
-<setting> is one of:
+Available commands:
   port                 Port that Frogtab Local runs on
                        (default: 5000)
   backup-file          Location of the automatic backup of your Frogtab data
