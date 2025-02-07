@@ -61,8 +61,7 @@ def print_help():
 Use 'frogtab' to manage Frogtab Local and send tasks to Frogtab.
 
 Usage:
-  frogtab         Send a task to Frogtab
-                  (starting Frogtab Local if it isn't running)
+  frogtab         Send a task to Frogtab, starting Frogtab Local if needed
   frogtab start   Start Frogtab Local
   frogtab stop    Stop Frogtab Local
   frogtab status  Check whether Frogtab Local is running
