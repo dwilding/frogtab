@@ -8,7 +8,7 @@ from .client import Client
 from .errors import WrongAppError, WrongVersionError, RunningError
 
 
-class Controller():
+class Controller(Client):
     def __init__(
         self,
         config_file: str,
@@ -32,44 +32,6 @@ class Controller():
             }
             self._write_json(self._config, config_file)
     
-    def start(self) -> bool:
-        if self.is_running():
-            return False
-        # Ensure that config file is writeable
-        self._config = self._read_json(self.config_file)
-        self._write_json(self._config, self.config_file)
-        # Ensure that backup file is writeable
-        if Path(self.backup_file).is_file():
-            data = self._read_json(self.backup_file)
-            self._write_json(data, self.backup_file)
-        else:
-            self._write_json({}, self.backup_file)
-        # Run the server
-        subprocess.Popen([
-            'python',
-            Path(__file__).parent / 'local_server' / 'server.py',
-            self.config_file
-        ], stdout=subprocess.DEVNULL)
-        client = Client(self.port)
-        client.wait_for_connection()
-        return True
-
-    def is_running(self) -> bool:
-        client = Client(self.port)
-        return client.get_is_running()
-
-    def stop(self) -> bool:
-        client = Client(self.port)
-        return client.post_stop()
-
-    def send(self, task: str) -> None:
-        client = Client(self.port)
-        return client.post_send(task)
-
-    @property
-    def port(self) -> int:
-        return self._config['port']
-
     @property
     def backup_file(self) -> str:
         return self._config['backupFile']
@@ -95,6 +57,27 @@ class Controller():
         self._config = self._read_json(self.config_file)
         self._config['registrationServer'] = registration_server
         self._write_json(self._config, self.config_file)
+
+    def start(self) -> bool:
+        if self.is_running():
+            return False
+        # Ensure that config file is writeable
+        self._config = self._read_json(self.config_file)
+        self._write_json(self._config, self.config_file)
+        # Ensure that backup file is writeable
+        if Path(self.backup_file).is_file():
+            data = self._read_json(self.backup_file)
+            self._write_json(data, self.backup_file)
+        else:
+            self._write_json({}, self.backup_file)
+        # Run the server
+        subprocess.Popen([
+            'python',
+            Path(__file__).parent / 'local_server' / 'server.py',
+            self.config_file
+        ], stdout=subprocess.DEVNULL)
+        self._wait_for_connection()
+        return True
 
     def _require_not_running(self) -> None:
         try:
