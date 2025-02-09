@@ -1,15 +1,15 @@
 import sys
 
 from .cli_environment import Environment
-from .controller import Controller
-from .errors import WrongAppError, WrongVersionError, NotRunningError, RunningError
+from .client import NotRunningError, WrongAppError, WrongVersionError
+from .controller import RunningError, Controller
 
 
 class Commands():
     def __init__(self):
         self.env = Environment()
         self.controller = Controller(
-            self.env.config_file,
+            config_file=self.env.config_file,
             on_read_error=Commands._exit_on_read_error,
             on_write_error=Commands._exit_on_write_error
         )
@@ -20,8 +20,8 @@ class Commands():
             started = self.controller.start()
         except WrongAppError:
             self._exit_on_wrong_app()
-        except WrongVersionError:
-            self._exit_on_wrong_version()
+        except WrongVersionError as e:
+            self._exit_on_wrong_version(e.running_version)
         if started:
             print(f'{self.env.display_tick} Started Frogtab Local')
             print(f'To access Frogtab, open {self.env.display_url} in your browser')
@@ -43,8 +43,8 @@ class Commands():
             running = self.controller.is_running()
         except WrongAppError:
             self._exit_on_wrong_app()
-        except WrongVersionError:
-            self._exit_on_wrong_version()
+        except WrongVersionError as e:
+            self._exit_on_wrong_version(e.running_version)
         if not running:
             print(f'Frogtab Local is not running on port {self.controller.port}')
             sys.exit(1)
@@ -55,8 +55,8 @@ class Commands():
             started = self.controller.start()
         except WrongAppError:
             self._exit_on_wrong_app()
-        except WrongVersionError:
-            self._exit_on_wrong_version()
+        except WrongVersionError as e:
+            self._exit_on_wrong_version(e.running_version)
         task = self.env.get_task_or_exit()
         try:
             self.controller.send(task)
@@ -124,8 +124,8 @@ class Commands():
         print(f'A different app is using port {self.controller.port}')
         sys.exit(1)
 
-    def _exit_on_wrong_version(self):
-        print(f'The wrong version of Frogtab Local is running on port {self.controller.port}')
+    def _exit_on_wrong_version(self, version: str):
+        print(f'Version {version} of Frogtab Local is running on port {self.controller.port}')
         sys.exit(1)
 
     @staticmethod

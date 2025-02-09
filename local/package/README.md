@@ -2,9 +2,10 @@
 
 Frogtab Local is a version of the [Frogtab](https://frogtab.com) task manager that runs on localhost. This package provides:
 
-  - A command-line tool `frogtab` for managing Frogtab Local and sending tasks to Frogtab
-  - A Python class `Controller` for managing Frogtab Local and sending tasks to Frogtab
-  - A Python class `Client` for interacting with Frogtab Local over HTTP
+  - The Frogtab Local server
+  - A class `Client` for interacting with the server over HTTP
+  - A class `Controller`, which extends `Client`, for configuring and starting the server
+  - A command-line tool `frogtab` for managing the server using `Controller`
 
 For details, see the [Frogtab Local docs](https://github.com/dwilding/frogtab/blob/main/local/README.md#frogtab-local).
 

@@ -1,4 +1,3 @@
 from .version import __version__
-from .controller import Controller
-from .client import Client
-from .errors import WrongAppError, WrongVersionError, NotRunningError, RunningError
+from .client import NotRunningError, WrongAppError, WrongVersionError, Client
+from .controller import RunningError, Controller

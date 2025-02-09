@@ -11,11 +11,11 @@ Frogtab Local supports personal links, but your device will be registered with f
 
 ## Installing Frogtab Local
 
-These instructions explain how to install Frogtab Local as a Python package. You'll need Python 3.8 or later. See https://www.python.org/downloads/.
+These instructions explain how to install Frogtab Local as a Python package in a virtual environment. You'll need Python 3.8 or later. See https://www.python.org/downloads/.
 
 If you use Linux, I recommend that you install Frogtab Local from the Snap Store instead. See https://snapcraft.io/frogtab.
 
-To install Frogtab Local as a Python package, run the following commands:
+To install Frogtab Local in a virtual environment, run the following commands:
 
 ```
 python3 -m venv .venv

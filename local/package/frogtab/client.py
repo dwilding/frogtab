@@ -2,7 +2,17 @@ import requests
 import time
 
 from .version import __version__
-from .errors import WrongAppError, WrongVersionError, NotRunningError
+
+class NotRunningError(Exception):
+    pass
+
+class WrongAppError(Exception):
+    pass
+
+class WrongVersionError(Exception):
+    def __init__(self, message: str, running_version: str):
+        super().__init__(message)
+        self.running_version = running_version
 
 
 class Client():
@@ -22,8 +32,12 @@ class Client():
             return False
         if not 'X-Frogtab-Local' in response.headers:
             raise WrongAppError
-        if response.headers['X-Frogtab-Local'] != __version__:
-            raise WrongVersionError
+        version = response.headers['X-Frogtab-Local']
+        if version != __version__:
+            raise WrongVersionError(
+                message=f'running version \'{version}\' does not match client version \'{__version__}\'',
+                running_version=version
+            )
         return True
 
     def stop(self) -> bool:

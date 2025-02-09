@@ -127,7 +127,7 @@ def post_stop():
 
 @app.after_request
 def add_custom_header(response):
-    response.headers['X-Frogtab-Local'] = '2.0.0b6'
+    response.headers['X-Frogtab-Local'] = '2.0.0b7'
     return response
 
 

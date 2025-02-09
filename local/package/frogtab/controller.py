@@ -4,8 +4,10 @@ from typing import Callable, Any, Optional
 import json
 import subprocess
 
-from .client import Client
-from .errors import WrongAppError, WrongVersionError, RunningError
+from .client import NotRunningError, WrongAppError, WrongVersionError, Client
+
+class RunningError(Exception):
+    pass
 
 
 class Controller(Client):
