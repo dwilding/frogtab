@@ -48,6 +48,8 @@ frogtab set port 5001 # for example
 frogtab start
 ```
 
+TODO: If you opened Frogtab in your browser before changing the port, you'll need to import a backup to pair with Frogtab Local (https://github.com/dwilding/frogtab/issues/9)
+
 
 ## Sending tasks to Frogtab
 
