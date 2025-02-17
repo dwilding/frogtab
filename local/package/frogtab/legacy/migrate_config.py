@@ -17,36 +17,37 @@
 # For an example of config.py, see:
 # https://raw.githubusercontent.com/dwilding/frogtab/f5f2d5436440d9e6eb4af4aadfd7273a95b5cadc/local/config.py
 
+from pathlib import Path
 import sys
 import json
 
 args = sys.argv[1:]
-config_file = args[0]
+config_file = Path(args[0])
 config_dict = {
-    'port': 5000,
-    'backupFile': 'Frogtab_backup.json',
-    'registrationServer': 'https://frogtab.com/',
-    'internalState': {
-        'pairingKey': '',
-        'messages': []
+    "port": 5000,
+    "backupFile": "Frogtab_backup.json",
+    "registrationServer": "https://frogtab.com/",
+    "internalState": {
+        "pairingKey": "",
+        "messages": []
     }
 }
 try:
     from config import local_port
-    config_dict['port'] = local_port
+    config_dict["port"] = local_port
 except ImportError:
     pass
 try:
     from config import registration_server
-    config_dict['registrationServer'] = registration_server
+    config_dict["registrationServer"] = registration_server
 except ImportError:
     pass
 try:
     from config import save_file
     data = {}
     save_file(data) # capture the backup file path
-    config_dict['backupFile'] = data['file_path']
+    config_dict["backupFile"] = data["file_path"]
 except ImportError:
     pass
-with open(config_file, 'w', encoding='utf-8') as file:
-    json.dump(config_dict, file, indent=2, ensure_ascii=False)
+content = json.dumps(config_dict, indent=2, ensure_ascii=False)
+config_file.write_text(content, encoding="utf-8")

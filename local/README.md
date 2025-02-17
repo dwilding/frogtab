@@ -44,11 +44,11 @@ To change the port, run the following commands:
 
 ```
 frogtab stop
-frogtab set port 5001 # for example
+frogtab set port 5001  # for example
 frogtab start
 ```
 
-TODO: If you opened Frogtab in your browser before changing the port, you'll need to import a backup to pair with Frogtab Local (https://github.com/dwilding/frogtab/issues/9)
+TODO: If you opened Frogtab in your browser before changing the port, you'll need to import a backup file to pair with Frogtab Local (https://github.com/dwilding/frogtab/issues/9)
 
 
 ## Sending tasks to Frogtab
@@ -80,19 +80,20 @@ Frogtab Local enables you to run the Frogtab task manager on localhost.
 Use 'frogtab' to manage Frogtab Local and send tasks to Frogtab.
 
 Usage:
-  frogtab         Send a task to Frogtab, starting Frogtab Local if needed
-  frogtab start   Start Frogtab Local
-  frogtab stop    Stop Frogtab Local
-  frogtab status  Check whether Frogtab Local is running
+  frogtab              Send a task to Frogtab, starting Frogtab Local if needed
+  frogtab start        Start Frogtab Local
+  frogtab stop         Stop Frogtab Local
+  frogtab status       Check whether Frogtab Local is running
+  frogtab find-backup  Display the full location of the Frogtab backup file
 
-Change/display config:
-  frogtab set <setting> <value>
+Display/change config:
   frogtab get <setting>
+  frogtab set <setting> <value>
 
 Available settings:
   port                 Port that Frogtab Local runs on
                        (default: 5000)
-  backup-file          Location of the automatic backup of your Frogtab data
+  backup-file          Location of the Frogtab backup file
                        (default: Frogtab_backup.json in the working directory)
   registration-server  Server that Frogtab uses if you register this device
                        (default: https://frogtab.com/)
