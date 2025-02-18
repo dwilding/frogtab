@@ -1,14 +1,14 @@
 from pathlib import Path
 
 class Read(PermissionError):
-    def __init__(self, file: Path):
-        super().__init__(f"unable to read file '{file}'")
-        self.file = file
+    def __init__(self, path: Path):
+        super().__init__(f"unable to read '{path.absolute()}'")
+        self.path = path
 
 class Write(PermissionError):
-    def __init__(self, file: Path):
-        super().__init__(f"unable to write file '{file}'")
-        self.file = file
+    def __init__(self, path: Path):
+        super().__init__(f"unable to write '{path.absolute()}'")
+        self.path = path
 
 class WrongVersion(Exception):
     def __init__(self, port: int, version: str):
