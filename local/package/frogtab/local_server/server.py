@@ -7,15 +7,15 @@ import logging
 
 import flask
 
-VERSION = "2.0.0b9"
+VERSION = "2.0.0b10"
 
-def read_json(json_file: Path) -> dict:
-    content = json_file.read_text(encoding="utf-8")
+def read_json(json_path: Path) -> dict:
+    content = json_path.read_text(encoding="utf-8")
     return json.loads(content)
 
-def write_json(data: dict, json_file: Path) -> None:
+def write_json(data: dict, json_path: Path) -> None:
     content = json.dumps(data, indent=2, ensure_ascii=False)
-    json_file.write_text(content, encoding="utf-8")
+    json_path.write_text(content, encoding="utf-8")
 
 
 # Load config (including internal state)
@@ -23,8 +23,8 @@ def write_json(data: dict, json_file: Path) -> None:
 args = sys.argv[1:]
 if len(args) != 1:
     sys.exit(2)
-config_file = Path(args[0])
-config = read_json(config_file)
+config_path = Path(args[0])
+config = read_json(config_path)
 
 
 # Create a Flask app
@@ -65,7 +65,7 @@ def post_pair():
     body = flask.request.get_json()
     if body["force"] or not config["internalState"]["pairingKey"]:
         config["internalState"]["pairingKey"] = body["key"]
-        write_json(config, config_file)
+        write_json(config, config_path)
     elif body["key"] != config["internalState"]["pairingKey"]:
         return {
             "success": False
@@ -79,7 +79,7 @@ def post_data():
     body = flask.request.get_json()
     if not config["internalState"]["pairingKey"]:
         config["internalState"]["pairingKey"] = body["key"]
-        write_json(config, config_file)
+        write_json(config, config_path)
     elif body["key"] != config["internalState"]["pairingKey"]:
         return {
             "success": False
@@ -94,14 +94,14 @@ def remove_messages():
     body = flask.request.get_json()
     if not config["internalState"]["pairingKey"]:
         config["internalState"]["pairingKey"] = body["key"]
-        write_json(config, config_file)
+        write_json(config, config_path)
     elif body["key"] != config["internalState"]["pairingKey"]:
         return {
             "success": False
         }
     messages = config["internalState"]["messages"]
     config["internalState"]["messages"] = []
-    write_json(config, config_file)
+    write_json(config, config_path)
     return {
         "success": True,
         "messages": messages
@@ -118,7 +118,7 @@ def get_version():
 def add_message():
     body = flask.request.get_json()
     config["internalState"]["messages"].append(body["message"])
-    write_json(config, config_file)
+    write_json(config, config_path)
     return flask.make_response("", 204)
 
 @app.route("/service/post-stop", methods=["POST"])

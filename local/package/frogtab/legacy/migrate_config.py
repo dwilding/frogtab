@@ -22,7 +22,7 @@ import sys
 import json
 
 args = sys.argv[1:]
-config_file = Path(args[0])
+config_path = Path(args[0])
 config_dict = {
     "port": 5000,
     "backupFile": "Frogtab_backup.json",
@@ -50,4 +50,4 @@ try:
 except ImportError:
     pass
 content = json.dumps(config_dict, indent=2, ensure_ascii=False)
-config_file.write_text(content, encoding="utf-8")
+config_path.write_text(content, encoding="utf-8")

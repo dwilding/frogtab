@@ -1,4 +1,6 @@
 from pathlib import Path
+import sys
+import subprocess
 import json
 import time
 
@@ -7,35 +9,35 @@ import requests
 from .version import __version__
 from . import exceptions
 
-def get_port(config_file: Path) -> int:
-    config = _read_config(config_file)
+def get_port(config_path: Path) -> int:
+    config = _read_config(config_path)
     return config["port"]
 
-def get_backup_file(config_file: Path) -> str:
-    config = _read_config(config_file)
+def get_backup_file(config_path: Path) -> str:
+    config = _read_config(config_path)
     return config["backupFile"]
 
-def get_registration_server(config_file: Path) -> str:
-    config = _read_config(config_file)
+def get_registration_server(config_path: Path) -> str:
+    config = _read_config(config_path)
     return config["registrationServer"]
 
-def set_port(config_file: Path, port: int) -> None:
-    config = _read_config(config_file)
+def set_port(config_path: Path, port: int) -> None:
+    config = _read_config(config_path)
     _require_not_running(config["port"])
     config["port"] = port
-    _write_json(config, config_file)
+    _write_json(config, config_path)
 
-def set_backup_file(config_file: Path, backup_file: str) -> None:
-    config = _read_config(config_file)
+def set_backup_file(config_path: Path, backup_file: str) -> None:
+    config = _read_config(config_path)
     _require_not_running(config["port"])
     config["backupFile"] = backup_file
-    _write_json(config, config_file)
+    _write_json(config, config_path)
 
-def set_registration_server(config_file: Path, registration_server: str) -> None:
-    config = _read_config(config_file)
+def set_registration_server(config_path: Path, registration_server: str) -> None:
+    config = _read_config(config_path)
     _require_not_running(config["port"])
     config["registrationServer"] = registration_server
-    _write_json(config, config_file)
+    _write_json(config, config_path)
 
 def _require_not_running(port: int) -> None:
     try:
@@ -47,8 +49,8 @@ def _require_not_running(port: int) -> None:
     if running:
         raise exceptions.Running(port)
 
-def _read_config(config_file: Path) -> dict:
-    if not config_file.is_file():
+def _read_config(config_path: Path) -> dict:
+    if not config_path.is_file():
         config = {
             "port": 5000,
             "backupFile": "Frogtab_backup.json",
@@ -58,22 +60,22 @@ def _read_config(config_file: Path) -> dict:
                 "messages": []
             }
         }
-        _write_json(config, config_file)
-    return _read_json(config_file)
+        _write_json(config, config_path)
+    return _read_json(config_path)
 
-def _read_json(json_file: Path) -> dict:
+def _read_json(json_path: Path) -> dict:
     try:
-        content = json_file.read_text(encoding="utf-8")
+        content = json_path.read_text(encoding="utf-8")
         return json.loads(content)
     except PermissionError:
-        raise exceptions.Read(json_file)
+        raise exceptions.Read(json_path)
 
-def _write_json(data: dict, json_file: Path) -> None:
+def _write_json(data: dict, json_path: Path) -> None:
     try:
         content = json.dumps(data, indent=2, ensure_ascii=False)
-        json_file.write_text(content, encoding="utf-8")
+        json_path.write_text(content, encoding="utf-8")
     except PermissionError:
-        raise exceptions.Write(json_file)
+        raise exceptions.Write(json_path)
 
 def get_running_version(port: int) -> str:
     try:
@@ -83,6 +85,29 @@ def get_running_version(port: int) -> str:
     if not "X-Frogtab-Local" in response.headers:
         raise exceptions.WrongApp(port)
     return response.text
+
+def start(config_path: Path) -> bool:
+    config = _read_config(config_path)
+    port = config["port"]
+    if is_running(port):
+        return False
+    # Ensure that config file and backup file are writeable
+    _write_json(config, config_path)
+    backup_path = Path(config["backupFile"])
+    if backup_path.is_file():
+        data = _read_json(backup_path)
+        _write_json(data, backup_path)
+    else:
+        _write_json({}, backup_path)
+    # Run the server as a separate Python process
+    # (raises TypeError if config_path doesn't implement __fspath__)
+    subprocess.Popen([
+        sys.executable,
+        Path(__file__).parent / "local_server" / "server.py",
+        config_path
+    ], stdout=subprocess.DEVNULL)
+    _wait_for_connection(port)
+    return True
 
 def is_running(port: int) -> bool:
     try:

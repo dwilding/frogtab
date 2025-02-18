@@ -4,31 +4,31 @@ import os
 import shutil
 import subprocess
 
-def config_file() -> Path:
+def config_path() -> Path:
     if os.getenv("FROGTAB_CONFIG_FILE"):
-        config_file = Path(os.getenv("FROGTAB_CONFIG_FILE"))
+        config_path = Path(os.getenv("FROGTAB_CONFIG_FILE"))
     else:
-        config_file = Path("Frogtab_config.json")
-    if not config_file.is_file():
-        try_migrate_legacy_config(config_file)
-    return config_file
+        config_path = Path("Frogtab_config.json")
+    if not config_path.is_file():
+        try_migrate_legacy_config(config_path)
+    return config_path
 
-def try_migrate_legacy_config(target_config_file: Path) -> None:
+def try_migrate_legacy_config(target_config_path: Path) -> None:
     if not Path("config.py").is_file() or Path("migrated").exists():
         return
     # Move config.py to a dedicated subdir of the working dir
     shutil.copytree(Path(__file__).parent / "legacy", "migrated")
     shutil.move("config.py", "migrated")
     # Read config.py and create a JSON file
-    config_file = Path("migrated") / "Frogtab_config.json"
+    config_path = Path("migrated") / "Frogtab_config.json"
     subprocess.run([
         "python",
         Path("migrated") / "migrate_config.py",
-        config_file
+        config_path
     ])
     # Copy the JSON file to the correct location
-    if config_file.is_file():
-        shutil.copy(config_file, target_config_file)
+    if config_path.is_file():
+        shutil.copy(config_path, target_config_path)
 
 def tick() -> str:
     display_tick = "✓"
