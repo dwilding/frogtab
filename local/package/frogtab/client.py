@@ -84,6 +84,8 @@ def get_running_version(port: int) -> str:
         raise exceptions.NotRunning(port)
     if not "X-Frogtab-Local" in response.headers:
         raise exceptions.WrongApp(port)
+    if response.status_code != 200:
+        raise RuntimeError(f"no version (port {port})")
     return response.text
 
 def start(config_path: Path) -> bool:
