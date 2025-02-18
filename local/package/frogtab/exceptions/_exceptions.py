@@ -1,5 +1,14 @@
 from pathlib import Path
 
+__all__ = [
+    "Read",
+    "Write",
+    "WrongVersion",
+    "WrongApp",
+    "Running",
+    "NotRunning"
+]
+
 class Read(PermissionError):
     def __init__(self, path: Path):
         super().__init__(f"unable to read '{path.absolute()}'")

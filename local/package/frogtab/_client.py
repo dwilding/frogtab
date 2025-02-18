@@ -6,8 +6,22 @@ import time
 
 import requests
 
-from .version import __version__
+from ._version import __version__
 from . import exceptions
+
+__all__ = [
+    "get_port",
+    "get_backup_file",
+    "get_registration_server",
+    "set_port",
+    "set_backup_file",
+    "set_registration_server",
+    "start",
+    "get_running_version",
+    "is_running",
+    "stop",
+    "send"
+]
 
 def get_port(config_path: Path) -> int:
     config = _read_config(config_path)
@@ -77,17 +91,6 @@ def _write_json(data: dict, json_path: Path) -> None:
     except PermissionError:
         raise exceptions.Write(json_path)
 
-def get_running_version(port: int) -> str:
-    try:
-        response = requests.get(f"http://localhost:{port}/service/get-version")
-    except requests.exceptions.ConnectionError:
-        raise exceptions.NotRunning(port)
-    if not "X-Frogtab-Local" in response.headers:
-        raise exceptions.WrongApp(port)
-    if response.status_code != 200:
-        raise RuntimeError(f"no version (port {port})")
-    return response.text
-
 def start(config_path: Path) -> bool:
     config = _read_config(config_path)
     port = config["port"]
@@ -110,6 +113,17 @@ def start(config_path: Path) -> bool:
     ], stdout=subprocess.DEVNULL)
     _wait_for_connection(port)
     return True
+
+def get_running_version(port: int) -> str:
+    try:
+        response = requests.get(f"http://localhost:{port}/service/get-version")
+    except requests.exceptions.ConnectionError:
+        raise exceptions.NotRunning(port)
+    if not "X-Frogtab-Local" in response.headers:
+        raise exceptions.WrongApp(port)
+    if response.status_code != 200:
+        raise RuntimeError(f"no version (port {port})")
+    return response.text
 
 def is_running(port: int) -> bool:
     try:

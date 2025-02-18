@@ -1,3 +1,2 @@
-from .version import __version__
-from .client import *
-from . import exceptions
+from ._version import __version__
+from ._client import *

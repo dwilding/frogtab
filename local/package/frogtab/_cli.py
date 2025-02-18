@@ -1,10 +1,10 @@
 from pathlib import Path
 import sys
 
-from .version import __version__
-from . import client
-from . import exceptions
+from ._version import __version__
 from . import _env
+from . import _client
+from . import exceptions
 
 def main():
     args = sys.argv[1:]
@@ -37,18 +37,18 @@ def run_command(args):
         status()
         return
     if args == ["find-backup"]:
-        backup_file = client.get_backup_file(_env.config_path())
+        backup_file = _client.get_backup_file(_env.config_path())
         print(Path(backup_file).absolute())
         return
     if len(args) == 2 and args[0] == "get":
         if args[1] == "port":
-            print(client.get_port(_env.config_path()))
+            print(_client.get_port(_env.config_path()))
             return
         if args[1] == "backup-file":
-            print(client.get_backup_file(_env.config_path()))
+            print(_client.get_backup_file(_env.config_path()))
             return
         if args[1] == "registration-server":
-            print(client.get_registration_server(_env.config_path()))
+            print(_client.get_registration_server(_env.config_path()))
             return
     if len(args) == 3 and args[0] == "set":
         if args[1] == "port":
@@ -73,11 +73,11 @@ def run_command(args):
 
 def send():
     config_path = _env.config_path()
-    port = client.get_port(config_path)
-    started = client.start(config_path)
+    port = _client.get_port(config_path)
+    started = _client.start(config_path)
     task = _env.task_or_exit()
     try:
-        client.send(port, task)
+        _client.send(port, task)
     except exceptions.NotRunning:
         print(f"{_env.error()} Frogtab Local is not running on port {port}")
         sys.exit(1)
@@ -89,8 +89,8 @@ def send():
 
 def start():
     config_path = _env.config_path()
-    port = client.get_port(config_path)
-    if client.start(config_path):
+    port = _client.get_port(config_path)
+    if _client.start(config_path):
         print(f"{_env.tick()} Started Frogtab Local")
         print(f"To access Frogtab, open {_env.url(port)} in your browser")
     else:
@@ -98,28 +98,28 @@ def start():
 
 def stop():
     config_path = _env.config_path()
-    port = client.get_port(config_path)
-    if client.stop(port):
+    port = _client.get_port(config_path)
+    if _client.stop(port):
         print(f"{_env.tick()} Stopped Frogtab Local")
     else:
         print(f"Frogtab Local is not running on port {port}")
 
 def status():
     config_path = _env.config_path()
-    port = client.get_port(config_path)
-    if not client.is_running(port):
+    port = _client.get_port(config_path)
+    if not _client.is_running(port):
         print(f"Frogtab Local is not running on port {port}")
         sys.exit(1)
     print(f"Frogtab Local is running on port {port}")
 
 def set_port(new_port: int) -> None:
     config_path = _env.config_path()
-    port = client.get_port(config_path)
+    port = _client.get_port(config_path)
     if port == new_port:
         print(f"Frogtab Local is already configured to use port {port}")
         return
     try:
-        client.set_port(config_path, new_port)
+        _client.set_port(config_path, new_port)
     except exceptions.Running as e:
         print(f"{_env.error()} {e}")
         print("Stop Frogtab Local before changing the port")
@@ -128,12 +128,12 @@ def set_port(new_port: int) -> None:
 
 def set_backup_file(new_backup_file: str) -> None:
     config_path = _env.config_path()
-    backup_file = client.get_backup_file(config_path)
+    backup_file = _client.get_backup_file(config_path)
     if backup_file == new_backup_file:
         print(f"Frogtab Local is already configured to use backup file '{backup_file}'")
         return
     try:
-        client.set_backup_file(config_path, new_backup_file)
+        _client.set_backup_file(config_path, new_backup_file)
     except exceptions.Running as e:
         print(f"{_env.error()} {e}")
         print("Stop Frogtab Local before changing the backup file")
@@ -142,12 +142,12 @@ def set_backup_file(new_backup_file: str) -> None:
 
 def set_registration_server(new_registration_server: str) -> None:
     config_path = _env.config_path()
-    registration_server = client.get_registration_server(config_path)
+    registration_server = _client.get_registration_server(config_path)
     if registration_server == new_registration_server:
         print(f"Frogtab Local is already configured to use registration server '{registration_server}'")
         return
     try:
-        client.set_registration_server(config_path, new_registration_server)
+        _client.set_registration_server(config_path, new_registration_server)
     except exceptions.Running as e:
         print(f"{_env.error()} {e}")
         print("Stop Frogtab Local before changing the registration server")
