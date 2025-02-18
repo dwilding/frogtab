@@ -93,7 +93,7 @@ def start(config_path: Path) -> bool:
     port = config["port"]
     if is_running(port):
         return False
-    # Ensure that config file and backup file are writeable
+    # Ensure that config file and backup file are writable
     _write_json(config, config_path)
     backup_path = Path(config["backupFile"])
     if backup_path.is_file():
