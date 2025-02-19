@@ -7,7 +7,7 @@ import logging
 
 import flask
 
-VERSION = "2.0.0b12"
+VERSION = "2.0.0b13"
 
 def read_json(json_path: Path) -> dict:
     content = json_path.read_text(encoding="utf-8")
@@ -16,6 +16,14 @@ def read_json(json_path: Path) -> dict:
 def write_json(data: dict, json_path: Path) -> None:
     content = json.dumps(data, indent=2, ensure_ascii=False)
     json_path.write_text(content, encoding="utf-8")
+
+
+# Check which network interfaces the server should listen on
+
+if os.getenv("FROGTAB_SERVER_HOST"):
+    host = os.getenv("FROGTAB_SERVER_HOST")
+else:
+    host = "localhost"
 
 
 # Load config (including internal state)
@@ -138,4 +146,7 @@ def add_custom_header(response):
 # Run Flask
 
 logging.getLogger("werkzeug").disabled = True
-app.run(port=config["port"])
+app.run(
+    host=host,
+    port=config["port"]
+)
