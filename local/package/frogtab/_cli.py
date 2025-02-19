@@ -2,9 +2,16 @@ from pathlib import Path
 import sys
 
 from ._version import __version__
-from . import _env
+from ._exceptions import (
+    ReadError,
+    WriteError,
+    WrongVersionError,
+    WrongAppError,
+    RunningError,
+    NotRunningError
+)
 from . import _client
-from . import exceptions
+from . import _env
 
 def main():
     args = sys.argv[1:]
@@ -16,10 +23,10 @@ def main():
         return
     try:
         run_command(args)
-    except (exceptions.Read, exceptions.Write) as e:
+    except (ReadError, WriteError) as e:
         print(f"{_env.error()} {e}")
         sys.exit(13)
-    except (exceptions.WrongVersion, exceptions.WrongApp) as e:
+    except (WrongVersionError, WrongAppError) as e:
         print(f"{_env.error()} {e}")
         sys.exit(1)
 
@@ -78,7 +85,7 @@ def send():
     task = _env.task_or_exit()
     try:
         _client.send(port, task)
-    except exceptions.NotRunning:
+    except NotRunningError:
         print(f"{_env.error()} Frogtab Local is not running on port {port}")
         sys.exit(1)
     if started:
@@ -120,7 +127,7 @@ def set_port(new_port: int) -> None:
         return
     try:
         _client.set_port(config_path, new_port)
-    except exceptions.Running as e:
+    except RunningError as e:
         print(f"{_env.error()} {e}")
         print("Stop Frogtab Local before changing the port")
         sys.exit(1)
@@ -134,7 +141,7 @@ def set_backup_file(new_backup_file: str) -> None:
         return
     try:
         _client.set_backup_file(config_path, new_backup_file)
-    except exceptions.Running as e:
+    except RunningError as e:
         print(f"{_env.error()} {e}")
         print("Stop Frogtab Local before changing the backup file")
         sys.exit(1)
@@ -148,7 +155,7 @@ def set_registration_server(new_registration_server: str) -> None:
         return
     try:
         _client.set_registration_server(config_path, new_registration_server)
-    except exceptions.Running as e:
+    except RunningError as e:
         print(f"{_env.error()} {e}")
         print("Stop Frogtab Local before changing the registration server")
         sys.exit(1)
