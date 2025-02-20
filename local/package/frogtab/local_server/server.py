@@ -7,7 +7,7 @@ import logging
 
 import flask
 
-VERSION = "2.0.0b13"
+VERSION = "2.0.0b14"
 
 def read_json(json_path: Path) -> dict:
     content = json_path.read_text(encoding="utf-8")

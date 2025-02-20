@@ -54,6 +54,12 @@ def error() -> str:
 def use_color() -> bool:
     return os.isatty(sys.stdout.fileno()) and not os.getenv("NO_COLOR")
 
+def end() -> str:
+    if os.isatty(sys.stdout.fileno()):
+        return "\n"
+    else:
+        return ""
+
 def task_or_exit() -> str:
     task = ""
     if os.isatty(sys.stdin.fileno()):

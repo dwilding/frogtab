@@ -16,7 +16,7 @@ from . import _env
 def main():
     args = sys.argv[1:]
     if args == ["--version"] or args == ["-V"]:
-        print(f"Frogtab Local {__version__}")
+        print(f"Frogtab Local {__version__}", end=_env.end())
         return
     if args == ["help"] or args == ["--help"] or args == ["-h"]:
         print_help()
@@ -45,17 +45,17 @@ def run_command(args):
         return
     if args == ["find-backup"]:
         backup_file = _client.get_backup_file(_env.config_path())
-        print(Path(backup_file).absolute())
+        print(Path(backup_file).absolute(), end=_env.end())
         return
     if len(args) == 2 and args[0] == "get":
         if args[1] == "port":
-            print(_client.get_port(_env.config_path()))
+            print(_client.get_port(_env.config_path()), end=_env.end())
             return
         if args[1] == "backup-file":
-            print(_client.get_backup_file(_env.config_path()))
+            print(_client.get_backup_file(_env.config_path()), end=_env.end())
             return
         if args[1] == "registration-server":
-            print(_client.get_registration_server(_env.config_path()))
+            print(_client.get_registration_server(_env.config_path()), end=_env.end())
             return
     if len(args) == 3 and args[0] == "set":
         if args[1] == "port":
