@@ -7,7 +7,7 @@ import logging
 
 import flask
 
-VERSION = "2.0.0b14"
+VERSION = "2.0.0b16"
 
 def read_json(json_path: Path) -> dict:
     content = json_path.read_text(encoding="utf-8")
@@ -18,21 +18,20 @@ def write_json(data: dict, json_path: Path) -> None:
     json_path.write_text(content, encoding="utf-8")
 
 
-# Check which network interfaces the server should listen on
-
-if os.getenv("FROGTAB_SERVER_HOST"):
-    host = os.getenv("FROGTAB_SERVER_HOST")
-else:
-    host = "localhost"
-
-
 # Load config (including internal state)
 
 args = sys.argv[1:]
-if len(args) != 1:
+if not args:
     sys.exit(2)
 config_path = Path(args[0])
 config = read_json(config_path)
+
+
+# Check whether the server should listen on all network interfaces
+
+host = "localhost"
+if len(args) >= 2 and args[1] == "--expose":
+    host = "0.0.0.0"
 
 
 # Create a Flask app

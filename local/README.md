@@ -106,6 +106,9 @@ Environment variables:
   FROGTAB_CONFIG_FILE  If set, specifies where Frogtab Local stores config and
                        internal state. If not set, Frogtab Local uses
                        Frogtab_config.json in the working directory.
+  FROGTAB_EXPOSE=1     If set when Frogtab Local starts, Frogtab Local runs on
+                       all network interfaces. This can be useful if you have
+                       installed Frogtab Local in a virtual machine.
   NO_COLOR=1           If set, 'frogtab' doesn't display any colored text.
 ```
 

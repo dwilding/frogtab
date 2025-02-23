@@ -81,7 +81,7 @@ def run_command(args):
 def send():
     config_path = _env.config_path()
     port = _client.get_port(config_path)
-    started = _client.start(config_path)
+    started = _client.start(config_path, _env.expose())
     task = _env.task_or_exit()
     try:
         _client.send(port, task)
@@ -97,7 +97,7 @@ def send():
 def start():
     config_path = _env.config_path()
     port = _client.get_port(config_path)
-    if _client.start(config_path):
+    if _client.start(config_path, _env.expose()):
         print(f"{_env.tick()} Started Frogtab Local")
         print(f"To access Frogtab, open {_env.url(port)} in your browser")
     else:
@@ -193,6 +193,9 @@ Environment variables:
   FROGTAB_CONFIG_FILE  If set, specifies where Frogtab Local stores config and
                        internal state. If not set, Frogtab Local uses
                        Frogtab_config.json in the working directory.
+  FROGTAB_EXPOSE=1     If set when Frogtab Local starts, Frogtab Local runs on
+                       all network interfaces. This can be useful if you have
+                       installed Frogtab Local in a virtual machine.
   NO_COLOR=1           If set, 'frogtab' doesn't display any colored text.""")
 
 

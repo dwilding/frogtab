@@ -84,7 +84,7 @@ def _write_json(data: dict, json_path: Path) -> None:
     except PermissionError:
         raise WriteError(json_path)
 
-def start(config_path: Path) -> bool:
+def start(config_path: Path, expose: bool = False) -> bool:
     config = _read_config(config_path)
     port = config["port"]
     if is_running(port):
@@ -99,11 +99,14 @@ def start(config_path: Path) -> bool:
         _write_json({}, backup_path)
     # Run the server as a separate Python process
     # (raises TypeError if config_path doesn't implement __fspath__)
-    subprocess.Popen([
+    args = [
         sys.executable,
         Path(__file__).parent / "local_server" / "server.py",
-        config_path
-    ], stdout=subprocess.DEVNULL)
+        config_path,
+    ]
+    if expose:
+        args.append("--expose")
+    subprocess.Popen(args, stdout=subprocess.DEVNULL)
     _wait_for_connection(port)
     return True
 

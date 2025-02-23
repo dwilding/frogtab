@@ -60,6 +60,9 @@ def end() -> str:
     else:
         return ""
 
+def expose() -> bool:
+    return bool(os.getenv("FROGTAB_EXPOSE"))
+
 def task_or_exit() -> str:
     task = ""
     if os.isatty(sys.stdin.fileno()):
