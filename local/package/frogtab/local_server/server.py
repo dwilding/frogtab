@@ -7,7 +7,7 @@ import logging
 
 import flask
 
-VERSION = "2.0.0b16"
+VERSION = "2.0.0b17"
 
 def read_json(json_path: Path) -> dict:
     content = json_path.read_text(encoding="utf-8")
@@ -142,10 +142,14 @@ def add_custom_header(response):
     return response
 
 
-# Run Flask
+# Define the entrypoint
 
-logging.getLogger("werkzeug").disabled = True
-app.run(
-    host=host,
-    port=config["port"]
-)
+def main():
+    logging.getLogger("werkzeug").disabled = True
+    app.run(
+        host=host,
+        port=config["port"]
+    )
+
+if __name__ == "__main__":
+    main()

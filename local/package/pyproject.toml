@@ -1,6 +1,6 @@
 [project]
 name = "frogtab"
-version = "2.0.0b16"
+version = "2.0.0b17"
 description = "Frogtab Local"
 readme = "README.md"
 license = {text="MIT"}
@@ -25,6 +25,7 @@ Changelog = "https://github.com/dwilding/frogtab/releases"
 
 [project.scripts]
 frogtab = "frogtab._cli:main"
+serve-frogtab = "frogtab.local_server.server:main"
 
 [build-system]
 requires = [

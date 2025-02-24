@@ -97,11 +97,10 @@ def start(config_path: Path, expose: bool = False) -> bool:
         _write_json(data, backup_path)
     else:
         _write_json({}, backup_path)
-    # Run the server as a separate Python process
+    # Run the server as a separate process
     # (raises TypeError if config_path doesn't implement __fspath__)
     args = [
-        sys.executable,
-        Path(__file__).parent / "local_server" / "server.py",
+        "serve-frogtab",
         config_path,
     ]
     if expose:
