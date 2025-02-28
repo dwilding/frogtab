@@ -1,5 +1,4 @@
 from pathlib import Path
-import sys
 import subprocess
 import json
 import time
@@ -110,7 +109,11 @@ def start(config_path: Path) -> bool:
         _write_json({}, backup_path)
     # Run the server as a separate process
     # (raises TypeError if config_path doesn't implement __fspath__)
-    subprocess.Popen(["serve-frogtab", config_path], stdout=subprocess.DEVNULL)
+    subprocess.Popen(
+        ["serve-frogtab", config_path],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL
+    )
     _wait_for_connection(port)
     return True
 

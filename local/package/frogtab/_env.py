@@ -21,11 +21,11 @@ def try_migrate_legacy_config(target_config_path: Path) -> None:
     shutil.move("config.py", "migrated")
     # Read config.py and create a JSON file
     config_path = Path("migrated") / "Frogtab_config.json"
-    subprocess.run([
-        sys.executable,
-        Path("migrated") / "migrate_config.py",
-        config_path
-    ])
+    subprocess.run(
+        [sys.executable, Path("migrated") / "migrate_config.py", config_path],
+        capture_output=True,
+        check=True
+    )
     # Copy the JSON file to the correct location
     if config_path.is_file():
         shutil.copy(config_path, target_config_path)
