@@ -9,9 +9,11 @@ from ._exceptions import (
 )
 from ._client import (
     get_port,
+    get_expose,
     get_backup_file,
     get_registration_server,
     set_port,
+    set_expose,
     set_backup_file,
     set_registration_server,
     start,

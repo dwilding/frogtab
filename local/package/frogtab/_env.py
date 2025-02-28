@@ -22,7 +22,7 @@ def try_migrate_legacy_config(target_config_path: Path) -> None:
     # Read config.py and create a JSON file
     config_path = Path("migrated") / "Frogtab_config.json"
     subprocess.run([
-        "python",
+        sys.executable,
         Path("migrated") / "migrate_config.py",
         config_path
     ])
@@ -59,9 +59,6 @@ def end() -> str:
         return "\n"
     else:
         return ""
-
-def expose() -> bool:
-    return bool(os.getenv("FROGTAB_EXPOSE"))
 
 def task_or_exit() -> str:
     task = ""

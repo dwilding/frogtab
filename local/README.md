@@ -86,13 +86,15 @@ Usage:
   frogtab status       Check whether Frogtab Local is running
   frogtab find-backup  Display the full location of the Frogtab backup file
 
-Display/change config:
+Display/change settings:
   frogtab get <setting>
   frogtab set <setting> <value>
 
 Available settings:
   port                 Port that Frogtab Local runs on
                        (default: 5000)
+  expose yes/no        Allow access to Frogtab Local on all network interfaces
+                       (default: no)      
   backup-file          Location of the Frogtab backup file
                        (default: Frogtab_backup.json in the working directory)
   registration-server  Server that Frogtab uses if you register this device
@@ -103,12 +105,9 @@ Additional commands:
   frogtab --version    Display the version of Frogtab Local that is installed
 
 Environment variables:
-  FROGTAB_CONFIG_FILE  If set, specifies where Frogtab Local stores config and
-                       internal state. If not set, Frogtab Local uses
+  FROGTAB_CONFIG_FILE  If set, specifies where Frogtab Local stores settings
+                       and internal state. If not set, Frogtab Local uses
                        Frogtab_config.json in the working directory.
-  FROGTAB_EXPOSE=1     If set when Frogtab Local starts, Frogtab Local runs on
-                       all network interfaces. This can be useful if you have
-                       installed Frogtab Local in a virtual machine.
   NO_COLOR=1           If set, 'frogtab' doesn't display any colored text.
 ```
 

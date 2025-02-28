@@ -1,6 +1,6 @@
 [project]
 name = "frogtab"
-version = "2.0.0b17"
+version = "2.0.0b18"
 description = "Frogtab Local"
 readme = "README.md"
 license = {text="MIT"}

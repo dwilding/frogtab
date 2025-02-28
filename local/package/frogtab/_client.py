@@ -20,6 +20,10 @@ def get_port(config_path: Path) -> int:
     config = _read_config(config_path)
     return config["port"]
 
+def get_expose(config_path: Path) -> bool:
+    config = _read_config(config_path)
+    return config["expose"]
+
 def get_backup_file(config_path: Path) -> str:
     config = _read_config(config_path)
     return config["backupFile"]
@@ -32,6 +36,12 @@ def set_port(config_path: Path, port: int) -> None:
     config = _read_config(config_path)
     _require_not_running(config["port"])
     config["port"] = port
+    _write_json(config, config_path)
+
+def set_expose(config_path: Path, expose: bool) -> None:
+    config = _read_config(config_path)
+    _require_not_running(config["port"])
+    config["expose"] = expose
     _write_json(config, config_path)
 
 def set_backup_file(config_path: Path, backup_file: str) -> None:
@@ -60,6 +70,7 @@ def _read_config(config_path: Path) -> dict:
     if not config_path.is_file():
         config = {
             "port": 5000,
+            "expose": False,
             "backupFile": "Frogtab_backup.json",
             "registrationServer": "https://frogtab.com/",
             "internalState": {
@@ -84,7 +95,7 @@ def _write_json(data: dict, json_path: Path) -> None:
     except PermissionError:
         raise WriteError(json_path)
 
-def start(config_path: Path, expose: bool = False) -> bool:
+def start(config_path: Path) -> bool:
     config = _read_config(config_path)
     port = config["port"]
     if is_running(port):
@@ -99,13 +110,7 @@ def start(config_path: Path, expose: bool = False) -> bool:
         _write_json({}, backup_path)
     # Run the server as a separate process
     # (raises TypeError if config_path doesn't implement __fspath__)
-    args = [
-        "serve-frogtab",
-        config_path,
-    ]
-    if expose:
-        args.append("--expose")
-    subprocess.Popen(args, stdout=subprocess.DEVNULL)
+    subprocess.Popen(["serve-frogtab", config_path], stdout=subprocess.DEVNULL)
     _wait_for_connection(port)
     return True
 

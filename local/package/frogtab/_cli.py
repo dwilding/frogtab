@@ -51,6 +51,9 @@ def run_command(args):
         if args[1] == "port":
             print(_client.get_port(_env.config_path()), end=_env.end())
             return
+        if args[1] == "expose":
+            print(_yesno(_client.get_expose(_env.config_path())), end=_env.end())
+            return
         if args[1] == "backup-file":
             print(_client.get_backup_file(_env.config_path()), end=_env.end())
             return
@@ -62,12 +65,20 @@ def run_command(args):
             try:
                 port = int(args[2])
             except ValueError:
-                print("Port must be an integer")
+                print(f"{_env.error()} port must be an integer")
                 sys.exit(2)
             if port < 1024:
-                print("Port must be at least 1024")
+                print(f"{_env.error()} port must be at least 1024")
                 sys.exit(2)
             set_port(port)
+            return
+        if args[1] == "expose":
+            try:
+                expose = _bool(args[2])
+            except KeyError:
+                print(f"{_env.error()} exposure setting must be 'yes' or 'no'")
+                sys.exit(2)
+            set_expose(expose)
             return
         if args[1] == "backup-file":
             set_backup_file(args[2])
@@ -81,7 +92,7 @@ def run_command(args):
 def send():
     config_path = _env.config_path()
     port = _client.get_port(config_path)
-    started = _client.start(config_path, _env.expose())
+    started = _client.start(config_path)
     task = _env.task_or_exit()
     try:
         _client.send(port, task)
@@ -97,7 +108,7 @@ def send():
 def start():
     config_path = _env.config_path()
     port = _client.get_port(config_path)
-    if _client.start(config_path, _env.expose()):
+    if _client.start(config_path):
         print(f"{_env.tick()} Started Frogtab Local")
         print(f"To access Frogtab, open {_env.url(port)} in your browser")
     else:
@@ -123,7 +134,7 @@ def set_port(new_port: int) -> None:
     config_path = _env.config_path()
     port = _client.get_port(config_path)
     if port == new_port:
-        print(f"Frogtab Local is already configured to use port {port}")
+        print(f"Frogtab Local is already set to use port {port}")
         return
     try:
         _client.set_port(config_path, new_port)
@@ -133,11 +144,28 @@ def set_port(new_port: int) -> None:
         sys.exit(1)
     print(f"{_env.tick()} Changed port from {port} to {new_port}")
 
+def set_expose(new_expose: bool) -> None:
+    config_path = _env.config_path()
+    expose = _client.get_expose(config_path)
+    if expose == new_expose:
+        if expose:
+            print(f"Frogtab Local is already set to expose")
+        else:
+            print(f"Frogtab Local is already set to not expose")
+        return
+    try:
+        _client.set_expose(config_path, new_expose)
+    except RunningError as e:
+        print(f"{_env.error()} {e}")
+        print("Stop Frogtab Local before changing the exposure setting")
+        sys.exit(1)
+    print(f"{_env.tick()} Changed exposure setting from '{_yesno(expose)}' to '{_yesno(new_expose)}'")
+
 def set_backup_file(new_backup_file: str) -> None:
     config_path = _env.config_path()
     backup_file = _client.get_backup_file(config_path)
     if backup_file == new_backup_file:
-        print(f"Frogtab Local is already configured to use backup file '{backup_file}'")
+        print(f"Frogtab Local is already set to use backup file '{backup_file}'")
         return
     try:
         _client.set_backup_file(config_path, new_backup_file)
@@ -151,7 +179,7 @@ def set_registration_server(new_registration_server: str) -> None:
     config_path = _env.config_path()
     registration_server = _client.get_registration_server(config_path)
     if registration_server == new_registration_server:
-        print(f"Frogtab Local is already configured to use registration server '{registration_server}'")
+        print(f"Frogtab Local is already set to use registration server '{registration_server}'")
         return
     try:
         _client.set_registration_server(config_path, new_registration_server)
@@ -160,6 +188,18 @@ def set_registration_server(new_registration_server: str) -> None:
         print("Stop Frogtab Local before changing the registration server")
         sys.exit(1)
     print(f"{_env.tick()} Changed registration server from '{registration_server}' to '{new_registration_server}'")
+
+def _yesno(value: bool) -> str:
+    return {
+        True: "yes",
+        False: "no"
+    }[value]
+
+def _bool(value: str) -> str:
+    return {
+        "yes": True,
+        "no": False
+    }[value]
 
 
 def print_help():
@@ -173,13 +213,15 @@ Usage:
   frogtab status       Check whether Frogtab Local is running
   frogtab find-backup  Display the full location of the Frogtab backup file
 
-Display/change config:
+Display/change settings:
   frogtab get <setting>
   frogtab set <setting> <value>
 
 Available settings:
   port                 Port that Frogtab Local runs on
                        (default: 5000)
+  expose yes/no        Allow access to Frogtab Local on all network interfaces
+                       (default: no)      
   backup-file          Location of the Frogtab backup file
                        (default: Frogtab_backup.json in the working directory)
   registration-server  Server that Frogtab uses if you register this device
@@ -190,12 +232,9 @@ Additional commands:
   frogtab --version    Display the version of Frogtab Local that is installed
 
 Environment variables:
-  FROGTAB_CONFIG_FILE  If set, specifies where Frogtab Local stores config and
-                       internal state. If not set, Frogtab Local uses
+  FROGTAB_CONFIG_FILE  If set, specifies where Frogtab Local stores settings
+                       and internal state. If not set, Frogtab Local uses
                        Frogtab_config.json in the working directory.
-  FROGTAB_EXPOSE=1     If set when Frogtab Local starts, Frogtab Local runs on
-                       all network interfaces. This can be useful if you have
-                       installed Frogtab Local in a virtual machine.
   NO_COLOR=1           If set, 'frogtab' doesn't display any colored text.""")
 
 

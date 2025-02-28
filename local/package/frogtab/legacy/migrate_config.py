@@ -25,6 +25,7 @@ args = sys.argv[1:]
 config_path = Path(args[0])
 config_dict = {
     "port": 5000,
+    "expose": False,
     "backupFile": "Frogtab_backup.json",
     "registrationServer": "https://frogtab.com/",
     "internalState": {
