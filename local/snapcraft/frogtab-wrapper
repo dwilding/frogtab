@@ -8,5 +8,6 @@ elif [ "$1" = "help" ] || [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
     WORKING_ESCAPED="$(echo "$PWD" | sed 's/[\/&]/\\&/g')"
     echo "$(frogtab help)" | sed "s/the working directory/$WORKING_ESCAPED/g"
 else
+    touch "$SNAP_DATA/frogtab-tes"
     "$SNAP/bin/frogtab" "$@"
 fi

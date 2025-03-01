@@ -1,5 +1,5 @@
 name: frogtab
-version: 2.0.0b19snap1
+version: 2.0.0b18snap7
 title: Frogtab Local
 summary: Run the Frogtab task manager on localhost
 description: |
@@ -74,12 +74,20 @@ base: core24
 apps:
   frogtab:
     command: bin/frogtab-wrapper
-    plugs: [network-bind]
+    plugs:
+      - network-bind
+hooks:
+  remove:
+    plugs:
+      - network-bind
 parts:
   python-environment:
     plugin: python
     source: .
-    python-requirements: ['requirements.txt']
+    python-requirements:
+      - requirements.txt
   source:
     plugin: dump
     source: .
+    organize:
+      frogtab-wrapper: bin/
