@@ -100,6 +100,7 @@ def send():
         print(f"{_env.error()} Frogtab Local is not running on port {port}")
         sys.exit(1)
     if started:
+        _env.log_started(port)
         print(f"{_env.tick()} Started Frogtab Local and sent task to Frogtab")
         print(f"To access Frogtab, open {_env.url(port)} in your browser")
     else:
@@ -109,6 +110,7 @@ def start():
     config_path = _env.config_path()
     port = _client.get_port(config_path)
     if _client.start(config_path):
+        _env.log_started(port)
         print(f"{_env.tick()} Started Frogtab Local")
         print(f"To access Frogtab, open {_env.url(port)} in your browser")
     else:
@@ -118,6 +120,7 @@ def stop():
     config_path = _env.config_path()
     port = _client.get_port(config_path)
     if _client.stop(port):
+        _env.log_stopped(port)
         print(f"{_env.tick()} Stopped Frogtab Local")
     else:
         print(f"Frogtab Local is not running on port {port}")
@@ -235,6 +238,8 @@ Environment variables:
   FROGTAB_CONFIG_FILE  If set, specifies where Frogtab Local stores settings
                        and internal state. If not set, Frogtab Local uses
                        Frogtab_config.json in the working directory.
+  FROGTAB_PORTS_FILE   If set, specifies where Frogtab Local stores a list of
+                       ports that Frogtab Local is running on.
   NO_COLOR=1           If set, 'frogtab' doesn't display any colored text.""")
 
 

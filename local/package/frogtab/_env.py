@@ -4,6 +4,11 @@ import os
 import shutil
 import subprocess
 
+from ._exceptions import (
+    ReadError,
+    WriteError
+)
+
 def config_path() -> Path:
     if os.getenv("FROGTAB_CONFIG_FILE"):
         config_path = Path(os.getenv("FROGTAB_CONFIG_FILE"))
@@ -76,3 +81,21 @@ def task_or_exit() -> str:
     if not task:
         sys.exit(2)
     return task
+
+def log_started(port: int) -> None:
+    if not os.getenv("FROGTAB_PORTS_FILE"):
+        return
+    ports_path = Path(os.getenv("FROGTAB_PORTS_FILE"))
+    try:
+        ports_path.write_text(str(port))  # TODO: Update the list of ports properly
+    except PermissionError:
+        raise WriteError(ports_path)
+
+def log_stopped(port: int) -> None:
+    if not os.getenv("FROGTAB_PORTS_FILE"):
+        return
+    ports_path = Path(os.getenv("FROGTAB_PORTS_FILE"))
+    try:
+        ports_path.write_text("")  # TODO: Update the list of ports properly
+    except PermissionError:
+        raise WriteError(ports_path)
