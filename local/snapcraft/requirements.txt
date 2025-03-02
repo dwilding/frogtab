@@ -1,1 +1,1 @@
-frogtab==2.0.0b18
+frogtab==2.0.0b20

@@ -91,6 +91,11 @@ def run_command(args):
 
 def send():
     config_path = _env.config_path()
+    _env.check_ports_file()
+    backup_path = Path(_client.get_backup_file(config_path))
+    if backup_path.is_dir():
+        print(f"{_env.error()} '{backup_path.absolute()}' is a directory")
+        sys.exit(1)
     port = _client.get_port(config_path)
     started = _client.start(config_path)
     task = _env.task_or_exit()
@@ -98,40 +103,50 @@ def send():
         _client.send(port, task)
     except NotRunningError:
         print(f"{_env.error()} Frogtab Local is not running on port {port}")
+        _env.log_not_running(port)
         sys.exit(1)
     if started:
-        _env.log_started(port)
         print(f"{_env.tick()} Started Frogtab Local and sent task to Frogtab")
         print(f"To access Frogtab, open {_env.url(port)} in your browser")
     else:
         print(f"{_env.tick()} Sent task to Frogtab")
+    _env.log_running(port)
 
 def start():
     config_path = _env.config_path()
+    _env.check_ports_file()
+    backup_path = Path(_client.get_backup_file(config_path))
+    if backup_path.is_dir():
+        print(f"{_env.error()} '{backup_path.absolute()}' is a directory")
+        sys.exit(1)
     port = _client.get_port(config_path)
     if _client.start(config_path):
-        _env.log_started(port)
         print(f"{_env.tick()} Started Frogtab Local")
         print(f"To access Frogtab, open {_env.url(port)} in your browser")
     else:
         print(f"Frogtab Local is running on port {port}")
+    _env.log_running(port)
 
 def stop():
     config_path = _env.config_path()
+    _env.check_ports_file()
     port = _client.get_port(config_path)
     if _client.stop(port):
-        _env.log_stopped(port)
         print(f"{_env.tick()} Stopped Frogtab Local")
     else:
         print(f"Frogtab Local is not running on port {port}")
+    _env.log_not_running(port)
 
 def status():
     config_path = _env.config_path()
+    _env.check_ports_file()
     port = _client.get_port(config_path)
     if not _client.is_running(port):
         print(f"Frogtab Local is not running on port {port}")
+        _env.log_not_running(port)
         sys.exit(1)
     print(f"Frogtab Local is running on port {port}")
+    _env.log_running(port)
 
 def set_port(new_port: int) -> None:
     config_path = _env.config_path()
@@ -238,7 +253,7 @@ Environment variables:
   FROGTAB_CONFIG_FILE  If set, specifies where Frogtab Local stores settings
                        and internal state. If not set, Frogtab Local uses
                        Frogtab_config.json in the working directory.
-  FROGTAB_PORTS_FILE   If set, specifies where Frogtab Local stores a list of
+  FROGTAB_PORTS_FILE   If set, specifies where Frogtab Local writes a list of
                        ports that Frogtab Local is running on.
   NO_COLOR=1           If set, 'frogtab' doesn't display any colored text.""")
 

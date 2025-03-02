@@ -1,3 +1,4 @@
+from typing import Set
 from pathlib import Path
 import sys
 import os
@@ -14,6 +15,9 @@ def config_path() -> Path:
         config_path = Path(os.getenv("FROGTAB_CONFIG_FILE"))
     else:
         config_path = Path("Frogtab_config.json")
+    if config_path.is_dir():
+        print(f"{error()} '{config_path.absolute()}' is a directory")
+        sys.exit(1)
     if not config_path.is_file():
         try_migrate_legacy_config(config_path)
     return config_path
@@ -82,20 +86,47 @@ def task_or_exit() -> str:
         sys.exit(2)
     return task
 
-def log_started(port: int) -> None:
+def check_ports_file() -> None:
     if not os.getenv("FROGTAB_PORTS_FILE"):
         return
     ports_path = Path(os.getenv("FROGTAB_PORTS_FILE"))
+    if ports_path.is_dir():
+        print(f"{error()} '{ports_path.absolute()}' is a directory")
+        sys.exit(1)
+    ports = read_ports(ports_path)
+    ports_path.write_text("\n".join(ports))
+
+def log_running(port: int) -> None:
+    if not os.getenv("FROGTAB_PORTS_FILE"):
+        return
+    ports_path = Path(os.getenv("FROGTAB_PORTS_FILE"))
+    ports = read_ports(ports_path)
+    ports.add(str(port))
     try:
-        ports_path.write_text(str(port))  # TODO: Update the list of ports properly
+        ports_path.write_text("\n".join(ports))
     except PermissionError:
         raise WriteError(ports_path)
 
-def log_stopped(port: int) -> None:
+def log_not_running(port: int) -> None:
     if not os.getenv("FROGTAB_PORTS_FILE"):
         return
     ports_path = Path(os.getenv("FROGTAB_PORTS_FILE"))
+    ports = read_ports(ports_path)
+    if str(port) in ports:
+        ports.remove(str(port))
     try:
-        ports_path.write_text("")  # TODO: Update the list of ports properly
+        ports_path.write_text("\n".join(ports))
     except PermissionError:
         raise WriteError(ports_path)
+
+def read_ports(ports_path: Path) -> Set[str]:
+    if not ports_path.is_file():
+        try:
+            ports_path.write_text("")
+        except PermissionError:
+            raise WriteError(ports_path)
+    try:
+        content = ports_path.read_text()
+    except PermissionError:
+        raise ReadError(ports_path)
+    return set(content.splitlines())

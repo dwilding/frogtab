@@ -6,8 +6,7 @@ if [ "$1" = "--version" ] || [ "$1" = "-V" ]; then
     echo "Frogtab Local $SNAP_VERSION"
 elif [ "$1" = "help" ] || [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
     WORKING_ESCAPED="$(echo "$PWD" | sed 's/[\/&]/\\&/g')"
-    echo "$(frogtab help)" | sed "s/the working directory/$WORKING_ESCAPED/g"
+    echo "$("$SNAP/bin/frogtab" help)" | sed "s/the working directory/$WORKING_ESCAPED/g"
 else
-    touch "$SNAP_DATA/frogtab-tes"
-    "$SNAP/bin/frogtab" "$@"
+    FROGTAB_PORTS_FILE="$SNAP_COMMON/ports" "$SNAP/bin/frogtab" "$@"
 fi
