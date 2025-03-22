@@ -10,7 +10,6 @@ description: |
     * Enable automatic backups in any browser
     * Send tasks to Frogtab via a terminal
 
-
   **Starting Frogtab Local**
 
   To start Frogtab Local, run the following command:
@@ -34,7 +33,6 @@ description: |
   frogtab set port 5001  # For example
   frogtab start
   ```
-
 
   **Sending tasks to Frogtab**
 
@@ -67,7 +65,6 @@ description: |
   TODO: If you opened Frogtab in your browser before changing the port,
   you'll need to import a backup file to pair with Frogtab Local
   (https://github.com/dwilding/frogtab/issues/9).
-
 
   **Command reference**
 
@@ -111,11 +108,9 @@ description: |
     NO_COLOR=1           If set, 'frogtab' doesn't display any colored text.
   ```
 
-
   **Release notes**
 
   https://github.com/dwilding/frogtab/releases
-
 
   **License**
 
