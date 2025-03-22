@@ -166,31 +166,3 @@ Frogtab uses OpenPGP.js for PGP encryption.
 The source code of OpenPGP.js is available at https://github.com/openpgpjs/openpgpjs.
 OpenPGP.js is licensed under the GNU Lesser General Public License.
 For details, see [LICENSE_openpgp](LICENSE_openpgp).
-
-## Changelog
-
-| Date | Change | Available in Server | Frogtab Local Version |
-| --- | --- | --- | --- |
-| Nov ?, 2024 | The `frogtab` command now displays a status message if Frogtab Local is already running (Linux snap only) | No | v1.09 |
-| Nov ?, 2024 | You can now use ⌘+X (macOS) or Ctrl+X (Windows/Linux) to cut tasks when no text is selected | Yes | v1.09 |
-| Nov ?, 2024 | Prevented Frogtab from overriding keyboard shortcuts that use the Option key (macOS) or the Alt key (Windows/Linux) | Yes | v1.09 |
-| Nov ?, 2024 | Prevented the Control key from activating Frogtab's keyboard shortcuts on macOS | Yes | v1.09 |
-| Nov ?, 2024 | Changed the format of dates in backup files. You can still import old backup files | Yes | v1.09 |
-| Nov 2, 2024 | Sending tasks via a terminal now fails if the label has never been used by Frogtab | No | v1.08 |
-| Oct 27, 2024 | You can now send tasks to Frogtab via a terminal, without registering for a personal link. See the help page | No | v1.07 |
-| Oct 18, 2024 | You can now stop Frogtab Local via your browser. See the bottom of the help page | No | v1.06 |
-| Oct 18, 2024 | Reorganized the menu to always show Achievements. Removed Send to Frogtab from the menu | Yes | v1.06 |
-| Oct 18, 2024 | Reorganized the help page and explained Achievements in a more approachable way | Yes | v1.06 |
-| Oct 18, 2024 | Improved keyboard accessibility | Yes | v1.06 |
-| Oct 18, 2024 | Changed the ID format of generated key pairs, for better compatibility with GnuPG | Yes | v1.06 |
-| Oct 18, 2024 | Improved portability by specifying the content type for *.mjs* files | Yes | Not applicable |
-| Sep 25, 2024 | You can now download public keys from the server. See [code_samples.md](code_samples.md) | Yes | Not applicable |
-| Jul 30, 2024 | Fixed a registration bug that occurred after reinstalling Frogtab on the server | Yes | Not applicable |
-| Jul 26, 2024 | Added a variable in *config.py* that specifies the server to use for personal links | No | v1.05 |
-| Jul 26, 2024 | Fixed a registration bug that occurred after importing an old backup file | Yes | v1.05 |
-| Jul 16, 2024 | Changed the Flask app to run via Python instead of the `flask` command. The port is now specified in *config.py* | No | v1.04 |
-| Jul 16, 2024 | Changed the name of the built-in backup method to show the backup directory instead of the filename | No | v1.04 |
-| Jul 16, 2024 | Identified the registration server in "Registering for a personal link" on the help page | Yes | v1.04 |
-| Jul 16, 2024 | Removed the `data-vibe` attribute and documented how to [customize the placeholder text of your personal link](#customizing-the-placeholder-text-of-your-personal-link) | Yes | v1.04 |
-| Jul 4, 2024 | Improved support & docs for self-hosted servers | Yes | v1.03 |
-| Jul 2, 2024 | Fixed a bug with the registration button | Yes | v1.02 |
