@@ -44,11 +44,11 @@ snap:
   @echo "  snapcraft upload --release=candidate local/snapcraft/frogtab_<version>_amd64.snap"
 
 # Update libs and file hashes
-app: _app-update-libs
-  ./extra/app_update_sha1.py
+app: _app-libs
+  ./extra/update_hashes.py
 
 [working-directory: "app"]
-_app-update-libs:
+_app-libs:
   wget -O simple.min.css "https://cdn.simplecss.org/simple.min.css"
   wget -O openpgp.min.mjs "https://unpkg.com/openpgp@5.x/dist/openpgp.min.mjs"
 
