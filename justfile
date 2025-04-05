@@ -1,44 +1,58 @@
 _default:
   @just --list --unsorted
 
-# Build the Python package and explain how to try it
+# Build the Python package
 [working-directory: "local"]
-local-package: _local-templates
+package: app licenses _package-stage
   ./build_package.sh
   mkdir -p testing
-  @echo "# To try the package:"
-  @echo "$ cd local"
-  @echo "$ . .venv/bin/activate"
-  @echo "$ cd testing"
-  @echo "$ frogtab ..."
-
-# Explain how to upload the Python package
-local-package-upload:
-  @echo "# After running 'just local-package':"
-  @echo "$ cd local"
-  @echo "$ . .venv/bin/activate"
-  @echo "$ pip install twine"
-  @echo "$ twine upload package/dist/*"
+  @echo ""
+  @echo "To try the package:"
+  @echo "  $ cd local"
+  @echo "  $ . .venv/bin/activate"
+  @echo "  $ cd testing"
+  @echo "  $ frogtab ..."
+  @echo ""
+  @echo "To upload the package:"
+  @echo "  $ cd local"
+  @echo "  $ . .venv/bin/activate"
+  @echo "  $ pip install twine"
+  @echo "  $ twine upload package/dist/*"
 
 [working-directory: "local/package/frogtab/local_server/templates"]
-_local-templates: _local-static _local-templates-empty
+_package-stage: _package-static _package-templates-empty
   mv ../static/index.html ../static/icon-*.html ../static/help.html .
   sed -i'.backup' 's/data-server-base=\"https:\/\/frogtab\.com\/\"/data-server-base=\"{{{{ server_base }}\"/' index.html icon-*.html help.html
   sed -i'.backup' 's/data-save=\"browser\"/data-save=\"service\"/' index.html icon-*.html help.html
   rm *.backup
 
-[working-directory: "local/package/frogtab/local_server"]
-_local-templates-empty:
-  rm -rf templates
-  mkdir templates
-
-_local-static:
+_package-static:
   rm -rf local/package/frogtab/local_server/static
   cp -r app local/package/frogtab/local_server/static
 
-# Pack the snap and explain how to upload it
+[working-directory: "local/package/frogtab/local_server"]
+_package-templates-empty:
+  rm -rf templates
+  mkdir templates
+
+# Pack the snap
 [working-directory: "local/snapcraft"]
-local-snap:
+snap:
   snapcraft pack
-  @echo "# To upload the snap:"
-  @echo "$ snapcraft upload --release=candidate local/snapcraft/frogtab_<version>_amd64.snap"
+  @echo ""
+  @echo "To upload the snap:"
+  @echo "  snapcraft upload --release=candidate local/snapcraft/frogtab_<version>_amd64.snap"
+
+# Update libs and file hashes
+app: _app-update-libs
+  ./extra/app_update_sha1.py
+
+[working-directory: "app"]
+_app-update-libs:
+  wget -O simple.min.css "https://cdn.simplecss.org/simple.min.css"
+  wget -O openpgp.min.mjs "https://unpkg.com/openpgp@5.x/dist/openpgp.min.mjs"
+
+# Update LICENSE files
+licenses:
+  wget -O LICENSE_openpgp "https://raw.githubusercontent.com/openpgpjs/openpgpjs/main/LICENSE"
+  cp LICENSE_openpgp local/package
