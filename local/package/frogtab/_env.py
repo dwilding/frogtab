@@ -130,3 +130,10 @@ def read_ports(ports_path: Path) -> Set[str]:
     except PermissionError:
         raise ReadError(ports_path)
     return set(content.splitlines())
+
+def snap_working_dir() -> str:
+    working_dir = str(Path.cwd())
+    real_home = os.getenv("SNAP_REAL_HOME")
+    if real_home and working_dir.startswith(real_home):
+        working_dir = "~" + working_dir[len(real_home):]
+    return working_dir

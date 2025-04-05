@@ -21,6 +21,9 @@ def main():
     if args == ["help"] or args == ["--help"] or args == ["-h"]:
         print_help()
         return
+    if args == ["help", "--snap"]:
+        print_help(True)
+        return
     try:
         run_command(args)
     except (ReadError, WriteError) as e:
@@ -220,8 +223,15 @@ def _bool(value: str) -> str:
     }[value]
 
 
-def print_help():
-    print("""Frogtab Local enables you to run the Frogtab task manager on localhost.
+def print_help(snap: bool = False):
+    help_working_dir = "the working directory"
+    help_ports_file = """
+  FROGTAB_PORTS_FILE   If set, specifies where Frogtab Local writes a list of
+                       ports that Frogtab Local is running on."""
+    if snap:
+        help_working_dir = _env.snap_working_dir()
+        help_ports_file = ""
+    print(f"""Frogtab Local enables you to run the Frogtab task manager on localhost.
 Use 'frogtab' to manage Frogtab Local and send tasks to Frogtab.
 
 Usage:
@@ -241,7 +251,7 @@ Available settings:
   expose yes/no        Allow access to Frogtab Local on all network interfaces
                        (default: no)      
   backup-file          Location of the Frogtab backup file
-                       (default: Frogtab_backup.json in the working directory)
+                       (default: Frogtab_backup.json in {help_working_dir})
   registration-server  Server that Frogtab uses if you register this device
                        (default: https://frogtab.com/)
 
@@ -252,9 +262,7 @@ Additional commands:
 Environment variables:
   FROGTAB_CONFIG_FILE  If set, specifies where Frogtab Local stores settings
                        and internal state. If not set, Frogtab Local uses
-                       Frogtab_config.json in the working directory.
-  FROGTAB_PORTS_FILE   If set, specifies where Frogtab Local writes a list of
-                       ports that Frogtab Local is running on.
+                       Frogtab_config.json in {help_working_dir}.{help_ports_file}
   NO_COLOR=1           If set, 'frogtab' doesn't display any colored text.""")
 
 

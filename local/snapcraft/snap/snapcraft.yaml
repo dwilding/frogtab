@@ -1,5 +1,5 @@
 name: frogtab
-version: 2.0.0b20snap1
+version: 2.0.0b23snap1
 title: Frogtab Local
 summary: Run the Frogtab task manager on localhost
 description: |
@@ -91,7 +91,7 @@ description: |
     expose yes/no        Allow access to Frogtab Local on all network interfaces
                          (default: no)      
     backup-file          Location of the Frogtab backup file
-                         (default: Frogtab_backup.json in the working directory)
+                         (default: Frogtab_backup.json in ~/snap/frogtab/common)
     registration-server  Server that Frogtab uses if you register this device
                          (default: https://frogtab.com/)
 
@@ -102,9 +102,7 @@ description: |
   Environment variables:
     FROGTAB_CONFIG_FILE  If set, specifies where Frogtab Local stores settings
                          and internal state. If not set, Frogtab Local uses
-                         Frogtab_config.json in the working directory.
-    FROGTAB_PORTS_FILE   If set, specifies where Frogtab Local writes a list of
-                         ports that Frogtab Local is running on.
+                         Frogtab_config.json in ~/snap/frogtab/common.
     NO_COLOR=1           If set, 'frogtab' doesn't display any colored text.
   ```
 
