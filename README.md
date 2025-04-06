@@ -28,7 +28,8 @@ Frogtab Local is a version of [frogtab.com](https://frogtab.com) that you can ru
   - Enable automatic backups in any browser
   - Send tasks to Frogtab via a terminal
 
-To set up Frogtab Local, [download and run the latest release](https://github.com/dwilding/frogtab/releases).
+[Install Frogtab Local from source](local#installing-frogtab-local)
+
 If you use Linux, it's probably easier to [install Frogtab Local from the Snap Store](https://snapcraft.io/frogtab).
 
 ## How your personal link works

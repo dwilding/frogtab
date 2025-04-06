@@ -70,7 +70,7 @@ To send a task to Frogtab:
     ✓ Sent task to Frogtab
     ```
 
-# Changing the port
+## Changing the port
 
 To use a different port, run the following commands:
 
