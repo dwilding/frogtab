@@ -73,7 +73,7 @@ If you use Linux, it's probably easier to [install Frogtab Local from the Snap S
 
 ## Self-hosting Frogtab
 
-You'll need an Apache server that has PHP and [Composer](https://getcomposer.org/) installed.
+You'll need an Apache server with PHP and [Composer](https://getcomposer.org/).
 Apache must have the following modules enabled:
 
   * mod_mime
