@@ -16,17 +16,9 @@ In this README:
 
   - [Using Frogtab offline](#using-frogtab-offline)
   - [How your personal link works](#how-your-personal-link-works)
-  - [Customizing the placeholder text of your personal link](#customizing-the-placeholder-text-of-your-personal-link)
-  - [Sending tasks via JavaScript](#sending-tasks-via-javascript)
   - [Self-hosting Frogtab](#self-hosting-frogtab)
   - [Acknowledgments](#acknowledgments)
   - [License](#license)
-  - [Changelog](#changelog)
-
-From my dev blog:
-
-  - [Running the Frogtab task manager on Ubuntu](https://maybecoding.bearblog.dev/running-the-frogtab-task-manager-on-ubuntu/)
-  - [Making a command-line tool for your Frogtab personal link](https://maybecoding.bearblog.dev/making-a-command-line-tool-for-your-frogtab-personal-link/)
 
 ## Using Frogtab offline
 
@@ -78,46 +70,6 @@ If you use Linux, it's probably easier to [install Frogtab Local from the Snap S
 
     See `verifyUserAndAppendMessages()` in [main.js](app/main.js).
 
-## Customizing the placeholder text of your personal link
-
-By default, the placeholder text of your personal link is "Add a task to your inbox…".
-You can override the default placeholder text to help you identify the device that you're sending tasks to.
-
-To override the default placeholder text, add `/{text}` to the end of your personal link, where `{text}` is your preferred placeholder text.
-Make sure that any special characters in the placeholder text are correctly [percent-encoded](https://developer.mozilla.org/en-US/docs/Glossary/Percent-encoding) in your personal link.
-For example, to use "Send to Linux desktop…" as the placeholder text, add `/Send%20to%20Linux%20desktop%E2%80%A6` to the end of your personal link.
-
-To override the default placeholder text and automatically use the correct encoding, open your personal link in your browser, then run `setPlaceholder("Custom placeholder text")` in the web console.
-
-## Sending tasks via JavaScript
-
-After registering your device, you can use the JavaScript SDK to send tasks to your device:
-
-```javascript
-let encryptAndSend = null;
-
-async function send(task) {
-  try {
-    if (!encryptAndSend) {
-      const frogtab = await import("https://frogtab.com/open/sdk.js");
-      encryptAndSend = await frogtab.connectToInbox("YOUR_ID");
-    }
-    return await encryptAndSend(task);
-  }
-  catch (err) {
-    return false;
-  }
-}
-
-send("Record a demo video").then(success => {
-  console.log(success);
-});
-```
-
-Replace `YOUR_ID` by the ID from your personal link.
-
-For a detailed example, see [Adding a private feedback box to Bear](https://maybecoding.bearblog.dev/adding-a-private-feedback-box-to-bear/).
-
 ## Self-hosting Frogtab
 
 You'll need an Apache server that has PHP and [Composer](https://getcomposer.org/) installed.
@@ -136,7 +88,7 @@ To install Frogtab on your own server:
     ```
     git clone https://github.com/dwilding/frogtab.git
     cd frogtab
-    ./dev_build_server.sh
+    ./build_server.sh
     ```
 
  3. Copy the contents of *frogtab/server/public* to a directory that is accessible via the web.

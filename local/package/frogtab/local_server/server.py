@@ -7,11 +7,13 @@ import logging
 
 import flask
 
-VERSION = "2.0.0b23"
+VERSION = "2.0.0b24"
+
 
 def read_json(json_path: Path) -> dict:
     content = json_path.read_text(encoding="utf-8")
     return json.loads(content)
+
 
 def write_json(data: dict, json_path: Path) -> None:
     content = json.dumps(data, indent=2, ensure_ascii=False)
@@ -34,21 +36,30 @@ app = flask.Flask(__name__, static_url_path="/")
 
 # Deinfe static routes
 
+
 @app.route("/")
 def serve_index():
     return flask.render_template("index.html", server_base=config["registrationServer"])
 
+
 @app.route("/icon-normal")
 def serve_icon_normal():
-    return flask.render_template("icon-normal.html", server_base=config["registrationServer"])
+    return flask.render_template(
+        "icon-normal.html", server_base=config["registrationServer"]
+    )
+
 
 @app.route("/icon-notify")
 def serve_icon_notify():
-    return flask.render_template("icon-notify.html", server_base=config["registrationServer"])
+    return flask.render_template(
+        "icon-notify.html", server_base=config["registrationServer"]
+    )
+
 
 @app.route("/help")
 def serve_help():
     return flask.render_template("help.html", server_base=config["registrationServer"])
+
 
 @app.route("/<string:file>")
 def serve_file(file):
@@ -60,6 +71,7 @@ def serve_file(file):
 
 # Define service routes for the web app
 
+
 @app.route("/service/post-pair", methods=["POST"])
 def post_pair():
     body = flask.request.get_json()
@@ -67,12 +79,9 @@ def post_pair():
         config["internalState"]["pairingKey"] = body["key"]
         write_json(config, config_path)
     elif body["key"] != config["internalState"]["pairingKey"]:
-        return {
-            "success": False
-        }
-    return {
-        "success": True
-    }
+        return {"success": False}
+    return {"success": True}
+
 
 @app.route("/service/post-data", methods=["POST"])
 def post_data():
@@ -81,13 +90,10 @@ def post_data():
         config["internalState"]["pairingKey"] = body["key"]
         write_json(config, config_path)
     elif body["key"] != config["internalState"]["pairingKey"]:
-        return {
-            "success": False
-        }
+        return {"success": False}
     write_json(body["data"], Path(config["backupFile"]))
-    return {
-        "success": True
-    }
+    return {"success": True}
+
 
 @app.route("/service/post-remove-messages", methods=["POST"])
 def remove_messages():
@@ -96,23 +102,20 @@ def remove_messages():
         config["internalState"]["pairingKey"] = body["key"]
         write_json(config, config_path)
     elif body["key"] != config["internalState"]["pairingKey"]:
-        return {
-            "success": False
-        }
+        return {"success": False}
     messages = config["internalState"]["messages"]
     config["internalState"]["messages"] = []
     write_json(config, config_path)
-    return {
-        "success": True,
-        "messages": messages
-    }
+    return {"success": True, "messages": messages}
 
 
 # Define service routes for clients
 
+
 @app.route("/service/get-version")
 def get_version():
     return VERSION
+
 
 @app.route("/service/post-add-message", methods=["POST"])
 def add_message():
@@ -120,6 +123,7 @@ def add_message():
     config["internalState"]["messages"].append(body["message"])
     write_json(config, config_path)
     return flask.make_response("", 204)
+
 
 @app.route("/service/post-stop", methods=["POST"])
 def post_stop():
@@ -129,6 +133,7 @@ def post_stop():
 
 # Add a custom response header to identify Frogtab Local
 
+
 @app.after_request
 def add_custom_header(response):
     response.headers["X-Frogtab-Local"] = VERSION
@@ -137,15 +142,14 @@ def add_custom_header(response):
 
 # Define the entrypoint
 
+
 def main():
     host = "localhost"
     if config["expose"]:
         host = "0.0.0.0"
     logging.getLogger("werkzeug").disabled = True
-    app.run(
-        host=host,
-        port=config["port"]
-    )
+    app.run(host=host, port=config["port"])
+
 
 if __name__ == "__main__":
     main()

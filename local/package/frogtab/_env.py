@@ -5,10 +5,8 @@ import os
 import shutil
 import subprocess
 
-from ._exceptions import (
-    ReadError,
-    WriteError
-)
+from ._exceptions import ReadError, WriteError
+
 
 def config_path() -> Path:
     if os.getenv("FROGTAB_CONFIG_FILE"):
@@ -22,6 +20,7 @@ def config_path() -> Path:
         try_migrate_legacy_config(config_path)
     return config_path
 
+
 def try_migrate_legacy_config(target_config_path: Path) -> None:
     if not Path("config.py").is_file() or Path("migrated").exists():
         return
@@ -33,11 +32,12 @@ def try_migrate_legacy_config(target_config_path: Path) -> None:
     subprocess.run(
         [sys.executable, Path("migrated") / "migrate_config.py", config_path],
         capture_output=True,
-        check=True
+        check=True,
     )
     # Copy the JSON file to the correct location
     if config_path.is_file():
         shutil.copy(config_path, target_config_path)
+
 
 def tick() -> str:
     display_tick = "✓"
@@ -46,12 +46,14 @@ def tick() -> str:
     else:
         return display_tick
 
+
 def url(port: int) -> str:
     display_url = f"http://localhost:{port}"
     if use_color():
         return f"\033[96m{display_url}\033[0m"  # Make it bright cyan
     else:
         return display_url
+
 
 def error() -> str:
     display_error = "Error:"
@@ -60,14 +62,17 @@ def error() -> str:
     else:
         return display_error
 
+
 def use_color() -> bool:
     return os.isatty(sys.stdout.fileno()) and not os.getenv("NO_COLOR")
+
 
 def end() -> str:
     if os.isatty(sys.stdout.fileno()):
         return "\n"
     else:
         return ""
+
 
 def task_or_exit() -> str:
     task = ""
@@ -86,6 +91,7 @@ def task_or_exit() -> str:
         sys.exit(2)
     return task
 
+
 def check_ports_file() -> None:
     if not os.getenv("FROGTAB_PORTS_FILE"):
         return
@@ -95,6 +101,7 @@ def check_ports_file() -> None:
         sys.exit(1)
     ports = read_ports(ports_path)
     ports_path.write_text("\n".join(ports))
+
 
 def log_running(port: int) -> None:
     if not os.getenv("FROGTAB_PORTS_FILE"):
@@ -106,6 +113,7 @@ def log_running(port: int) -> None:
         ports_path.write_text("\n".join(ports))
     except PermissionError:
         raise WriteError(ports_path)
+
 
 def log_not_running(port: int) -> None:
     if not os.getenv("FROGTAB_PORTS_FILE"):
@@ -119,6 +127,7 @@ def log_not_running(port: int) -> None:
     except PermissionError:
         raise WriteError(ports_path)
 
+
 def read_ports(ports_path: Path) -> Set[str]:
     if not ports_path.is_file():
         try:
@@ -131,9 +140,10 @@ def read_ports(ports_path: Path) -> Set[str]:
         raise ReadError(ports_path)
     return set(content.splitlines())
 
+
 def snap_working_dir() -> str:
     working_dir = str(Path.cwd())
     real_home = os.getenv("SNAP_REAL_HOME")
     if real_home and working_dir.startswith(real_home):
-        working_dir = "~" + working_dir[len(real_home):]
+        working_dir = "~" + working_dir[len(real_home) :]
     return working_dir

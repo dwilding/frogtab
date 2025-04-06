@@ -9,7 +9,6 @@ Frogtab Local is a version of the [Frogtab](https://frogtab.com) task manager th
 
 For details, see the [Frogtab Local docs](https://github.com/dwilding/frogtab/blob/dev/local/README.md#frogtab-local).
 
-
 ## License
 
 Frogtab Local is licensed under the MIT License.

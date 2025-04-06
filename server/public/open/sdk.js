@@ -1,7 +1,46 @@
 import * as openpgp from "https://unpkg.com/openpgp@5.x/dist/openpgp.min.mjs";
 
 
-// v2 interface
+/* v2 interface
+
+To send a task:
+
+```javascript
+let encryptAndSend = null;
+
+async function send(task) {
+  try {
+    if (!encryptAndSend) {
+      const frogtab = await import("https://frogtab.com/open/sdk.js");
+      encryptAndSend = await frogtab.connectToInbox("YOUR_ID");
+    }
+    return await encryptAndSend(task);
+  }
+  catch (err) {
+    return false;
+  }
+}
+
+send("Record a demo video").then(success => {
+  console.log(success);
+});
+```
+
+To get the ID of your public key:
+
+```javascript
+async function getKeyID(userID) {
+  const frogtab = await import("https://frogtab.com/open/sdk.js");
+  userDetails = await frogtab.getUserDetails(userID);
+  return userDetails.pgpPublicKeyID;
+}
+
+getKeyID("YOUR_ID").then(keyID => {
+  console.log(keyID);
+});
+```
+
+*/
 
 const apiBase = import.meta.url.replace(/sdk\.js.*$/, "");
 

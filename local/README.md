@@ -10,7 +10,6 @@ With Frogab Local, you can:
 Frogtab Local supports personal links, but your device will be registered with frogtab.com.
 If you self-host Frogtab, you can configure Frogtab Local to use your own server instead.
 
-
 ## Installing Frogtab Local
 
 These instructions explain how to install Frogtab Local as a Python package in a virtual environment.
@@ -26,7 +25,6 @@ python3 -m venv .venv
 . .venv/bin/activate
 pip install frogtab
 ```
-
 
 ## Starting Frogtab Local
 
@@ -53,7 +51,6 @@ frogtab set port 5001  # For example
 frogtab start
 ```
 
-
 ## Sending tasks to Frogtab
 
 To send a task to Frogtab:
@@ -73,7 +70,6 @@ To send a task to Frogtab:
     ✓ Sent task to Frogtab
     ```
 
-
 # Changing the port
 
 To use a different port, run the following commands:
@@ -87,7 +83,6 @@ frogtab start
 TODO: If you opened Frogtab in your browser before changing the port,
 you'll need to import a backup file to pair with Frogtab Local
 (https://github.com/dwilding/frogtab/issues/9).
-
 
 ## Command reference
 
@@ -130,7 +125,6 @@ Environment variables:
                        ports that Frogtab Local is running on.
   NO_COLOR=1           If set, 'frogtab' doesn't display any colored text.
 ```
-
 
 ## Python reference
 

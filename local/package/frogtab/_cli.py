@@ -8,10 +8,11 @@ from ._exceptions import (
     WrongVersionError,
     WrongAppError,
     RunningError,
-    NotRunningError
+    NotRunningError,
 )
 from . import _client
 from . import _env
+
 
 def main():
     args = sys.argv[1:]
@@ -32,6 +33,7 @@ def main():
     except (WrongVersionError, WrongAppError) as e:
         print(f"{_env.error()} {e}")
         sys.exit(1)
+
 
 def run_command(args):
     if not args:
@@ -92,6 +94,7 @@ def run_command(args):
     print("For a summary of how to use 'frogtab', run 'frogtab help'")
     sys.exit(2)
 
+
 def send():
     config_path = _env.config_path()
     _env.check_ports_file()
@@ -115,6 +118,7 @@ def send():
         print(f"{_env.tick()} Sent task to Frogtab")
     _env.log_running(port)
 
+
 def start():
     config_path = _env.config_path()
     _env.check_ports_file()
@@ -130,6 +134,7 @@ def start():
         print(f"Frogtab Local is running on port {port}")
     _env.log_running(port)
 
+
 def stop():
     config_path = _env.config_path()
     _env.check_ports_file()
@@ -139,6 +144,7 @@ def stop():
     else:
         print(f"Frogtab Local is not running on port {port}")
     _env.log_not_running(port)
+
 
 def status():
     config_path = _env.config_path()
@@ -150,6 +156,7 @@ def status():
         sys.exit(1)
     print(f"Frogtab Local is running on port {port}")
     _env.log_running(port)
+
 
 def set_port(new_port: int) -> None:
     config_path = _env.config_path()
@@ -165,14 +172,15 @@ def set_port(new_port: int) -> None:
         sys.exit(1)
     print(f"{_env.tick()} Changed port from {port} to {new_port}")
 
+
 def set_expose(new_expose: bool) -> None:
     config_path = _env.config_path()
     expose = _client.get_expose(config_path)
     if expose == new_expose:
         if expose:
-            print(f"Frogtab Local is already set to expose")
+            print("Frogtab Local is already set to expose")
         else:
-            print(f"Frogtab Local is already set to not expose")
+            print("Frogtab Local is already set to not expose")
         return
     try:
         _client.set_expose(config_path, new_expose)
@@ -180,7 +188,10 @@ def set_expose(new_expose: bool) -> None:
         print(f"{_env.error()} {e}")
         print("Stop Frogtab Local before changing the exposure setting")
         sys.exit(1)
-    print(f"{_env.tick()} Changed exposure setting from '{_yesno(expose)}' to '{_yesno(new_expose)}'")
+    print(
+        f"{_env.tick()} Changed exposure setting from '{_yesno(expose)}' to '{_yesno(new_expose)}'"
+    )
+
 
 def set_backup_file(new_backup_file: str) -> None:
     config_path = _env.config_path()
@@ -194,13 +205,18 @@ def set_backup_file(new_backup_file: str) -> None:
         print(f"{_env.error()} {e}")
         print("Stop Frogtab Local before changing the backup file")
         sys.exit(1)
-    print(f"{_env.tick()} Changed backup file from '{backup_file}' to '{new_backup_file}'")
+    print(
+        f"{_env.tick()} Changed backup file from '{backup_file}' to '{new_backup_file}'"
+    )
+
 
 def set_registration_server(new_registration_server: str) -> None:
     config_path = _env.config_path()
     registration_server = _client.get_registration_server(config_path)
     if registration_server == new_registration_server:
-        print(f"Frogtab Local is already set to use registration server '{registration_server}'")
+        print(
+            f"Frogtab Local is already set to use registration server '{registration_server}'"
+        )
         return
     try:
         _client.set_registration_server(config_path, new_registration_server)
@@ -208,19 +224,17 @@ def set_registration_server(new_registration_server: str) -> None:
         print(f"{_env.error()} {e}")
         print("Stop Frogtab Local before changing the registration server")
         sys.exit(1)
-    print(f"{_env.tick()} Changed registration server from '{registration_server}' to '{new_registration_server}'")
+    print(
+        f"{_env.tick()} Changed registration server from '{registration_server}' to '{new_registration_server}'"
+    )
+
 
 def _yesno(value: bool) -> str:
-    return {
-        True: "yes",
-        False: "no"
-    }[value]
+    return {True: "yes", False: "no"}[value]
+
 
 def _bool(value: str) -> str:
-    return {
-        "yes": True,
-        "no": False
-    }[value]
+    return {"yes": True, "no": False}[value]
 
 
 def print_help(snap: bool = False):

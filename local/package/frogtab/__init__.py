@@ -5,7 +5,7 @@ from ._exceptions import (
     WrongVersionError,
     WrongAppError,
     RunningError,
-    NotRunningError
+    NotRunningError,
 )
 from ._client import (
     get_port,
@@ -20,5 +20,28 @@ from ._client import (
     get_running_version,
     is_running,
     stop,
-    send
+    send,
 )
+
+__all__ = [
+    __version__,
+    ReadError,
+    WriteError,
+    WrongVersionError,
+    WrongAppError,
+    RunningError,
+    NotRunningError,
+    get_port,
+    get_expose,
+    get_backup_file,
+    get_registration_server,
+    set_port,
+    set_expose,
+    set_backup_file,
+    set_registration_server,
+    start,
+    get_running_version,
+    is_running,
+    stop,
+    send,
+]
