@@ -9,7 +9,7 @@
     <link rel="icon" href="favicons/icon-32.png" sizes="32x32" type="image/png">
     <link rel="apple-touch-icon" sizes="180x180" href="favicons/icon-180-apple.png">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?sha1=b3f3f8236df9321ee6441e2ff5870af57e0a19c9">
+    <link rel="stylesheet" href="style.css?sha1=939eb0483a24497af6909acf4e9c9686d8a54eb5">
   </head>
   <body>
     <div class="container restricted">
@@ -37,6 +37,26 @@
       </div>
     </div>
     <script>
+      // ******** Shared helpers ********
+
+      function matchKeyboardEvent(event, modifierSpec, key) {
+        if (!("key" in event)) {
+          return false;
+        }
+        let testCmdCtrl = (platformApple && event.metaKey) || (!platformApple && event.ctrlKey);
+        if (!modifierSpec.includes("c")) {
+          testCmdCtrl = !testCmdCtrl;
+        }
+        let testShift = event.shiftKey;
+        if (!modifierSpec.includes("s")) {
+          testShift = !testShift;
+        }
+        return testCmdCtrl && testShift & event.key.toLowerCase() == key && !event.altKey;
+      }
+
+
+      // ******** Other helpers ********
+
       function switchToTab(tab) {
         if (tab != selectedTab) {
           dom[tab].classList.add("selected");
@@ -50,6 +70,7 @@
         }
         refreshView();
       }
+
       function refreshView() {
         if (dom.editor[selectedTab].value != localStorage.getItem(`routine.${selectedTab}`)) {
           dom.editor[selectedTab].value = localStorage.getItem(`routine.${selectedTab}`);
@@ -57,8 +78,9 @@
           dom.editor[selectedTab].setSelectionRange(0, 0);
         }
       }
+
       function startApp() {
-        const weekdayToday = (new Date()).getDay();
+        const weekdayToday = (new Date()).getDay(); // no need for FrogtabDate here
         switchToTab(weekdayKeys[weekdayToday]);
         for (const key of weekdayKeys) {
           dom.editor[key].addEventListener("input", () => {
@@ -68,23 +90,27 @@
             switchToTab(key);
           });
           dom[key].addEventListener("keydown", event => {
-            if (
-              (!event.ctrlKey && !event.metaKey && !event.shiftKey && event.key.toLowerCase() == "enter")
-              || event.key == " "
-            ) {
+            if (matchKeyboardEvent(event, "", "enter") || matchKeyboardEvent(event, "", " ")) {
               event.preventDefault();
               dom[key].click();
               dom.editor[key].focus();
             }
           });
         }
+        document.body.addEventListener("keydown", event => {
+          if (matchKeyboardEvent(event, "c", "a")) {
+            dom.editor[selectedTab].focus();
+          }
+        });
         window.addEventListener("storage", () => {
           document.documentElement.setAttribute("data-theme", localStorage.getItem("ui.theme"));
           refreshView();
         });
       }
 
+
       // ******** Initial setup ********
+
       if (localStorage.getItem("ui.theme") === null) {
         localStorage.setItem("ui.theme", "system");
       }
@@ -101,6 +127,11 @@
         dom[key] = document.getElementById(`tab-${key}`);
       }
       let selectedTab = "mon";
+      const platformApple = (
+        navigator.platform.startsWith("Mac")
+        || navigator.platform == "iPad"
+        || navigator.platform == "iPhone"
+      );
       startApp();
     </script>
   </body>

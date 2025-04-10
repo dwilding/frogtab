@@ -1,0 +1,42 @@
+[project]
+name = "frogtab"
+version = "2.0.0"
+description = "Frogtab Local"
+readme = "README.md"
+license = {text="MIT"}
+authors = [
+    {name="Dave Wilding", email="tech@dpw.me"},
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "Flask>=2.2.5",
+    "requests>=2.31.0",
+]
+
+[project.urls]
+Documentation = "https://github.com/dwilding/frogtab/blob/main/local/README.md#frogtab-local"
+Source = "https://github.com/dwilding/frogtab/tree/main/local"
+Tracker = "https://github.com/dwilding/frogtab/issues"
+Changelog = "https://github.com/dwilding/frogtab/releases"
+
+[project.scripts]
+frogtab = "frogtab._cli:main"
+serve-frogtab = "frogtab.local_server.server:main"
+
+[build-system]
+requires = [
+    "setuptools",
+]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.package-data]
+frogtab = [
+    "local_server/**",
+]

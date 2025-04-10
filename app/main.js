@@ -1,3 +1,107 @@
+// ******** Shared helpers ********
+
+class FrogtabDate {
+  constructor(date = null) {
+    if (date === null) {
+      date = FrogtabDate.stringFromObject(new Date()); // today as YYYY-MM-DD
+    }
+    else if (date instanceof Date) {
+      date = FrogtabDate.stringFromObject(date); // date as YYYY-MM-DD
+    }
+    if (typeof date == "string") {
+      const match = date.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (match === null) {
+        this.object = new Date(date); // 00:00:00 in local timezone
+        this.string = FrogtabDate.stringFromObject(this.object);
+        return;
+      }
+      this.object = new Date(   // 00:00:00 in local timezone
+        parseInt(match[1]),     // year
+        parseInt(match[2]) - 1, // month index
+        parseInt(match[3])      // day
+      );
+      this.string = date;
+      return;
+    }
+    throw new TypeError("date type not supported");
+  }
+  addDays(n) {
+    this.object.setTime(this.object.getTime() + (n * 86400000));
+    this.string = FrogtabDate.stringFromObject(this.object);
+  }
+  getWeekdayIndex() {
+    return this.object.getDay();
+  }
+  getFormatted(format) {
+    return this.object.toLocaleDateString(undefined, format);
+  }
+  static stringFromObject(obj) {
+    const stringYYYY = obj.toLocaleDateString(undefined, {
+      year: "numeric"
+    });
+    const stringMM = obj.toLocaleDateString(undefined, {
+      month: "2-digit"
+    });
+    const stringDD = obj.toLocaleDateString(undefined, {
+      day: "2-digit"
+    });
+    return [stringYYYY, stringMM, stringDD].join("-");
+  }
+}
+
+function prepareLocalStorageDates() {
+  if (localStorage.getItem("date") === null) {
+    localStorage.setItem("date", (new FrogtabDate()).string);
+    return;
+  }
+  const date = new FrogtabDate(localStorage.getItem("date"));
+  if (localStorage.getItem("date") == date.string) {
+    return;
+  }
+  console.info("Migrating localStorage to yyyy-mm-dd dates…");
+  localStorage.setItem("date", date.string);
+  if (localStorage.getItem("achievements") === null) {
+    return;
+  }
+  const achievements = JSON.parse(localStorage.getItem("achievements"));
+  for (const day of achievements) {
+    day.date = (new FrogtabDate(day.date)).string;
+  }
+  localStorage.setItem("achievements", JSON.stringify(achievements));
+}
+
+function matchKeyboardEvent(event, modifierSpec, key) {
+  if (!("key" in event)) {
+    return false;
+  }
+  let testCmdCtrl = (platformApple && event.metaKey) || (!platformApple && event.ctrlKey);
+  if (!modifierSpec.includes("c")) {
+    testCmdCtrl = !testCmdCtrl;
+  }
+  let testShift = event.shiftKey;
+  if (!modifierSpec.includes("s")) {
+    testShift = !testShift;
+  }
+  return testCmdCtrl && testShift & event.key.toLowerCase() == key && !event.altKey;
+}
+
+function generateRandomHex(length) {
+  chars = "0123456789abcdef";
+  let randomHex = "";
+  for (let i = 0; i < length; i++) {
+    charRandom = chars.charAt(Math.floor(Math.random() * chars.length));
+    randomHex = `${randomHex}${charRandom}`;
+  }
+  return randomHex;
+}
+
+function attr(name) {
+  return document.documentElement.getAttribute(`data-${name}`);
+}
+
+
+// ******** Other helpers ********
+
 async function storeIcons() {
   const fetched = await Promise.all([
     fetch("favicons/icon-16.png"),
@@ -14,6 +118,7 @@ async function storeIcons() {
   storedIcons.icon16Notify = await getObjectURL(2);
   storedIcons.icon32Notify = await getObjectURL(3);
 }
+
 function switchToTab(tab) {
   if (tab != selectedTab) {
     dom[tab].classList.add("selected");
@@ -27,15 +132,25 @@ function switchToTab(tab) {
   }
   refreshView();
 }
+
+function preferInbox() {
+  setNotifyStatus();
+  if (notifyInbox) {
+    switchToTab("inbox");
+  }
+  refreshInfo();
+}
+
 function checkValue(value) {
   return value.match(/^\s*[^\s#]/m) !== null;
 }
+
 function setNotifyStatus() {
   const storedInboxValue = localStorage.getItem("value.inbox");
   if (checkValue(storedInboxValue) && !notifyInbox) {
     notifyInbox = true;
     dom.inbox.classList.add("notify");
-    if (requestedIcon === null) {
+    if (attr("icon") === null) {
       dom.icon16.href = storedIcons.icon16Notify;
       dom.icon32.href = storedIcons.icon32Notify;
     }
@@ -43,12 +158,13 @@ function setNotifyStatus() {
   else if (!checkValue(storedInboxValue) && notifyInbox) {
     notifyInbox = false;
     dom.inbox.classList.remove("notify");
-    if (requestedIcon === null) {
+    if (attr("icon") === null) {
       dom.icon16.href = storedIcons.icon16;
       dom.icon32.href = storedIcons.icon32;
     }
   }
 }
+
 function refreshView() {
   if (dom.editor[selectedTab].value != localStorage.getItem(`value.${selectedTab}`)) {
     dom.editor[selectedTab].value = localStorage.getItem(`value.${selectedTab}`);
@@ -57,6 +173,7 @@ function refreshView() {
     refreshInfo();
   }
 }
+
 function refreshInfo() {
   dom.info.classList.remove("display");
   window.clearTimeout(timeoutShowInfo);
@@ -66,6 +183,7 @@ function refreshInfo() {
     }, 30000);
   }
 }
+
 function addSpaceForCompletionOffset(editor) {
   const cursorPos = editor.selectionEnd;
   const lineStart = editor.value.lastIndexOf("\n", editor.selectionEnd - 1) + 1;
@@ -82,6 +200,7 @@ function addSpaceForCompletionOffset(editor) {
   editor.value = `${beforeLine}${textToCursor.toLowerCase()} ${afterCursor}`;
   editor.setSelectionRange(cursorPos, cursorPos);
 }
+
 function extractCompletionOffset(editor) {
   if (editor.selectionStart != editor.selectionEnd) {
     return null;
@@ -109,6 +228,7 @@ function extractCompletionOffset(editor) {
   }
   return match[3];
 }
+
 function completeSelected(editor, storageKey, offset) {
   const selectionStart = editor.selectionStart;
   const selectionEnd = editor.selectionEnd;
@@ -161,6 +281,53 @@ function completeSelected(editor, storageKey, offset) {
     updateCompleted(linesCaptured, offset);
   }
 }
+
+function selectTaskIfNoSelection(editor) {
+  const selectionPos = editor.selectionStart;
+  if (selectionPos != editor.selectionEnd) {
+    return;
+  }
+  let newSelectionStart, newSelectionEnd;
+  const lines = editor.value.split("\n");
+  let taskCaptured = null;
+  let capturing = false;
+  let lineStart = 0;
+  let lineEnd;
+  for (const line of lines) {
+    lineEnd = lineStart + line.length;
+    const trimmedLine = line.trimStart();
+    if (lineEnd >= selectionPos) {
+      if (lineStart > selectionPos) {
+        if (capturing && trimmedLine != "") {
+          newSelectionEnd = lineStart;
+          capturing = false;
+        }
+      }
+      else if (!capturing && trimmedLine != "") {
+        newSelectionStart = lineStart;
+        taskCaptured = trimmedLine;
+        capturing = true;
+      }
+    }
+    lineStart = lineEnd + 1;
+  }
+  if (taskCaptured !== null) {
+    if (capturing) {
+      newSelectionStart = editor.value.substring(0, newSelectionStart).trimEnd().length;
+      newSelectionEnd = editor.value.length;
+    }
+    editor.setSelectionRange(newSelectionStart, newSelectionEnd);
+    const tryTotrimClipboard = () => {
+      editor.removeEventListener("keyup", tryTotrimClipboard);
+      try {
+        navigator.clipboard.writeText(taskCaptured.trimEnd());
+      }
+      catch {}
+    };
+    editor.addEventListener("keyup", tryTotrimClipboard);
+  }
+}
+
 function inboxMoveSelected() {
   const selectionStart = dom.editor.inbox.selectionStart;
   const selectionEnd = dom.editor.inbox.selectionEnd;
@@ -223,6 +390,7 @@ function inboxMoveSelected() {
     storeThenSave("value.today", storedTodayValue);
   }
 }
+
 function todaySnoozeSelected() {
   const selectionStart = dom.editor.today.selectionStart;
   const selectionEnd = dom.editor.today.selectionEnd;
@@ -285,6 +453,7 @@ function todaySnoozeSelected() {
     storeThenSave("value.inbox", storedInboxValue);
   }
 }
+
 function inboxSnoozeSelected() {
   const selectionStart = dom.editor.inbox.selectionStart;
   const selectionEnd = dom.editor.inbox.selectionEnd;
@@ -359,6 +528,7 @@ function inboxSnoozeSelected() {
     dom.editor.inbox.setSelectionRange(newSelectionPos, newSelectionPos);
   }
 }
+
 function selectUnsnoozed() {
   const lines = dom.editor.inbox.value.split("\n");
   const linesUnsnoozed = [];
@@ -391,6 +561,7 @@ function selectUnsnoozed() {
   dom.editor.inbox.scrollTop = 0;
   dom.editor.inbox.focus();
 }
+
 function appendToBottom(original, value) {
   const valueToAppend = value.trim();
   if (valueToAppend == "") {
@@ -402,6 +573,7 @@ function appendToBottom(original, value) {
   }
   return `${updated}${valueToAppend}`;
 }
+
 function appendToTop(original, value) {
   const valueToAppend = value.trim();
   if (valueToAppend == "") {
@@ -413,6 +585,7 @@ function appendToTop(original, value) {
   }
   return `${valueToAppend}${updated}`;
 }
+
 function appendToTopAndRemoveDupes(original, value) {
   let updated = original;
   const lines = value.split("\n");
@@ -424,6 +597,7 @@ function appendToTopAndRemoveDupes(original, value) {
   }
   return appendToTop(updated, value);
 }
+
 function removeDupesOfLine(original, trimmedLineTest) {
   const lines = original.split("\n");
   const linesUpdated = [];
@@ -444,42 +618,44 @@ function removeDupesOfLine(original, trimmedLineTest) {
   }
   return updated;
 }
+
 function unsnoozeEverything(original) {
   return original.replaceAll(/^( *#)+ */gm, "");
 }
+
 function updateCompleted(lines, offset) {
   let offsetDays = 0;
   if (offset.startsWith("-")) {
     offsetDays = parseInt(offset);
   } else if (offset != "") {
-    const weekdayToday = (new Date()).getDay();
+    const weekdayToday = (new FrogtabDate()).getWeekdayIndex();
     const weekdayKeysRotated = weekdayKeys.slice(weekdayToday + 1).concat(weekdayKeys.slice(0, weekdayToday + 1));
     offsetDays = weekdayKeysRotated.indexOf(offset) - 6;
   }
-  const dateCompletedObj = new Date();
-  dateCompletedObj.setTime(dateCompletedObj.getTime() + (offsetDays * 86400000));
-  const dateCompleted = dateCompletedObj.toDateString();
+  const dateCompleted = new FrogtabDate();
+  dateCompleted.addDays(offsetDays);
   const achievements = JSON.parse(localStorage.getItem("achievements"));
   let testIndex;
   for (testIndex = 0; testIndex < achievements.length; testIndex++) {
-    if (achievements[testIndex].date == dateCompleted) {
+    if (achievements[testIndex].date == dateCompleted.string) {
       achievements[testIndex].tasks.unshift(...lines);
       storeThenSave("achievements", JSON.stringify(achievements));
       return;
     }
-    const testTime = (new Date(achievements[testIndex].date)).getTime();
-    if (testTime < dateCompletedObj.getTime()) {
+    const testTime = (new FrogtabDate(achievements[testIndex].date)).object.getTime();
+    if (testTime < dateCompleted.object.getTime()) {
       break;
     }
   }
   achievements.splice(testIndex, 0, {
-    date: dateCompleted,
+    date: dateCompleted.string,
     tasks: lines
   });
   storeThenSave("achievements", JSON.stringify(achievements));
 }
+
 function updateValues() {
-  const weekdayToday = (new Date()).getDay();
+  const weekdayToday = (new FrogtabDate()).getWeekdayIndex();
   const key = weekdayKeys[weekdayToday];
   const routine = localStorage.getItem(`routine.${key}`);
   const storedTodayValue = unsnoozeEverything(localStorage.getItem("value.today"));
@@ -489,14 +665,16 @@ function updateValues() {
   storeThenSave("value.today", "");
   storeThenSave("value.inbox", storedInboxValue);
 }
+
 function isNewDay() {
-  const dateToday = (new Date()).toDateString();
+  const dateToday = (new FrogtabDate()).string;
   if (localStorage.getItem("date") == dateToday) {
     return false;
   }
   storeThenSave("date", dateToday);
   return true;
 }
+
 async function verifyUserAndAppendMessages() {
   if (openpgp === undefined) {
     openpgp = await import("./openpgp.min.mjs?sha1=280298d02f97111053fdb1215ac5011e0c7bd4fb");
@@ -504,7 +682,7 @@ async function verifyUserAndAppendMessages() {
   lastAppend = Date.now();
   let response;
   try {
-    response = await fetch(`${serverBase}open/post-remove-messages`, {
+    response = await fetch(`${attr("server-base")}open/post-remove-messages`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -545,35 +723,7 @@ async function verifyUserAndAppendMessages() {
   }
   dom.fetchConnected.classList.add("display");
 }
-async function appendLocalMessages() {
-  let response;
-  try {
-    response = await fetch("service/post-remove-messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        instance_id: instanceID
-      })
-    });
-  }
-  catch (err) {
-    return;
-  }
-  if (!response.ok) {
-    return;
-  }
-  const result = await response.json();
-  if (!result.success || result.messages.length == 0) {
-    return;
-  }
-  let storedInboxValue = localStorage.getItem("value.inbox");
-  for (const message of result.messages) {
-    storedInboxValue = appendToTop(storedInboxValue, message);
-  }
-  storeThenSave("value.inbox", storedInboxValue);
-}
+
 function setSnap() {
   if (localStorage.getItem("ui.snap") == "bottom") {
     dom.container.classList.add("docked");
@@ -589,6 +739,7 @@ function setSnap() {
     toggleSnap();
   });
 }
+
 function toggleSnap() {
   if (localStorage.getItem("ui.snap") == "center") {
     dom.container.classList.add("docked");
@@ -603,15 +754,7 @@ function toggleSnap() {
     localStorage.setItem("ui.snap", "center");
   }
 }
-function setConfigureSave() {
-  if (localStorage.getItem("saveMethod") === null) {
-    dom.configureSave.classList.add("display");
-    dom.popupSavePaused.classList.remove("display");
-  }
-  else {
-    dom.configureSave.classList.remove("display");
-  }
-}
+
 function setExportAndSave() {
   dom.exportData.addEventListener("click", () => {
     const dataJSON = createDataJSON();
@@ -620,11 +763,7 @@ function setExportAndSave() {
     });
     dom.exportData.href = URL.createObjectURL(dataBlob);
   });
-  if (usingLocalService) {
-    setConfigureSave();
-    return;
-  }
-  if ("showSaveFilePicker" in window) {
+  if (attr("save") == "browser" && "showSaveFilePicker" in window) {
     dom.enableSave.classList.add("display");
     dom.enableSave.addEventListener("click", async event => {
       event.preventDefault();
@@ -649,6 +788,7 @@ function setExportAndSave() {
     });
   }
 }
+
 function createData() {
   let appBase = window.location.href;
   if (!appBase.endsWith("/")) {
@@ -677,71 +817,17 @@ function createData() {
   }
   return data;
 }
+
 function createDataJSON() {
   const dataJSON = JSON.stringify(createData(), null, 2);
   return (new TextEncoder()).encode(dataJSON);
 }
+
 function storeThenSave(key, value) {
   localStorage.setItem(key, value);
   requestSave();
 }
-function requestSave() {
-  if (usingLocalService && localStorage.getItem("saveMethod") !== null) {
-    window.clearTimeout(timeoutSave.id);
-    timeoutSave.id = window.setTimeout(saveToService, 1500);
-    timeoutSave.waiting = true;
-  }
-  if (!usingLocalService && fileHandle !== null) {
-    window.clearTimeout(timeoutSave.id);
-    timeoutSave.id = window.setTimeout(saveToFile, 1500);
-    timeoutSave.waiting = true;
-  }
-}
-async function saveToService() {
-  if (localStorage.getItem("saveMethod" === null)) {
-    timeoutSave.waiting = false;
-    return;
-  }
-  const data = createData();
-  const onServiceFailure = () => {
-    localStorage.removeItem("saveMethod");
-    dom.configureSave.classList.add("display");
-    timeoutSave.waiting = false;
-  };
-  let response;
-  try {
-    response = await fetch("service/post-data", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        key: localStorage.getItem("saveMethod"),
-        data: data
-      })
-    });
-  }
-  catch (err) {
-    if (showWelcome) {
-      dom.welcome.classList.remove("display");
-      showWelcome = false;
-    }
-    dom.popupSavePaused.classList.add("display");
-    timeoutSave.waiting = false;
-    return;
-  }
-  dom.popupSavePaused.classList.remove("display");
-  if (!response.ok) {
-    onServiceFailure();
-    return;
-  }
-  const result = await response.json();
-  if (!result.success) {
-    onServiceFailure();
-    return;
-  }
-  timeoutSave.waiting = false;
-}
+
 async function saveToFile() {
   if (fileHandle === null) {
     timeoutSave.waiting = false;
@@ -759,14 +845,162 @@ async function saveToFile() {
   }
   timeoutSave.waiting = false;
 }
+
+function requestSave() {
+  if (attr("save") == "service") {
+    window.clearTimeout(timeoutSave.id);
+    timeoutSave.id = window.setTimeout(saveToService, 1500);
+    timeoutSave.waiting = true;
+  }
+  if (attr("save") == "browser" && fileHandle !== null) {
+    window.clearTimeout(timeoutSave.id);
+    timeoutSave.id = window.setTimeout(saveToFile, 1500);
+    timeoutSave.waiting = true;
+  }
+}
+
+async function tryLocalPair() {
+  if (localStorage.getItem("localKey") === null) {
+    localStorage.setItem("localKey", generateRandomHex(20))
+  }
+  let response;
+  try {
+    response = await fetch("service/post-pair", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        key: localStorage.getItem("localKey"),
+        force: forceLocalPair
+      })
+    });
+  }
+  catch (err) {
+    reportServiceDown();
+    return;
+  }
+  if (!response.ok) {
+    reportServiceDown();
+    return;
+  }
+  reportServiceUp();
+  const result = await response.json();
+  if (!result.success) {
+    reportServiceFailure();
+  }
+}
+
+async function saveToService() {
+  if (attr("save") == "none") {
+    timeoutSave.waiting = false;
+    return;
+  }
+  const data = createData();
+  let response;
+  try {
+    response = await fetch("service/post-data", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        key: localStorage.getItem("localKey"),
+        data: data
+      })
+    });
+  }
+  catch (err) {
+    reportServiceDown();
+    timeoutSave.waiting = false;
+    return;
+  }
+  if (!response.ok) {
+    reportServiceDown();
+    timeoutSave.waiting = false;
+    return;
+  }
+  reportServiceUp();
+  const result = await response.json();
+  if (!result.success) {
+    reportServiceFailure();
+  }
+  timeoutSave.waiting = false;
+}
+
+async function appendLocalMessages() {
+  let response;
+  try {
+    response = await fetch("service/post-remove-messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        key: localStorage.getItem("localKey")
+      })
+    });
+  }
+  catch (err) {
+    reportServiceDown();
+    return;
+  }
+  if (!response.ok) {
+    reportServiceDown();
+    return;
+  }
+  reportServiceUp();
+  const result = await response.json();
+  if (!result.success) {
+    reportServiceFailure();
+    return;
+  }
+  if (result.messages.length == 0) {
+    return;
+  }
+  let storedInboxValue = localStorage.getItem("value.inbox");
+  for (const message of result.messages) {
+    storedInboxValue = appendToTop(storedInboxValue, message);
+  }
+  storeThenSave("value.inbox", storedInboxValue);
+}
+
+function reportServiceDown() {
+  if (showWelcome) {
+    dom.welcome.classList.remove("display");
+    showWelcome = false;
+  }
+  dom.popupSavePaused.classList.add("display");
+}
+
+function reportServiceUp() {
+  dom.popupSavePaused.classList.remove("display");
+}
+
+function reportServiceFailure() {
+  document.documentElement.setAttribute("data-save", "none");
+  localStorage.removeItem("localKey");
+  if (showWelcome) {
+    dom.welcome.classList.remove("display");
+    showWelcome = false;
+  }
+  dom.popupSaveFailed.classList.add("display");
+}
+
 async function startApp() {
-  setExportAndSave();
   setSnap();
+  setExportAndSave();
+  if (attr("save") == "service") {
+    await tryLocalPair();
+  }
   if (isNewDay()) {
     updateValues();
   }
+  else {
+    requestSave();
+  }
   switchToTab("today");
-  if (requestedIcon === null) {
+  if (attr("icon") === null) {
     await storeIcons();
   }
   setNotifyStatus();
@@ -781,18 +1015,22 @@ async function startApp() {
     storeThenSave("value.today", dom.editor.today.value);
   });
   dom.editor.today.addEventListener("keydown", event => {
-    if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key == "/") {
+    if (matchKeyboardEvent(event, "c", "/")) {
       event.preventDefault();
       todaySnoozeSelected();
       return;
     }
+    if (matchKeyboardEvent(event, "c", "x")) {
+      selectTaskIfNoSelection(dom.editor.today);
+      return;
+    }
     if (localStorage.getItem("achievements") !== null) {
-      if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key.toLowerCase() == "k") {
+      if (matchKeyboardEvent(event, "c", "k")) {
         event.preventDefault();
         completeSelected(dom.editor.today, "value.today", "");
         return;
       }
-      if (!event.ctrlKey && !event.metaKey && !event.shiftKey && event.key.toLowerCase() == "enter") {
+      if (matchKeyboardEvent(event, "", "enter")) {
         const offset = extractCompletionOffset(dom.editor.today);
         if (offset !== null) {
           event.preventDefault();
@@ -806,10 +1044,7 @@ async function startApp() {
     refreshInfo();
   });
   dom.today.addEventListener("keydown", event => {
-    if (
-      (!event.ctrlKey && !event.metaKey && !event.shiftKey && event.key.toLowerCase() == "enter")
-      || event.key == " "
-    ) {
+    if (matchKeyboardEvent(event, "", "enter") || matchKeyboardEvent(event, "", " ")) {
       event.preventDefault();
       dom.today.click();
       dom.editor.today.focus();
@@ -824,29 +1059,33 @@ async function startApp() {
     refreshInfo();
   });
   dom.editor.inbox.addEventListener("keydown", event => {
-    if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() == "enter") {
+    if (matchKeyboardEvent(event, "cs", "enter")) {
       event.preventDefault();
       inboxMoveSelected();
       setNotifyStatus();
       refreshInfo();
       return;
     }
-    if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key == "/") {
+    if (matchKeyboardEvent(event, "c", "/")) {
       event.preventDefault();
       inboxSnoozeSelected();
       setNotifyStatus();
       refreshInfo();
       return;
     }
+    if (matchKeyboardEvent(event, "c", "x")) {
+      selectTaskIfNoSelection(dom.editor.inbox);
+      return;
+    }
     if (localStorage.getItem("achievements") !== null) {
-      if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key.toLowerCase() == "k") {
+      if (matchKeyboardEvent(event, "c", "k")) {
         event.preventDefault();
         completeSelected(dom.editor.inbox, "value.inbox", "");
         setNotifyStatus();
         refreshInfo();
         return;
       }
-      if (!event.ctrlKey && !event.metaKey && !event.shiftKey && event.key.toLowerCase() == "enter") {
+      if (matchKeyboardEvent(event, "", "enter")) {
         const offset = extractCompletionOffset(dom.editor.inbox);
         if (offset !== null) {
           event.preventDefault();
@@ -862,10 +1101,7 @@ async function startApp() {
     refreshInfo();
   });
   dom.inbox.addEventListener("keydown", event => {
-    if (
-      (!event.ctrlKey && !event.metaKey && !event.shiftKey && event.key.toLowerCase() == "enter")
-      || event.key == " "
-    ) {
+    if (matchKeyboardEvent(event, "", "enter") || matchKeyboardEvent(event, "", " ")) {
       event.preventDefault();
       dom.inbox.click();
       dom.editor.inbox.focus();
@@ -879,13 +1115,13 @@ async function startApp() {
     }
   });
   dom.menuButton.addEventListener("keydown", event => {
-    if (event.key.toLowerCase() == "arrowdown") {
+    if (matchKeyboardEvent(event, "", "arrowdown")) {
       event.preventDefault();
       dom.menu.classList.add("display");
       const elements = document.querySelectorAll("[data-menu-seq].display");
       elements[0].focus();
     }
-    else if (event.key.toLowerCase() == "arrowup") {
+    else if (matchKeyboardEvent(event, "", "arrowup")) {
       event.preventDefault();
       dom.menu.classList.add("display");
       const elements = document.querySelectorAll("[data-menu-seq].display");
@@ -902,14 +1138,14 @@ async function startApp() {
     dom.menu.classList.remove("display");
   });
   dom.menu.addEventListener("keydown", event => {
-    if (event.target.hasAttribute("data-menu-seq") && event.key.toLowerCase() == "arrowdown") {
+    if (event.target.hasAttribute("data-menu-seq") && matchKeyboardEvent(event, "", "arrowdown")) {
       event.preventDefault();
       const elements = document.querySelectorAll("[data-menu-seq].display");
       const thisIndex = parseInt(event.target.getAttribute("data-menu-seq"), 10);
       const nextIndex = (thisIndex + 1) % elements.length;
       elements[nextIndex].focus();
     }
-    else if (event.target.hasAttribute("data-menu-seq") && event.key.toLowerCase() == "arrowup") {
+    else if (event.target.hasAttribute("data-menu-seq") && matchKeyboardEvent(event, "", "arrowup")) {
       event.preventDefault();
       event.preventDefault();
       const elements = document.querySelectorAll("[data-menu-seq].display");
@@ -917,7 +1153,7 @@ async function startApp() {
       const prevIndex = (thisIndex - 1 + elements.length) % elements.length;
       elements[prevIndex].focus();
     }
-    else if (event.key.toLowerCase() == "escape") {
+    else if (matchKeyboardEvent(event, "", "escape")) {
       dom.menuButton.focus();
     }
   });
@@ -927,7 +1163,10 @@ async function startApp() {
     }
   });
   document.body.addEventListener("keydown", event => {
-    if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key.toLowerCase() == "enter") {
+    if (matchKeyboardEvent(event, "c", "a")) {
+      dom.editor[selectedTab].focus();
+    }
+    else if (matchKeyboardEvent(event, "c", "enter")) {
       event.preventDefault();
       let value = dom.editor[selectedTab].value.trimStart();
       if (value != "") {
@@ -940,41 +1179,47 @@ async function startApp() {
       dom.editor[selectedTab].focus();
       refreshInfo();
     }
-    else if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key.toLowerCase() == "u") {
+    else if (matchKeyboardEvent(event, "c", "u")) {
       event.preventDefault();
       switchToTab("today");
       dom.editor.today.focus();
       refreshInfo();
     }
-    else if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() == "i") {
+    else if (matchKeyboardEvent(event, "c", "i")) {
       event.preventDefault();
-      if (!event.shiftKey || !notifyInbox) {
+      switchToTab("inbox");
+      dom.editor.inbox.focus();
+      refreshInfo();
+    }
+    else if (matchKeyboardEvent(event, "cs", "i")) {
+      event.preventDefault();
+      if (notifyInbox) {
+        switchToTab("inbox");
+        selectUnsnoozed();
+      }
+      else {
         switchToTab("inbox");
         dom.editor.inbox.focus();
         refreshInfo();
       }
-      else {
-        switchToTab("inbox");
-        selectUnsnoozed();
-      }
     }
-    else if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key.toLowerCase() == "b") {
+    else if (matchKeyboardEvent(event, "c", "b")) {
       event.preventDefault();
       toggleSnap();
     }
-    else if (event.key.toLowerCase() == "escape") {
+    else if (matchKeyboardEvent(event, "", "escape")) {
       dom.menu.classList.remove("display");
     }
   });
   for (const element of document.querySelectorAll("a")) {
     element.addEventListener("keydown", event => {
-      if (event.key == " ") {
+      if (matchKeyboardEvent(event, "", " ")) {
         event.preventDefault();
         element.click();
       }
     });
   }
-  if (usingLocalService && instanceID != "") {
+  if (attr("save") == "service") {
     await appendLocalMessages();
     setNotifyStatus();
     if (selectedTab == "inbox" || (startingTab === null && notifyInbox)) {
@@ -993,18 +1238,11 @@ async function startApp() {
       }
     }
   }
-  function preferInbox() {
-    setNotifyStatus();
-    if (notifyInbox) {
-      switchToTab("inbox");
-    }
-    refreshInfo();
-  }
   window.setInterval(async () => {
     if (isNewDay()) {
       updateValues();
       preferInbox();
-      if (usingLocalService && instanceID != "") {
+      if (attr("save") == "service") {
         await appendLocalMessages();
         preferInbox();
       }
@@ -1018,7 +1256,7 @@ async function startApp() {
       }
     }
     else {
-      if (usingLocalService && instanceID != "") {
+      if (attr("save") == "service") {
         await appendLocalMessages();
         setNotifyStatus();
         refreshView();
@@ -1031,7 +1269,7 @@ async function startApp() {
     }
     if (
       document.hidden && lastActive <= Date.now() - 30000
-      && requestedIcon !== null && requestedReload !== null
+      && attr("icon") !== null && requestedReload !== null
       && !timeoutSave.waiting
       && localStorage.getItem("restore") === null
     ) {
@@ -1039,13 +1277,10 @@ async function startApp() {
       if (notifyInbox) {
         reloadIcon = "notify";
       }
-      if (reloadIcon != requestedIcon) {
+      if (reloadIcon != attr("icon")) {
         const reloadParams = new URLSearchParams(window.location.search);
         reloadParams.set("reload", Date.now().toString());
         let reloadLocation = `icon-${reloadIcon}?${reloadParams.toString()}`;
-        if (usingLocalService && instanceID != "") {
-          reloadLocation = `${reloadLocation}#${encodeURIComponent(instanceID)}`;
-        }
         try {
           // Before committing to the reload, verify that we can load the new location
           await fetch(reloadLocation);
@@ -1058,9 +1293,6 @@ async function startApp() {
   }, 15000);
   window.addEventListener("storage", async () => {
     document.documentElement.setAttribute("data-theme", localStorage.getItem("ui.theme"));
-    if (usingLocalService) {
-      setConfigureSave();
-    }
     if (localStorage.getItem("user.userID") !== null && userIDTested !== localStorage.getItem("user.userID")) {
       userIDTested = localStorage.getItem("user.userID");
       await verifyUserAndAppendMessages();
@@ -1080,20 +1312,16 @@ async function startApp() {
     refreshView();
     requestSave();
   });
-  window.addEventListener("hashchange", async () => {
-    if (usingLocalService) {
-      instanceID = decodeURIComponent(window.location.hash.substring(1));
-      await appendLocalMessages();
-      setNotifyStatus();
-      refreshView();
-    }
-  })
 }
 
+
 // ******** Initial setup ********
+
 let showWelcome = false;
+let forceLocalPair = false;
 const weekdayKeys = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
 if (localStorage.getItem("restore") !== null) {
+  forceLocalPair = true;
   const backupData = JSON.parse(localStorage.getItem("restore"));
   const uiSnap = localStorage.getItem("ui.snap");
   const uiTheme = localStorage.getItem("ui.theme");
@@ -1116,9 +1344,7 @@ if (localStorage.getItem("restore") !== null) {
   localStorage.setItem("ui.snap", uiSnap);
   localStorage.setItem("ui.theme", uiTheme);
 }
-if (localStorage.getItem("date") === null) {
-  localStorage.setItem("date", (new Date()).toDateString());
-}
+prepareLocalStorageDates();
 if (localStorage.getItem("value.today") === null) {
   // This is the user's first time opening Frogtab
   localStorage.setItem("value.today", "");
@@ -1139,7 +1365,6 @@ if (localStorage.getItem("ui.theme") === null) {
   localStorage.setItem("ui.theme", "system");
 }
 document.documentElement.setAttribute("data-theme", localStorage.getItem("ui.theme"));
-const requestedIcon = document.documentElement.getAttribute("data-icon");
 const requestedReload = (new URLSearchParams(window.location.search)).get('reload');
 const startingTab = localStorage.getItem("tab");
 localStorage.removeItem("tab");
@@ -1162,8 +1387,8 @@ const dom = {
   snapToCenter: document.getElementById("snap-to-center"),
   exportData: document.getElementById("export-data"),
   enableSave: document.getElementById("enable-save"),
-  configureSave: document.getElementById("configure-save"),
-  popupSavePaused: document.getElementById("popup-save-paused")
+  popupSavePaused: document.getElementById("popup-save-paused"),
+  popupSaveFailed: document.getElementById("popup-save-failed")
 };
 if (showWelcome) {
   dom.welcome.classList.add("display");
@@ -1182,15 +1407,13 @@ let timeoutSave = {
 };
 let timeoutShowInfo;
 let lastActive = Date.now();
-let usingLocalService = false;
-let instanceID = null;
-if (document.documentElement.getAttribute("data-save") == "service") {
-  usingLocalService = true;
-  instanceID = decodeURIComponent(window.location.hash.substring(1));
-}
-const serverBase = document.documentElement.getAttribute("data-server-base");
 let userIDTested = null;
 let verifiedUser = false;
 let lastAppend = 0;
 let openpgp;
+const platformApple = (
+  navigator.platform.startsWith("Mac")
+  || navigator.platform == "iPad"
+  || navigator.platform == "iPhone"
+);
 startApp();

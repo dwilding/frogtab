@@ -1,0 +1,4 @@
+#!/bin/sh
+
+touch "$SNAP_COMMON/ports"
+chmod a=rw "$SNAP_COMMON/ports"

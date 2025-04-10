@@ -1,51 +1,121 @@
 # Frogtab Local
 
-Frogtab Local is a version of https://frogtab.com that you can run on your computer.
-Frogtab Local is implemented as a Flask app that runs in development mode.
-I encourage you to tinker with the app!
+Frogtab Local is a version of [frogtab.com](https://frogtab.com) that you can run on your computer. With Frogab Local, you can:
 
-Frogtab Local supports personal links, but your device will be registered with frogtab.com.
-If you self-host Frogtab, you can configure Frogtab Local to use your own server instead.
-See *config.py* for details.
+  - Use Frogtab offline
+  - Automatically back up your data in any browser
+  - Send tasks to Frogtab via a terminal
 
-## Installing the Flask app
+Frogtab Local supports personal links, but your device will be registered with frogtab.com. If you self-host Frogtab, you can configure Frogtab Local to use your own server instead.
 
-These instructions explain how to install the Flask app from source.
-If you use Linux, it's easier to install Frogtab Local from the Snap Store.
-See https://snapcraft.io/frogtab.
+In this README:
 
-You'll need Python 3.8 or later. See https://www.python.org/downloads/.
+  - [Installing Frogtab Local](#installing-frogtab-local)
+  - [Starting Frogtab Local](#starting-frogtab-local)
+  - [Sending tasks to Frogtab](#sending-tasks-to-frogtab)
+  - [Command reference](#command-reference)
+  - [Python reference](#python-reference)
 
-To install the Flask app, open a terminal in the directory that contains *app.py*,
-then enter the following commands:
+## Installing Frogtab Local
+
+These instructions explain how to install Frogtab Local as a Python package in a virtual environment. You'll need Python 3.8 or later. See [Download Python](https://www.python.org/downloads/).
+
+If you use Linux, I recommend that you install the [Frogtab Local snap](https://snapcraft.io/frogtab) instead.
+
+To install Frogtab Local in a virtual environment, run the following commands:
 
 ```
-python -m venv .venv
+python3 -m venv .venv
 . .venv/bin/activate
-pip install -r requirements.txt
+pip install frogtab
 ```
 
-## Running the Flask app
+## Starting Frogtab Local
 
-To run the Flask app, use `python app.py`.
-
-The Flask app starts:
+To start Frogtab Local, run the following commands:
 
 ```
-WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
- * Running on http://127.0.0.1:5000
+. .venv/bin/activate
+frogtab start
 ```
 
-To access Frogtab, open http://127.0.0.1:5000 in your browser.
+Frogtab Local starts:
 
-To specify a different port, modify the `local_port` variable in *config.py*, then run `python app.py` again.
+```
+✓ Started Frogtab Local
+To access Frogtab, open http://localhost:5000 in your browser
+```
 
-## License
+If you see the error "a different app is using port 5000", you'll need to use a different port. In this case, run the following commands:
 
-Frogtab Local is licensed under the MIT License.
-For details, see *LICENSE*.
+```
+frogtab set port 5001  # For example
+frogtab start
+```
 
-Frogtab Local uses OpenPGP.js for PGP encryption.
-The source code of OpenPGP.js is available at https://github.com/openpgpjs/openpgpjs.
-OpenPGP.js is licensed under the GNU Lesser General Public License.
-For details, see *LICENSE_openpgp*.
+As you use Frogtab, your data is automatically backed up by Frogtab Local. The default location of the backup file is *Frogtab_backup.json* in the working directory. You can use `frogtab set backup-file` to change the location of the backup file. To learn more, run `frogtab help` or see [Command reference](#command-reference).
+
+## Sending tasks to Frogtab
+
+To send a task to Frogtab:
+
+ 1. Run the following commands:
+
+    ```
+    . .venv/bin/activate
+    frogtab
+    ```
+
+ 2. Type the task, then press Enter. For example:
+
+    ```
+    Add a task to your inbox:
+    > Record a demo video
+    ✓ Sent task to Frogtab
+    ```
+
+## Command reference
+
+Here's the output of `frogtab help`:
+
+```
+Frogtab Local enables you to run the Frogtab task manager on localhost.
+Use 'frogtab' to manage Frogtab Local and send tasks to Frogtab.
+
+Usage:
+  frogtab              Send a task to Frogtab, starting Frogtab Local if needed
+  frogtab start        Start Frogtab Local
+  frogtab stop         Stop Frogtab Local
+  frogtab status       Check whether Frogtab Local is running
+  frogtab find-backup  Display the full location of the Frogtab backup file
+
+Display/change settings:
+  frogtab get <setting>
+  frogtab set <setting> <value>
+
+Available settings:
+  port                 Port that Frogtab Local runs on
+                       (default: 5000)
+  expose yes/no        Allow access to Frogtab Local on all network interfaces
+                       (default: no)
+  backup-file          Location of the Frogtab backup file
+                       (default: Frogtab_backup.json in the working directory)
+  registration-server  Server that Frogtab uses if you register this device
+                       (default: https://frogtab.com/)
+
+Additional commands:
+  frogtab help         Display a summary of how to use 'frogtab'
+  frogtab --version    Display the version of Frogtab Local that is installed
+
+Environment variables:
+  FROGTAB_CONFIG_FILE  If set, specifies where Frogtab Local stores settings
+                       and internal state. If not set, Frogtab Local uses
+                       Frogtab_config.json in the working directory.
+  FROGTAB_PORTS_FILE   If set, specifies where Frogtab Local writes a list of
+                       ports that Frogtab Local is running on.
+  NO_COLOR=1           If set, 'frogtab' doesn't display any colored text.
+```
+
+## Python reference
+
+TODO: https://github.com/dwilding/frogtab/issues/8

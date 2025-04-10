@@ -1,0 +1,8 @@
+.ruff_cache
+.venv
+testing
+package/dist
+package/frogtab.egg-info
+package/frogtab/local_server/static
+package/frogtab/local_server/templates
+snapcraft/*.snap

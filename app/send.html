@@ -9,7 +9,7 @@
     <link rel="icon" href="favicons/icon-32.png" sizes="32x32" type="image/png">
     <link rel="apple-touch-icon" sizes="180x180" href="favicons/icon-180-apple.png">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="style.css?sha1=b3f3f8236df9321ee6441e2ff5870af57e0a19c9">
+    <link rel="stylesheet" href="style.css?sha1=939eb0483a24497af6909acf4e9c9686d8a54eb5">
   </head>
   <body>
     <div class="container restricted">
@@ -27,10 +27,10 @@
           <svg role="img" aria-label="Cloud sending icon" width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M12 22v-9m0 0l3.5 3.5M12 13l-3.5 3.5M20 17.607c1.494-.585 3-1.918 3-4.607 0-4-3.333-5-5-5 0-2 0-6-6-6S6 6 6 8c-1.667 0-5 1-5 5 0 2.689 1.506 4.022 3 4.607" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>Connection is end-to-end encrypted
         </div>
         <div id="popup-failure" class="popup">
-          <svg role="img" aria-label="Warning icon" width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M20.043 21H3.957c-1.538 0-2.5-1.664-1.734-2.997l8.043-13.988c.77-1.337 2.699-1.337 3.468 0l8.043 13.988C22.543 19.336 21.58 21 20.043 21zM12 9v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path><path d="M12 17.01l.01-.011" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>Failed to send. Please try again
+          <svg role="img" aria-label="Warning icon" width="20px" height="20px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor"><path d="M20.043 21H3.957c-1.538 0-2.5-1.664-1.734-2.997l8.043-13.988c.77-1.337 2.699-1.337 3.468 0l8.043 13.988C22.543 19.336 21.58 21 20.043 21zM12 9v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path><path d="M12 17.01l.01-.011" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>Unable to send. Please try again
         </div>
         <div class="main">
-          <textarea tabindex="0" id="editor" class="display" placeholder="Send to your inbox…"></textarea>
+          <textarea tabindex="0" id="editor" class="display" placeholder="Add a task to your inbox…"></textarea>
         </div>
         <div class="actions">
           <div class="action primary">
@@ -40,12 +40,37 @@
       </div>
     </div>
     <script>
+      // ******** Shared helpers ********
+
+      function matchKeyboardEvent(event, modifierSpec, key) {
+        if (!("key" in event)) {
+          return false;
+        }
+        let testCmdCtrl = (platformApple && event.metaKey) || (!platformApple && event.ctrlKey);
+        if (!modifierSpec.includes("c")) {
+          testCmdCtrl = !testCmdCtrl;
+        }
+        let testShift = event.shiftKey;
+        if (!modifierSpec.includes("s")) {
+          testShift = !testShift;
+        }
+        return testCmdCtrl && testShift & event.key.toLowerCase() == key && !event.altKey;
+      }
+
+      function attr(name) {
+        return document.documentElement.getAttribute(`data-${name}`);
+      }
+
       function delayForUX(f) {
         return Promise.all([
           f(),
           new Promise(resolve => window.setTimeout(resolve, 1500))
         ]);
       }
+
+
+      // ******** Other helpers ********
+
       function tryToSendLocal() {
         const valueToSend = dom.editor.value.trim();
         if (valueToSend == "") {
@@ -69,6 +94,7 @@
         valueInbox = `${valueToSend}${valueInbox}`;
         localStorage.setItem("value.inbox", valueInbox);
       }
+
       async function encryptAndSend(plainMessage) {
         const encryptedMessage = await openpgp.encrypt({
           message: await openpgp.createMessage({
@@ -98,6 +124,7 @@
         const result = await response.json();
         return result.success;
       }
+
       async function tryToSendCloud() {
         const valueToSend = dom.editor.value.trim();
         if (valueToSend == "") {
@@ -140,9 +167,13 @@
         dom.popups.failure.classList.remove("display");
         dom.popups.connected.classList.add("display");
       }
+
       function setSendLocal() {
         document.body.addEventListener("keydown", event => {
-          if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key.toLowerCase() == "enter") {
+          if (matchKeyboardEvent(event, "c", "a")) {
+            dom.editor.focus();
+          }
+          else if (matchKeyboardEvent(event, "c", "enter")) {
             event.preventDefault();
             tryToSendLocal();
           }
@@ -151,10 +182,7 @@
           tryToSendLocal();
         });
         dom.send.addEventListener("keydown", event => {
-          if (
-            (!event.ctrlKey && !event.metaKey && !event.shiftKey && event.key.toLowerCase() == "enter")
-            || event.key == " "
-          ) {
+          if (matchKeyboardEvent(event, "", "enter") || matchKeyboardEvent(event, "", " ")) {
             event.preventDefault();
             dom.send.click();
           }
@@ -172,6 +200,7 @@
           }
         });
       }
+
       async function setSendCloud() {
         dom.popups.connecting.classList.add("display");
         await delayForUX(async () => {
@@ -202,7 +231,10 @@
         }
         dom.popups.connected.classList.add("display");
         document.body.addEventListener("keydown", event => {
-          if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key.toLowerCase() == "enter") {
+          if (matchKeyboardEvent(event, "c", "a")) {
+            dom.editor.focus();
+          }
+          else if (matchKeyboardEvent(event, "c", "enter")) {
             event.preventDefault();
             tryToSendCloud();
           }
@@ -211,10 +243,7 @@
           tryToSendCloud();
         });
         dom.send.addEventListener("keydown", event => {
-          if (
-            (!event.ctrlKey && !event.metaKey && !event.shiftKey && event.key.toLowerCase() == "enter")
-            || event.key == " "
-          ) {
+          if (matchKeyboardEvent(event, "", "enter") || matchKeyboardEvent(event, "", " ")) {
             event.preventDefault();
             dom.send.click();
           }
@@ -232,9 +261,10 @@
           }
         });
       }
+
       async function startApp() {
         const matches = window.location.hash.match(/^#([0-9a-f-]{36})(\/([^\/]*))?$/);
-        if (document.documentElement.getAttribute("data-location") == "local" || matches === null) {
+        if (attr("location") == "local" || matches === null) {
           setSendLocal();
         }
         else {
@@ -246,7 +276,7 @@
             }
             catch (err) {}
           }
-          setPlaceholder = (text = "Send to your inbox…") => {
+          setPlaceholder = (text = "Add a task to your inbox…") => {
             window.history.replaceState(null, "", `#${userID}/${encodeURIComponent(text)}`);
             dom.editor.placeholder = text;
             return text;
@@ -264,7 +294,9 @@
         });
       }
 
+
       // ******** Initial setup ********
+
       if (localStorage.getItem("ui.theme") === null) {
         localStorage.setItem("ui.theme", "system");
       }
@@ -284,6 +316,11 @@
       let pgpPublicKeyObj = null;
       let openpgp;
       let setPlaceholder;
+      const platformApple = (
+        navigator.platform.startsWith("Mac")
+        || navigator.platform == "iPad"
+        || navigator.platform == "iPhone"
+      );
       startApp();
     </script>
   </body>
