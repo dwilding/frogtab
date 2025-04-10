@@ -1,22 +1,26 @@
 # Frogtab Local
 
-Frogtab Local is a version of [frogtab.com](https://frogtab.com) that you can run on your computer.
-With Frogab Local, you can:
+Frogtab Local is a version of [frogtab.com](https://frogtab.com) that you can run on your computer. With Frogab Local, you can:
 
   - Use Frogtab offline
-  - Enable automatic backups in any browser
+  - Automatically back up your data in any browser
   - Send tasks to Frogtab via a terminal
 
-Frogtab Local supports personal links, but your device will be registered with frogtab.com.
-If you self-host Frogtab, you can configure Frogtab Local to use your own server instead.
+Frogtab Local supports personal links, but your device will be registered with frogtab.com. If you self-host Frogtab, you can configure Frogtab Local to use your own server instead.
+
+In this README:
+
+  - [Installing Frogtab Local](#installing-frogtab-local)
+  - [Starting Frogtab Local](#starting-frogtab-local)
+  - [Sending tasks to Frogtab](#sending-tasks-to-frogtab)
+  - [Command reference](#command-reference)
+  - [Python reference](#python-reference)
 
 ## Installing Frogtab Local
 
-These instructions explain how to install Frogtab Local as a Python package in a virtual environment.
-You'll need Python 3.8 or later. See https://www.python.org/downloads/.
+These instructions explain how to install Frogtab Local as a Python package in a virtual environment. You'll need Python 3.8 or later. See [Download Python](https://www.python.org/downloads/).
 
-If you use Linux, I recommend that you install Frogtab Local from the Snap Store instead.
-See https://snapcraft.io/frogtab.
+If you use Linux, I recommend that you install the [Frogtab Local snap](https://snapcraft.io/frogtab) instead.
 
 To install Frogtab Local in a virtual environment, run the following commands:
 
@@ -42,14 +46,14 @@ Frogtab Local starts:
 To access Frogtab, open http://localhost:5000 in your browser
 ```
 
-If you see the error "a different app is using port 5000",
-you'll need to use a different port.
-In this case, run the following commands:
+If you see the error "a different app is using port 5000", you'll need to use a different port. In this case, run the following commands:
 
 ```
 frogtab set port 5001  # For example
 frogtab start
 ```
+
+As you use Frogtab, your data is automatically backed up by Frogtab Local. The default location of the backup file is *Frogtab_backup.json* in the working directory. You can use `frogtab set backup-file` to change the location of the backup file. To learn more, run `frogtab help` or see [Command reference](#command-reference).
 
 ## Sending tasks to Frogtab
 
@@ -69,20 +73,6 @@ To send a task to Frogtab:
     > Record a demo video
     ✓ Sent task to Frogtab
     ```
-
-## Changing the port
-
-To use a different port, run the following commands:
-
-```
-frogtab stop
-frogtab set port 5001  # For example
-frogtab start
-```
-
-TODO: If you opened Frogtab in your browser before changing the port,
-you'll need to import a backup file to pair with Frogtab Local
-(https://github.com/dwilding/frogtab/issues/9).
 
 ## Command reference
 

@@ -4,13 +4,9 @@ Frogtab is a lightweight task manager that helps you stay focused on today's pri
 
 <p><img alt="The Today view in Frogtab" src="./demo.png" width="480"></p>
 
-Frogtab runs in your browser and stores your data in [`localStorage`](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage).
-You can export your data at any time.
-If your browser supports [`showSaveFilePicker()`](https://developer.mozilla.org/en-US/docs/Web/API/Window/showSaveFilePicker), you can also enable automatic backups.
+Frogtab runs in your browser and stores your data in [`localStorage`](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage). You can export your data at any time. If your browser supports [`showSaveFilePicker()`](https://developer.mozilla.org/en-US/docs/Web/API/Window/showSaveFilePicker), you can also enable automatic backups.
 
-Frogtab can't sync your data between devices.
-However, if you [register your main device](https://frogtab.com/help#registering-for-a-personal-link),
-the frogtab.com server creates a personal link that you can use to send tasks to your main device.
+Frogtab can't sync your data between devices. However, if you [register your main device](https://frogtab.com/help#registering-for-a-personal-link), the frogtab.com server creates a personal link that you can use to send tasks to your main device.
 
 In this README:
 
@@ -25,16 +21,14 @@ In this README:
 Frogtab Local is a version of [frogtab.com](https://frogtab.com) that you can run on your computer. With Frogab Local, you can:
 
   - Use Frogtab offline
-  - Enable automatic backups in any browser
+  - Automatically back up your data in any browser
   - Send tasks to Frogtab via a terminal
 
 [Install the Linux snap](https://snapcraft.io/frogtab) or [install the Python package](https://github.com/dwilding/frogtab/blob/dev/local/README.md#frogtab-local).
 
 ## How your personal link works
 
- 1. When you register your device, Frogtab generates a PGP key pair in your browser.
-    Your device then sends the public key to the server.
-    The private key never leaves your device.
+ 1. When you register your device, Frogtab generates a PGP key pair in your browser. Your device then sends the public key to the server. The private key never leaves your device.
 
     See `register()` in [help.html](app/help.html).
 
@@ -47,8 +41,7 @@ Frogtab Local is a version of [frogtab.com](https://frogtab.com) that you can ru
 
     Your personal link is `https://frogtab.com/send#{id}`, where `{id}` is the user ID.
 
- 3. When you use your personal link to send a task, Frogtab first encrypts the task using the public key from step 1.
-    Frogtab then sends the encrypted task to the server.
+ 3. When you use your personal link to send a task, Frogtab first encrypts the task using the public key from step 1. Frogtab then sends the encrypted task to the server.
 
     See `encryptAndSend()` in [send.html](app/send.html).
 
@@ -58,8 +51,7 @@ Frogtab Local is a version of [frogtab.com](https://frogtab.com) that you can ru
 
  5. Your device periodically checks for encrypted tasks.
 
-    The server requires the API key from step 2. This ensures that other devices cannot check for encrypted tasks.
-    If there are encrypted tasks in the queue, your device downloads the encrypted tasks.
+    The server requires the API key from step 2. This ensures that other devices cannot check for encrypted tasks. If there are encrypted tasks in the queue, your device downloads the encrypted tasks.
 
     The server clears the queue as soon as your device has downloaded the encrypted tasks.
 
@@ -71,8 +63,7 @@ Frogtab Local is a version of [frogtab.com](https://frogtab.com) that you can ru
 
 ## Self-hosting Frogtab
 
-You'll need an Apache server with PHP and [Composer](https://getcomposer.org/).
-Apache must have the following modules enabled:
+You'll need an Apache server with PHP and [Composer](https://getcomposer.org/). Apache must have the following modules enabled:
 
   * mod_mime
   * mod_rewrite
@@ -90,15 +81,13 @@ To install Frogtab on your own server:
     ./build_server.sh
     ```
 
- 3. Copy the contents of *frogtab/server/public* to a directory that is accessible via the web.
-    Make sure that the *.htaccess* files in *frogtab/server/public* and *frogtab/server/public/open* are copied.
+ 3. Copy the contents of *frogtab/server/public* to a directory that is accessible via the web. Make sure that the *.htaccess* files in *frogtab/server/public* and *frogtab/server/public/open* are copied.
 
 Frogtab is ready!
 
 To use Frogtab, open your browser, then navigate to the web-accessible directory from step 3.
 
-The first time you register a device, Frogtab creates a SQLite database called *frogtab.db* in the directory from step 1.
-This database stores device credentials and the queue of encrypted tasks.
+The first time you register a device, Frogtab creates a SQLite database called *frogtab.db* in the directory from step 1. This database stores device credentials and the queue of encrypted tasks.
 
 ## Acknowledgments
 
@@ -110,10 +99,6 @@ This database stores device credentials and the queue of encrypted tasks.
 
 ## License
 
-Frogtab is licensed under the MIT License.
-For details, see [LICENSE](LICENSE).
+Frogtab is licensed under the MIT License. For details, see [LICENSE](LICENSE).
 
-Frogtab uses OpenPGP.js for PGP encryption.
-The source code of OpenPGP.js is available at https://github.com/openpgpjs/openpgpjs.
-OpenPGP.js is licensed under the GNU Lesser General Public License.
-For details, see [LICENSE_openpgp](LICENSE_openpgp).
+Frogtab uses OpenPGP.js for PGP encryption. The source code of OpenPGP.js is available at https://github.com/openpgpjs/openpgpjs. OpenPGP.js is licensed under the GNU Lesser General Public License. For details, see [LICENSE_openpgp](LICENSE_openpgp).

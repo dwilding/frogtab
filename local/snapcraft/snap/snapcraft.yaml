@@ -3,11 +3,10 @@ version: 2.0.0b24snap1
 title: Frogtab Local
 summary: Run the Frogtab task manager on localhost
 description: |
-  Frogtab Local is a version of https://frogtab.com that you can run on your computer.
-  With Frogab Local, you can:
+  Frogtab Local is a version of https://frogtab.com that you can run on your computer. With Frogab Local, you can:
 
     * Use Frogtab offline
-    * Enable automatic backups in any browser
+    * Automatically back up your data in any browser
     * Send tasks to Frogtab via a terminal
 
   **Starting Frogtab Local**
@@ -25,14 +24,14 @@ description: |
   To access Frogtab, open http://localhost:5000 in your browser
   ```
 
-  If you see the error "a different app is using port 5000",
-  you'll need to use a different port.
-  In this case, run the following commands:
+  If you see the error "a different app is using port 5000", you'll need to use a different port. In this case, run the following commands:
 
   ```
   frogtab set port 5001  # For example
   frogtab start
   ```
+
+  As you use Frogtab, your data is automatically backed up by Frogtab Local. To find the location of the backup file, run `frogtab find-backup`. To learn more, run `frogtab help` or see the command reference below.
 
   **Sending tasks to Frogtab**
 
@@ -51,20 +50,6 @@ description: |
       > Record a demo video
       ✓ Sent task to Frogtab
       ```
-
-  **Changing the port**
-
-  To use a different port, run the following commands:
-
-  ```
-  frogtab stop
-  frogtab set port 5001  # For example
-  frogtab start
-  ```
-
-  TODO: If you opened Frogtab in your browser before changing the port,
-  you'll need to import a backup file to pair with Frogtab Local
-  (https://github.com/dwilding/frogtab/issues/9).
 
   **Command reference**
 
@@ -114,9 +99,7 @@ description: |
 
   Frogtab Local is licensed under the MIT License.
 
-  Frogtab Local uses OpenPGP.js for PGP encryption.
-  The source code of OpenPGP.js is available at https://github.com/openpgpjs/openpgpjs.
-  OpenPGP.js is licensed under the GNU Lesser General Public License.
+  Frogtab Local uses OpenPGP.js for PGP encryption. The source code of OpenPGP.js is available at https://github.com/openpgpjs/openpgpjs. OpenPGP.js is licensed under the GNU Lesser General Public License.
 grade: stable
 confinement: strict
 base: core24
