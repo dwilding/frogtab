@@ -24,7 +24,7 @@ Frogtab Local is a version of [frogtab.com](https://frogtab.com) that you can ru
   - Automatically back up your data in any browser
   - Send tasks to Frogtab via a terminal
 
-[Install the Linux snap](https://snapcraft.io/frogtab) or [install the Python package](https://github.com/dwilding/frogtab/blob/dev/local/README.md#frogtab-local).
+[Install the Linux snap](https://snapcraft.io/frogtab) or [install the Python package](https://github.com/dwilding/frogtab/blob/main/local/README.md#frogtab-local).
 
 ## How your personal link works
 
@@ -65,9 +65,9 @@ Frogtab Local is a version of [frogtab.com](https://frogtab.com) that you can ru
 
 You'll need an Apache server with PHP and [Composer](https://getcomposer.org/). Apache must have the following modules enabled:
 
-  * mod_mime
-  * mod_rewrite
-  * mod_headers
+  - mod_mime
+  - mod_rewrite
+  - mod_headers
 
 To install Frogtab on your own server:
 

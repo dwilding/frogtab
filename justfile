@@ -1,11 +1,7 @@
 _default:
   @just --list --unsorted
 
-# 1️⃣  Review links to branches
-links:
-  git grep -E "frogtab/(tree|blob)/\w+"
-
-# 2️⃣  Build the package
+# 1️⃣  Build the package
 [working-directory: "local"]
 package: app licenses ruff _package-stage
   ./build_package.sh
@@ -39,7 +35,7 @@ _package-templates-empty:
   rm -rf templates
   mkdir templates
 
-# 3️⃣  Pack the snap
+# 2️⃣  Pack the snap
 [working-directory: "local/snapcraft"]
 snap:
   snapcraft pack

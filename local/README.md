@@ -97,7 +97,7 @@ Available settings:
   port                 Port that Frogtab Local runs on
                        (default: 5000)
   expose yes/no        Allow access to Frogtab Local on all network interfaces
-                       (default: no)      
+                       (default: no)
   backup-file          Location of the Frogtab backup file
                        (default: Frogtab_backup.json in the working directory)
   registration-server  Server that Frogtab uses if you register this device

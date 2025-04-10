@@ -1,6 +1,6 @@
 [project]
 name = "frogtab"
-version = "2.0.0b24"
+version = "2.0.0"
 description = "Frogtab Local"
 readme = "README.md"
 license = {text="MIT"}
@@ -18,8 +18,8 @@ dependencies = [
 ]
 
 [project.urls]
-Documentation = "https://github.com/dwilding/frogtab/blob/dev/local/README.md#frogtab-local"
-Source = "https://github.com/dwilding/frogtab/tree/dev/local"
+Documentation = "https://github.com/dwilding/frogtab/blob/main/local/README.md#frogtab-local"
+Source = "https://github.com/dwilding/frogtab/tree/main/local"
 Tracker = "https://github.com/dwilding/frogtab/issues"
 Changelog = "https://github.com/dwilding/frogtab/releases"
 

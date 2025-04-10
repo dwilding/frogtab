@@ -991,7 +991,7 @@ async function startApp() {
   setSnap();
   setExportAndSave();
   if (attr("save") == "service") {
-    await tryLocalPair(); 
+    await tryLocalPair();
   }
   if (isNewDay()) {
     updateValues();

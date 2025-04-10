@@ -7,7 +7,7 @@ Frogtab Local is a version of the [Frogtab](https://frogtab.com) task manager th
   - A command `frogtab`, which wraps the Python interface, for managing the server and sending tasks to Frogtab
   - A command `serve-frogtab`, which enables other service managers to run the server as a daemon
 
-For details, see the [Frogtab Local docs](https://github.com/dwilding/frogtab/blob/dev/local/README.md#frogtab-local).
+For details, see the [Frogtab Local docs](https://github.com/dwilding/frogtab/blob/main/local/README.md#frogtab-local).
 
 ## License
 
