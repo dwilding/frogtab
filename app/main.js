@@ -990,6 +990,9 @@ async function startApp() {
   if (isNewDay()) {
     updateValues();
   }
+  else {
+    requestSave();
+  }
   switchToTab("today");
   if (attr("icon") === null) {
     await storeIcons();
