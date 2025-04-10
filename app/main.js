@@ -1157,7 +1157,10 @@ async function startApp() {
     }
   });
   document.body.addEventListener("keydown", event => {
-    if (matchKeyboardEvent(event, "c", "enter")) {
+    if (matchKeyboardEvent(event, "c", "a")) {
+      dom.editor[selectedTab].focus();
+    }
+    else if (matchKeyboardEvent(event, "c", "enter")) {
       event.preventDefault();
       let value = dom.editor[selectedTab].value.trimStart();
       if (value != "") {

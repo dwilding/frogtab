@@ -97,6 +97,11 @@
             }
           });
         }
+        document.body.addEventListener("keydown", event => {
+          if (matchKeyboardEvent(event, "c", "a")) {
+            dom.editor[selectedTab].focus();
+          }
+        });
         window.addEventListener("storage", () => {
           document.documentElement.setAttribute("data-theme", localStorage.getItem("ui.theme"));
           refreshView();

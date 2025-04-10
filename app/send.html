@@ -170,7 +170,10 @@
 
       function setSendLocal() {
         document.body.addEventListener("keydown", event => {
-          if (matchKeyboardEvent(event, "c", "enter")) {
+          if (matchKeyboardEvent(event, "c", "a")) {
+            dom.editor.focus();
+          }
+          else if (matchKeyboardEvent(event, "c", "enter")) {
             event.preventDefault();
             tryToSendLocal();
           }
@@ -228,7 +231,10 @@
         }
         dom.popups.connected.classList.add("display");
         document.body.addEventListener("keydown", event => {
-          if (matchKeyboardEvent(event, "c", "enter")) {
+          if (matchKeyboardEvent(event, "c", "a")) {
+            dom.editor.focus();
+          }
+          else if (matchKeyboardEvent(event, "c", "enter")) {
             event.preventDefault();
             tryToSendCloud();
           }
