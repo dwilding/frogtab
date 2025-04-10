@@ -980,13 +980,19 @@ function reportServiceUp() {
 function reportServiceFailure() {
   document.documentElement.setAttribute("data-save", "none");
   localStorage.removeItem("localKey");
-  // TODO: https://github.com/dwilding/frogtab/issues/9
+  if (showWelcome) {
+    dom.welcome.classList.remove("display");
+    showWelcome = false;
+  }
+  dom.popupSaveFailed.classList.add("display");
 }
 
 async function startApp() {
   setSnap();
   setExportAndSave();
-  await tryLocalPair();
+  if (attr("save") == "service") {
+    await tryLocalPair(); 
+  }
   if (isNewDay()) {
     updateValues();
   }
@@ -1381,7 +1387,8 @@ const dom = {
   snapToCenter: document.getElementById("snap-to-center"),
   exportData: document.getElementById("export-data"),
   enableSave: document.getElementById("enable-save"),
-  popupSavePaused: document.getElementById("popup-save-paused")
+  popupSavePaused: document.getElementById("popup-save-paused"),
+  popupSaveFailed: document.getElementById("popup-save-failed")
 };
 if (showWelcome) {
   dom.welcome.classList.add("display");
