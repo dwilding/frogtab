@@ -416,10 +416,17 @@
         If you want automatic backups, you'll need to run <a tabindex="0" href="https://github.com/dwilding/frogtab/blob/main/local/README.md#frogtab-local" target="_blank">Frogtab Local</a> on your computer.
       </p>
       <h2 id="restoring-your-data">Restoring your data</h2>
-      <p>
-        To restore your data in your browser, <a tabindex="0" href="#" id="start-restore">import a backup file</a>.
-      </p>
       <input type="file" id="choose-backup-file" style="display: none" accept=".json">
+      <div tabindex="-1" id="before-restore" class="notice display">
+        <div class="display">
+          <p>
+            If you have a backup file, you can restore your data.
+          </p>
+          <div>
+            <button tabindex="0" id="start-restore">Restore My Data</button>
+          </div>
+        </div>
+      </div>
       <div tabindex="-1" id="staged-restore" class="notice">
         <div class="display">
           <p>
@@ -968,13 +975,10 @@
           month: "short",
           year: "numeric"
         });
+        dom.beforeRestore.classList.remove("display");
         dom.stagedRestore.classList.add("display");
         dom.stagedRestore.focus();
         dom.restoreDate.textContent = backupDate;
-        dom.cancelRestore.addEventListener("click", () => {
-          localStorage.removeItem("restore");
-          dom.stagedRestore.classList.remove("display");
-        });
       }
 
       function setAchievements() {
@@ -1077,10 +1081,6 @@
         if (localStorage.getItem("restore") !== null) {
           setRestoreStatus(JSON.parse(localStorage.getItem("restore")));
         }
-        dom.startRestore.addEventListener("click", event => {
-          event.preventDefault();
-          dom.chooseBackupFile.click();
-        });
         dom.chooseBackupFile.addEventListener("change", () => {
           const backupFile = dom.chooseBackupFile.files[0];
           if (backupFile === undefined) {
@@ -1092,6 +1092,15 @@
           };
           backupFileReader.readAsText(backupFile);
           dom.chooseBackupFile.value = "";
+        });
+        dom.startRestore.addEventListener("click", event => {
+          dom.chooseBackupFile.click();
+        });
+        dom.cancelRestore.addEventListener("click", () => {
+          localStorage.removeItem("restore");
+          dom.stagedRestore.classList.remove("display");
+          dom.beforeRestore.classList.add("display");
+          dom.beforeRestore.focus();
         });
         dom.enableAchievements.addEventListener("click", () => {
           localStorage.setItem("achievements", "[]");
@@ -1170,6 +1179,7 @@
         cancelForget: document.getElementById("cancel-forget"),
         startRestore: document.getElementById("start-restore"),
         chooseBackupFile: document.getElementById("choose-backup-file"),
+        beforeRestore: document.getElementById("before-restore"),
         stagedRestore: document.getElementById("staged-restore"),
         restoreDate: document.getElementById("restore-date"),
         cancelRestore: document.getElementById("cancel-restore"),
