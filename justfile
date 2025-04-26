@@ -41,7 +41,7 @@ snap:
   snapcraft pack
   @echo ""
   @echo "To upload the snap:"
-  @echo "  snapcraft upload --release=candidate local/snapcraft/frogtab_<version>_amd64.snap"
+  @echo "  $ snapcraft upload --release=candidate local/snapcraft/frogtab_<version>_amd64.snap"
 
 # Check and format code
 [working-directory: "local"]
