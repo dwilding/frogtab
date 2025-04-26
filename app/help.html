@@ -9,7 +9,7 @@
     <link rel="icon" href="favicons/icon-32.png" sizes="32x32" type="image/png">
     <link rel="apple-touch-icon" sizes="180x180" href="favicons/icon-180-apple.png">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="simple.min.css?sha1=26ac18bc0149cb9d466ffa34f47a293b7c38ca84">
+    <link rel="stylesheet" href="simple.min.css?sha1=207a53056ff9683c302cff0e93103b1968d05a9f">
     <link rel="stylesheet" href="simple-customizations.css?sha1=3f186823fec845a25ba4debacb10968ed8f3f30a">
   </head>
   <body>
@@ -47,8 +47,8 @@
         <ul class="compact">
           <li><a tabindex="0" href="#overview-of-data-privacy">Overview of data privacy</a></li>
           <li><a tabindex="0" href="#privacy-implications-of-registering">Privacy implications of registering</a></li>
-          <li><a tabindex="0" href="#exporting-your-data">Exporting your data</a></li>
-          <li><a tabindex="0" href="#importing-your-data">Importing your data</a></li>
+          <li><a tabindex="0" href="#backing-up-your-data">Backing up your data</a></li>
+          <li><a tabindex="0" href="#restoring-your-data">Restoring your data</a></li>
         </ul>
         <p class="before-compact">
           <strong>Quick Reference</strong>
@@ -231,7 +231,8 @@
         <strong>Today</strong> or <strong>Inbox</strong> as the new location for the task, then click the task to move it.
       </p>
       <p>
-        To import completed tasks from outside Frogtab, see <a tabindex="0" href="#importing-your-data">Importing your data</a>.
+        To make other changes to your completed tasks, click <strong>Edit</strong> at the top of the Achievements page, then click <strong>Export a todo.txt file</strong>.
+        You can edit your completed tasks in <a tabindex="0" href="http://todotxt.org/" target="_blank">todo.txt format</a>, then import the modified todo.txt file.
       </p>
       <h2 id="registering-for-a-personal-link">Registering for a personal link</h2>
       <p>
@@ -328,8 +329,8 @@
         <li>
           <p>
             If you clear your browsing data, your personal link will stop working.
-            To reactivate your personal link, <a tabindex="0" href="#importing-your-data">import your Frogtab data</a>
-            (assuming that you've previously <a tabindex="0" href="#exporting-your-data">exported a backup</a>).
+            To reactivate your personal link, <a tabindex="0" href="#restoring-your-data">import your Frogtab data</a>
+            (assuming that you've previously <a tabindex="0" href="#backing-up-your-data">exported a backup</a>).
             Or you can re-register this device and get a new personal link.
           </p>
         </li>
@@ -346,12 +347,12 @@
       <p class="not-service-save">
         Your data is stored in your browser and isn't sent to a server.
         If you like, you can export a backup of your data.
-        To learn more, see <a tabindex="0" href="#exporting-your-data">Exporting your data</a>.
+        To learn more, see <a tabindex="0" href="#backing-up-your-data">Backing up your data</a>.
       </p>
       <p class="service-save-only">
         Your data is stored in your browser and isn't sent to a server.
         Your data is automatically backed up by Frogtab Local.
-        To learn more, see <a tabindex="0" href="#exporting-your-data">Exporting your data</a>.
+        To learn more, see <a tabindex="0" href="#backing-up-your-data">Backing up your data</a>.
       </p>
       <p>
         If you choose to register this device, you'll get a personal link that you can use to send tasks to Frogtab from any device.
@@ -394,7 +395,7 @@
       <p>
         For technical details, see <a tabindex="0" href="https://github.com/dwilding/frogtab#how-your-personal-link-works" target="_blank">How your personal link works</a> in GitHub.
       </p>
-      <h2 id="exporting-your-data">Exporting your data</h2>
+      <h2 id="backing-up-your-data">Backing up your data</h2>
       <p class="not-service-save">
         Your data is stored in your browser.
         To export a backup of your data, click
@@ -414,17 +415,18 @@
         If your browser doesn't support automatic backups, you won't see Enable Auto-Backup.
         If you want automatic backups, you'll need to run <a tabindex="0" href="https://github.com/dwilding/frogtab/blob/main/local/README.md#frogtab-local" target="_blank">Frogtab Local</a> on your computer.
       </p>
-      <p>
-        As part of the <a tabindex="0" href="#tracking-your-completed-tasks" title="Tracking your completed tasks">Achievements</a> feature,
-        you can export your completed tasks in <a tabindex="0" href="http://todotxt.org/" target="_blank">todo.txt</a> format.
-        To export your completed tasks, click <strong>Edit</strong> at the top of the Achievements page,
-        then click <strong>Export a todo.txt file</strong>.
-      </p>
-      <h2 id="importing-your-data">Importing your data</h2>
-      <p>
-        To restore your data in your browser, <a tabindex="0" href="#" id="start-restore">import a backup file</a>.
-      </p>
+      <h2 id="restoring-your-data">Restoring your data</h2>
       <input type="file" id="choose-backup-file" style="display: none" accept=".json">
+      <div tabindex="-1" id="before-restore" class="notice display">
+        <div class="display">
+          <p>
+            If you have a backup file, you can restore your data.
+          </p>
+          <div>
+            <button tabindex="0" id="start-restore">Restore My Data</button>
+          </div>
+        </div>
+      </div>
       <div tabindex="-1" id="staged-restore" class="notice">
         <div class="display">
           <p>
@@ -435,26 +437,6 @@
           </div>
         </div>
       </div>
-      <p>
-        As part of the <a tabindex="0" href="#tracking-your-completed-tasks" title="Tracking your completed tasks">Achievements</a> feature,
-        you can import completed tasks in <a tabindex="0" href="http://todotxt.org/" target="_blank">todo.txt</a> format:
-        <ul>
-          <li>
-            <p>
-              If you haven't completed any tasks in Frogtab, click <strong>Import</strong> at the top of the Achievements page, then select a todo.txt file.
-            </p></li>
-          <li>
-            <p>
-              If you have completed some tasks in Frogtab, you'll need to manually merge your Frogtab completed tasks with your completed tasks from outside Frogtab.
-            </p>
-            <p>
-              Click <strong>Edit</strong> at the top of the Achievements page, then click <strong>Export a todo.txt file</strong>.
-              The todo.txt file contains your Frogtab completed tasks.
-              Edit the todo.txt file to include your completed tasks from outside Frogtab, then click <strong>Import the todo.txt file</strong> and select the updated todo.txt file.
-            </p>
-          </li>
-        </ul>
-      </p>
       <h2 id="keyboard-shortcuts">Keyboard shortcuts</h2>
       <p>
         <label>
@@ -993,13 +975,10 @@
           month: "short",
           year: "numeric"
         });
+        dom.beforeRestore.classList.remove("display");
         dom.stagedRestore.classList.add("display");
         dom.stagedRestore.focus();
         dom.restoreDate.textContent = backupDate;
-        dom.cancelRestore.addEventListener("click", () => {
-          localStorage.removeItem("restore");
-          dom.stagedRestore.classList.remove("display");
-        });
       }
 
       function setAchievements() {
@@ -1102,10 +1081,6 @@
         if (localStorage.getItem("restore") !== null) {
           setRestoreStatus(JSON.parse(localStorage.getItem("restore")));
         }
-        dom.startRestore.addEventListener("click", event => {
-          event.preventDefault();
-          dom.chooseBackupFile.click();
-        });
         dom.chooseBackupFile.addEventListener("change", () => {
           const backupFile = dom.chooseBackupFile.files[0];
           if (backupFile === undefined) {
@@ -1117,6 +1092,15 @@
           };
           backupFileReader.readAsText(backupFile);
           dom.chooseBackupFile.value = "";
+        });
+        dom.startRestore.addEventListener("click", event => {
+          dom.chooseBackupFile.click();
+        });
+        dom.cancelRestore.addEventListener("click", () => {
+          localStorage.removeItem("restore");
+          dom.stagedRestore.classList.remove("display");
+          dom.beforeRestore.classList.add("display");
+          dom.beforeRestore.focus();
         });
         dom.enableAchievements.addEventListener("click", () => {
           localStorage.setItem("achievements", "[]");
@@ -1195,6 +1179,7 @@
         cancelForget: document.getElementById("cancel-forget"),
         startRestore: document.getElementById("start-restore"),
         chooseBackupFile: document.getElementById("choose-backup-file"),
+        beforeRestore: document.getElementById("before-restore"),
         stagedRestore: document.getElementById("staged-restore"),
         restoreDate: document.getElementById("restore-date"),
         cancelRestore: document.getElementById("cancel-restore"),
@@ -1206,6 +1191,9 @@
         finishDisableAchievements: document.getElementById("finish-disable-achievements"),
         cancelDisableAchievements: document.getElementById("cancel-disable-achievements")
       };
+      if (window.location.hash == "#importing-your-data") {
+        window.location.hash = "#restoring-your-data"
+      }
       const serverHostname = (new URL(attr("server-base"), window.location.origin)).hostname;
       // ^ If base is absolute, gets hostname from base
       //   If base is relative, gets hostname from window.location.origin
