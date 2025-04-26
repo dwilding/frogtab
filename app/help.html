@@ -47,8 +47,8 @@
         <ul class="compact">
           <li><a tabindex="0" href="#overview-of-data-privacy">Overview of data privacy</a></li>
           <li><a tabindex="0" href="#privacy-implications-of-registering">Privacy implications of registering</a></li>
-          <li><a tabindex="0" href="#exporting-your-data">Exporting your data</a></li>
-          <li><a tabindex="0" href="#importing-your-data">Importing your data</a></li>
+          <li><a tabindex="0" href="#backing-up-your-data">Backing up your data</a></li>
+          <li><a tabindex="0" href="#restoring-your-data">Restoring your data</a></li>
         </ul>
         <p class="before-compact">
           <strong>Quick Reference</strong>
@@ -329,8 +329,8 @@
         <li>
           <p>
             If you clear your browsing data, your personal link will stop working.
-            To reactivate your personal link, <a tabindex="0" href="#importing-your-data">import your Frogtab data</a>
-            (assuming that you've previously <a tabindex="0" href="#exporting-your-data">exported a backup</a>).
+            To reactivate your personal link, <a tabindex="0" href="#restoring-your-data">import your Frogtab data</a>
+            (assuming that you've previously <a tabindex="0" href="#backing-up-your-data">exported a backup</a>).
             Or you can re-register this device and get a new personal link.
           </p>
         </li>
@@ -347,12 +347,12 @@
       <p class="not-service-save">
         Your data is stored in your browser and isn't sent to a server.
         If you like, you can export a backup of your data.
-        To learn more, see <a tabindex="0" href="#exporting-your-data">Exporting your data</a>.
+        To learn more, see <a tabindex="0" href="#backing-up-your-data">Backing up your data</a>.
       </p>
       <p class="service-save-only">
         Your data is stored in your browser and isn't sent to a server.
         Your data is automatically backed up by Frogtab Local.
-        To learn more, see <a tabindex="0" href="#exporting-your-data">Exporting your data</a>.
+        To learn more, see <a tabindex="0" href="#backing-up-your-data">Backing up your data</a>.
       </p>
       <p>
         If you choose to register this device, you'll get a personal link that you can use to send tasks to Frogtab from any device.
@@ -395,7 +395,7 @@
       <p>
         For technical details, see <a tabindex="0" href="https://github.com/dwilding/frogtab#how-your-personal-link-works" target="_blank">How your personal link works</a> in GitHub.
       </p>
-      <h2 id="exporting-your-data">Exporting your data</h2>
+      <h2 id="backing-up-your-data">Backing up your data</h2>
       <p class="not-service-save">
         Your data is stored in your browser.
         To export a backup of your data, click
@@ -415,7 +415,7 @@
         If your browser doesn't support automatic backups, you won't see Enable Auto-Backup.
         If you want automatic backups, you'll need to run <a tabindex="0" href="https://github.com/dwilding/frogtab/blob/main/local/README.md#frogtab-local" target="_blank">Frogtab Local</a> on your computer.
       </p>
-      <h2 id="importing-your-data">Importing your data</h2>
+      <h2 id="restoring-your-data">Restoring your data</h2>
       <p>
         To restore your data in your browser, <a tabindex="0" href="#" id="start-restore">import a backup file</a>.
       </p>
@@ -1181,6 +1181,9 @@
         finishDisableAchievements: document.getElementById("finish-disable-achievements"),
         cancelDisableAchievements: document.getElementById("cancel-disable-achievements")
       };
+      if (window.location.hash == "#importing-your-data") {
+        window.location.hash = "#restoring-your-data"
+      }
       const serverHostname = (new URL(attr("server-base"), window.location.origin)).hostname;
       // ^ If base is absolute, gets hostname from base
       //   If base is relative, gets hostname from window.location.origin

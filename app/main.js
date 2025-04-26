@@ -795,7 +795,7 @@ function createData() {
     appBase = appBase.substring(0, appBase.lastIndexOf("/") + 1);
   }
   const data = {
-    help: `To restore your data, visit ${appBase}help#importing-your-data`,
+    help: `To restore your data, visit ${appBase}help#restoring-your-data`,
     date: localStorage.getItem("date"),
     today: localStorage.getItem("value.today").trim(),
     inbox: localStorage.getItem("value.inbox").trim(),
