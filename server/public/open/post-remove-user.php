@@ -48,6 +48,11 @@ if ($delete_user->rowCount() == 0) {
   respond_with_failure();
 }
 
+// Remove user's messages
+$delete_messages = $db->prepare('DELETE FROM messages WHERE for = :for');
+$delete_messages->bindParam(':for', $user_id);
+$delete_messages->execute();
+
 // Respond with success
 echo json_encode([
   'success' => true
