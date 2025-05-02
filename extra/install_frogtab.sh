@@ -1,7 +1,8 @@
 #!/bin/bash
 
+shopt -s dotglob  # Bash-specific option
+
 set -e
-shopt -s dotglob
 
 protected="$PWD"
 public="$1"
