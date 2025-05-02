@@ -56,7 +56,7 @@ licenses:
 
 # Update libs and file hashes
 app: _app-libs
-  development/update_hashes.py
+  scripts/update_hashes.py
 
 [working-directory: "app"]
 _app-libs:
