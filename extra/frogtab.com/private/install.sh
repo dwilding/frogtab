@@ -1,34 +1,16 @@
 #!/bin/bash
 
-shopt -s dotglob
+set -e
 
-ROOT_PRIVATE=/home/private
-ROOT_PROTECTED=/home/protected
-ROOT_PUBLIC=/home/public
+extra="https://raw.githubusercontent.com/dwilding/frogtab/refs/heads/server-install/extra"
 
-cd $ROOT_PRIVATE
-rm -rf frogtab
-git clone git@github.com:dwilding/frogtab.git
+cd /home/protected
+wget -O install_frogtab.sh "$extra/install_frogtab.sh"
+chmod +x install_frogtab.sh
+./install_frogtab.sh /home/public --refresh
 
-cd $ROOT_PRIVATE/frogtab
-rm -rf $ROOT_PROTECTED/installed
-mkdir $ROOT_PROTECTED/installed
-cp -r server app build_server.sh $ROOT_PROTECTED/installed
-
-cd $ROOT_PROTECTED/installed
-./build_server.sh
-rm -rf app build_server.sh
-
-cd $ROOT_PROTECTED/installed/server/public
-cat $ROOT_PRIVATE/frogtab/extra/frogtab.com/public/.htaccess >> .htaccess
-cp $ROOT_PRIVATE/frogtab/extra/frogtab.com/public/sitemap.xml .
+cd /home/public
+wget -qO- "$extra/frogtab.com/public/.htaccess" >> .htaccess
+wget -O sitemap.xml "$extra/frogtab.com/public/sitemap.xml"
 sed -i'.backup' 's/data-registration=\"short\"/data-registration=\"long\"/' help.html
 rm *.backup
-rm -rf $ROOT_PUBLIC/*
-cp -r * $ROOT_PUBLIC
-
-cd $ROOT_PROTECTED/installed/server
-rm -rf public
-
-cd $ROOT_PRIVATE
-rm -rf frogtab
