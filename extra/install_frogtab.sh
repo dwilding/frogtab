@@ -29,12 +29,9 @@ unzip frogtab.zip -d frogtab
 rm frogtab.zip
 
 cd "$protected/frogtab"
-mkdir src
-mv frogtab-server-install/app frogtab-server-install/server src
-
-cd "$protected/frogtab/src"
-"$protected/frogtab/frogtab-server-install/scripts/build_server.sh" "$protected/frogtab.db"
-rm -rf "$protected/frogtab/frogtab-server-install"
+mv frogtab-server-install/app frogtab-server-install/server .
+frogtab-server-install/scripts/build_server.sh "$protected/frogtab.db"
+rm -rf frogtab-server-install
 rm -rf app
 if [ "$2" = "--refresh" ]; then
   rm -rf "$public"/*
