@@ -28,8 +28,14 @@ wget -O frogtab.zip "https://github.com/dwilding/frogtab/archive/refs/heads/serv
 unzip frogtab.zip -d frogtab
 rm frogtab.zip
 
-cd "$protected/frogtab/frogtab-server-install"
-scripts/build_server.sh "$protected/frogtab.db"
+cd "$protected/frogtab"
+mkdir src
+mv frogtab-server-install/app frogtab-server-install/server src
+
+cd "$protected/frogtab/src"
+"$protected/frogtab/frogtab-server-install/scripts/build_server.sh" "$protected/frogtab.db"
+rm -rf "$protected/frogtab/frogtab-server-install"
+rm -rf app
 if [ "$2" = "--refresh" ]; then
   rm -rf "$public"/*
 fi
