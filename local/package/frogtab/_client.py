@@ -17,26 +17,31 @@ from ._exceptions import (
 
 
 def get_port(config_path: Path) -> int:
+    """Get 'port' from the config file."""
     config = _read_config(config_path)
     return config["port"]
 
 
 def get_expose(config_path: Path) -> bool:
+    """Get 'expose' from the config file."""
     config = _read_config(config_path)
     return config["expose"]
 
 
 def get_backup_file(config_path: Path) -> str:
+    """Get 'backupFile' from the config file."""
     config = _read_config(config_path)
     return config["backupFile"]
 
 
 def get_registration_server(config_path: Path) -> str:
+    """Get 'registrationServer' from the config file."""
     config = _read_config(config_path)
     return config["registrationServer"]
 
 
 def set_port(config_path: Path, port: int) -> None:
+    """Set 'port' in the config file."""
     config = _read_config(config_path)
     _require_not_running(config["port"])
     config["port"] = port
@@ -44,6 +49,7 @@ def set_port(config_path: Path, port: int) -> None:
 
 
 def set_expose(config_path: Path, expose: bool) -> None:
+    """Set 'expose' in the config file."""
     config = _read_config(config_path)
     _require_not_running(config["port"])
     config["expose"] = expose
@@ -51,6 +57,7 @@ def set_expose(config_path: Path, expose: bool) -> None:
 
 
 def set_backup_file(config_path: Path, backup_file: str) -> None:
+    """Set 'backupFile' in the config file."""
     config = _read_config(config_path)
     _require_not_running(config["port"])
     config["backupFile"] = backup_file
@@ -58,6 +65,7 @@ def set_backup_file(config_path: Path, backup_file: str) -> None:
 
 
 def set_registration_server(config_path: Path, registration_server: str) -> None:
+    """Set 'registrationServer' in the config file."""
     config = _read_config(config_path)
     _require_not_running(config["port"])
     config["registrationServer"] = registration_server
@@ -105,6 +113,7 @@ def _write_json(data: dict, json_path: Path) -> None:
 
 
 def start(config_path: Path) -> bool:
+    """Start the server."""
     config = _read_config(config_path)
     port = config["port"]
     if is_running(port):
@@ -129,6 +138,7 @@ def start(config_path: Path) -> bool:
 
 
 def get_running_version(port: int) -> str:
+    """Get the version of the server that is running."""
     try:
         response = requests.get(f"http://localhost:{port}/service/get-version")
     except requests.exceptions.ConnectionError:
@@ -141,6 +151,7 @@ def get_running_version(port: int) -> str:
 
 
 def is_running(port: int) -> bool:
+    """Check whether the server is running."""
     try:
         version = get_running_version(port)
     except NotRunningError:
@@ -151,6 +162,7 @@ def is_running(port: int) -> bool:
 
 
 def stop(port: int) -> bool:
+    """Stop the server."""
     try:
         response = requests.post(f"http://localhost:{port}/service/post-stop")
     except requests.exceptions.ConnectionError:
@@ -162,6 +174,7 @@ def stop(port: int) -> bool:
 
 
 def send(port: int, task: str) -> None:
+    """Send a task to Frogtab."""
     try:
         response = requests.post(
             f"http://localhost:{port}/service/post-add-message", json={"message": task}
