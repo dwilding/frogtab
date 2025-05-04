@@ -32,7 +32,7 @@ if [ ! -d "$public" ]; then
   print_error "directory '$public' does not exist"
   exit 1
 fi
-if [ ! "$2" = "--overwrite" ] && [ -n "$(find "$public" -mindepth 1 -print -quit)" ]; then
+if [ ! "$2" = "--overwrite" ] && [ -n "$(find -L "$public" -mindepth 1 -print -quit)" ]; then
   echo "Public directory '$public' is not empty"
   require_user_approval
 fi
