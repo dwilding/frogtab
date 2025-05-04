@@ -76,7 +76,7 @@ To install Frogtab on your own server:
  2. Download [install_frogtab.sh](extra/install_frogtab.sh) and make it executable:
 
     ```
-    wget https://raw.githubusercontent.com/dwilding/frogtab/refs/heads/server-install/extra/install_frogtab.sh
+    wget https://raw.githubusercontent.com/dwilding/frogtab/refs/heads/main/extra/install_frogtab.sh
     chmod +x install_frogtab.sh
     ```
 

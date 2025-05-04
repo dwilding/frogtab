@@ -43,7 +43,7 @@ if [ ! "$2" = "--overwrite" ] && [ -d "frogtab" ]; then
   require_user_approval
 fi
 print_help "Downloading source code…"
-wget -O frogtab.zip "https://github.com/dwilding/frogtab/archive/refs/heads/server-install.zip"
+wget -O frogtab.zip "https://github.com/dwilding/frogtab/archive/refs/heads/main.zip"
 rm -rf frogtab
 unzip frogtab.zip -d frogtab
 rm frogtab.zip
@@ -51,9 +51,9 @@ rm frogtab.zip
 # Build the server and prepare the public directory
 print_help "Installing server…"
 cd "$protected/frogtab"
-mv frogtab-server-install/app frogtab-server-install/server .
-frogtab-server-install/scripts/build_server.sh "$protected/frogtab.db"
-rm -rf frogtab-server-install
+mv frogtab-main/app frogtab-main/server .
+frogtab-main/scripts/build_server.sh "$protected/frogtab.db"
+rm -rf frogtab-main
 rm -rf app
 rm -rf "$public"/*
 mv server/public/* "$public"

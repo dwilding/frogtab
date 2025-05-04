@@ -2,7 +2,7 @@
 
 set -e
 
-extra="https://raw.githubusercontent.com/dwilding/frogtab/refs/heads/server-install/extra"
+extra="https://raw.githubusercontent.com/dwilding/frogtab/refs/heads/main/extra"
 
 cd /home/protected
 wget -O install_frogtab.sh "$extra/install_frogtab.sh"
