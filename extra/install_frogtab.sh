@@ -4,37 +4,57 @@ shopt -s dotglob  # Bash-specific option
 
 set -e
 
-protected="$PWD"
+print_help() {
+  echo -e "\033[0;35m$1\033[0m"
+}
+
+print_error() {
+  echo -e "\033[1;31mError:\033[0m $1"
+}
+
+require_user_approval() {
+  echo "Do you want to continue? (y/n)"
+  read -r response
+  if [ "$response" != "y" ] && [ "$response" != "Y" ]; then
+    exit 1
+  fi
+}
+
+protected="$PWD"  # Non-public directory for the source and database
+
+# Check which public directory we should use
 public="$1"
 if [ -z "$public" ]; then
-  echo "Error: no public directory specified"
+  print_error "no public directory specified"
   exit 2
 fi
 if [ ! -d "$public" ]; then
-  echo "Error: directory '$public' does not exist"
+  print_error "directory '$public' does not exist"
   exit 1
 fi
-if [ ! "$2" = "--refresh" ] && [ -n "$(find "$public" -mindepth 1 -print -quit)" ]; then
-  echo "Error: directory '$public' is not empty"
-  exit 1
+if [ ! "$2" = "--overwrite" ] && [ -n "$(find "$public" -mindepth 1 -print -quit)" ]; then
+  echo "Public directory '$public' is not empty"
+  require_user_approval
 fi
-if [ "$2" = "--refresh" ]; then
-  rm -rf frogtab
+
+# Fetch the source
+if [ ! "$2" = "--overwrite" ] && [ -d "frogtab" ]; then
+  echo "Source code directory '$protected/frogtab' already exists"
+  require_user_approval
 fi
-if [ -d "frogtab" ]; then
-  echo "Error: directory '$protected/frogtab' already exists"
-  exit 1
-fi
+print_help "Downloading source code…"
 wget -O frogtab.zip "https://github.com/dwilding/frogtab/archive/refs/heads/server-install.zip"
+rm -rf frogtab
 unzip frogtab.zip -d frogtab
 rm frogtab.zip
 
+# Build the server and prepare the public directory
+print_help "Installing server…"
 cd "$protected/frogtab"
 mv frogtab-server-install/app frogtab-server-install/server .
 frogtab-server-install/scripts/build_server.sh "$protected/frogtab.db"
 rm -rf frogtab-server-install
 rm -rf app
-if [ "$2" = "--refresh" ]; then
-  rm -rf "$public"/*
-fi
+rm -rf "$public"/*
 mv server/public/* "$public"
+print_help "Done!"

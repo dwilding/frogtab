@@ -7,7 +7,7 @@ extra="https://raw.githubusercontent.com/dwilding/frogtab/refs/heads/server-inst
 cd /home/protected
 wget -O install_frogtab.sh "$extra/install_frogtab.sh"
 chmod +x install_frogtab.sh
-./install_frogtab.sh /home/public --refresh
+./install_frogtab.sh /home/public --overwrite
 
 cd /home/public
 wget -qO- "$extra/frogtab.com/public/.htaccess" >> .htaccess
