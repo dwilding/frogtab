@@ -11,19 +11,31 @@ VERSION = "2.0.2"
 
 
 def read_json(json_path: Path) -> dict:
-    content = json_path.read_text(encoding="utf-8")
-    return json.loads(content)
+    if not json_path.is_file():
+        print(f"Error: '{json_path.absolute()}' is not a file")
+        sys.exit(1)
+    try:
+        content = json_path.read_text(encoding="utf-8")
+        return json.loads(content)
+    except PermissionError:
+        print(f"Error: unable to read '{json_path.absolute()}'")
+        sys.exit(13)
 
 
 def write_json(data: dict, json_path: Path) -> None:
-    content = json.dumps(data, indent=2, ensure_ascii=False)
-    json_path.write_text(content, encoding="utf-8")
+    try:
+        content = json.dumps(data, indent=2, ensure_ascii=False)
+        json_path.write_text(content, encoding="utf-8")
+    except PermissionError:
+        print(f"Error: unable to write '{json_path.absolute()}'")
+        sys.exit(13)
 
 
 # Load settings and internal state
 
 args = sys.argv[1:]
 if len(args) != 1:
+    print("Usage: serve-frogtab /path/to/config.json")
     sys.exit(2)
 config_path = Path(args[0])
 config = read_json(config_path)
