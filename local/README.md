@@ -14,7 +14,10 @@ In this README:
   - [Starting Frogtab Local](#starting-frogtab-local)
   - [Sending tasks to Frogtab](#sending-tasks-to-frogtab)
   - [Command reference](#command-reference)
-  - [Python reference](#python-reference)
+
+See also:
+
+  - [Release notes](https://github.com/dwilding/frogtab/releases)
 
 ## Installing Frogtab Local
 
@@ -115,7 +118,3 @@ Environment variables:
                        ports that Frogtab Local is running on.
   NO_COLOR=1           If set, 'frogtab' doesn't display any colored text.
 ```
-
-## Python reference
-
-TODO: https://github.com/dwilding/frogtab/issues/8
