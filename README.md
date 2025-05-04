@@ -73,19 +73,22 @@ To install Frogtab on your own server:
 
  1. Open a shell on your server, then navigate to a directory that is accessible to PHP scripts but not accessible via the web.
 
- 2. Run the following commands:
+ 2. Download [install_frogtab.sh](./extra/install_frogtab.sh) and make it executable:
 
     ```
-    git clone https://github.com/dwilding/frogtab.git
-    cd frogtab
-    ./build_server.sh
+    wget https://raw.githubusercontent.com/dwilding/frogtab/refs/heads/server-install/extra/install_frogtab.sh
+    chmod +x install_frogtab.sh
     ```
 
- 3. Copy the contents of *frogtab/server/public* to a directory that is accessible via the web. Make sure that the *.htaccess* files in *frogtab/server/public* and *frogtab/server/public/open* are copied.
+ 3. Run the following command:
 
-Frogtab is ready!
+    ```
+    ./install_frogtab.sh /path/to/public
+    ```
 
-To use Frogtab, open your browser, then navigate to the web-accessible directory from step 3.
+    Where */path/to/public* is directory that is accessible via the web.
+
+Frogtab is ready! To use Frogtab, open your browser, then navigate to the web-accessible directory from step 3.
 
 The first time you register a device, Frogtab creates a SQLite database called *frogtab.db* in the directory from step 1. This database stores device credentials and the queue of encrypted tasks.
 
