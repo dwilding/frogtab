@@ -86,7 +86,7 @@ To install Frogtab on your own server:
     ./install_frogtab.sh /path/to/public
     ```
 
-    Where */path/to/public* is directory that is accessible via the web.
+    Where */path/to/public* is a directory that is accessible via the web.
 
 To use Frogtab, open your browser, then navigate to the web-accessible directory from step 3.
 
