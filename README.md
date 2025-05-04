@@ -88,7 +88,7 @@ To install Frogtab on your own server:
 
     Where */path/to/public* is directory that is accessible via the web.
 
-Frogtab is ready! To use Frogtab, open your browser, then navigate to the web-accessible directory from step 3.
+To use Frogtab, open your browser, then navigate to the web-accessible directory from step 3.
 
 The first time you register a device, Frogtab creates a SQLite database called *frogtab.db* in the directory from step 1. This database stores device credentials and the queue of encrypted tasks.
 
