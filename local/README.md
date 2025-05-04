@@ -15,6 +15,10 @@ In this README:
   - [Sending tasks to Frogtab](#sending-tasks-to-frogtab)
   - [Command reference](#command-reference)
 
+See also:
+
+  - [Release notes](https://github.com/dwilding/frogtab/releases)
+
 ## Installing Frogtab Local
 
 These instructions explain how to install Frogtab Local as a Python package in a virtual environment. You'll need Python 3.8 or later. See [Download Python](https://www.python.org/downloads/).
