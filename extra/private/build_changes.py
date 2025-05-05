@@ -10,7 +10,7 @@ import markdown
 
 def main():
     token = os.getenv("GITHUB_TOKEN")
-    repo = Github(token).get_repo(f"dwilding/frogtab")
+    repo = Github(token).get_repo("dwilding/frogtab")
     closed_prs = repo.get_pulls(state="closed")
     release_prs = [pr for pr in closed_prs if include_pr(pr)]
     sorted_prs = sorted(release_prs, key=lambda pr: pr.merged_at)
