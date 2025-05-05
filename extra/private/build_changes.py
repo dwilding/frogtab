@@ -13,7 +13,7 @@ def main():
     repo = Github(token).get_repo(f"dwilding/frogtab")
     closed_prs = repo.get_pulls(state="closed")
     release_prs = [pr for pr in closed_prs if include_pr(pr)]
-    sorted_prs = sorted(release_prs, key=lambda pr: pr.merged_at, reverse=True)
+    sorted_prs = sorted(release_prs, key=lambda pr: pr.merged_at)
     feed = FeedGenerator()
     feed.id("https://frogtab.com/changes.xml")
     feed.link(href="https://frogtab.com/changes.xml", rel="self")
