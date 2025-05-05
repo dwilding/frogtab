@@ -27,9 +27,9 @@ def main():
         entry.id(pr.html_url)
         entry.link(href=pr.html_url)
         entry.title(pr.title.removeprefix("release: "))
-        entry.published(pr.merged_at)
         entry.author(name=pr.user.name)
         entry.content(markdown.markdown(pr.body), type="html")
+        entry.updated(pr.merged_at)
     feed_string = feed.atom_str(pretty=True).decode("utf-8")
     Path("/home/public/changes.xml").write_text(feed_string)
 
