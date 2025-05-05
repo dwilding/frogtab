@@ -10,7 +10,8 @@ chmod +x install_frogtab.sh
 ./install_frogtab.sh /home/public --overwrite
 
 cd /home/public
-wget -qO- "$extra/extra.htaccess" >> .htaccess
+wget -O install_frogtab.sh "$extra/install_frogtab.sh"
 wget -O sitemap.xml "$extra/sitemap.xml"
+wget -qO- "$extra/extra.htaccess" >> .htaccess
 sed -i'.backup' 's/data-registration=\"short\"/data-registration=\"long\"/' help.html
 rm *.backup
