@@ -15,3 +15,10 @@ wget -O sitemap.xml "$extra/sitemap.xml"
 wget -qO- "$extra/extra.htaccess" >> .htaccess
 sed -i'.backup' 's/data-registration=\"short\"/data-registration=\"long\"/' help.html
 rm *.backup
+
+echo "Building changes.xml…"
+cd /home/private
+. .venv/bin/activate
+./build_changes.py
+deactivate
+echo "Done!"

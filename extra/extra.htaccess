@@ -8,5 +8,9 @@ Header set Cache-Control "public, max-age=7776000"
 <FilesMatch "^post-.+\.php$">
   Header set Cache-Control "no-cache"
 </FilesMatch>
+<Files "changes.xml">
+  ForceType application/atom+xml
+  Header set Cache-Control "public, max-age=86400"
+</Files>
 ErrorDocument 403 "Error"
 ErrorDocument 404 "Error"

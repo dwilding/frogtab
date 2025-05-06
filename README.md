@@ -93,7 +93,7 @@ To use Frogtab, open your browser, then navigate to the web-accessible directory
 The first time you register a device, Frogtab creates a SQLite database called *frogtab.db* in the directory from step 1. This database stores device credentials and the queue of encrypted tasks.
 
 > [!TIP]
-> To update your installation, run `./install_frogtab.sh /path/to/public` again. For information about the latest changes, see the [changelog](https://github.com/dwilding/frogtab/pulls?q=state%3Aclosed+label%3Aserver+sort%3Acreated-desc).
+> To update your installation, run `./install_frogtab.sh /path/to/public` again. For information about the latest changes, see [merged pull requests](https://github.com/dwilding/frogtab/pulls?q=state%3Amerged+label%3Aserver+sort%3Acreated-desc) or the [feed](https://frogtab.com/changes.xml).
 
 ## Acknowledgments
 
