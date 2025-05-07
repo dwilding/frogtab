@@ -20,6 +20,7 @@ require_user_approval() {
   fi
 }
 
+branch="main"
 protected="$PWD"  # Non-public directory for the source and database
 
 # Check which public directory we should use
@@ -43,7 +44,7 @@ if [ ! "$2" = "--overwrite" ] && [ -d "frogtab" ]; then
   require_user_approval
 fi
 print_help "Downloading source code…"
-wget -O frogtab.zip "https://github.com/dwilding/frogtab/archive/refs/heads/main.zip"
+wget -O frogtab.zip "https://github.com/dwilding/frogtab/archive/refs/heads/$branch.zip"
 rm -rf frogtab
 unzip frogtab.zip -d frogtab
 rm frogtab.zip
@@ -51,9 +52,9 @@ rm frogtab.zip
 # Build the server and prepare the public directory
 print_help "Installing server…"
 cd "$protected/frogtab"
-mv frogtab-main/app frogtab-main/server .
-frogtab-main/scripts/build_server.sh "$protected/frogtab.db" "$protected/frogtab.toml"
-rm -rf frogtab-main
+mv frogtab-$branch/app frogtab-$branch/server .
+"frogtab-$branch/scripts/build_server.sh" "$protected/frogtab.db" "$protected/frogtab.toml"
+rm -rf "frogtab-$branch"
 rm -rf app
 rm -rf "$public"/*
 mv server/public/* "$public"
