@@ -52,7 +52,7 @@ rm frogtab.zip
 print_help "Installing server…"
 cd "$protected/frogtab"
 mv frogtab-main/app frogtab-main/server .
-frogtab-main/scripts/build_server.sh "$protected/frogtab.db"
+frogtab-main/scripts/build_server.sh "$protected/frogtab.db" "$protected/frogtab.toml"
 rm -rf frogtab-main
 rm -rf app
 rm -rf "$public"/*
