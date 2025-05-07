@@ -35,7 +35,7 @@ if (!str_starts_with($pgp_public_key, '-----BEGIN PGP PUBLIC KEY BLOCK-----')) {
 // Check whether registration is allowed
 if (file_exists($_SERVER['FILE_SETTINGS'])) {
   $settings_toml = file_get_contents($_SERVER['FILE_SETTINGS']);
-  $settings = Toml::decode($settings_toml);
+  $settings = Toml::decode($settings_toml, false);
   if (!$settings['allow_registration']) {
     respond_with_failure();
   }
