@@ -4,7 +4,7 @@ header('Content-Type: application/json');
 
 function respond_with_failure() {
   echo json_encode([
-    'success' => false
+    'success' => false,
   ]);
   exit();
 }
@@ -51,7 +51,7 @@ if (!$select_user_result) {
 
 // Respond with success
 echo json_encode([
-  'success' => true
+  'success' => true,
 ]);
 
 ?>

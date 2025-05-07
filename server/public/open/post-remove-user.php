@@ -4,7 +4,7 @@ header('Content-Type: application/json');
 
 function respond_with_failure() {
   echo json_encode([
-    'success' => false
+    'success' => false,
   ]);
   exit();
 }
@@ -55,7 +55,7 @@ $delete_messages->execute();
 
 // Respond with success
 echo json_encode([
-  'success' => true
+  'success' => true,
 ]);
 
 ?>

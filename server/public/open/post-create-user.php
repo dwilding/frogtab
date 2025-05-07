@@ -8,7 +8,7 @@ header('Content-Type: application/json');
 
 function respond_with_failure() {
   echo json_encode([
-    'success' => false
+    'success' => false,
   ]);
   exit();
 }
@@ -42,7 +42,7 @@ if (file_exists($_SERVER['FILE_SETTINGS'])) {
 }
 else {
   $settings = [
-    'allow_registration' => true
+    'allow_registration' => true,
   ];
   $settings_toml = Toml::encode($settings);
   file_put_contents($_SERVER['FILE_SETTINGS'], $settings_toml);
@@ -103,8 +103,8 @@ echo json_encode([
   'success' => true,
   'user' => [
     'user_id' => $user_id,
-    'api_key' => $api_key
-  ]
+    'api_key' => $api_key,
+  ],
 ]);
 
 ?>

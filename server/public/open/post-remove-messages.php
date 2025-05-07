@@ -4,7 +4,7 @@ header('Content-Type: application/json');
 
 function respond_with_failure() {
   echo json_encode([
-    'success' => false
+    'success' => false,
   ]);
   exit();
 }
@@ -67,7 +67,7 @@ foreach ($select_messages_result as $result) {
 // Respond with messages
 echo json_encode([
   'success' => true,
-  'messages' => $messages
+  'messages' => $messages,
 ]);
 
 ?>
