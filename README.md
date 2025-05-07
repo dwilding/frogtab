@@ -100,6 +100,7 @@ The first time you register a device, Frogtab creates a SQLite database called *
   - [Simple.css](https://simplecss.org)
   - [OpenPGP.js](https://openpgpjs.org)
   - [ramsey/uuid](https://uuid.ramsey.dev)
+  - [devium/toml](https://github.com/vanodevium/toml)
   - [iconnoir](https://iconoir.com)
   - [mackwhyte](https://www.fiverr.com/mackwhyte)
 
