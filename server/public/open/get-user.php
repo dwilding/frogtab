@@ -4,7 +4,7 @@ header('Content-Type: application/json');
 
 function respond_with_failure() {
   echo json_encode([
-    'success' => false
+    'success' => false,
   ]);
   exit();
 }
@@ -37,8 +37,8 @@ echo json_encode([
   'success' => true,
   'user' => [
     'user_id' => $user_id,
-    'pgp_public_key' => $select_user_result['pgp_public_key']
-  ]
+    'pgp_public_key' => $select_user_result['pgp_public_key'],
+  ],
 ]);
 
 ?>

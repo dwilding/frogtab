@@ -8,6 +8,11 @@ if [ -z "$database" ]; then
   echo "Error: no database path specified"
   exit 2
 fi
+settings="$2"
+if [ -z "$settings" ]; then
+  echo "Error: no settings path specified"
+  exit 2
+fi
 cp -r app/* server/public
 
 cd "$repo/server/public"
@@ -18,6 +23,7 @@ rm *.backup
 cat <<EOF > .htaccess
 SetEnv DIR_PACKAGES "$repo/server/packages"
 SetEnv FILE_SQLITEDB "$database"
+SetEnv FILE_SETTINGS "$settings"
 AddType text/javascript .mjs
 RewriteEngine On
 RewriteRule ^key_([0-9a-f-]{36})\.asc$ get-public-key.php?user_id=\$1 [L]

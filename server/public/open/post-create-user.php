@@ -2,12 +2,13 @@
 
 require $_SERVER['DIR_PACKAGES'] . '/vendor/autoload.php';
 use Ramsey\Uuid\Uuid;
+use Devium\Toml\Toml;
 
 header('Content-Type: application/json');
 
 function respond_with_failure() {
   echo json_encode([
-    'success' => false
+    'success' => false,
   ]);
   exit();
 }
@@ -29,6 +30,21 @@ if (!array_key_exists('pgp_public_key', $request_body)) {
 $pgp_public_key = $request_body['pgp_public_key'];
 if (!str_starts_with($pgp_public_key, '-----BEGIN PGP PUBLIC KEY BLOCK-----')) {
   respond_with_failure();
+}
+
+// Check whether registration is allowed
+if (file_exists($_SERVER['FILE_SETTINGS'])) {
+  $settings_toml = file_get_contents($_SERVER['FILE_SETTINGS']);
+  $settings = Toml::decode($settings_toml);
+  if (!$settings->allow_registration) {
+    respond_with_failure();
+  }
+}
+else {
+  $settings_toml = Toml::encode([
+    'allow_registration' => true,
+  ]);
+  file_put_contents($_SERVER['FILE_SETTINGS'], $settings_toml);
 }
 
 // Connect to database
@@ -86,8 +102,8 @@ echo json_encode([
   'success' => true,
   'user' => [
     'user_id' => $user_id,
-    'api_key' => $api_key
-  ]
+    'api_key' => $api_key,
+  ],
 ]);
 
 ?>
