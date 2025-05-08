@@ -90,7 +90,7 @@ To install Frogtab on your own server:
 
 To use Frogtab, open your browser, then navigate to the web-accessible directory from step 3.
 
-The first time you register a device, Frogtab creates a SQLite database called *frogtab.db* in the directory from step 1. This database stores device credentials and the queue of encrypted tasks.
+The first time you register a device, Frogtab creates an SQLite database called *frogtab.db* in the directory from step 1. This database stores device credentials and the queue of encrypted tasks.
 
 Anyone who knows the URL of your installation will be able to register their device. To reject further registration attempts after you've registered your device, set `allow_registration = false` in *frogtab.toml* (in the directory from step 1).
 
