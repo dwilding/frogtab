@@ -99,12 +99,15 @@ Anyone who knows the URL of your installation will be able to register their dev
 
 ## Acknowledgments
 
-  - [Simple.css](https://simplecss.org)
-  - [OpenPGP.js](https://openpgpjs.org)
-  - [ramsey/uuid](https://uuid.ramsey.dev)
-  - [devium/toml](https://github.com/vanodevium/toml)
-  - [iconnoir](https://iconoir.com)
-  - [mackwhyte](https://www.fiverr.com/mackwhyte)
+Thank you
+
+  - @ramsey for [ramsey/uuid](https://uuid.ramsey.dev)
+  - @iconoir-icons for [Iconnoir](https://iconoir.com)
+  - @lkiesow for [python-feedgen](https://feedgen.kiesow.be)
+  - @kevquirk for [Simple.css](https://simplecss.org)
+  - [Mackenzie W](https://www.fiverr.com/mackwhyte) for the Frogtab logo!
+  - @openpgpjs for [OpenPGP.js](https://openpgpjs.org)
+  - @vanodevium for [devium/toml](https://github.com/vanodevium/toml)
 
 ## License
 
