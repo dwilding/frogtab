@@ -99,7 +99,7 @@ Anyone who knows the URL of your installation will be able to register their dev
 
 ## Acknowledgments
 
-Thank you
+Huge thanks to:
 
   - Ben Ramsey for [ramsey/uuid](https://uuid.ramsey.dev)
   - [Iconnoir](https://iconoir.com)
