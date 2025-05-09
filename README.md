@@ -103,8 +103,8 @@ Thank you
 
   - Ben Ramsey for [ramsey/uuid](https://uuid.ramsey.dev)
   - [Iconnoir](https://iconoir.com)
-  - Lars Kiesow for [python-feedgen](https://feedgen.kiesow.be)
   - Kev Quirk for [Simple.css](https://simplecss.org)
+  - Lars Kiesow for [python-feedgen](https://feedgen.kiesow.be)
   - [Mackenzie W](https://www.fiverr.com/mackwhyte) for the Frogtab logo!
   - [OpenPGP.js](https://openpgpjs.org)
   - Vano Devium for [devium/toml](https://github.com/vanodevium/toml)
