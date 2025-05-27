@@ -3,8 +3,7 @@ _default:
 
 # 1️⃣  Build the package
 [working-directory: "local"]
-package: app licenses ruff _package-stage
-  ./build_package.sh
+package: app licenses ruff _package-stage _package-build
   mkdir -p testing
   @echo ""
   @echo "To try the package:"
@@ -12,12 +11,19 @@ package: app licenses ruff _package-stage
   @echo "  $ . .venv/bin/activate"
   @echo "  $ cd testing"
   @echo "  $ frogtab ..."
-  @echo ""
-  @echo "To upload the package:"
-  @echo "  $ cd local"
-  @echo "  $ . .venv/bin/activate"
-  @echo "  $ pip install twine"
-  @echo "  $ twine upload package/dist/*"
+
+[working-directory: "local"]
+_package-build:
+  #!/bin/sh
+  rm -rf .venv
+  python3 -m venv .venv
+  . .venv/bin/activate
+  cd package
+  rm -rf dist
+  rm -rf frogtab.egg-info
+  pip install build
+  python -m build
+  pip install dist/frogtab-*.whl
 
 [working-directory: "local/package/frogtab/local_server/templates"]
 _package-stage: _package-static _package-templates-empty
@@ -35,13 +41,23 @@ _package-templates-empty:
   rm -rf templates
   mkdir templates
 
-# 2️⃣  Pack the snap
+# 2️⃣  Upload the package
+[working-directory: "local"]
+package-upload:
+  #!/bin/sh
+  . .venv/bin/activate
+  pip install twine
+  twine upload package/dist/*
+
+# 3️⃣  Pack a snap
 [working-directory: "local/snapcraft"]
 snap:
   snapcraft pack
-  @echo ""
-  @echo "To upload the snap:"
-  @echo "  $ snapcraft upload --release=candidate local/snapcraft/frogtab_<version>_amd64.snap"
+
+# 4️⃣  Upload a snap to the candidate channel
+[working-directory: "local/snapcraft"]
+snap-upload version:
+  snapcraft upload --release=candidate frogtab_{{version}}_amd64.snap
 
 # Check and format code
 [working-directory: "local"]
