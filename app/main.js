@@ -677,7 +677,7 @@ function isNewDay() {
 
 async function verifyUserAndAppendMessages() {
   if (openpgp === undefined) {
-    openpgp = await import("./openpgp.min.mjs?sha1=280298d02f97111053fdb1215ac5011e0c7bd4fb");
+    openpgp = await import("./openpgp.min.mjs?sha1=10537e7469a1cffc78969c32fe52216896b36c64");
   }
   lastAppend = Date.now();
   let response;

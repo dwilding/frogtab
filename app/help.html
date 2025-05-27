@@ -9,7 +9,7 @@
     <link rel="icon" href="favicons/icon-32.png" sizes="32x32" type="image/png">
     <link rel="apple-touch-icon" sizes="180x180" href="favicons/icon-180-apple.png">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="simple.min.css?sha1=207a53056ff9683c302cff0e93103b1968d05a9f">
+    <link rel="stylesheet" href="simple.min.css?sha1=cd9f38e059ac6aeb35d9a4ecae19703f43aa404d">
     <link rel="stylesheet" href="simple-customizations.css?sha1=3f186823fec845a25ba4debacb10968ed8f3f30a">
   </head>
   <body>
@@ -850,7 +850,7 @@
         dom.caseRegistering.classList.add("display");
         await delayForUX(async () => {
           if (openpgp === undefined) {
-            openpgp = await import("./openpgp.min.mjs?sha1=280298d02f97111053fdb1215ac5011e0c7bd4fb");
+            openpgp = await import("./openpgp.min.mjs?sha1=10537e7469a1cffc78969c32fe52216896b36c64");
           }
           const pgpKey = await openpgp.generateKey({
             userIDs: [{
