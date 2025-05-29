@@ -1,15 +1,14 @@
 [project]
 name = "frogtab"
-version = "2.0.3"
+version = "2.0.4"
 description = "Frogtab Local"
 readme = "README.md"
-license = {text="MIT"}
+license = "MIT"
 authors = [
     {name="Dave Wilding", email="tech@dpw.me"},
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
 dependencies = [

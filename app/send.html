@@ -204,7 +204,7 @@
       async function setSendCloud() {
         dom.popups.connecting.classList.add("display");
         await delayForUX(async () => {
-          openpgp = await import("./openpgp.min.mjs?sha1=280298d02f97111053fdb1215ac5011e0c7bd4fb");
+          openpgp = await import("./openpgp.min.mjs?sha1=10537e7469a1cffc78969c32fe52216896b36c64");
           let response;
           try {
             response = await fetch(`open/get-user?user_id=${encodeURIComponent(userID)}`);
