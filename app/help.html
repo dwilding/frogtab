@@ -57,7 +57,6 @@
           <li><a tabindex="0" href="#keyboard-shortcuts">Keyboard shortcuts</a></li>
           <li><a tabindex="0" href="#completion-commands">Completion commands</a></li>
           <li><a tabindex="0" href="#customizing-the-tab-icon">Customizing the tab icon</a></li>
-          <li><a tabindex="0" href="#changing-the-theme">Changing the theme</a></li>
         </ul>
       </article>
       <h2 id="overview-of-frogtab">Overview of Frogtab</h2>
@@ -659,25 +658,6 @@
       <p>
         If your browser supports Frogtab's default way of updating the tab icon, but you prefer no badge on the tab icon, you can use <a tabindex="0" href="icon-normal" target="_blank">this version of Frogtab</a>.
       </p>
-      <h2 id="changing-the-theme">Changing the theme</h2>
-      <div class="notice display">
-        <div class="display">
-          <p>
-            Select a theme:
-          </p>
-          <div>
-            <label>
-              <input tabindex="0" id="theme-light" type="radio" name="theme"> Light
-            </label>
-            <label>
-              <input tabindex="0" id="theme-dark" type="radio" name="theme"> Dark
-            </label>
-            <label>
-              <input tabindex="0" id="theme-system" type="radio" name="theme" checked> System
-            </label>
-          </div>
-        </div>
-      </div>
     </main>
     <footer>
       <p>
@@ -792,18 +772,6 @@
 
 
       // ******** Other helpers ********
-
-      function updateSelectedTheme() {
-        if (localStorage.getItem("ui.theme") == "light") {
-          dom.themeLight.checked = true;
-        }
-        else if (localStorage.getItem("ui.theme") == "dark") {
-          dom.themeDark.checked = true;
-        }
-        else {
-          dom.themeSystem.checked = true;
-        }
-      }
 
       function getPersonalLink() {
         return `${attr("server-base")}send#${localStorage.getItem("user.userID")}`;
@@ -1009,21 +977,8 @@
 
       async function startApp() {
         verify();
-        updateSelectedTheme();
         setAchievements();
         checkForLocalUnpaired();
-        dom.themeLight.addEventListener("change", () => {
-          document.documentElement.setAttribute("data-theme", "light");
-          localStorage.setItem("ui.theme", "light");
-        });
-        dom.themeDark.addEventListener("change", () => {
-          document.documentElement.setAttribute("data-theme", "dark");
-          localStorage.setItem("ui.theme", "dark");
-        });
-        dom.themeSystem.addEventListener("change", () => {
-          document.documentElement.setAttribute("data-theme", "system");
-          localStorage.setItem("ui.theme", "system");
-        });
         if (!platformApple) {
           dom.osWinLinux.checked = true;
           for (const shortcut of document.querySelectorAll(".shortcut.mac")) {
@@ -1137,7 +1092,6 @@
         }
         window.addEventListener("storage", () => {
           document.documentElement.setAttribute("data-theme", localStorage.getItem("ui.theme"));
-          updateSelectedTheme();
           setAchievements();
           checkForLocalUnpaired();
           if (
@@ -1163,9 +1117,6 @@
       }
       document.documentElement.setAttribute("data-theme", localStorage.getItem("ui.theme"));
       const dom = {
-        themeLight: document.getElementById("theme-light"),
-        themeDark: document.getElementById("theme-dark"),
-        themeSystem: document.getElementById("theme-system"),
         osMac: document.getElementById("os-mac"),
         osWinLinux: document.getElementById("os-win-linux"),
         caseChecking: document.getElementById("case-checking"),
