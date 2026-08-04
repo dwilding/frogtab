@@ -253,9 +253,9 @@ textarea.display {
 .action-menu-item.clickable:focus {
   color: var(--body-text);
 }
-.action-menu-item.spacer {
-  height: 2px;
-  background-color: var(--menu-spacer);
+.action-menu-item.divider {
+  border-top: 2px solid var(--menu-spacer);
+  padding-top: 0.6rem;
 }
 .theme-row {
   display: none;
