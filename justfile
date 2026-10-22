@@ -76,8 +76,15 @@ app: _app-libs
 
 [working-directory: "app"]
 _app-libs:
+  #!/bin/sh
+  set -e
   wget -O simple.min.css "https://cdn.simplecss.org/simple.min.css"
   wget -O openpgp.min.mjs "https://unpkg.com/openpgp@5.x/dist/openpgp.min.mjs"
+  for file in simple.min.css openpgp.min.mjs; do
+    if [ -n "$(tail -c 1 "$file")" ]; then
+      echo >> "$file"
+    fi
+  done
 
 # Run the app tests in a browser
 app-test:
