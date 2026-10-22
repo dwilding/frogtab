@@ -172,6 +172,7 @@ function refreshView() {
     dom.editor[selectedTab].scrollTop = 0;
     refreshInfo();
   }
+  renderLinks();
 }
 
 function refreshInfo() {
@@ -182,6 +183,62 @@ function refreshInfo() {
       dom.info.classList.add("display");
     }, 30000);
   }
+}
+
+function escapeHTML(text) {
+  return text
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll("\"", "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function trimTrailingPunctuation(url) {
+  let trimmed = url;
+  while (trimmed.length > 0) {
+    const lastChar = trimmed.charAt(trimmed.length - 1);
+    if (".!,;:?".includes(lastChar)) {
+      trimmed = trimmed.substring(0, trimmed.length - 1);
+    }
+    else if (lastChar == ")" && trimmed.split(")").length > trimmed.split("(").length) {
+      trimmed = trimmed.substring(0, trimmed.length - 1);
+    }
+    else {
+      break;
+    }
+  }
+  return trimmed;
+}
+
+function renderLinks() {
+  const editor = dom.editor[selectedTab];
+  dom.links.style.width = `${editor.clientWidth + 4}px`;
+  let html = "";
+  let copiedUpTo = 0;
+  for (const match of editor.value.matchAll(/\bhttps?:\/\/[^\s<>"']+/g)) {
+    html += escapeHTML(editor.value.substring(copiedUpTo, match.index));
+    const url = trimTrailingPunctuation(match[0]);
+    html += `<a tabindex="-1" href="${escapeHTML(url)}">${escapeHTML(url)}</a>`;
+    copiedUpTo = match.index + url.length;
+  }
+  html += escapeHTML(editor.value.substring(copiedUpTo));
+  dom.links.innerHTML = html;
+  dom.links.scrollTop = editor.scrollTop;
+}
+
+function openLinkAtPoint(x, y) {
+  dom.links.style.pointerEvents = "auto";
+  const element = document.elementFromPoint(x, y);
+  dom.links.style.pointerEvents = "";
+  if (element === null) {
+    return;
+  }
+  const link = element.closest("#links a");
+  if (link === null) {
+    return;
+  }
+  window.open(link.getAttribute("href"), "_blank", "noopener,noreferrer");
 }
 
 function addSpaceForCompletionOffset(editor) {
@@ -753,6 +810,7 @@ function toggleSnap() {
     dom.snapToCenter.classList.remove("display");
     localStorage.setItem("ui.snap", "center");
   }
+  renderLinks();
 }
 
 function setExportAndSave() {
@@ -825,6 +883,9 @@ function createDataJSON() {
 
 function storeThenSave(key, value) {
   localStorage.setItem(key, value);
+  if (key.startsWith("value.")) {
+    renderLinks();
+  }
   requestSave();
 }
 
@@ -1137,6 +1198,17 @@ async function startApp() {
   dom.editor.inbox.addEventListener("focusin", () => {
     dom.menu.classList.remove("display");
   });
+  for (const editor of [dom.editor.today, dom.editor.inbox]) {
+    editor.addEventListener("scroll", () => {
+      dom.links.scrollTop = editor.scrollTop;
+    });
+    editor.addEventListener("click", event => {
+      if ((platformApple && event.metaKey) || (!platformApple && event.ctrlKey)) {
+        openLinkAtPoint(event.clientX, event.clientY);
+      }
+    });
+  }
+  window.addEventListener("resize", renderLinks);
   dom.menu.addEventListener("keydown", event => {
     if (event.target.hasAttribute("data-menu-seq") && matchKeyboardEvent(event, "", "arrowdown")) {
       event.preventDefault();
@@ -1377,6 +1449,7 @@ const dom = {
     today: document.getElementById("editor-today"),
     inbox: document.getElementById("editor-inbox")
   },
+  links: document.getElementById("links"),
   today: document.getElementById("tab-today"),
   inbox: document.getElementById("tab-inbox"),
   info: document.getElementById("tab-info"),
