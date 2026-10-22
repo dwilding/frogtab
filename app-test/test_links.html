@@ -372,12 +372,14 @@ function waitForApp() {
     assertEqual(editorToday.style.cursor, "pointer", "cursor");
   });
   check("the tooltip names the platform modifier", () => {
-    assertEqual(editorToday.title, `Press ${platformApple ? "⌘" : "Ctrl"} + click to open`, "title");
+    assertEqual(editorToday.title, `${platformApple ? "⌘" : "Ctrl"}+click to open`, "title");
   });
   check("the hand disappears without the modifier", () => {
     win.updateLinkCursor(editorToday, onLink.x, onLink.y, false);
     assertEqual(editorToday.style.cursor, "", "cursor");
-    assertEqual(editorToday.title, "", "title");
+  });
+  check("the tooltip stays without the modifier", () => {
+    assertEqual(editorToday.title, `${platformApple ? "⌘" : "Ctrl"}+click to open`, "title");
   });
   check("the hand does not appear on plain text", () => {
     win.updateLinkCursor(editorToday, onText.x, onText.y, true);
