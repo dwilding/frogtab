@@ -15,6 +15,7 @@ package: app licenses ruff _package-stage _package-build
 [working-directory: "local"]
 _package-build:
   #!/bin/sh
+  set -e
   rm -rf .venv
   python3 -m venv .venv
   . .venv/bin/activate
@@ -45,6 +46,7 @@ _package-templates-empty:
 [working-directory: "local"]
 package-upload:
   #!/bin/sh
+  set -e
   . .venv/bin/activate
   pip install twine
   twine upload package/dist/*
@@ -89,6 +91,7 @@ _app-libs:
 # Run the app tests in a browser
 app-test:
   #!/bin/sh
+  set -e
   python3 -m http.server 8124 --bind 127.0.0.1 &
   server_pid=$!
   trap 'kill $server_pid 2>/dev/null' EXIT
