@@ -1,4 +1,4 @@
-name: App tests
+name: Browser-side app tests
 
 on:
   pull_request:
@@ -15,7 +15,20 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           persist-credentials: false
-      - name: Install uv
-        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7  # v10.2.0
       - name: Run the app tests
-        run: uvx --from rust-just@1.58.0 just app-test-ci
+        run: |
+          set -euo pipefail
+          dom="$(mktemp)"
+          python3 -m http.server 8124 --bind 127.0.0.1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null; rm -f "$dom"' EXIT
+          for _ in $(seq 1 50); do
+            wget -q --spider http://127.0.0.1:8124/ && break
+            sleep 0.1
+          done
+          google-chrome --headless=new --virtual-time-budget=20000 \
+            --dump-dom http://127.0.0.1:8124/app-test/test_links.html > "$dom"
+          grep -q "<title>Link tests: all passed</title>" "$dom" || {
+            sed -n '/<pre id="output">/,/<\/pre>/p' "$dom"
+            exit 1
+          }

@@ -92,22 +92,3 @@ app-test:
   xdg-open http://127.0.0.1:8124/app-test/test_links.html
   echo "The tests are running in your browser. Press Ctrl+C to stop the server."
   wait $server_pid
-
-# Run the app tests in headless Chrome
-app-test-ci:
-  #!/bin/sh
-  set -eu
-  dom="$(mktemp)"
-  python3 -m http.server 8124 --bind 127.0.0.1 &
-  server_pid=$!
-  trap 'kill "$server_pid" 2>/dev/null; rm -f "$dom"' EXIT
-  for _ in $(seq 1 50); do
-    wget -q --spider http://127.0.0.1:8124/ && break
-    sleep 0.1
-  done
-  google-chrome --headless=new --virtual-time-budget=20000 \
-    --dump-dom http://127.0.0.1:8124/app-test/test_links.html > "$dom"
-  grep -q "<title>Link tests: all passed</title>" "$dom" || {
-    sed -n '/<pre id="output">/,/<\/pre>/p' "$dom"
-    exit 1
-  }
