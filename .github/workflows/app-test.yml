@@ -1,0 +1,28 @@
+name: app-test
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  app-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - name: Run the app tests
+        run: |
+          python3 -m http.server 8124 --bind 127.0.0.1 &
+          server_pid=$!
+          trap 'kill $server_pid 2>/dev/null' EXIT
+          for _ in $(seq 1 50); do
+            wget -q --spider http://127.0.0.1:8124/ && break
+            sleep 0.1
+          done
+          google-chrome --headless=new --virtual-time-budget=20000 \
+            --dump-dom http://127.0.0.1:8124/app-test/test_links.html > dom.html
+          grep -q "<title>Link tests: all passed</title>" dom.html || {
+            sed -n '/<pre id="output">/,/<\/pre>/p' dom.html
+            exit 1
+          }
