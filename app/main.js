@@ -228,17 +228,29 @@ function renderLinks() {
 }
 
 function openLinkAtPoint(x, y) {
-  dom.links.style.pointerEvents = "auto";
-  const element = document.elementFromPoint(x, y);
-  dom.links.style.pointerEvents = "";
-  if (element === null) {
-    return;
-  }
-  const link = element.closest("#links a");
+  const link = linkAtPoint(x, y);
   if (link === null) {
     return;
   }
   window.open(link.getAttribute("href"), "_blank", "noopener,noreferrer");
+}
+
+function linkAtPoint(x, y) {
+  dom.links.style.pointerEvents = "auto";
+  const element = document.elementFromPoint(x, y);
+  dom.links.style.pointerEvents = "";
+  if (element === null) {
+    return null;
+  }
+  return element.closest("#links a");
+}
+
+let lastPointerX = 0;
+let lastPointerY = 0;
+
+function updateLinkCursor(editor, x, y, modifier) {
+  const overLink = modifier && linkAtPoint(x, y) !== null;
+  editor.style.cursor = overLink ? "pointer" : "";
 }
 
 function addSpaceForCompletionOffset(editor) {
@@ -1207,7 +1219,26 @@ async function startApp() {
         openLinkAtPoint(event.clientX, event.clientY);
       }
     });
+    editor.addEventListener("mousemove", event => {
+      lastPointerX = event.clientX;
+      lastPointerY = event.clientY;
+      updateLinkCursor(editor, event.clientX, event.clientY, (platformApple && event.metaKey) || (!platformApple && event.ctrlKey));
+    });
   }
+  window.addEventListener("keydown", event => {
+    if (event.key == (platformApple ? "Meta" : "Control")) {
+      for (const editor of [dom.editor.today, dom.editor.inbox]) {
+        updateLinkCursor(editor, lastPointerX, lastPointerY, (platformApple && event.metaKey) || (!platformApple && event.ctrlKey));
+      }
+    }
+  });
+  window.addEventListener("keyup", event => {
+    if (event.key == (platformApple ? "Meta" : "Control")) {
+      for (const editor of [dom.editor.today, dom.editor.inbox]) {
+        updateLinkCursor(editor, lastPointerX, lastPointerY, (platformApple && event.metaKey) || (!platformApple && event.ctrlKey));
+      }
+    }
+  });
   window.addEventListener("resize", renderLinks);
   dom.menu.addEventListener("keydown", event => {
     if (event.target.hasAttribute("data-menu-seq") && matchKeyboardEvent(event, "", "arrowdown")) {
