@@ -219,7 +219,8 @@ function renderLinks() {
   dom.links.style.width = `${editor.clientWidth + 4}px`;
   let html = "";
   let copiedUpTo = 0;
-  for (const match of editor.value.matchAll(/\bhttps?:\/\/[^\s<>"']+/g)) {
+  // URL schemes are case-insensitive, so match any case
+  for (const match of editor.value.matchAll(/\bhttps?:\/\/[^\s<>"']+/gi)) {
     html += escapeHTML(editor.value.substring(copiedUpTo, match.index));
     const url = trimTrailingPunctuation(match[0]);
     html += `<a tabindex="-1" href="${escapeHTML(url)}">${escapeHTML(url)}</a>`;

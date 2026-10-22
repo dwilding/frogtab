@@ -78,3 +78,17 @@ app: _app-libs
 _app-libs:
   wget -O simple.min.css "https://cdn.simplecss.org/simple.min.css"
   wget -O openpgp.min.mjs "https://unpkg.com/openpgp@5.x/dist/openpgp.min.mjs"
+
+# Run the app tests in a browser
+app-test:
+  #!/bin/sh
+  python3 -m http.server 8124 --bind 127.0.0.1 &
+  server_pid=$!
+  trap 'kill $server_pid 2>/dev/null' EXIT
+  for _ in $(seq 1 50); do
+    wget -q --spider http://127.0.0.1:8124/ && break
+    sleep 0.1
+  done
+  xdg-open http://127.0.0.1:8124/app-test/test_links.html
+  echo "The tests are running in your browser. Press Ctrl+C to stop the server."
+  wait $server_pid

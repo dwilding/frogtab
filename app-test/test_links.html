@@ -19,13 +19,14 @@
 </head>
 <body>
   <h1>Frogtab link tests</h1>
-  <p>Serve the repository root, then open this page in a browser:</p>
+  <p>Run <code>just app-test</code> from the repository root. To run the tests without just, serve the repository root and open this page in a browser:</p>
   <pre>python3 -m http.server 8124</pre>
   <p>
     The tests embed <code>app/index.html</code> in the iframe below and drive the real app.
     They cover the link overlay: rendering, re-render triggers, scroll sync, hit-testing,
     and the hand cursor.
   </p>
+  <p>The page title shows the result: <em>Link tests: all passed</em>.</p>
   <pre id="output"></pre>
   <iframe id="app"></iframe>
   <script>
@@ -175,6 +176,23 @@ function waitForApp() {
   check("only http and https URLs become links", () => {
     assertEqual(links.querySelectorAll("a").length, 2, "link count");
   });
+  check("URL schemes match in any case", () => {
+    editorToday.value = "see HTTPS://UPPER.example.com/Z and hTTps://Mixed.example.com/m";
+    win.renderLinks();
+    assertEqual(links.querySelectorAll("a").length, 2, "link count");
+    assertEqual(links.querySelectorAll("a")[0].getAttribute("href"), "HTTPS://UPPER.example.com/Z", "href");
+    assertEqual(links.querySelectorAll("a")[1].getAttribute("href"), "hTTps://Mixed.example.com/m", "href");
+    editorToday.value = todaySeed;
+    win.renderLinks();
+  });
+  check("an empty value renders no links", () => {
+    editorToday.value = "";
+    win.renderLinks();
+    assertEqual(links.querySelectorAll("a").length, 0, "link count");
+    assertEqual(links.textContent, "", "textContent");
+    editorToday.value = todaySeed;
+    win.renderLinks();
+  });
   check("trailing punctuation is trimmed from the href", () => {
     assertEqual(links.querySelectorAll("a")[0].getAttribute("href"), "https://example.com/docs", "href");
   });
@@ -189,6 +207,17 @@ function waitForApp() {
   });
   check("the overlay ignores pointer events", () => {
     assertEqual(win.getComputedStyle(links).pointerEvents, "none", "pointerEvents");
+  });
+  check("links are underlined in the secondary text color", () => {
+    const anchorCS = win.getComputedStyle(links.querySelector("a"));
+    assertEqual(anchorCS.textDecorationLine, "underline", "textDecorationLine");
+    // compare against a probe, since the computed value normalizes the color notation
+    const probe = doc.createElement("span");
+    probe.style.color = "var(--secondary-text)";
+    doc.body.appendChild(probe);
+    const probeColor = win.getComputedStyle(probe).color;
+    probe.remove();
+    assertEqual(anchorCS.textDecorationColor, probeColor, "textDecorationColor");
   });
 
   line("tab switch");
@@ -334,6 +363,21 @@ function waitForApp() {
     win.dispatchEvent(new KeyboardEvent("keydown", {key: modifierKey, ...modifierDown}));
     assertEqual(editorToday.style.cursor, "", "cursor");
   });
+  check("pressing the modifier updates both editors", () => {
+    editorToday.dispatchEvent(new MouseEvent("mousemove", {clientX: onLink.x, clientY: onLink.y, ...modifierDown}));
+    editorInbox.dispatchEvent(new MouseEvent("mousemove", {clientX: onLink.x, clientY: onLink.y, ...modifierDown}));
+    win.dispatchEvent(new KeyboardEvent("keyup", {key: modifierKey}));
+    assertEqual(editorToday.style.cursor, "", "today cursor before keydown");
+    assertEqual(editorInbox.style.cursor, "", "inbox cursor before keydown");
+    win.dispatchEvent(new KeyboardEvent("keydown", {key: modifierKey, ...modifierDown}));
+    assertEqual(editorToday.style.cursor, "pointer", "today cursor");
+    assertEqual(editorInbox.style.cursor, "pointer", "inbox cursor");
+  });
+  check("releasing the modifier updates both editors", () => {
+    win.dispatchEvent(new KeyboardEvent("keyup", {key: modifierKey}));
+    assertEqual(editorToday.style.cursor, "", "today cursor");
+    assertEqual(editorInbox.style.cursor, "", "inbox cursor");
+  });
 
   line("modifier");
   check("modifierHeld recognizes the platform modifier", () => {
@@ -348,6 +392,14 @@ function waitForApp() {
     links.innerHTML = "";
     win.dispatchEvent(new Event("resize"));
     assertEqual(links.querySelectorAll("a").length, 2, "link count");
+  });
+  check("resizing re-syncs the overlay width", () => {
+    iframe.style.width = "600px";
+    win.dispatchEvent(new Event("resize"));
+    assertEqual(links.style.width, `${editorToday.clientWidth + 4}px`, "style.width");
+    iframe.style.width = "";
+    win.dispatchEvent(new Event("resize"));
+    assertEqual(links.style.width, `${editorToday.clientWidth + 4}px`, "style.width");
   });
 
   line("");
