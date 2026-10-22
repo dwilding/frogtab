@@ -8,7 +8,7 @@ Frogtab Local is a version of the [Frogtab](https://frogtab.com) task manager th
 
 For details, see the [Frogtab Local docs](https://github.com/dwilding/frogtab/blob/main/local/README.md#frogtab-local).
 
-This package also provides a command `serve-frogtab /path/to/config.json`, which enables other service managers to run the server as a daemon. 
+This package also provides a command `serve-frogtab /path/to/config.json`, which enables other service managers to run the server as a daemon.
 
 ## License
 
