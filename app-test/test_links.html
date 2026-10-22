@@ -288,6 +288,32 @@ function waitForApp() {
     editorToday.dispatchEvent(new Event("scroll"));
     assertEqual(links.scrollTop, 40, "overlay scrollTop");
   });
+  check("the seed text overflows the editor", () => {
+    assert(editorToday.scrollHeight > editorToday.clientHeight, "the editor does not overflow");
+    assert(links.scrollHeight > links.clientHeight, "the overlay does not overflow");
+  });
+  check("a link scrolled out of view is not clickable", () => {
+    // scroll to the end: the first line's link sits far above the clip box
+    editorToday.scrollTop = editorToday.scrollHeight;
+    editorToday.dispatchEvent(new Event("scroll"));
+    const first = links.querySelector("a");
+    const overlayRect = links.getBoundingClientRect();
+    const firstRect = first.getBoundingClientRect();
+    assert(firstRect.bottom <= overlayRect.top, "the first link is still in view");
+    assertEqual(win.linkAtPoint(firstRect.left + firstRect.width / 2, firstRect.top + firstRect.height / 2), null, "element");
+  });
+  check("a link visible while scrolled stays clickable", () => {
+    // scroll half a line: the first link is partly clipped, the second is fully in view
+    const lineHeight = links.querySelector("a").getBoundingClientRect().height;
+    editorToday.scrollTop = Math.round(lineHeight / 2);
+    editorToday.dispatchEvent(new Event("scroll"));
+    const second = links.querySelectorAll("a")[1];
+    const secondRect = second.getBoundingClientRect();
+    const overlayRect = links.getBoundingClientRect();
+    assert(secondRect.top >= overlayRect.top && secondRect.bottom <= overlayRect.bottom, "the second link is not fully in view");
+    const hit = win.linkAtPoint(secondRect.left + secondRect.width / 2, secondRect.top + secondRect.height / 2);
+    assertEqual(hit, second, "element");
+  });
   editorToday.scrollTop = 0;
   editorToday.dispatchEvent(new Event("scroll"));
 
