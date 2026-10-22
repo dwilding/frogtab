@@ -213,6 +213,9 @@ function trimTrailingPunctuation(url) {
 
 function renderLinks() {
   const editor = dom.editor[selectedTab];
+  // Match the overlay's text wrap width to the editor's:
+  // the editor's clientWidth excludes its 2px borders and scrollbar,
+  // while the overlay's width includes its own 2px transparent borders
   dom.links.style.width = `${editor.clientWidth + 4}px`;
   let html = "";
   let copiedUpTo = 0;
@@ -224,6 +227,7 @@ function renderLinks() {
   }
   html += escapeHTML(editor.value.substring(copiedUpTo));
   dom.links.innerHTML = html;
+  // Copy the scroll position explicitly: setting scrollTop doesn't trigger a scroll event
   dom.links.scrollTop = editor.scrollTop;
 }
 
@@ -236,6 +240,7 @@ function openLinkAtPoint(x, y) {
 }
 
 function linkAtPoint(x, y) {
+  // The overlay ignores pointer events, so let it receive them temporarily
   dom.links.style.pointerEvents = "auto";
   const element = document.elementFromPoint(x, y);
   dom.links.style.pointerEvents = "";
@@ -245,6 +250,12 @@ function linkAtPoint(x, y) {
   return element.closest("#links a");
 }
 
+function modifierHeld(event) {
+  return (platformApple && event.metaKey) || (!platformApple && event.ctrlKey);
+}
+
+// Last known pointer position, so that pressing or releasing the modifier key
+// can update the cursor without any mouse movement
 let lastPointerX = 0;
 let lastPointerY = 0;
 
@@ -1215,30 +1226,27 @@ async function startApp() {
       dom.links.scrollTop = editor.scrollTop;
     });
     editor.addEventListener("click", event => {
-      if ((platformApple && event.metaKey) || (!platformApple && event.ctrlKey)) {
+      if (modifierHeld(event)) {
         openLinkAtPoint(event.clientX, event.clientY);
       }
     });
     editor.addEventListener("mousemove", event => {
       lastPointerX = event.clientX;
       lastPointerY = event.clientY;
-      updateLinkCursor(editor, event.clientX, event.clientY, (platformApple && event.metaKey) || (!platformApple && event.ctrlKey));
+      updateLinkCursor(editor, lastPointerX, lastPointerY, modifierHeld(event));
     });
   }
-  window.addEventListener("keydown", event => {
-    if (event.key == (platformApple ? "Meta" : "Control")) {
-      for (const editor of [dom.editor.today, dom.editor.inbox]) {
-        updateLinkCursor(editor, lastPointerX, lastPointerY, (platformApple && event.metaKey) || (!platformApple && event.ctrlKey));
+  // Update the cursor when the modifier key is pressed or released,
+  // even if the pointer hasn't moved since the last mousemove
+  for (const keyEvent of ["keydown", "keyup"]) {
+    window.addEventListener(keyEvent, event => {
+      if (event.key == (platformApple ? "Meta" : "Control")) {
+        for (const editor of [dom.editor.today, dom.editor.inbox]) {
+          updateLinkCursor(editor, lastPointerX, lastPointerY, modifierHeld(event));
+        }
       }
-    }
-  });
-  window.addEventListener("keyup", event => {
-    if (event.key == (platformApple ? "Meta" : "Control")) {
-      for (const editor of [dom.editor.today, dom.editor.inbox]) {
-        updateLinkCursor(editor, lastPointerX, lastPointerY, (platformApple && event.metaKey) || (!platformApple && event.ctrlKey));
-      }
-    }
-  });
+    });
+  }
   window.addEventListener("resize", renderLinks);
   dom.menu.addEventListener("keydown", event => {
     if (event.target.hasAttribute("data-menu-seq") && matchKeyboardEvent(event, "", "arrowdown")) {

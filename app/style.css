@@ -192,6 +192,8 @@ textarea::placeholder {
 textarea.display {
   display: block;
 }
+/* Transparent overlay that mirrors the textarea's metrics.
+   Only the underlines of the links are visible. */
 .links-overlay {
   position: absolute;
   inset: 0;
