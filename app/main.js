@@ -263,6 +263,9 @@ let lastPointerY = 0;
 function updateLinkCursor(editor, x, y, modifier) {
   const overLink = modifier && linkAtPoint(x, y) !== null;
   editor.style.cursor = overLink ? "pointer" : "";
+  // The overlay ignores pointer events, so the browser can't show a tooltip
+  // on the anchors. Set the tooltip on the editor instead.
+  editor.title = overLink ? `Press ${platformApple ? "⌘" : "Ctrl"} + click to open` : "";
 }
 
 function addSpaceForCompletionOffset(editor) {
