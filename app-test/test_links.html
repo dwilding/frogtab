@@ -208,6 +208,18 @@ function waitForApp() {
   check("the overlay ignores pointer events", () => {
     assertEqual(win.getComputedStyle(links).pointerEvents, "none", "pointerEvents");
   });
+  check("the action menus paint above the overlay", () => {
+    const overlayCS = win.getComputedStyle(links);
+    const menuCS = win.getComputedStyle(doc.querySelector(".action-menu"));
+    // both are positioned, so compare paint order by z-index, then DOM order
+    assertEqual(overlayCS.zIndex, "auto", "overlay z-index");
+    assertEqual(menuCS.zIndex, "auto", "menu z-index");
+    const overlayPos = links.compareDocumentPosition(doc.querySelector(".action-menu"));
+    assert(
+      overlayPos & Node.DOCUMENT_POSITION_FOLLOWING,
+      "the menu should follow the overlay in DOM order"
+    );
+  });
   check("links are underlined in the secondary text color", () => {
     const anchorCS = win.getComputedStyle(links.querySelector("a"));
     assertEqual(anchorCS.textDecorationLine, "underline", "textDecorationLine");

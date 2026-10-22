@@ -193,11 +193,12 @@ textarea.display {
   display: block;
 }
 /* Transparent overlay that mirrors the textarea's metrics.
-   Only the underlines of the links are visible. */
+   Only the underlines of the links are visible.
+   No z-index: the overlay still paints above the static textareas,
+   and the action menus paint above the overlay. */
 .links-overlay {
   position: absolute;
   inset: 0;
-  z-index: 1;
   pointer-events: none;
   padding: 0.6rem;
   box-sizing: border-box;
