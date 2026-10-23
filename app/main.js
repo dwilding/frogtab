@@ -604,7 +604,6 @@ function inboxSnoozeSelected() {
     if (capturing) {
       newInboxValue = newInboxValue.trimEnd();
     }
-    storeThenSave("value.inbox", newInboxValue);
     const prevScrollTop = dom.editor.inbox.scrollTop;
     dom.editor.inbox.scrollTop = 0;
     dom.editor.inbox.value = newInboxValue.substring(0, newSelectionPos);
@@ -612,6 +611,7 @@ function inboxSnoozeSelected() {
     dom.editor.inbox.value = newInboxValue;
     dom.editor.inbox.scrollTop = Math.max(prevScrollTop, dom.editor.inbox.scrollTop);
     dom.editor.inbox.setSelectionRange(newSelectionPos, newSelectionPos);
+    storeThenSave("value.inbox", newInboxValue);
   }
 }
 
@@ -642,10 +642,10 @@ function selectUnsnoozed() {
   else {
     dom.editor.inbox.value = unsnoozed;
   }
-  storeThenSave("value.inbox", dom.editor.inbox.value);
   dom.editor.inbox.setSelectionRange(0, unsnoozed.length);
   dom.editor.inbox.scrollTop = 0;
   dom.editor.inbox.focus();
+  storeThenSave("value.inbox", dom.editor.inbox.value);
 }
 
 function appendToBottom(original, value) {
@@ -1302,10 +1302,10 @@ async function startApp() {
         value = `\n\n${value}`;
       }
       dom.editor[selectedTab].value = value;
-      storeThenSave(`value.${selectedTab}`, dom.editor[selectedTab].value);
       dom.editor[selectedTab].setSelectionRange(0, 0);
       dom.editor[selectedTab].scrollTop = 0;
       dom.editor[selectedTab].focus();
+      storeThenSave(`value.${selectedTab}`, dom.editor[selectedTab].value);
       refreshInfo();
     }
     else if (matchKeyboardEvent(event, "c", "u")) {

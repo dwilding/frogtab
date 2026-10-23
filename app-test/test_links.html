@@ -515,6 +515,215 @@ function waitForApp() {
     assert(!win.modifierHeld(other), "the other modifier is treated as held");
   });
 
+  line("mutators");
+  // Every code path that changes the editor's text or scroll position must
+  // leave the overlay rendered from the final state. Each check drives one
+  // mutator and verifies the overlay against the editor afterwards.
+  const assertOverlayMatches = editor => {
+    assertEqual(links.textContent, editor.value, "overlay text");
+    const expected = [...editor.value.matchAll(/\bhttps?:\/\/[^\s<>"']+/gi)]
+      .map(match => win.trimTrailingPunctuation(match[0]));
+    const anchors = links.querySelectorAll("a");
+    assertEqual(anchors.length, expected.length, "link count");
+    for (let i = 0; i < anchors.length; i++) {
+      assertEqual(anchors[i].getAttribute("href"), expected[i], `href ${i}`);
+    }
+    assertEqual(links.scrollTop, editor.scrollTop, "overlay scrollTop");
+  };
+  // FrogtabDate is a class declaration, so it does not land on window.
+  // This replicates its stringFromObject to compute expected dates.
+  const dateString = date => [
+    date.toLocaleDateString(undefined, {year: "numeric"}),
+    date.toLocaleDateString(undefined, {month: "2-digit"}),
+    date.toLocaleDateString(undefined, {day: "2-digit"})
+  ].join("-");
+  const restoreLinkState = () => {
+    localStorage.setItem("value.inbox", inboxSeed);
+    localStorage.removeItem("achievements");
+    win.switchToTab("today");
+    editorToday.value = todaySeed;
+    // Assigning value resets the caret to the end, and a later focus() would
+    // scroll that out-of-view caret into view. Keep the caret at the top.
+    editorToday.setSelectionRange(0, 0);
+    editorToday.scrollTop = 0;
+    win.storeThenSave("value.today", todaySeed);
+    win.setNotifyStatus();
+  };
+
+  // Each mutator check starts from the seeded state, so a failure cannot
+  // leak its setup into the checks that follow.
+  const mutatorCheck = (name, fn) => check(name, () => {
+    restoreLinkState();
+    fn();
+  });
+  mutatorCheck("Ctrl+/ on today snoozes the line and re-renders the overlay", () => {
+    editorToday.setSelectionRange(0, 0);
+    editorToday.dispatchEvent(new KeyboardEvent("keydown", {key: "/", ...modifierDown}));
+    assertEqual(editorToday.value, todaySeed.split("\n").slice(1).join("\n"), "editor value");
+    assertOverlayMatches(editorToday);
+    assertEqual(localStorage.getItem("value.inbox"), `# ${todaySeed.split("\n")[0]}\n\n${inboxSeed}`, "stored inbox value");
+    win.switchToTab("inbox");
+    assertOverlayMatches(editorInbox);
+  });
+  mutatorCheck("Ctrl+/ on inbox adds # and shifts the underline", () => {
+    win.switchToTab("inbox");
+    editorInbox.setSelectionRange(0, 0);
+    editorInbox.dispatchEvent(new KeyboardEvent("keydown", {key: "/", ...modifierDown}));
+    assertEqual(editorInbox.value, `# ${inboxSeed}`, "editor value");
+    assertOverlayMatches(editorInbox);
+  });
+  mutatorCheck("Ctrl+/ on a scrolled inbox keeps the overlay scroll in sync", () => {
+    const lines = [inboxSeed, ...Array.from({length: 60}, (_, i) => `filler line ${i}`)];
+    localStorage.setItem("value.inbox", lines.join("\n"));
+    win.switchToTab("inbox");
+    editorInbox.scrollTop = 0;
+    const cursorPos = lines.slice(0, 40).join("\n").length + 1;
+    editorInbox.setSelectionRange(cursorPos, cursorPos);
+    editorInbox.blur();
+    editorInbox.dispatchEvent(new KeyboardEvent("keydown", {key: "/", ...modifierDown}));
+    const expectedValue = [...lines.slice(0, 40), `# ${lines[40]}`, ...lines.slice(41)].join("\n");
+    assertEqual(editorInbox.value, expectedValue, "editor value");
+    assert(editorInbox.scrollTop > 0, "the editor did not scroll to the snoozed line");
+    assertOverlayMatches(editorInbox);
+  });
+  mutatorCheck("Ctrl+Shift+Enter on inbox moves the task to today", () => {
+    localStorage.setItem("value.inbox", "# snoozed task https://snooze.example.com/x\n\nplain line https://plain.example.com/y");
+    win.switchToTab("inbox");
+    editorInbox.setSelectionRange(0, 0);
+    editorInbox.dispatchEvent(new KeyboardEvent("keydown", {key: "Enter", shiftKey: true, ...modifierDown}));
+    assertEqual(editorInbox.value, "plain line https://plain.example.com/y", "editor value");
+    assertOverlayMatches(editorInbox);
+    assertEqual(localStorage.getItem("value.today"), `${todaySeed}\n\nsnoozed task https://snooze.example.com/x`, "stored today value");
+    win.switchToTab("today");
+    assertOverlayMatches(editorToday);
+  });
+  mutatorCheck("Ctrl+k on today completes the task and records the achievement", () => {
+    localStorage.setItem("achievements", "[]");
+    editorToday.setSelectionRange(0, 0);
+    editorToday.dispatchEvent(new KeyboardEvent("keydown", {key: "k", ...modifierDown}));
+    assertEqual(editorToday.value, todaySeed.split("\n").slice(1).join("\n"), "editor value");
+    assertOverlayMatches(editorToday);
+    const achievements = JSON.parse(localStorage.getItem("achievements"));
+    assertEqual(achievements.length, 1, "achievement count");
+    assertEqual(achievements[0].date, dateString(new Date()), "achievement date");
+    assertEqual(JSON.stringify(achievements[0].tasks), JSON.stringify([todaySeed.split("\n")[0]]), "achievement tasks");
+  });
+  mutatorCheck("Ctrl+k on inbox completes the task", () => {
+    localStorage.setItem("achievements", "[]");
+    win.switchToTab("inbox");
+    editorInbox.setSelectionRange(0, 0);
+    editorInbox.dispatchEvent(new KeyboardEvent("keydown", {key: "k", ...modifierDown}));
+    assertEqual(editorInbox.value, "", "editor value");
+    assertOverlayMatches(editorInbox);
+    const achievements = JSON.parse(localStorage.getItem("achievements"));
+    assertEqual(JSON.stringify(achievements[0].tasks), JSON.stringify([inboxSeed]), "achievement tasks");
+  });
+  mutatorCheck("Enter completes a task with a date offset", () => {
+    localStorage.setItem("achievements", "[]");
+    editorToday.value = "x -1 fix https://offset.example.com/z";
+    editorToday.setSelectionRange(5, 5);
+    editorToday.dispatchEvent(new KeyboardEvent("keydown", {key: "Enter"}));
+    assertEqual(editorToday.value, "", "editor value");
+    assertOverlayMatches(editorToday);
+    const yesterday = dateString(new Date(Date.now() - 86400000));
+    const achievements = JSON.parse(localStorage.getItem("achievements"));
+    assertEqual(achievements.length, 1, "achievement count");
+    assertEqual(achievements[0].date, yesterday, "achievement date");
+    assertEqual(JSON.stringify(achievements[0].tasks), JSON.stringify(["fix https://offset.example.com/z"]), "achievement tasks");
+    editorToday.value = "x done https://plain.example.com/q";
+    editorToday.setSelectionRange(2, 2);
+    editorToday.dispatchEvent(new KeyboardEvent("keydown", {key: "Enter"}));
+    assertOverlayMatches(editorToday);
+    const updated = JSON.parse(localStorage.getItem("achievements"));
+    assertEqual(updated.length, 2, "achievement count");
+    assertEqual(updated[0].date, dateString(new Date()), "today's achievement date");
+    assertEqual(updated[0].tasks[0], "done https://plain.example.com/q", "today's first task");
+  });
+  mutatorCheck("the completion-offset input helper re-renders the overlay", () => {
+    localStorage.setItem("achievements", "[]");
+    editorToday.value = "X https://offset.example.com/w";
+    editorToday.setSelectionRange(2, 2);
+    editorToday.dispatchEvent(new InputEvent("input", {inputType: "insertText"}));
+    assertEqual(editorToday.value, "x  https://offset.example.com/w", "editor value");
+    assertOverlayMatches(editorToday);
+  });
+  mutatorCheck("the inbox input listener re-renders the overlay", () => {
+    win.switchToTab("inbox");
+    editorInbox.value = `${inboxSeed}\nsee https://inbox-input.example.com/n`;
+    editorInbox.dispatchEvent(new InputEvent("input"));
+    assertOverlayMatches(editorInbox);
+    assertEqual(localStorage.getItem("value.inbox"), editorInbox.value, "stored inbox value");
+  });
+  mutatorCheck("body Ctrl+Enter re-renders at the top of the gap", () => {
+    editorToday.scrollTop = 40;
+    editorToday.blur();
+    doc.body.dispatchEvent(new KeyboardEvent("keydown", {key: "Enter", ...modifierDown}));
+    assertEqual(editorToday.value, `\n\n${todaySeed}`, "editor value");
+    assertOverlayMatches(editorToday);
+  });
+  mutatorCheck("body Ctrl+Shift+i re-renders the reordered inbox", () => {
+    // A short inbox cannot scroll, so the reorder needs a long one to move
+    // the overlay's scroll position and expose a stale render.
+    const lines = [
+      "# snoozed https://b.example.com/2",
+      "plain https://a.example.com/1",
+      ...Array.from({length: 40}, (_, i) => `filler line ${i}`)
+    ];
+    localStorage.setItem("value.inbox", lines.join("\n"));
+    win.setNotifyStatus();
+    win.switchToTab("inbox");
+    editorInbox.scrollTop = 40;
+    editorInbox.blur();
+    doc.body.dispatchEvent(new KeyboardEvent("keydown", {key: "i", shiftKey: true, ...modifierDown}));
+    const expected = [...lines.slice(1), "", lines[0]].join("\n");
+    assertEqual(editorInbox.value, expected, "editor value");
+    assertOverlayMatches(editorInbox);
+  });
+  mutatorCheck("body Ctrl+a, Ctrl+u and Ctrl+i switch focus and tabs", () => {
+    doc.body.dispatchEvent(new KeyboardEvent("keydown", {key: "a", ...modifierDown}));
+    assertEqual(doc.activeElement, editorToday, "focused editor");
+    assertOverlayMatches(editorToday);
+    doc.body.dispatchEvent(new KeyboardEvent("keydown", {key: "u", ...modifierDown}));
+    assertOverlayMatches(editorToday);
+    doc.body.dispatchEvent(new KeyboardEvent("keydown", {key: "i", ...modifierDown}));
+    assertOverlayMatches(editorInbox);
+    doc.body.dispatchEvent(new KeyboardEvent("keydown", {key: "u", ...modifierDown}));
+  });
+  mutatorCheck("Ctrl+a scrolls a deep caret into view and the listener heals the overlay", () => {
+    // focus() scrolls an unfocused editor to the caret when it is out of
+    // view, and delivers that as a scroll event. The listener syncs the
+    // overlay, so the underlines catch up as soon as the event lands.
+    editorToday.setSelectionRange(todaySeed.length, todaySeed.length);
+    editorToday.blur();
+    editorToday.scrollTop = 0;
+    doc.body.dispatchEvent(new KeyboardEvent("keydown", {key: "a", ...modifierDown}));
+    assertEqual(doc.activeElement, editorToday, "focused editor");
+    assert(editorToday.scrollTop > 0, "the editor did not scroll to the caret");
+    editorToday.dispatchEvent(new Event("scroll"));
+    assertOverlayMatches(editorToday);
+  });
+  mutatorCheck("the storage listener re-renders the open tab", () => {
+    const storedValue = `${todaySeed}\nsee https://storage.example.com/s`;
+    localStorage.setItem("value.today", storedValue);
+    win.dispatchEvent(new StorageEvent("storage"));
+    assertEqual(editorToday.value, storedValue, "editor value");
+    assertOverlayMatches(editorToday);
+  });
+  mutatorCheck("updateValues rolls today into the inbox", () => {
+    win.updateValues();
+    win.preferInbox();
+    assertEqual(localStorage.getItem("value.today"), "", "stored today value");
+    assertEqual(localStorage.getItem("value.inbox"), `${todaySeed}\n\n${inboxSeed}`, "stored inbox value");
+    assertOverlayMatches(editorInbox);
+  });
+  mutatorCheck("Ctrl+x selects the task without changing the text", () => {
+    editorToday.setSelectionRange(0, 0);
+    editorToday.dispatchEvent(new KeyboardEvent("keydown", {key: "x", ...modifierDown}));
+    assertOverlayMatches(editorToday);
+    assertEqual(editorToday.selectionStart, 0, "selection start");
+    assertEqual(editorToday.selectionEnd, todaySeed.split("\n")[0].length + 1, "selection end");
+  });
+
   line("resize");
   check("resizing re-renders the overlay", () => {
     links.innerHTML = "";
