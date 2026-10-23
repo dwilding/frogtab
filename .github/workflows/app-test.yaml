@@ -26,9 +26,14 @@ jobs:
             wget -q --spider http://127.0.0.1:8124/ && break
             sleep 0.1
           done
-          google-chrome --headless=new --virtual-time-budget=20000 \
-            --dump-dom http://127.0.0.1:8124/app-test/test_links.html > "$dom"
-          grep -q "<title>Link tests: all passed</title>" "$dom" || {
-            sed -n '/<pre id="output">/,/<\/pre>/p' "$dom"
-            exit 1
-          }
+          for url in \
+            "http://127.0.0.1:8124/app-test/test_links.html" \
+            "http://127.0.0.1:8124/app-test/test_links.html?platform=mac"; do
+            echo "Running $url"
+            google-chrome --headless=new --virtual-time-budget=20000 \
+              --dump-dom "$url" > "$dom"
+            grep -q "<title>Link tests: all passed</title>" "$dom" || {
+              sed -n '/<pre id="output">/,/<\/pre>/p' "$dom"
+              exit 1
+            }
+          done

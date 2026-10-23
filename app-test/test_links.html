@@ -24,7 +24,12 @@
   <p>
     The tests embed <code>app/index.html</code> in the iframe below and drive the real app.
     They cover the link overlay: rendering, re-render triggers, scroll sync, hit-testing,
-    and the hand cursor.
+    the hand cursor, and the tooltip.
+  </p>
+  <p>
+    With <code>?platform=mac</code> in the URL, the tests load the app with
+    <code>navigator.platform</code> spoofed as <code>MacIntel</code>, so the Mac branches of
+    the modifier logic run on any OS. CI runs both modes.
   </p>
   <p>The page title shows the result: <em>Link tests: all passed</em>.</p>
   <pre id="output"></pre>
@@ -47,8 +52,11 @@ localStorage.setItem("value.today", todaySeed);
 localStorage.setItem("value.inbox", inboxSeed);
 localStorage.setItem("tab", "today");
 
-// main.js gates the modifier key on the platform, so the tests must too
-const platformApple = (
+// main.js gates the modifier key on the platform, so the tests must too.
+// In ?platform=mac mode the app runs with a spoofed platform, so the
+// fixtures and expected strings here flip with it.
+const platformMac = new URLSearchParams(location.search).get("platform") == "mac";
+const platformApple = platformMac || (
   navigator.platform.startsWith("Mac")
   || navigator.platform == "iPad"
   || navigator.platform == "iPhone"
@@ -116,8 +124,20 @@ function waitForApp() {
 }
 
 (async () => {
-  iframe.src = "../app/index.html";
   try {
+    if (platformMac) {
+      // The spoof must run inside the iframe, before main.js captures
+      // platformApple at load time. The <base> tag keeps the app's
+      // relative URLs resolving against the server.
+      const html = await (await fetch("../app/index.html")).text();
+      const spoof = `<script>Object.defineProperty(Navigator.prototype, "platform", {get: () => "MacIntel", configurable: true});<\/script>`;
+      iframe.srcdoc = html
+        .replace("<head>", `<head><base href="${new URL("../app/", location.href).href}">`)
+        .replace(/<script src="main\.js[^"]*"><\/script>/, `${spoof}<script src="main.js"><\/script>`);
+    }
+    else {
+      iframe.src = "../app/index.html";
+    }
     await waitForApp();
   }
   catch (error) {
