@@ -739,6 +739,47 @@ function waitForApp() {
     assertEqual(links.style.width, `${editorToday.clientWidth + 4}px`, "style.width");
   });
 
+  // The overlay only exists on the Today and Inbox editors, but the scroll
+  // bounce fix belongs on every editor: the bare textarea selector in
+  // style.css carries it, and every editor page loads that stylesheet.
+  // Load each other editor page and assert the computed style on every
+  // textarea it renders.
+  line("other editors");
+  const otherPages = [
+    ["icon-normal", "../app/icon-normal.html"],
+    ["icon-notify", "../app/icon-notify.html"],
+    ["week", "../app/week.html"],
+    ["send", "../app/send.html"],
+    ["demo", "../app/demo.html#today/a%20b%20c/false"],
+    ["demo-week", "../app/demo-week.html#wed/a%20b%20c"]
+  ];
+  for (const [name, src] of otherPages) {
+    await new Promise(resolve => {
+      iframe.addEventListener("load", resolve, {once: true});
+      iframe.removeAttribute("srcdoc");
+      iframe.src = src;
+    });
+    const pageDoc = iframe.contentDocument;
+    const pageWin = iframe.contentWindow;
+    const textareas = [...pageDoc.querySelectorAll("textarea")];
+    check(`${name} disables the scroll bounce on every editor`, () => {
+      assert(textareas.length > 0, "the page renders no textarea");
+      for (const textarea of textareas) {
+        assertEqual(
+          pageWin.getComputedStyle(textarea).overscrollBehavior,
+          "none",
+          `${textarea.id || "(anonymous)"} overscroll-behavior`
+        );
+      }
+    });
+  }
+  // Restore the app for any code after this section.
+  await new Promise(resolve => {
+    iframe.addEventListener("load", resolve, {once: true});
+    iframe.src = "../app/index.html";
+  });
+  await waitForApp();
+
   line("");
   line(`${failed} failed, ${passed} passed`);
   document.title = failed === 0 ? "Link tests: all passed" : `Link tests: ${failed} failed`;
