@@ -255,10 +255,12 @@ function modifierHeld(event) {
   return (platformApple && event.metaKey) || (!platformApple && event.ctrlKey);
 }
 
-// Last known pointer position, so that pressing or releasing the modifier key
-// can update the cursor without any mouse movement
+// Last known pointer position and modifier state, so that pressing or
+// releasing the modifier key, or scrolling, can update the cursor
+// without any mouse movement
 let lastPointerX = 0;
 let lastPointerY = 0;
+let modifierIsHeld = false;
 
 function updateLinkCursor(editor, x, y, modifier) {
   const overLink = linkAtPoint(x, y) !== null;
@@ -1228,6 +1230,8 @@ async function startApp() {
   for (const editor of [dom.editor.today, dom.editor.inbox]) {
     editor.addEventListener("scroll", () => {
       dom.links.scrollTop = editor.scrollTop;
+      // The content moved under the pointer, so re-evaluate the cursor
+      updateLinkCursor(editor, lastPointerX, lastPointerY, modifierIsHeld);
     });
     editor.addEventListener("click", event => {
       if (modifierHeld(event)) {
@@ -1237,7 +1241,8 @@ async function startApp() {
     editor.addEventListener("mousemove", event => {
       lastPointerX = event.clientX;
       lastPointerY = event.clientY;
-      updateLinkCursor(editor, lastPointerX, lastPointerY, modifierHeld(event));
+      modifierIsHeld = modifierHeld(event);
+      updateLinkCursor(editor, lastPointerX, lastPointerY, modifierIsHeld);
     });
   }
   // Update the cursor when the modifier key is pressed or released,
@@ -1245,12 +1250,21 @@ async function startApp() {
   for (const keyEvent of ["keydown", "keyup"]) {
     window.addEventListener(keyEvent, event => {
       if (event.key == (platformApple ? "Meta" : "Control")) {
+        modifierIsHeld = keyEvent == "keydown";
         for (const editor of [dom.editor.today, dom.editor.inbox]) {
-          updateLinkCursor(editor, lastPointerX, lastPointerY, modifierHeld(event));
+          updateLinkCursor(editor, lastPointerX, lastPointerY, modifierIsHeld);
         }
       }
     });
   }
+  // The modifier key can be released while the window is unfocused, without
+  // a keyup reaching us. Clear the tracked state when the window loses focus.
+  window.addEventListener("blur", () => {
+    modifierIsHeld = false;
+    for (const editor of [dom.editor.inbox, dom.editor.today]) {
+      updateLinkCursor(editor, lastPointerX, lastPointerY, false);
+    }
+  });
   window.addEventListener("resize", renderLinks);
   dom.menu.addEventListener("keydown", event => {
     if (event.target.hasAttribute("data-menu-seq") && matchKeyboardEvent(event, "", "arrowdown")) {

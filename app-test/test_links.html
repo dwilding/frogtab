@@ -190,6 +190,16 @@ function waitForApp() {
     // borders can render at a fractional width, so allow a sub-pixel difference
     assert(Math.abs(overlayWrap - editorWrap) <= 1, `wrap widths differ: overlay ${overlayWrap}, editor ${editorWrap}`);
   });
+  check("the overlay font metrics match the editor", () => {
+    // the underlines sit under the right text only if the overlay wraps and
+    // measures text exactly like the editor, so guard the font properties
+    // that determine wrapping and glyph positions
+    const overlayCS = win.getComputedStyle(links);
+    const editorCS = win.getComputedStyle(editorToday);
+    for (const property of ["font-family", "font-size", "font-weight", "line-height", "letter-spacing", "font-kerning", "font-variant-ligatures"]) {
+      assertEqual(overlayCS[property], editorCS[property], property);
+    }
+  });
   check("the overlay text mirrors the editor value", () => {
     assertEqual(links.textContent, editorToday.value, "textContent");
   });
@@ -447,6 +457,54 @@ function waitForApp() {
     win.dispatchEvent(new KeyboardEvent("keyup", {key: modifierKey}));
     assertEqual(editorToday.style.cursor, "", "today cursor");
     assertEqual(editorInbox.style.cursor, "", "inbox cursor");
+  });
+
+  line("staleness");
+  // Scrolling moves the content under a stationary pointer, so the scroll
+  // listener must re-evaluate the cursor and the tooltip.
+  check("scrolling clears the tooltip when the link moves off the pointer", () => {
+    editorToday.dispatchEvent(new MouseEvent("mousemove", {clientX: onLink.x, clientY: onLink.y}));
+    assertEqual(editorToday.title, `${platformApple ? "⌘" : "Ctrl"}-click to open`, "title before scrolling");
+    editorToday.scrollTop = editorToday.scrollHeight;
+    editorToday.dispatchEvent(new Event("scroll"));
+    assertEqual(editorToday.style.cursor, "", "cursor");
+    assertEqual(editorToday.title, "", "title");
+  });
+  check("scrolling shows the tooltip when a link moves under the pointer", () => {
+    editorToday.dispatchEvent(new MouseEvent("mousemove", {clientX: onLink.x, clientY: onLink.y}));
+    editorToday.scrollTop = editorToday.scrollHeight;
+    editorToday.dispatchEvent(new Event("scroll"));
+    assertEqual(editorToday.title, "", "title while the link is away");
+    editorToday.scrollTop = 0;
+    editorToday.dispatchEvent(new Event("scroll"));
+    assertEqual(editorToday.title, `${platformApple ? "⌘" : "Ctrl"}-click to open`, "title");
+  });
+  check("scrolling with the modifier held clears the hand when the link moves away", () => {
+    editorToday.dispatchEvent(new MouseEvent("mousemove", {clientX: onLink.x, clientY: onLink.y, ...modifierDown}));
+    win.dispatchEvent(new KeyboardEvent("keydown", {key: modifierKey, ...modifierDown}));
+    assertEqual(editorToday.style.cursor, "pointer", "cursor before scrolling");
+    editorToday.scrollTop = editorToday.scrollHeight;
+    editorToday.dispatchEvent(new Event("scroll"));
+    assertEqual(editorToday.style.cursor, "", "cursor");
+    assertEqual(editorToday.title, "", "title");
+    // scroll back so the blur check starts with the link under the pointer
+    editorToday.scrollTop = 0;
+    editorToday.dispatchEvent(new Event("scroll"));
+  });
+  check("window blur clears the tracked modifier state", () => {
+    editorToday.dispatchEvent(new MouseEvent("mousemove", {clientX: onLink.x, clientY: onLink.y, ...modifierDown}));
+    win.dispatchEvent(new KeyboardEvent("keydown", {key: modifierKey, ...modifierDown}));
+    assertEqual(editorToday.style.cursor, "pointer", "cursor before blur");
+    win.dispatchEvent(new Event("blur"));
+    assertEqual(editorToday.style.cursor, "", "cursor after blur");
+    // The modifier can be released while the window is unfocused, without a
+    // keyup reaching the page. Scrolling must not bring the hand back.
+    editorToday.scrollTop = editorToday.scrollHeight;
+    editorToday.dispatchEvent(new Event("scroll"));
+    editorToday.scrollTop = 0;
+    editorToday.dispatchEvent(new Event("scroll"));
+    assertEqual(editorToday.style.cursor, "", "cursor after scrolling back");
+    assertEqual(editorToday.title, `${platformApple ? "⌘" : "Ctrl"}-click to open`, "title after scrolling back");
   });
 
   line("modifier");
