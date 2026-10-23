@@ -9,8 +9,8 @@
     <link rel="icon" href="favicons/icon-32.png" sizes="32x32" type="image/png">
     <link rel="apple-touch-icon" sizes="180x180" href="favicons/icon-180-apple.png">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="simple.min.css?sha1=cd9f38e059ac6aeb35d9a4ecae19703f43aa404d">
-    <link rel="stylesheet" href="simple-customizations.css?sha1=3f186823fec845a25ba4debacb10968ed8f3f30a">
+    <link rel="stylesheet" href="simple.min.css?sha1=3796f5e3bfd5f9e02736732bd10e3b204c8902ff">
+    <link rel="stylesheet" href="simple-customizations.css?sha1=30278713b0dd5500e6a20b79bfc195b04a7b7060">
   </head>
   <body>
     <header>
@@ -61,7 +61,7 @@
         </ul>
       </article>
       <h2 id="overview-of-frogtab">Overview of Frogtab</h2>
-      <iframe tabindex="0" title="Demo of the Today view" src="demo.html?sha1=3100b59ba1eab51a49863f68327f429494e59e79#today/Conduct%20a%20pond%20safety%20inspection%0A%0AArrange%20a%20moonlit%20croaking%20concert/false"></iframe>
+      <iframe tabindex="0" title="Demo of the Today view" src="demo.html?sha1=215dc75c52fc45b76a21b8d7a38dbf9dcbaec0a8#today/Conduct%20a%20pond%20safety%20inspection%0A%0AArrange%20a%20moonlit%20croaking%20concert/false"></iframe>
       <p>
         <strong>Today</strong> is your to-do list for today.
         Begin the day by writing down everything you'd like to accomplish.
@@ -79,7 +79,7 @@
       <p>
         Frogtab displays a notification badge to remind you to triage your inbox:
       </p>
-      <iframe tabindex="0" title="Demo of the Inbox view with a notification badge" src="demo.html?sha1=3100b59ba1eab51a49863f68327f429494e59e79#inbox/Why%20has%20the%20water%20clarity%20changed%3F/true"></iframe>
+      <iframe tabindex="0" title="Demo of the Inbox view with a notification badge" src="demo.html?sha1=215dc75c52fc45b76a21b8d7a38dbf9dcbaec0a8#inbox/Why%20has%20the%20water%20clarity%20changed%3F/true"></iframe>
       <p class="before-compact">
         At the beginning of each day, Frogtab:
       </p>
@@ -125,7 +125,7 @@
           <p>
             Snooze the task by writing # in front of the task:
           </p>
-          <iframe tabindex="0" title="Demo of the Inbox view with a snoozed task and an unsnoozed task" src="demo.html?sha1=3100b59ba1eab51a49863f68327f429494e59e79#inbox/%23%20This%20is%20snoozed%0A%0AThis%20is%20not%20snoozed/true"></iframe>
+          <iframe tabindex="0" title="Demo of the Inbox view with a snoozed task and an unsnoozed task" src="demo.html?sha1=215dc75c52fc45b76a21b8d7a38dbf9dcbaec0a8#inbox/%23%20This%20is%20snoozed%0A%0AThis%20is%20not%20snoozed/true"></iframe>
           <p>
             Frogtab will unsnooze the task at the beginning of the next day.
           </p>
@@ -161,12 +161,12 @@
           <p>
             Select a day, then write down your recurring tasks for that day. For&nbsp;example:
           </p>
-          <iframe tabindex="0" title="Demo of a recurring task on Wednesdays" src="demo-week.html?sha1=5fe6863ae3c126d8b9b8ebc31482c10764e81575#wed/Host%20this%20week%27s%20Wild%20Wednesday%21"></iframe>
+          <iframe tabindex="0" title="Demo of a recurring task on Wednesdays" src="demo-week.html?sha1=6f17c04812a79c064deb462e0f205ef478395d8c#wed/Host%20this%20week%27s%20Wild%20Wednesday%21"></iframe>
           <p>
             If you like planning in the evening, write down your recurring tasks under the previous day,
             with # in front of each task. For&nbsp;example:
           </p>
-          <iframe tabindex="0" title="Demo of a recurring task on Tuesdays that will be snoozed until Wednesdays" src="demo-week.html?sha1=5fe6863ae3c126d8b9b8ebc31482c10764e81575#tue/%23%20Host%20this%20week%27s%20Wild%20Wednesday%21"></iframe>
+          <iframe tabindex="0" title="Demo of a recurring task on Tuesdays that will be snoozed until Wednesdays" src="demo-week.html?sha1=6f17c04812a79c064deb462e0f205ef478395d8c#tue/%23%20Host%20this%20week%27s%20Wild%20Wednesday%21"></iframe>
           <p>
             You'll then be able to see the recurring tasks one day in advance.
             When Frogtab adds the tasks to your inbox, they'll be snoozed (because of the #), so they won't cause Frogtab to display a notification badge.
@@ -229,6 +229,10 @@
         If you accidentally complete a task, you can mark it as incomplete and delete it from your completed tasks.
         Click <strong>Edit</strong> at the top of the Achievements page, select
         <strong>Today</strong> or <strong>Inbox</strong> as the new location for the task, then click the task to move it.
+      </p>
+      <p>
+        Any URLs in your completed tasks are clickable.
+        While you're editing your completed tasks, URLs are not clickable, so that clicking a task always moves it.
       </p>
       <p>
         To make other changes to your completed tasks, click <strong>Edit</strong> at the top of the Achievements page, then click <strong>Export a todo.txt file</strong>.
@@ -568,6 +572,17 @@
             <td>
               <span class="shortcut mac display"><kbd>⌘</kbd> + <kbd>B</kbd></span>
               <span class="shortcut win-linux"><kbd>Ctrl</kbd> + <kbd>B</kbd></span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <p>
+                Open a URL
+              </p>
+            </td>
+            <td>
+              <span class="shortcut mac display"><kbd>⌘</kbd> + click</span>
+              <span class="shortcut win-linux"><kbd>Ctrl</kbd> + click</span>
             </td>
           </tr>
         </tbody>

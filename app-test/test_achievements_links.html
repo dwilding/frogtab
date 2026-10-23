@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Frogtab achievements link tests</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 1.5rem;
+    }
+    iframe {
+      display: block;
+      width: 900px;
+      height: 600px;
+      border: 1px solid #888;
+      margin-top: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Frogtab achievements link tests</h1>
+  <p>Run <code>just app-test</code> from the repository root. To run the tests without just, serve the repository root and open this page in a browser:</p>
+  <pre>python3 -m http.server 8124</pre>
+  <p>
+    The tests embed <code>app/achievements.html</code> in the iframe below and drive the real page.
+    They cover the clickable links in the task list: rendering, escaping, the editing views,
+    the import flow, and the todo.txt round trip.
+  </p>
+  <p>The page title shows the result: <em>Achievements link tests: all passed</em>.</p>
+  <pre id="output"></pre>
+  <iframe id="app"></iframe>
+  <script>
+"use strict";
+
+// The iframe shares this page's origin, so it also shares localStorage.
+// Seed the page's state before it loads.
+localStorage.clear();
+const today = new Date();
+const pad = n => `${n}`.padStart(2, "0");
+const dateString = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const todayString = dateString(today);
+const yesterday = new Date(today);
+yesterday.setDate(yesterday.getDate() - 1);
+const yesterdayString = dateString(yesterday);
+const achievementsSeed = [
+  {
+    date: todayString,
+    tasks: [
+      "check the docs at https://example.com/docs.",
+      `fix https://example.org/a_(b) & <script>alert(1)<\/script>`,
+      "no scheme here: www.example.com and ftp://example.net",
+      "read https://example.com/page, then reply"
+    ]
+  },
+  {
+    date: yesterdayString,
+    tasks: [
+      "call (https://example.org/a_(b)) after lunch"
+    ]
+  }
+];
+localStorage.setItem("achievements", JSON.stringify(achievementsSeed));
+localStorage.setItem("ui.theme", "system");
+
+const output = document.getElementById("output");
+const iframe = document.getElementById("app");
+let passed = 0;
+let failed = 0;
+
+function line(text) {
+  output.textContent += `${text}\n`;
+}
+
+function assert(condition, message) {
+  if (!condition) {
+    throw new Error(message);
+  }
+}
+
+function assertEqual(actual, expected, name) {
+  assert(
+    actual === expected,
+    `${name}: expected ${JSON.stringify(expected)}, got ${JSON.stringify(actual)}`
+  );
+}
+
+function check(name, fn) {
+  try {
+    fn();
+    passed += 1;
+    line(`PASS  ${name}`);
+  }
+  catch (error) {
+    failed += 1;
+    line(`FAIL  ${name}`);
+    line(`      ${error.message}`);
+  }
+}
+
+// Like check, but for steps that need to await FileReader loads.
+async function asyncCheck(name, fn) {
+  try {
+    await fn();
+    passed += 1;
+    line(`PASS  ${name}`);
+  }
+  catch (error) {
+    failed += 1;
+    line(`FAIL  ${name}`);
+    line(`      ${error.message}`);
+  }
+}
+
+// startApp runs synchronously on load, so the load event is enough.
+function waitForApp() {
+  return new Promise((resolve, reject) => {
+    iframe.addEventListener("load", () => {
+      try {
+        resolve(iframe.contentDocument);
+      }
+      catch (error) {
+        reject(error);
+      }
+    });
+    iframe.src = "../app/achievements.html";
+  });
+}
+
+// Drive the real import flow: set the file input's files with DataTransfer,
+// then dispatch the change event that startApp listens for. The FileReader
+// load is async, so callers must waitFor a landing signal afterwards.
+function stageImport(doc, text) {
+  const file = new File([text], "achievements.txt", {type: "text/plain"});
+  const transfer = new DataTransfer();
+  transfer.items.add(file);
+  const input = doc.getElementById("choose-todotxt-file");
+  input.files = transfer.files;
+  input.dispatchEvent(new Event("change"));
+}
+
+// Poll until conditionFn holds. The FileReader load lands asynchronously,
+// and a fixed tick is either too slow (a stale read) or racy (a click that
+// beats the load).
+function waitFor(conditionFn) {
+  const start = Date.now();
+  return new Promise((resolve, reject) => {
+    function poll() {
+      let ready;
+      try {
+        ready = conditionFn();
+      }
+      catch (error) {
+        reject(error);
+        return;
+      }
+      if (ready) {
+        resolve();
+        return;
+      }
+      if (Date.now() - start > 5000) {
+        reject(new Error("waitFor timed out"));
+        return;
+      }
+      setTimeout(poll, 10);
+    }
+    poll();
+  });
+}
+
+(async () => {
+  let doc;
+  try {
+    doc = await waitForApp();
+  }
+  catch (error) {
+    line(`ERROR ${error.message}`);
+    return;
+  }
+  const win = iframe.contentWindow;
+  const tasks = doc.getElementById("tasks");
+
+  function taskTexts() {
+    return [...tasks.querySelectorAll("li > .task-text")];
+  }
+  function linksIn(element) {
+    return [...element.querySelectorAll("a")];
+  }
+
+  line("render");
+  check("the enabled view shows the seeded tasks", () => {
+    assert(doc.getElementById("case-enabled").classList.contains("display"), "case-enabled is shown");
+    assertEqual(taskTexts().length, 5, "task count");
+  });
+  check("URLs render as anchors with the URL as their text", () => {
+    const anchors = linksIn(tasks);
+    assertEqual(anchors.length, 4, "anchor count");
+    assertEqual(anchors[0].getAttribute("href"), "https://example.com/docs", "first href");
+    assertEqual(anchors[0].textContent, "https://example.com/docs", "first text");
+    assertEqual(anchors[1].getAttribute("href"), "https://example.org/a_(b)", "second href");
+    assertEqual(anchors[2].getAttribute("href"), "https://example.com/page", "third href");
+    assertEqual(anchors[3].getAttribute("href"), "https://example.org/a_(b)", "fourth href");
+  });
+  check("anchors open in a new tab with noopener", () => {
+    const anchors = linksIn(tasks);
+    for (const anchor of anchors) {
+      assertEqual(anchor.target, "_blank", "target");
+      assertEqual(anchor.rel, "noopener noreferrer", "rel");
+    }
+  });
+  check("trailing punctuation is trimmed from the href but not the text", () => {
+    const first = linksIn(tasks)[0];
+    // The task text is "check the docs at https://example.com/docs."
+    // The period stays in the surrounding text node, out of the anchor.
+    assert(first.nextSibling.textContent.startsWith("."), "period stays outside");
+    assert(!first.getAttribute("href").endsWith("."), "href doesn't end with a period");
+  });
+  check("markup in task text is inert", () => {
+    const second = taskTexts()[1];
+    assertEqual(second.querySelectorAll("script").length, 0, "no script elements");
+    assert(second.textContent.includes("<script>alert(1)<\/script>"), "markup shown as text");
+  });
+  check("non-http URLs and bare domains are not linked", () => {
+    const third = taskTexts()[2];
+    assertEqual(linksIn(third).length, 0, "no anchors in the ftp task");
+    assert(third.textContent.includes("www.example.com"), "bare domain stays plain");
+  });
+  check("the URL echo is suppressed on task links", () => {
+    const anchor = linksIn(tasks)[0];
+    const styles = win.getComputedStyle(anchor, "::after");
+    assertEqual(styles.content, "none", "content");
+  });
+  check("clicking a link in the normal view doesn't move the task", () => {
+    const before = localStorage.getItem("value.today");
+    // Keep the anchor from opening a tab; the test only checks that the
+    // click doesn't move the task back.
+    doc.addEventListener("click", event => event.preventDefault(), {capture: true, once: true});
+    linksIn(tasks)[0].click();
+    assertEqual(localStorage.getItem("value.today"), before, "value.today unchanged");
+    assertEqual(taskTexts().length, 5, "task count unchanged");
+  });
+
+  line("editing");
+  check("Edit mode renders plain text", () => {
+    doc.getElementById("actions-edit").click();
+    assertEqual(linksIn(tasks).length, 0, "no anchors in Edit mode");
+    assert(taskTexts()[0].textContent.includes("https://example.com/docs"), "URL stays in the text");
+  });
+  check("task-text spans are tabbable in Edit mode", () => {
+    assertEqual(taskTexts()[0].tabIndex, 0, "tabIndex");
+  });
+  check("Enter on a task in Edit mode moves it back to Today", () => {
+    const before = localStorage.getItem("value.today");
+    taskTexts()[0].dispatchEvent(new KeyboardEvent("keydown", {key: "Enter", bubbles: true}));
+    assert(localStorage.getItem("value.today") != before, "value.today changed");
+    assertEqual(taskTexts().length, 4, "task count after move");
+  });
+  check("clicking a task in Edit mode moves it back to Today", () => {
+    const moving = taskTexts()[0].textContent;
+    const before = localStorage.getItem("value.today");
+    taskTexts()[0].click();
+    assert(localStorage.getItem("value.today") != before, "value.today changed");
+    assert(
+      localStorage.getItem("value.today").endsWith(moving),
+      "moved task text"
+    );
+    assertEqual(taskTexts().length, 3, "task count after move");
+  });
+  check("clicking a task in Edit mode moves it back to Inbox", () => {
+    doc.getElementById("editmode-to-inbox").click();
+    const moving = taskTexts()[0].textContent;
+    const before = localStorage.getItem("value.inbox");
+    taskTexts()[0].click();
+    assert(localStorage.getItem("value.inbox") != before, "value.inbox changed");
+    assert(
+      localStorage.getItem("value.inbox").startsWith(moving),
+      "moved task text"
+    );
+    assertEqual(taskTexts().length, 2, "task count after move");
+  });
+  check("emptying a day removes its heading", () => {
+    // Yesterday's task is the last one; move it back and the day disappears.
+    const callTask = taskTexts().find(element => element.textContent.includes("call"));
+    callTask.click();
+    assertEqual(taskTexts().length, 1, "task count after move");
+    const headings = [...tasks.querySelectorAll("p.before-compact")];
+    assertEqual(headings.length, 1, "one heading left");
+  });
+  check("task-text spans are not tabbable in the normal view", () => {
+    doc.getElementById("actions-done").click();
+    assertEqual(taskTexts()[0].tabIndex, -1, "tabIndex");
+  });
+  check("Done mode renders links again", () => {
+    // The two remaining tasks are "no scheme here..." (no URL) and
+    // "read https://example.com/page, then reply" (one URL).
+    assertEqual(linksIn(tasks).length, 1, "anchor count");
+  });
+
+  line("import");
+  await asyncCheck("the import flow renders links after finishing", async () => {
+    doc.getElementById("actions-edit").click();
+    doc.getElementById("actions-edit-import").click();
+    stageImport(doc, `x ${todayString} staged https://example.com/staged\n`);
+    await waitFor(() => doc.getElementById("confirm-import").classList.contains("display"));
+    doc.getElementById("finish-import").click();
+    assertEqual(taskTexts().length, 1, "task count after import");
+    assertEqual(linksIn(tasks).length, 1, "anchor count after import");
+    assertEqual(linksIn(tasks)[0].getAttribute("href"), "https://example.com/staged", "staged href");
+  });
+  await asyncCheck("canceling the import keeps the current tasks", async () => {
+    doc.getElementById("actions-edit").click();
+    doc.getElementById("actions-edit-import").click();
+    stageImport(doc, `x ${todayString} staged https://example.com/staged\n`);
+    await waitFor(() => doc.getElementById("confirm-import").classList.contains("display"));
+    doc.getElementById("cancel-import").click();
+    assertEqual(taskTexts().length, 1, "task count after cancel");
+    assert(taskTexts()[0].textContent.includes("staged"), "staged task shown");
+    assertEqual(linksIn(tasks).length, 0, "no anchors in the editing view");
+  });
+  await asyncCheck("importing from the normal view commits directly", async () => {
+    doc.getElementById("actions-done").click();
+    stageImport(doc, `x ${todayString} direct https://example.com/direct\n`);
+    await waitFor(() => localStorage.getItem("achievements").includes("direct"));
+    assertEqual(taskTexts().length, 1, "task count after direct import");
+    assertEqual(linksIn(tasks)[0].getAttribute("href"), "https://example.com/direct", "direct href");
+  });
+
+  line("storage");
+  check("the storage event re-renders links", () => {
+    localStorage.setItem("achievements", JSON.stringify([
+      {date: todayString, tasks: ["from storage https://example.com/storage"]}
+    ]));
+    win.dispatchEvent(new Event("storage"));
+    assertEqual(linksIn(tasks).length, 1, "anchor count after storage event");
+    assertEqual(linksIn(tasks)[0].getAttribute("href"), "https://example.com/storage", "storage href");
+  });
+  check("empty achievements show the empty view", () => {
+    localStorage.setItem("achievements", JSON.stringify([]));
+    win.dispatchEvent(new Event("storage"));
+    assert(doc.getElementById("case-enabled-empty").classList.contains("display"), "empty view shown");
+    // The empty case holds the Import and Help actions, not task text.
+    const emptyCase = doc.getElementById("case-enabled-empty");
+    assertEqual(emptyCase.querySelectorAll(".task-text").length, 0, "no task text in the empty case");
+  });
+  check("null achievements show the disabled view", () => {
+    localStorage.removeItem("achievements");
+    win.dispatchEvent(new Event("storage"));
+    assert(doc.getElementById("case-disabled").classList.contains("display"), "disabled view shown");
+  });
+
+  line("todo.txt round trip");
+  check("export and re-import preserves link text", () => {
+    localStorage.setItem("achievements", JSON.stringify([
+      {date: todayString, tasks: [achievementsSeed[0].tasks[1]]}
+    ]));
+    win.dispatchEvent(new Event("storage"));
+    const todotxt = win.createTodotxt();
+    const text = new TextDecoder().decode(todotxt);
+    assert(
+      text.includes(`x ${todayString} fix https://example.org/a_(b) & <script>alert(1)<\/script>`),
+      "exported line"
+    );
+    const parsed = win.parseTodotxt(text);
+    assertEqual(parsed[0].tasks[0], achievementsSeed[0].tasks[1], "parsed task text");
+  });
+
+  line("");
+  line(`${failed} failed, ${passed} passed`);
+  document.title = failed === 0 ? "Achievements link tests: all passed" : `Achievements link tests: ${failed} failed`;
+})();
+  </script>
+</body>
+</html>

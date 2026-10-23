@@ -1,0 +1,40 @@
+name: Browser-side app tests
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions: {}
+
+jobs:
+  app-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Run the app tests
+        run: |
+          set -euo pipefail
+          dom="$(mktemp)"
+          python3 -m http.server 8124 --bind 127.0.0.1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null; rm -f "$dom"' EXIT
+          for _ in $(seq 1 50); do
+            wget -q --spider http://127.0.0.1:8124/ && break
+            sleep 0.1
+          done
+          for url in \
+            "http://127.0.0.1:8124/app-test/test_links.html" \
+            "http://127.0.0.1:8124/app-test/test_links.html?platform=mac" \
+            "http://127.0.0.1:8124/app-test/test_achievements_links.html"; do
+            echo "Running $url"
+            google-chrome --headless=new --virtual-time-budget=20000 \
+              --dump-dom "$url" > "$dom"
+            grep -q "<title>Link tests: all passed</title>\|<title>Achievements link tests: all passed</title>" "$dom" || {
+              sed -n '/<pre id="output">/,/<\/pre>/p' "$dom"
+              exit 1
+            }
+          done

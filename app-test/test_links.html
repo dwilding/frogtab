@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Frogtab link tests</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 1.5rem;
+    }
+    iframe {
+      display: block;
+      width: 900px;
+      height: 600px;
+      border: 1px solid #888;
+      margin-top: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Frogtab link tests</h1>
+  <p>Run <code>just app-test</code> from the repository root. To run the tests without just, serve the repository root and open this page in a browser:</p>
+  <pre>python3 -m http.server 8124</pre>
+  <p>
+    The tests embed <code>app/index.html</code> in the iframe below and drive the real app.
+    They cover the link overlay: rendering, re-render triggers, scroll sync, hit-testing,
+    the hand cursor, and the tooltip.
+  </p>
+  <p>
+    With <code>?platform=mac</code> in the URL, the tests load the app with
+    <code>navigator.platform</code> spoofed as <code>MacIntel</code>, so the Mac branches of
+    the modifier logic run on any OS. CI runs both modes.
+  </p>
+  <p>The page title shows the result: <em>Link tests: all passed</em>.</p>
+  <pre id="output"></pre>
+  <iframe id="app"></iframe>
+  <script>
+"use strict";
+
+// The iframe shares this page's origin, so it also shares localStorage.
+// Seed the app's state before it loads.
+localStorage.clear();
+const todaySeed = [
+  "check the docs at https://example.com/docs.",
+  "call (https://example.org/a_(b)) after lunch",
+  "no scheme here: www.example.com and ftp://example.net",
+  ...Array.from({length: 30}, (_, i) => `filler line ${i}`)
+].join("\n");
+// The <\/script> escape stops the HTML parser from ending this script block.
+const inboxSeed = 'fix https://inbox.example.com/task, <script>alert(1)<\/script> & "quotes"';
+localStorage.setItem("value.today", todaySeed);
+localStorage.setItem("value.inbox", inboxSeed);
+localStorage.setItem("tab", "today");
+
+// main.js gates the modifier key on the platform, so the tests must too.
+// In ?platform=mac mode the app runs with a spoofed platform, so the
+// fixtures and expected strings here flip with it.
+const platformMac = new URLSearchParams(location.search).get("platform") == "mac";
+const platformApple = platformMac || (
+  navigator.platform.startsWith("Mac")
+  || navigator.platform == "iPad"
+  || navigator.platform == "iPhone"
+);
+const modifierKey = platformApple ? "Meta" : "Control";
+const modifierDown = platformApple ? {metaKey: true} : {ctrlKey: true};
+
+const output = document.getElementById("output");
+const iframe = document.getElementById("app");
+let passed = 0;
+let failed = 0;
+
+function line(text) {
+  output.textContent += `${text}\n`;
+}
+
+function assert(condition, message) {
+  if (!condition) {
+    throw new Error(message);
+  }
+}
+
+function assertEqual(actual, expected, name) {
+  assert(
+    actual === expected,
+    `${name}: expected ${JSON.stringify(expected)}, got ${JSON.stringify(actual)}`
+  );
+}
+
+function check(name, fn) {
+  try {
+    fn();
+    passed += 1;
+    line(`PASS  ${name}`);
+  }
+  catch (error) {
+    failed += 1;
+    line(`FAIL  ${name}`);
+    line(`      ${error.message}`);
+  }
+}
+
+// startApp attaches its listeners after an await, which can resolve after the
+// iframe's load event. Poll until an input event round-trips to localStorage.
+function waitForApp() {
+  return new Promise((resolve, reject) => {
+    const deadline = Date.now() + 10000;
+    (function poll() {
+      const editor = iframe.contentDocument && iframe.contentDocument.getElementById("editor-today");
+      if (editor) {
+        editor.value = "ready";
+        editor.dispatchEvent(new InputEvent("input"));
+        if (localStorage.getItem("value.today") === "ready") {
+          resolve();
+          return;
+        }
+      }
+      if (Date.now() > deadline) {
+        reject(new Error("the app did not attach its listeners"));
+        return;
+      }
+      setTimeout(poll, 10);
+    })();
+  });
+}
+
+(async () => {
+  try {
+    if (platformMac) {
+      // The spoof must run inside the iframe, before main.js captures
+      // platformApple at load time. The <base> tag keeps the app's
+      // relative URLs resolving against the server.
+      const html = await (await fetch("../app/index.html")).text();
+      const spoof = `<script>Object.defineProperty(Navigator.prototype, "platform", {get: () => "MacIntel", configurable: true});<\/script>`;
+      iframe.srcdoc = html
+        .replace("<head>", `<head><base href="${new URL("../app/", location.href).href}">`)
+        .replace(/<script src="main\.js[^"]*"><\/script>/, `${spoof}<script src="main.js"><\/script>`);
+    }
+    else {
+      iframe.src = "../app/index.html";
+    }
+    await waitForApp();
+  }
+  catch (error) {
+    line(`ERROR ${error.message}`);
+    return;
+  }
+  const win = iframe.contentWindow;
+  const doc = iframe.contentDocument;
+  const editorToday = doc.getElementById("editor-today");
+  const editorInbox = doc.getElementById("editor-inbox");
+  const links = doc.getElementById("links");
+  const container = doc.getElementById("container");
+
+  // restore the state that the readiness probe overwrote
+  editorToday.value = todaySeed;
+  win.storeThenSave("value.today", todaySeed);
+
+  line("helpers");
+  check("trimTrailingPunctuation trims unbalanced punctuation", () => {
+    assertEqual(win.trimTrailingPunctuation("https://example.com/a."), "https://example.com/a", "period");
+    assertEqual(win.trimTrailingPunctuation("https://example.com/a),"), "https://example.com/a", "paren and comma");
+  });
+  check("trimTrailingPunctuation keeps balanced punctuation", () => {
+    assertEqual(win.trimTrailingPunctuation("https://example.com/a(b)"), "https://example.com/a(b)", "balanced paren");
+    assertEqual(win.trimTrailingPunctuation("https://example.com"), "https://example.com", "no punctuation");
+  });
+  check("escapeHTML escapes markup", () => {
+    assertEqual(win.escapeHTML('<a href="x">&'), "&lt;a href=&quot;x&quot;&gt;&amp;", "escaped");
+  });
+
+  line("render");
+  check("the overlay covers the editor", () => {
+    const overlayRect = links.getBoundingClientRect();
+    const editorRect = editorToday.getBoundingClientRect();
+    assert(Math.abs(overlayRect.left - editorRect.left) < 1, "left differs");
+    assert(Math.abs(overlayRect.top - editorRect.top) < 1, "top differs");
+    assert(Math.abs(overlayRect.height - editorRect.height) < 1, "height differs");
+  });
+  check("the overlay wrap width matches the editor", () => {
+    // the overlay's borders make up for the editor's, so the width formula
+    // in renderLinks gives the overlay the same text wrap width as the editor
+    assertEqual(links.style.width, `${editorToday.clientWidth + 4}px`, "style.width");
+    const overlayCS = win.getComputedStyle(links);
+    const editorCS = win.getComputedStyle(editorToday);
+    const overlayWrap = parseFloat(overlayCS.width)
+      - parseFloat(overlayCS.borderLeftWidth) - parseFloat(overlayCS.borderRightWidth)
+      - parseFloat(overlayCS.paddingLeft) - parseFloat(overlayCS.paddingRight);
+    const editorWrap = editorToday.clientWidth
+      - parseFloat(editorCS.paddingLeft) - parseFloat(editorCS.paddingRight);
+    // borders can render at a fractional width, so allow a sub-pixel difference
+    assert(Math.abs(overlayWrap - editorWrap) <= 1, `wrap widths differ: overlay ${overlayWrap}, editor ${editorWrap}`);
+  });
+  check("the overlay font metrics match the editor", () => {
+    // the underlines sit under the right text only if the overlay wraps and
+    // measures text exactly like the editor, so guard the font properties
+    // that determine wrapping and glyph positions
+    const overlayCS = win.getComputedStyle(links);
+    const editorCS = win.getComputedStyle(editorToday);
+    for (const property of ["font-family", "font-size", "font-weight", "line-height", "letter-spacing", "font-kerning", "font-variant-ligatures"]) {
+      assertEqual(overlayCS[property], editorCS[property], property);
+    }
+  });
+  check("the overlay text mirrors the editor value", () => {
+    assertEqual(links.textContent, editorToday.value, "textContent");
+  });
+  check("only http and https URLs become links", () => {
+    assertEqual(links.querySelectorAll("a").length, 2, "link count");
+  });
+  check("URL schemes match in any case", () => {
+    editorToday.value = "see HTTPS://UPPER.example.com/Z and hTTps://Mixed.example.com/m";
+    win.renderLinks();
+    assertEqual(links.querySelectorAll("a").length, 2, "link count");
+    assertEqual(links.querySelectorAll("a")[0].getAttribute("href"), "HTTPS://UPPER.example.com/Z", "href");
+    assertEqual(links.querySelectorAll("a")[1].getAttribute("href"), "hTTps://Mixed.example.com/m", "href");
+    editorToday.value = todaySeed;
+    win.renderLinks();
+  });
+  check("an empty value renders no links", () => {
+    editorToday.value = "";
+    win.renderLinks();
+    assertEqual(links.querySelectorAll("a").length, 0, "link count");
+    assertEqual(links.textContent, "", "textContent");
+    editorToday.value = todaySeed;
+    win.renderLinks();
+  });
+  check("trailing punctuation is trimmed from the href", () => {
+    assertEqual(links.querySelectorAll("a")[0].getAttribute("href"), "https://example.com/docs", "href");
+  });
+  check("balanced parentheses stay in the href", () => {
+    assertEqual(links.querySelectorAll("a")[1].getAttribute("href"), "https://example.org/a_(b)", "href");
+  });
+  check("links are excluded from keyboard tab order", () => {
+    assertEqual(links.querySelector("a").getAttribute("tabindex"), "-1", "tabindex");
+  });
+  check("the overlay is hidden from assistive technology", () => {
+    assertEqual(links.getAttribute("aria-hidden"), "true", "aria-hidden");
+  });
+  check("the overlay ignores pointer events", () => {
+    assertEqual(win.getComputedStyle(links).pointerEvents, "none", "pointerEvents");
+  });
+  check("the action menus paint above the overlay", () => {
+    const overlayCS = win.getComputedStyle(links);
+    const menuCS = win.getComputedStyle(doc.querySelector(".action-menu"));
+    // both are positioned, so compare paint order by z-index, then DOM order
+    assertEqual(overlayCS.zIndex, "auto", "overlay z-index");
+    assertEqual(menuCS.zIndex, "auto", "menu z-index");
+    const overlayPos = links.compareDocumentPosition(doc.querySelector(".action-menu"));
+    assert(
+      overlayPos & Node.DOCUMENT_POSITION_FOLLOWING,
+      "the menu should follow the overlay in DOM order"
+    );
+  });
+  check("links are underlined in the secondary text color", () => {
+    const anchorCS = win.getComputedStyle(links.querySelector("a"));
+    assertEqual(anchorCS.textDecorationLine, "underline", "textDecorationLine");
+    // compare against a probe, since the computed value normalizes the color notation
+    const probe = doc.createElement("span");
+    probe.style.color = "var(--secondary-text)";
+    doc.body.appendChild(probe);
+    const probeColor = win.getComputedStyle(probe).color;
+    probe.remove();
+    assertEqual(anchorCS.textDecorationColor, probeColor, "textDecorationColor");
+  });
+
+  line("tab switch");
+  check("switching tabs re-renders the overlay", () => {
+    win.switchToTab("inbox");
+    assertEqual(links.querySelectorAll("a").length, 1, "link count");
+  });
+  check("the inbox value renders its own links", () => {
+    assertEqual(links.querySelector("a").getAttribute("href"), "https://inbox.example.com/task", "href");
+    assertEqual(links.textContent, editorInbox.value, "textContent");
+  });
+  check("markup in the value is escaped", () => {
+    assert(links.querySelector("script") === null, "a live script element exists");
+    assert(links.innerHTML.includes("&lt;script&gt;"), "the markup is not escaped");
+  });
+  check("switching back re-renders for today", () => {
+    win.switchToTab("today");
+    assertEqual(links.querySelectorAll("a").length, 2, "link count");
+  });
+
+  line("input");
+  check("typing a URL renders a link", () => {
+    editorToday.value = `${todaySeed}\nsee https://new.example.com/x!`;
+    editorToday.dispatchEvent(new InputEvent("input"));
+    assertEqual(links.querySelectorAll("a").length, 3, "link count");
+    assertEqual(links.querySelectorAll("a")[2].getAttribute("href"), "https://new.example.com/x", "href");
+  });
+  check("the input listener stores the value", () => {
+    assertEqual(localStorage.getItem("value.today"), editorToday.value, "value.today");
+  });
+  editorToday.value = todaySeed;
+  win.storeThenSave("value.today", todaySeed);
+
+  line("snap");
+  check("toggling the snap position re-renders the overlay", () => {
+    links.innerHTML = "";
+    win.toggleSnap();
+    assertEqual(links.querySelectorAll("a").length, 2, "link count");
+  });
+  check("toggling docks the container", () => {
+    assert(container.classList.contains("docked"), "the container is not docked");
+  });
+  check("toggling again undocks the container", () => {
+    win.toggleSnap();
+    assert(!container.classList.contains("docked"), "the container is still docked");
+  });
+
+  line("scroll");
+  check("rendering copies the editor scroll position", () => {
+    editorToday.scrollTop = 40;
+    win.renderLinks();
+    assertEqual(links.scrollTop, 40, "overlay scrollTop");
+  });
+  check("the editor scroll listener syncs the overlay", () => {
+    links.scrollTop = 0;
+    editorToday.dispatchEvent(new Event("scroll"));
+    assertEqual(links.scrollTop, 40, "overlay scrollTop");
+  });
+  check("the seed text overflows the editor", () => {
+    assert(editorToday.scrollHeight > editorToday.clientHeight, "the editor does not overflow");
+    assert(links.scrollHeight > links.clientHeight, "the overlay does not overflow");
+  });
+  check("the editor disables the scroll bounce", () => {
+    // The overlay syncs to scrollTop, which stays clamped while the editor
+    // rubber-bands, so the underlines would drift during the bounce.
+    assertEqual(win.getComputedStyle(editorToday).overscrollBehavior, "none", "overscroll-behavior");
+  });
+  check("a link scrolled out of view is not clickable", () => {
+    // scroll to the end: the first line's link sits far above the clip box
+    editorToday.scrollTop = editorToday.scrollHeight;
+    editorToday.dispatchEvent(new Event("scroll"));
+    const first = links.querySelector("a");
+    const overlayRect = links.getBoundingClientRect();
+    const firstRect = first.getBoundingClientRect();
+    assert(firstRect.bottom <= overlayRect.top, "the first link is still in view");
+    assertEqual(win.linkAtPoint(firstRect.left + firstRect.width / 2, firstRect.top + firstRect.height / 2), null, "element");
+  });
+  check("a link visible while scrolled stays clickable", () => {
+    // scroll half a line: the first link is partly clipped, the second is fully in view
+    const lineHeight = links.querySelector("a").getBoundingClientRect().height;
+    editorToday.scrollTop = Math.round(lineHeight / 2);
+    editorToday.dispatchEvent(new Event("scroll"));
+    const second = links.querySelectorAll("a")[1];
+    const secondRect = second.getBoundingClientRect();
+    const overlayRect = links.getBoundingClientRect();
+    assert(secondRect.top >= overlayRect.top && secondRect.bottom <= overlayRect.bottom, "the second link is not fully in view");
+    const hit = win.linkAtPoint(secondRect.left + secondRect.width / 2, secondRect.top + secondRect.height / 2);
+    assertEqual(hit, second, "element");
+  });
+  editorToday.scrollTop = 0;
+  editorToday.dispatchEvent(new Event("scroll"));
+
+  line("hit-testing");
+  const anchor = links.querySelector("a");
+  const anchorRect = anchor.getBoundingClientRect();
+  const overlayRect = links.getBoundingClientRect();
+  const onLink = {
+    x: anchorRect.left + anchorRect.width / 2,
+    y: anchorRect.top + anchorRect.height / 2
+  };
+  const onText = { x: overlayRect.left + 20, y: onLink.y };
+  check("a point on a link resolves to the link", () => {
+    assertEqual(win.linkAtPoint(onLink.x, onLink.y), anchor, "element");
+  });
+  check("a point on plain text resolves to nothing", () => {
+    assertEqual(win.linkAtPoint(onText.x, onText.y), null, "element");
+  });
+  check("a point outside the editor resolves to nothing", () => {
+    assertEqual(win.linkAtPoint(5, 5), null, "element");
+  });
+  check("hit-testing restores the overlay pointer-events", () => {
+    assertEqual(links.style.pointerEvents, "", "inline pointerEvents");
+  });
+
+  line("open");
+  const opened = [];
+  const originalOpen = win.open;
+  win.open = (url, target, features) => {
+    opened.push([url, target, features]);
+  };
+  check("openLinkAtPoint opens the link at the point", () => {
+    win.openLinkAtPoint(onLink.x, onLink.y);
+    assertEqual(opened.length, 1, "call count");
+    assertEqual(opened[0][0], "https://example.com/docs", "url");
+    assertEqual(opened[0][1], "_blank", "target");
+    assertEqual(opened[0][2], "noopener,noreferrer", "features");
+  });
+  check("openLinkAtPoint does nothing on plain text", () => {
+    win.openLinkAtPoint(onText.x, onText.y);
+    assertEqual(opened.length, 1, "call count");
+  });
+  check("clicking with the modifier opens the link", () => {
+    editorToday.dispatchEvent(new MouseEvent("click", {clientX: onLink.x, clientY: onLink.y, ...modifierDown}));
+    assertEqual(opened.length, 2, "call count");
+  });
+  check("a plain click opens nothing", () => {
+    editorToday.dispatchEvent(new MouseEvent("click", {clientX: onLink.x, clientY: onLink.y}));
+    assertEqual(opened.length, 2, "call count");
+  });
+  win.open = originalOpen;
+
+  line("cursor");
+  check("the hand appears over a link with the modifier held", () => {
+    win.updateLinkCursor(editorToday, onLink.x, onLink.y, true);
+    assertEqual(editorToday.style.cursor, "pointer", "cursor");
+  });
+  check("the tooltip names the platform modifier", () => {
+    assertEqual(editorToday.title, `${platformApple ? "⌘" : "Ctrl"}-click to open`, "title");
+  });
+  check("the hand disappears without the modifier", () => {
+    win.updateLinkCursor(editorToday, onLink.x, onLink.y, false);
+    assertEqual(editorToday.style.cursor, "", "cursor");
+  });
+  check("the tooltip stays without the modifier", () => {
+    assertEqual(editorToday.title, `${platformApple ? "⌘" : "Ctrl"}-click to open`, "title");
+  });
+  check("the hand does not appear on plain text", () => {
+    win.updateLinkCursor(editorToday, onText.x, onText.y, true);
+    assertEqual(editorToday.style.cursor, "", "cursor");
+    assertEqual(editorToday.title, "", "title");
+  });
+  check("mousemove with the modifier shows the hand", () => {
+    editorToday.dispatchEvent(new MouseEvent("mousemove", {clientX: onLink.x, clientY: onLink.y, ...modifierDown}));
+    assertEqual(editorToday.style.cursor, "pointer", "cursor");
+  });
+  check("mousemove without the modifier hides the hand", () => {
+    editorToday.dispatchEvent(new MouseEvent("mousemove", {clientX: onLink.x, clientY: onLink.y}));
+    assertEqual(editorToday.style.cursor, "", "cursor");
+  });
+  check("pressing the modifier shows the hand without mouse movement", () => {
+    editorToday.dispatchEvent(new MouseEvent("mousemove", {clientX: onLink.x, clientY: onLink.y, ...modifierDown}));
+    win.dispatchEvent(new KeyboardEvent("keydown", {key: modifierKey, ...modifierDown}));
+    assertEqual(editorToday.style.cursor, "pointer", "cursor");
+  });
+  check("releasing the modifier hides the hand", () => {
+    win.dispatchEvent(new KeyboardEvent("keyup", {key: modifierKey}));
+    assertEqual(editorToday.style.cursor, "", "cursor");
+  });
+  check("the hand follows the last pointer position", () => {
+    editorToday.dispatchEvent(new MouseEvent("mousemove", {clientX: onText.x, clientY: onText.y, ...modifierDown}));
+    win.dispatchEvent(new KeyboardEvent("keydown", {key: modifierKey, ...modifierDown}));
+    assertEqual(editorToday.style.cursor, "", "cursor");
+  });
+  check("pressing the modifier updates both editors", () => {
+    editorToday.dispatchEvent(new MouseEvent("mousemove", {clientX: onLink.x, clientY: onLink.y, ...modifierDown}));
+    editorInbox.dispatchEvent(new MouseEvent("mousemove", {clientX: onLink.x, clientY: onLink.y, ...modifierDown}));
+    win.dispatchEvent(new KeyboardEvent("keyup", {key: modifierKey}));
+    assertEqual(editorToday.style.cursor, "", "today cursor before keydown");
+    assertEqual(editorInbox.style.cursor, "", "inbox cursor before keydown");
+    win.dispatchEvent(new KeyboardEvent("keydown", {key: modifierKey, ...modifierDown}));
+    assertEqual(editorToday.style.cursor, "pointer", "today cursor");
+    assertEqual(editorInbox.style.cursor, "pointer", "inbox cursor");
+  });
+  check("releasing the modifier updates both editors", () => {
+    win.dispatchEvent(new KeyboardEvent("keyup", {key: modifierKey}));
+    assertEqual(editorToday.style.cursor, "", "today cursor");
+    assertEqual(editorInbox.style.cursor, "", "inbox cursor");
+  });
+
+  line("staleness");
+  // Scrolling moves the content under a stationary pointer, so the scroll
+  // listener must re-evaluate the cursor and the tooltip.
+  check("scrolling clears the tooltip when the link moves off the pointer", () => {
+    editorToday.dispatchEvent(new MouseEvent("mousemove", {clientX: onLink.x, clientY: onLink.y}));
+    assertEqual(editorToday.title, `${platformApple ? "⌘" : "Ctrl"}-click to open`, "title before scrolling");
+    editorToday.scrollTop = editorToday.scrollHeight;
+    editorToday.dispatchEvent(new Event("scroll"));
+    assertEqual(editorToday.style.cursor, "", "cursor");
+    assertEqual(editorToday.title, "", "title");
+  });
+  check("scrolling shows the tooltip when a link moves under the pointer", () => {
+    editorToday.dispatchEvent(new MouseEvent("mousemove", {clientX: onLink.x, clientY: onLink.y}));
+    editorToday.scrollTop = editorToday.scrollHeight;
+    editorToday.dispatchEvent(new Event("scroll"));
+    assertEqual(editorToday.title, "", "title while the link is away");
+    editorToday.scrollTop = 0;
+    editorToday.dispatchEvent(new Event("scroll"));
+    assertEqual(editorToday.title, `${platformApple ? "⌘" : "Ctrl"}-click to open`, "title");
+  });
+  check("scrolling with the modifier held clears the hand when the link moves away", () => {
+    editorToday.dispatchEvent(new MouseEvent("mousemove", {clientX: onLink.x, clientY: onLink.y, ...modifierDown}));
+    win.dispatchEvent(new KeyboardEvent("keydown", {key: modifierKey, ...modifierDown}));
+    assertEqual(editorToday.style.cursor, "pointer", "cursor before scrolling");
+    editorToday.scrollTop = editorToday.scrollHeight;
+    editorToday.dispatchEvent(new Event("scroll"));
+    assertEqual(editorToday.style.cursor, "", "cursor");
+    assertEqual(editorToday.title, "", "title");
+    // scroll back so the blur check starts with the link under the pointer
+    editorToday.scrollTop = 0;
+    editorToday.dispatchEvent(new Event("scroll"));
+  });
+  check("window blur clears the tracked modifier state", () => {
+    editorToday.dispatchEvent(new MouseEvent("mousemove", {clientX: onLink.x, clientY: onLink.y, ...modifierDown}));
+    win.dispatchEvent(new KeyboardEvent("keydown", {key: modifierKey, ...modifierDown}));
+    assertEqual(editorToday.style.cursor, "pointer", "cursor before blur");
+    win.dispatchEvent(new Event("blur"));
+    assertEqual(editorToday.style.cursor, "", "cursor after blur");
+    // The modifier can be released while the window is unfocused, without a
+    // keyup reaching the page. Scrolling must not bring the hand back.
+    editorToday.scrollTop = editorToday.scrollHeight;
+    editorToday.dispatchEvent(new Event("scroll"));
+    editorToday.scrollTop = 0;
+    editorToday.dispatchEvent(new Event("scroll"));
+    assertEqual(editorToday.style.cursor, "", "cursor after scrolling back");
+    assertEqual(editorToday.title, `${platformApple ? "⌘" : "Ctrl"}-click to open`, "title after scrolling back");
+  });
+
+  line("modifier");
+  check("modifierHeld recognizes the platform modifier", () => {
+    assert(win.modifierHeld(modifierDown), "the platform modifier is not recognized");
+    assert(!win.modifierHeld({}), "no modifier is treated as held");
+    const other = platformApple ? {ctrlKey: true} : {metaKey: true};
+    assert(!win.modifierHeld(other), "the other modifier is treated as held");
+  });
+
+  line("mutators");
+  // Every code path that changes the editor's text or scroll position must
+  // leave the overlay rendered from the final state. Each check drives one
+  // mutator and verifies the overlay against the editor afterwards.
+  const assertOverlayMatches = editor => {
+    assertEqual(links.textContent, editor.value, "overlay text");
+    const expected = [...editor.value.matchAll(/\bhttps?:\/\/[^\s<>"']+/gi)]
+      .map(match => win.trimTrailingPunctuation(match[0]));
+    const anchors = links.querySelectorAll("a");
+    assertEqual(anchors.length, expected.length, "link count");
+    for (let i = 0; i < anchors.length; i++) {
+      assertEqual(anchors[i].getAttribute("href"), expected[i], `href ${i}`);
+    }
+    assertEqual(links.scrollTop, editor.scrollTop, "overlay scrollTop");
+  };
+  // FrogtabDate is a class declaration, so it does not land on window.
+  // This replicates its stringFromObject to compute expected dates.
+  const dateString = date => [
+    date.toLocaleDateString(undefined, {year: "numeric"}),
+    date.toLocaleDateString(undefined, {month: "2-digit"}),
+    date.toLocaleDateString(undefined, {day: "2-digit"})
+  ].join("-");
+  const restoreLinkState = () => {
+    localStorage.setItem("value.inbox", inboxSeed);
+    localStorage.removeItem("achievements");
+    win.switchToTab("today");
+    editorToday.value = todaySeed;
+    // Assigning value resets the caret to the end, and a later focus() would
+    // scroll that out-of-view caret into view. Keep the caret at the top.
+    editorToday.setSelectionRange(0, 0);
+    editorToday.scrollTop = 0;
+    win.storeThenSave("value.today", todaySeed);
+    win.setNotifyStatus();
+  };
+
+  // Each mutator check starts from the seeded state, so a failure cannot
+  // leak its setup into the checks that follow.
+  const mutatorCheck = (name, fn) => check(name, () => {
+    restoreLinkState();
+    fn();
+  });
+  mutatorCheck("Ctrl+/ on today snoozes the line and re-renders the overlay", () => {
+    editorToday.setSelectionRange(0, 0);
+    editorToday.dispatchEvent(new KeyboardEvent("keydown", {key: "/", ...modifierDown}));
+    assertEqual(editorToday.value, todaySeed.split("\n").slice(1).join("\n"), "editor value");
+    assertOverlayMatches(editorToday);
+    assertEqual(localStorage.getItem("value.inbox"), `# ${todaySeed.split("\n")[0]}\n\n${inboxSeed}`, "stored inbox value");
+    win.switchToTab("inbox");
+    assertOverlayMatches(editorInbox);
+  });
+  mutatorCheck("Ctrl+/ on inbox adds # and shifts the underline", () => {
+    win.switchToTab("inbox");
+    editorInbox.setSelectionRange(0, 0);
+    editorInbox.dispatchEvent(new KeyboardEvent("keydown", {key: "/", ...modifierDown}));
+    assertEqual(editorInbox.value, `# ${inboxSeed}`, "editor value");
+    assertOverlayMatches(editorInbox);
+  });
+  mutatorCheck("Ctrl+/ on a scrolled inbox keeps the overlay scroll in sync", () => {
+    const lines = [inboxSeed, ...Array.from({length: 60}, (_, i) => `filler line ${i}`)];
+    localStorage.setItem("value.inbox", lines.join("\n"));
+    win.switchToTab("inbox");
+    editorInbox.scrollTop = 0;
+    const cursorPos = lines.slice(0, 40).join("\n").length + 1;
+    editorInbox.setSelectionRange(cursorPos, cursorPos);
+    editorInbox.blur();
+    editorInbox.dispatchEvent(new KeyboardEvent("keydown", {key: "/", ...modifierDown}));
+    const expectedValue = [...lines.slice(0, 40), `# ${lines[40]}`, ...lines.slice(41)].join("\n");
+    assertEqual(editorInbox.value, expectedValue, "editor value");
+    assert(editorInbox.scrollTop > 0, "the editor did not scroll to the snoozed line");
+    assertOverlayMatches(editorInbox);
+  });
+  mutatorCheck("Ctrl+Shift+Enter on inbox moves the task to today", () => {
+    localStorage.setItem("value.inbox", "# snoozed task https://snooze.example.com/x\n\nplain line https://plain.example.com/y");
+    win.switchToTab("inbox");
+    editorInbox.setSelectionRange(0, 0);
+    editorInbox.dispatchEvent(new KeyboardEvent("keydown", {key: "Enter", shiftKey: true, ...modifierDown}));
+    assertEqual(editorInbox.value, "plain line https://plain.example.com/y", "editor value");
+    assertOverlayMatches(editorInbox);
+    assertEqual(localStorage.getItem("value.today"), `${todaySeed}\n\nsnoozed task https://snooze.example.com/x`, "stored today value");
+    win.switchToTab("today");
+    assertOverlayMatches(editorToday);
+  });
+  mutatorCheck("Ctrl+k on today completes the task and records the achievement", () => {
+    localStorage.setItem("achievements", "[]");
+    editorToday.setSelectionRange(0, 0);
+    editorToday.dispatchEvent(new KeyboardEvent("keydown", {key: "k", ...modifierDown}));
+    assertEqual(editorToday.value, todaySeed.split("\n").slice(1).join("\n"), "editor value");
+    assertOverlayMatches(editorToday);
+    const achievements = JSON.parse(localStorage.getItem("achievements"));
+    assertEqual(achievements.length, 1, "achievement count");
+    assertEqual(achievements[0].date, dateString(new Date()), "achievement date");
+    assertEqual(JSON.stringify(achievements[0].tasks), JSON.stringify([todaySeed.split("\n")[0]]), "achievement tasks");
+  });
+  mutatorCheck("Ctrl+k on inbox completes the task", () => {
+    localStorage.setItem("achievements", "[]");
+    win.switchToTab("inbox");
+    editorInbox.setSelectionRange(0, 0);
+    editorInbox.dispatchEvent(new KeyboardEvent("keydown", {key: "k", ...modifierDown}));
+    assertEqual(editorInbox.value, "", "editor value");
+    assertOverlayMatches(editorInbox);
+    const achievements = JSON.parse(localStorage.getItem("achievements"));
+    assertEqual(JSON.stringify(achievements[0].tasks), JSON.stringify([inboxSeed]), "achievement tasks");
+  });
+  mutatorCheck("Enter completes a task with a date offset", () => {
+    localStorage.setItem("achievements", "[]");
+    editorToday.value = "x -1 fix https://offset.example.com/z";
+    editorToday.setSelectionRange(5, 5);
+    editorToday.dispatchEvent(new KeyboardEvent("keydown", {key: "Enter"}));
+    assertEqual(editorToday.value, "", "editor value");
+    assertOverlayMatches(editorToday);
+    const yesterday = dateString(new Date(Date.now() - 86400000));
+    const achievements = JSON.parse(localStorage.getItem("achievements"));
+    assertEqual(achievements.length, 1, "achievement count");
+    assertEqual(achievements[0].date, yesterday, "achievement date");
+    assertEqual(JSON.stringify(achievements[0].tasks), JSON.stringify(["fix https://offset.example.com/z"]), "achievement tasks");
+    editorToday.value = "x done https://plain.example.com/q";
+    editorToday.setSelectionRange(2, 2);
+    editorToday.dispatchEvent(new KeyboardEvent("keydown", {key: "Enter"}));
+    assertOverlayMatches(editorToday);
+    const updated = JSON.parse(localStorage.getItem("achievements"));
+    assertEqual(updated.length, 2, "achievement count");
+    assertEqual(updated[0].date, dateString(new Date()), "today's achievement date");
+    assertEqual(updated[0].tasks[0], "done https://plain.example.com/q", "today's first task");
+  });
+  mutatorCheck("the completion-offset input helper re-renders the overlay", () => {
+    localStorage.setItem("achievements", "[]");
+    editorToday.value = "X https://offset.example.com/w";
+    editorToday.setSelectionRange(2, 2);
+    editorToday.dispatchEvent(new InputEvent("input", {inputType: "insertText"}));
+    assertEqual(editorToday.value, "x  https://offset.example.com/w", "editor value");
+    assertOverlayMatches(editorToday);
+  });
+  mutatorCheck("the inbox input listener re-renders the overlay", () => {
+    win.switchToTab("inbox");
+    editorInbox.value = `${inboxSeed}\nsee https://inbox-input.example.com/n`;
+    editorInbox.dispatchEvent(new InputEvent("input"));
+    assertOverlayMatches(editorInbox);
+    assertEqual(localStorage.getItem("value.inbox"), editorInbox.value, "stored inbox value");
+  });
+  mutatorCheck("body Ctrl+Enter re-renders at the top of the gap", () => {
+    editorToday.scrollTop = 40;
+    editorToday.blur();
+    doc.body.dispatchEvent(new KeyboardEvent("keydown", {key: "Enter", ...modifierDown}));
+    assertEqual(editorToday.value, `\n\n${todaySeed}`, "editor value");
+    assertOverlayMatches(editorToday);
+  });
+  mutatorCheck("body Ctrl+Shift+i re-renders the reordered inbox", () => {
+    // A short inbox cannot scroll, so the reorder needs a long one to move
+    // the overlay's scroll position and expose a stale render.
+    const lines = [
+      "# snoozed https://b.example.com/2",
+      "plain https://a.example.com/1",
+      ...Array.from({length: 40}, (_, i) => `filler line ${i}`)
+    ];
+    localStorage.setItem("value.inbox", lines.join("\n"));
+    win.setNotifyStatus();
+    win.switchToTab("inbox");
+    editorInbox.scrollTop = 40;
+    editorInbox.blur();
+    doc.body.dispatchEvent(new KeyboardEvent("keydown", {key: "i", shiftKey: true, ...modifierDown}));
+    const expected = [...lines.slice(1), "", lines[0]].join("\n");
+    assertEqual(editorInbox.value, expected, "editor value");
+    assertOverlayMatches(editorInbox);
+  });
+  mutatorCheck("body Ctrl+a, Ctrl+u and Ctrl+i switch focus and tabs", () => {
+    doc.body.dispatchEvent(new KeyboardEvent("keydown", {key: "a", ...modifierDown}));
+    assertEqual(doc.activeElement, editorToday, "focused editor");
+    assertOverlayMatches(editorToday);
+    doc.body.dispatchEvent(new KeyboardEvent("keydown", {key: "u", ...modifierDown}));
+    assertOverlayMatches(editorToday);
+    doc.body.dispatchEvent(new KeyboardEvent("keydown", {key: "i", ...modifierDown}));
+    assertOverlayMatches(editorInbox);
+    doc.body.dispatchEvent(new KeyboardEvent("keydown", {key: "u", ...modifierDown}));
+  });
+  mutatorCheck("Ctrl+a scrolls a deep caret into view and the listener heals the overlay", () => {
+    // focus() scrolls an unfocused editor to the caret when it is out of
+    // view, and delivers that as a scroll event. The listener syncs the
+    // overlay, so the underlines catch up as soon as the event lands.
+    editorToday.setSelectionRange(todaySeed.length, todaySeed.length);
+    editorToday.blur();
+    editorToday.scrollTop = 0;
+    doc.body.dispatchEvent(new KeyboardEvent("keydown", {key: "a", ...modifierDown}));
+    assertEqual(doc.activeElement, editorToday, "focused editor");
+    assert(editorToday.scrollTop > 0, "the editor did not scroll to the caret");
+    editorToday.dispatchEvent(new Event("scroll"));
+    assertOverlayMatches(editorToday);
+  });
+  mutatorCheck("the storage listener re-renders the open tab", () => {
+    const storedValue = `${todaySeed}\nsee https://storage.example.com/s`;
+    localStorage.setItem("value.today", storedValue);
+    win.dispatchEvent(new StorageEvent("storage"));
+    assertEqual(editorToday.value, storedValue, "editor value");
+    assertOverlayMatches(editorToday);
+  });
+  mutatorCheck("updateValues rolls today into the inbox", () => {
+    win.updateValues();
+    win.preferInbox();
+    assertEqual(localStorage.getItem("value.today"), "", "stored today value");
+    assertEqual(localStorage.getItem("value.inbox"), `${todaySeed}\n\n${inboxSeed}`, "stored inbox value");
+    assertOverlayMatches(editorInbox);
+  });
+  mutatorCheck("Ctrl+x selects the task without changing the text", () => {
+    editorToday.setSelectionRange(0, 0);
+    editorToday.dispatchEvent(new KeyboardEvent("keydown", {key: "x", ...modifierDown}));
+    assertOverlayMatches(editorToday);
+    assertEqual(editorToday.selectionStart, 0, "selection start");
+    assertEqual(editorToday.selectionEnd, todaySeed.split("\n")[0].length + 1, "selection end");
+  });
+
+  line("resize");
+  check("resizing re-renders the overlay", () => {
+    links.innerHTML = "";
+    win.dispatchEvent(new Event("resize"));
+    assertEqual(links.querySelectorAll("a").length, 2, "link count");
+  });
+  check("resizing re-syncs the overlay width", () => {
+    iframe.style.width = "600px";
+    win.dispatchEvent(new Event("resize"));
+    assertEqual(links.style.width, `${editorToday.clientWidth + 4}px`, "style.width");
+    iframe.style.width = "";
+    win.dispatchEvent(new Event("resize"));
+    assertEqual(links.style.width, `${editorToday.clientWidth + 4}px`, "style.width");
+  });
+
+  // The overlay only exists on the Today and Inbox editors, but the scroll
+  // bounce fix belongs on every editor: the bare textarea selector in
+  // style.css carries it, and every editor page loads that stylesheet.
+  // Load each other editor page and assert the computed style on every
+  // textarea it renders.
+  line("other editors");
+  const otherPages = [
+    ["icon-normal", "../app/icon-normal.html"],
+    ["icon-notify", "../app/icon-notify.html"],
+    ["week", "../app/week.html"],
+    ["send", "../app/send.html"],
+    ["demo", "../app/demo.html#today/a%20b%20c/false"],
+    ["demo-week", "../app/demo-week.html#wed/a%20b%20c"]
+  ];
+  for (const [name, src] of otherPages) {
+    await new Promise(resolve => {
+      iframe.addEventListener("load", resolve, {once: true});
+      iframe.removeAttribute("srcdoc");
+      iframe.src = src;
+    });
+    const pageDoc = iframe.contentDocument;
+    const pageWin = iframe.contentWindow;
+    const textareas = [...pageDoc.querySelectorAll("textarea")];
+    check(`${name} disables the scroll bounce on every editor`, () => {
+      assert(textareas.length > 0, "the page renders no textarea");
+      for (const textarea of textareas) {
+        assertEqual(
+          pageWin.getComputedStyle(textarea).overscrollBehavior,
+          "none",
+          `${textarea.id || "(anonymous)"} overscroll-behavior`
+        );
+      }
+    });
+  }
+  // Restore the app for any code after this section.
+  await new Promise(resolve => {
+    iframe.addEventListener("load", resolve, {once: true});
+    iframe.src = "../app/index.html";
+  });
+  await waitForApp();
+
+  line("");
+  line(`${failed} failed, ${passed} passed`);
+  document.title = failed === 0 ? "Link tests: all passed" : `Link tests: ${failed} failed`;
+})();
+  </script>
+</body>
+</html>

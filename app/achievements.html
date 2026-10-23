@@ -9,8 +9,8 @@
     <link rel="icon" href="favicons/icon-32.png" sizes="32x32" type="image/png">
     <link rel="apple-touch-icon" sizes="180x180" href="favicons/icon-180-apple.png">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="simple.min.css?sha1=cd9f38e059ac6aeb35d9a4ecae19703f43aa404d">
-    <link rel="stylesheet" href="simple-customizations.css?sha1=3f186823fec845a25ba4debacb10968ed8f3f30a">
+    <link rel="stylesheet" href="simple.min.css?sha1=3796f5e3bfd5f9e02736732bd10e3b204c8902ff">
+    <link rel="stylesheet" href="simple-customizations.css?sha1=30278713b0dd5500e6a20b79bfc195b04a7b7060">
   </head>
   <body>
     <header>
@@ -272,6 +272,55 @@
         localStorage.setItem("achievements", achievementsCached);
       }
 
+      function trimTrailingPunctuation(url) {
+        let trimmed = url;
+        while (trimmed.length > 0) {
+          const lastChar = trimmed.charAt(trimmed.length - 1);
+          if (".!,;:?".includes(lastChar)) {
+            trimmed = trimmed.substring(0, trimmed.length - 1);
+          }
+          else if (lastChar == ")" && trimmed.split(")").length > trimmed.split("(").length) {
+            trimmed = trimmed.substring(0, trimmed.length - 1);
+          }
+          else {
+            break;
+          }
+        }
+        return trimmed;
+      }
+
+      // Render a task as plain text, with any URLs as clickable links.
+      // In the editing views the whole task is a move-back control,
+      // so URLs stay plain text there.
+      function displayTaskText(domTaskText, taskText) {
+        if (editingState != "") {
+          domTaskText.textContent = taskText;
+          return;
+        }
+        let copiedUpTo = 0;
+        // URL schemes are case-insensitive, so match any case
+        for (const match of taskText.matchAll(/\bhttps?:\/\/[^\s<>"']+/gi)) {
+          if (match.index > copiedUpTo) {
+            domTaskText.appendChild(document.createTextNode(
+              taskText.substring(copiedUpTo, match.index)
+            ));
+          }
+          const url = trimTrailingPunctuation(match[0]);
+          const domLink = document.createElement("a");
+          domLink.href = url;
+          domLink.textContent = url;
+          domLink.target = "_blank";
+          domLink.rel = "noopener noreferrer";
+          domTaskText.appendChild(domLink);
+          copiedUpTo = match.index + url.length;
+        }
+        if (copiedUpTo < taskText.length) {
+          domTaskText.appendChild(document.createTextNode(
+            taskText.substring(copiedUpTo)
+          ));
+        }
+      }
+
       function displayTasks() {
         const weekdayNameByDate = buildWeekdayNameByDate();
         for (let indexDay = 0; indexDay < achievementsParsed.length; indexDay++) {
@@ -294,7 +343,7 @@
             const domTaskText = document.createElement("span");
             domTaskListItem.appendChild(domTaskText);
             domTaskText.className = "task-text";
-            domTaskText.textContent = day.tasks[indexTask];
+            displayTaskText(domTaskText, day.tasks[indexTask]);
             domTaskText.addEventListener("mouseenter", () => {
               domTaskListItem.classList.add("inner-hover");
             });

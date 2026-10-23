@@ -185,6 +185,11 @@ td > p + p {
 .checklist ul {
   list-style-type: none;
 }
+/* Task links show their own URL as the link text, so suppress the
+   URL that simple.css appends after external links */
+.checklist .task-text a[href^="http"]::after {
+  content: none;
+}
 .checklist.editing li {
   color: var(--text-light);
 }

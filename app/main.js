@@ -172,6 +172,7 @@ function refreshView() {
     dom.editor[selectedTab].scrollTop = 0;
     refreshInfo();
   }
+  renderLinks();
 }
 
 function refreshInfo() {
@@ -182,6 +183,91 @@ function refreshInfo() {
       dom.info.classList.add("display");
     }, 30000);
   }
+}
+
+function escapeHTML(text) {
+  return text
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll("\"", "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function trimTrailingPunctuation(url) {
+  let trimmed = url;
+  while (trimmed.length > 0) {
+    const lastChar = trimmed.charAt(trimmed.length - 1);
+    if (".!,;:?".includes(lastChar)) {
+      trimmed = trimmed.substring(0, trimmed.length - 1);
+    }
+    else if (lastChar == ")" && trimmed.split(")").length > trimmed.split("(").length) {
+      trimmed = trimmed.substring(0, trimmed.length - 1);
+    }
+    else {
+      break;
+    }
+  }
+  return trimmed;
+}
+
+function renderLinks() {
+  const editor = dom.editor[selectedTab];
+  // Match the overlay's text wrap width to the editor's:
+  // the editor's clientWidth excludes its 2px borders and scrollbar,
+  // while the overlay's width includes its own 2px transparent borders
+  dom.links.style.width = `${editor.clientWidth + 4}px`;
+  let html = "";
+  let copiedUpTo = 0;
+  // URL schemes are case-insensitive, so match any case
+  for (const match of editor.value.matchAll(/\bhttps?:\/\/[^\s<>"']+/gi)) {
+    html += escapeHTML(editor.value.substring(copiedUpTo, match.index));
+    const url = trimTrailingPunctuation(match[0]);
+    html += `<a tabindex="-1" href="${escapeHTML(url)}">${escapeHTML(url)}</a>`;
+    copiedUpTo = match.index + url.length;
+  }
+  html += escapeHTML(editor.value.substring(copiedUpTo));
+  dom.links.innerHTML = html;
+  // Copy the scroll position explicitly: setting scrollTop doesn't trigger a scroll event
+  dom.links.scrollTop = editor.scrollTop;
+}
+
+function openLinkAtPoint(x, y) {
+  const link = linkAtPoint(x, y);
+  if (link === null) {
+    return;
+  }
+  window.open(link.getAttribute("href"), "_blank", "noopener,noreferrer");
+}
+
+function linkAtPoint(x, y) {
+  // The overlay ignores pointer events, so let it receive them temporarily
+  dom.links.style.pointerEvents = "auto";
+  const element = document.elementFromPoint(x, y);
+  dom.links.style.pointerEvents = "";
+  if (element === null) {
+    return null;
+  }
+  return element.closest("#links a");
+}
+
+function modifierHeld(event) {
+  return (platformApple && event.metaKey) || (!platformApple && event.ctrlKey);
+}
+
+// Last known pointer position and modifier state, so that pressing or
+// releasing the modifier key, or scrolling, can update the cursor
+// without any mouse movement
+let lastPointerX = 0;
+let lastPointerY = 0;
+let modifierIsHeld = false;
+
+function updateLinkCursor(editor, x, y, modifier) {
+  const overLink = linkAtPoint(x, y) !== null;
+  editor.style.cursor = modifier && overLink ? "pointer" : "";
+  // The overlay ignores pointer events, so the browser can't show a tooltip
+  // on the anchors. Set the tooltip on the editor instead.
+  editor.title = overLink ? `${platformApple ? "⌘" : "Ctrl"}-click to open` : "";
 }
 
 function addSpaceForCompletionOffset(editor) {
@@ -518,7 +604,6 @@ function inboxSnoozeSelected() {
     if (capturing) {
       newInboxValue = newInboxValue.trimEnd();
     }
-    storeThenSave("value.inbox", newInboxValue);
     const prevScrollTop = dom.editor.inbox.scrollTop;
     dom.editor.inbox.scrollTop = 0;
     dom.editor.inbox.value = newInboxValue.substring(0, newSelectionPos);
@@ -526,6 +611,7 @@ function inboxSnoozeSelected() {
     dom.editor.inbox.value = newInboxValue;
     dom.editor.inbox.scrollTop = Math.max(prevScrollTop, dom.editor.inbox.scrollTop);
     dom.editor.inbox.setSelectionRange(newSelectionPos, newSelectionPos);
+    storeThenSave("value.inbox", newInboxValue);
   }
 }
 
@@ -556,10 +642,10 @@ function selectUnsnoozed() {
   else {
     dom.editor.inbox.value = unsnoozed;
   }
-  storeThenSave("value.inbox", dom.editor.inbox.value);
   dom.editor.inbox.setSelectionRange(0, unsnoozed.length);
   dom.editor.inbox.scrollTop = 0;
   dom.editor.inbox.focus();
+  storeThenSave("value.inbox", dom.editor.inbox.value);
 }
 
 function appendToBottom(original, value) {
@@ -753,6 +839,7 @@ function toggleSnap() {
     dom.snapToCenter.classList.remove("display");
     localStorage.setItem("ui.snap", "center");
   }
+  renderLinks();
 }
 
 function setExportAndSave() {
@@ -825,6 +912,9 @@ function createDataJSON() {
 
 function storeThenSave(key, value) {
   localStorage.setItem(key, value);
+  if (key.startsWith("value.")) {
+    renderLinks();
+  }
   requestSave();
 }
 
@@ -1137,6 +1227,45 @@ async function startApp() {
   dom.editor.inbox.addEventListener("focusin", () => {
     dom.menu.classList.remove("display");
   });
+  for (const editor of [dom.editor.today, dom.editor.inbox]) {
+    editor.addEventListener("scroll", () => {
+      dom.links.scrollTop = editor.scrollTop;
+      // The content moved under the pointer, so re-evaluate the cursor
+      updateLinkCursor(editor, lastPointerX, lastPointerY, modifierIsHeld);
+    });
+    editor.addEventListener("click", event => {
+      if (modifierHeld(event)) {
+        openLinkAtPoint(event.clientX, event.clientY);
+      }
+    });
+    editor.addEventListener("mousemove", event => {
+      lastPointerX = event.clientX;
+      lastPointerY = event.clientY;
+      modifierIsHeld = modifierHeld(event);
+      updateLinkCursor(editor, lastPointerX, lastPointerY, modifierIsHeld);
+    });
+  }
+  // Update the cursor when the modifier key is pressed or released,
+  // even if the pointer hasn't moved since the last mousemove
+  for (const keyEvent of ["keydown", "keyup"]) {
+    window.addEventListener(keyEvent, event => {
+      if (event.key == (platformApple ? "Meta" : "Control")) {
+        modifierIsHeld = keyEvent == "keydown";
+        for (const editor of [dom.editor.today, dom.editor.inbox]) {
+          updateLinkCursor(editor, lastPointerX, lastPointerY, modifierIsHeld);
+        }
+      }
+    });
+  }
+  // The modifier key can be released while the window is unfocused, without
+  // a keyup reaching us. Clear the tracked state when the window loses focus.
+  window.addEventListener("blur", () => {
+    modifierIsHeld = false;
+    for (const editor of [dom.editor.inbox, dom.editor.today]) {
+      updateLinkCursor(editor, lastPointerX, lastPointerY, false);
+    }
+  });
+  window.addEventListener("resize", renderLinks);
   dom.menu.addEventListener("keydown", event => {
     if (event.target.hasAttribute("data-menu-seq") && matchKeyboardEvent(event, "", "arrowdown")) {
       event.preventDefault();
@@ -1173,10 +1302,10 @@ async function startApp() {
         value = `\n\n${value}`;
       }
       dom.editor[selectedTab].value = value;
-      storeThenSave(`value.${selectedTab}`, dom.editor[selectedTab].value);
       dom.editor[selectedTab].setSelectionRange(0, 0);
       dom.editor[selectedTab].scrollTop = 0;
       dom.editor[selectedTab].focus();
+      storeThenSave(`value.${selectedTab}`, dom.editor[selectedTab].value);
       refreshInfo();
     }
     else if (matchKeyboardEvent(event, "c", "u")) {
@@ -1377,6 +1506,7 @@ const dom = {
     today: document.getElementById("editor-today"),
     inbox: document.getElementById("editor-inbox")
   },
+  links: document.getElementById("links"),
   today: document.getElementById("tab-today"),
   inbox: document.getElementById("tab-inbox"),
   info: document.getElementById("tab-info"),
