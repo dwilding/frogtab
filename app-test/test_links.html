@@ -312,6 +312,11 @@ function waitForApp() {
     assert(editorToday.scrollHeight > editorToday.clientHeight, "the editor does not overflow");
     assert(links.scrollHeight > links.clientHeight, "the overlay does not overflow");
   });
+  check("the editor disables the scroll bounce", () => {
+    // The overlay syncs to scrollTop, which stays clamped while the editor
+    // rubber-bands, so the underlines would drift during the bounce.
+    assertEqual(win.getComputedStyle(editorToday).overscrollBehavior, "none", "overscroll-behavior");
+  });
   check("a link scrolled out of view is not clickable", () => {
     // scroll to the end: the first line's link sits far above the clip box
     editorToday.scrollTop = editorToday.scrollHeight;
