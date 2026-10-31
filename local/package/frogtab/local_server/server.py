@@ -7,7 +7,7 @@ import logging
 
 import flask
 
-VERSION = "2.0.4"
+VERSION = "2.1.0"
 
 
 def read_json(json_path: Path) -> dict:
