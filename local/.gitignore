@@ -1,6 +1,8 @@
 .ruff_cache
 .venv
 testing
+__pycache__/
+*.pyc
 package/dist
 package/frogtab.egg-info
 package/frogtab/local_server/static

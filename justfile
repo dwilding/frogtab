@@ -15,6 +15,7 @@ package: app licenses ruff _package-stage _package-build
 [working-directory: "local"]
 _package-build:
   #!/bin/sh
+  set -e
   rm -rf .venv
   python3 -m venv .venv
   . .venv/bin/activate
@@ -45,6 +46,7 @@ _package-templates-empty:
 [working-directory: "local"]
 package-upload:
   #!/bin/sh
+  set -e
   . .venv/bin/activate
   pip install twine
   twine upload package/dist/*
@@ -76,5 +78,12 @@ app: _app-libs
 
 [working-directory: "app"]
 _app-libs:
+  #!/bin/sh
+  set -e
   wget -O simple.min.css "https://cdn.simplecss.org/simple.min.css"
   wget -O openpgp.min.mjs "https://unpkg.com/openpgp@5.x/dist/openpgp.min.mjs"
+  for file in simple.min.css openpgp.min.mjs; do
+    if [ -n "$(tail -c 1 "$file")" ]; then
+      echo >> "$file"
+    fi
+  done

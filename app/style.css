@@ -253,9 +253,45 @@ textarea.display {
 .action-menu-item.clickable:focus {
   color: var(--body-text);
 }
-.action-menu-item.spacer {
-  height: 2px;
-  background-color: var(--menu-spacer);
+.action-menu-item.divider {
+  border-top: 2px solid var(--menu-spacer);
+  padding-top: 0.6rem;
+}
+.theme-row {
+  display: none;
+  align-items: center;
+  justify-content: space-evenly;
+  gap: 0.3rem;
+  margin: 0.6rem;
+}
+.theme-row.display {
+  display: flex;
+}
+.theme-row > a {
+  display: none;
+  margin: 0;
+  color: var(--secondary-text);
+  text-decoration: none;
+  cursor: pointer;
+}
+.theme-row > a.display {
+  display: inline-flex;
+  align-items: center;
+  min-width: 20px;
+  min-height: 20px;
+  justify-content: center;
+}
+.theme-row > a.clickable:hover,
+.theme-row > a.clickable:focus {
+  color: var(--body-text);
+}
+.theme-row > a.selected {
+  color: var(--body-text);
+  font-weight: bold;
+  cursor: default;
+}
+.theme-row > a.selected svg {
+  fill: currentColor;
 }
 .circle-button {
   display: inline-block;

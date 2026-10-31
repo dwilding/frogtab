@@ -1,19 +1,19 @@
-from pathlib import Path
-import subprocess
 import json
+import subprocess
 import time
+from pathlib import Path
 
 import requests
 
-from ._version import __version__
 from ._exceptions import (
-    ReadError,
-    WriteError,
-    WrongVersionError,
-    WrongAppError,
-    RunningError,
     NotRunningError,
+    ReadError,
+    RunningError,
+    WriteError,
+    WrongAppError,
+    WrongVersionError,
 )
+from ._version import __version__
 
 
 def get_port(config_path: Path) -> int:

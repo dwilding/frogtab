@@ -1,17 +1,16 @@
-from pathlib import Path
 import sys
+from pathlib import Path
 
-from ._version import __version__
+from . import _client, _env
 from ._exceptions import (
-    ReadError,
-    WriteError,
-    WrongVersionError,
-    WrongAppError,
-    RunningError,
     NotRunningError,
+    ReadError,
+    RunningError,
+    WriteError,
+    WrongAppError,
+    WrongVersionError,
 )
-from . import _client
-from . import _env
+from ._version import __version__
 
 
 def main():

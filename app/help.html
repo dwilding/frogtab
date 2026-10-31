@@ -9,7 +9,7 @@
     <link rel="icon" href="favicons/icon-32.png" sizes="32x32" type="image/png">
     <link rel="apple-touch-icon" sizes="180x180" href="favicons/icon-180-apple.png">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="stylesheet" href="simple.min.css?sha1=cd9f38e059ac6aeb35d9a4ecae19703f43aa404d">
+    <link rel="stylesheet" href="simple.min.css?sha1=3796f5e3bfd5f9e02736732bd10e3b204c8902ff">
     <link rel="stylesheet" href="simple-customizations.css?sha1=3f186823fec845a25ba4debacb10968ed8f3f30a">
   </head>
   <body>
@@ -57,11 +57,10 @@
           <li><a tabindex="0" href="#keyboard-shortcuts">Keyboard shortcuts</a></li>
           <li><a tabindex="0" href="#completion-commands">Completion commands</a></li>
           <li><a tabindex="0" href="#customizing-the-tab-icon">Customizing the tab icon</a></li>
-          <li><a tabindex="0" href="#changing-the-theme">Changing the theme</a></li>
         </ul>
       </article>
       <h2 id="overview-of-frogtab">Overview of Frogtab</h2>
-      <iframe tabindex="0" title="Demo of the Today view" src="demo.html?sha1=3100b59ba1eab51a49863f68327f429494e59e79#today/Conduct%20a%20pond%20safety%20inspection%0A%0AArrange%20a%20moonlit%20croaking%20concert/false"></iframe>
+      <iframe tabindex="0" title="Demo of the Today view" src="demo.html?sha1=a0ffcbd5c440686bcae10c6423b5f685f1534f96#today/Conduct%20a%20pond%20safety%20inspection%0A%0AArrange%20a%20moonlit%20croaking%20concert/false"></iframe>
       <p>
         <strong>Today</strong> is your to-do list for today.
         Begin the day by writing down everything you'd like to accomplish.
@@ -79,7 +78,7 @@
       <p>
         Frogtab displays a notification badge to remind you to triage your inbox:
       </p>
-      <iframe tabindex="0" title="Demo of the Inbox view with a notification badge" src="demo.html?sha1=3100b59ba1eab51a49863f68327f429494e59e79#inbox/Why%20has%20the%20water%20clarity%20changed%3F/true"></iframe>
+      <iframe tabindex="0" title="Demo of the Inbox view with a notification badge" src="demo.html?sha1=a0ffcbd5c440686bcae10c6423b5f685f1534f96#inbox/Why%20has%20the%20water%20clarity%20changed%3F/true"></iframe>
       <p class="before-compact">
         At the beginning of each day, Frogtab:
       </p>
@@ -125,7 +124,7 @@
           <p>
             Snooze the task by writing # in front of the task:
           </p>
-          <iframe tabindex="0" title="Demo of the Inbox view with a snoozed task and an unsnoozed task" src="demo.html?sha1=3100b59ba1eab51a49863f68327f429494e59e79#inbox/%23%20This%20is%20snoozed%0A%0AThis%20is%20not%20snoozed/true"></iframe>
+          <iframe tabindex="0" title="Demo of the Inbox view with a snoozed task and an unsnoozed task" src="demo.html?sha1=a0ffcbd5c440686bcae10c6423b5f685f1534f96#inbox/%23%20This%20is%20snoozed%0A%0AThis%20is%20not%20snoozed/true"></iframe>
           <p>
             Frogtab will unsnooze the task at the beginning of the next day.
           </p>
@@ -161,12 +160,12 @@
           <p>
             Select a day, then write down your recurring tasks for that day. For&nbsp;example:
           </p>
-          <iframe tabindex="0" title="Demo of a recurring task on Wednesdays" src="demo-week.html?sha1=5fe6863ae3c126d8b9b8ebc31482c10764e81575#wed/Host%20this%20week%27s%20Wild%20Wednesday%21"></iframe>
+          <iframe tabindex="0" title="Demo of a recurring task on Wednesdays" src="demo-week.html?sha1=d645012db0b9c2d2a3e5eff04d9dfaea467ae677#wed/Host%20this%20week%27s%20Wild%20Wednesday%21"></iframe>
           <p>
             If you like planning in the evening, write down your recurring tasks under the previous day,
             with # in front of each task. For&nbsp;example:
           </p>
-          <iframe tabindex="0" title="Demo of a recurring task on Tuesdays that will be snoozed until Wednesdays" src="demo-week.html?sha1=5fe6863ae3c126d8b9b8ebc31482c10764e81575#tue/%23%20Host%20this%20week%27s%20Wild%20Wednesday%21"></iframe>
+          <iframe tabindex="0" title="Demo of a recurring task on Tuesdays that will be snoozed until Wednesdays" src="demo-week.html?sha1=d645012db0b9c2d2a3e5eff04d9dfaea467ae677#tue/%23%20Host%20this%20week%27s%20Wild%20Wednesday%21"></iframe>
           <p>
             You'll then be able to see the recurring tasks one day in advance.
             When Frogtab adds the tasks to your inbox, they'll be snoozed (because of the #), so they won't cause Frogtab to display a notification badge.
@@ -659,25 +658,6 @@
       <p>
         If your browser supports Frogtab's default way of updating the tab icon, but you prefer no badge on the tab icon, you can use <a tabindex="0" href="icon-normal" target="_blank">this version of Frogtab</a>.
       </p>
-      <h2 id="changing-the-theme">Changing the theme</h2>
-      <div class="notice display">
-        <div class="display">
-          <p>
-            Select a theme:
-          </p>
-          <div>
-            <label>
-              <input tabindex="0" id="theme-light" type="radio" name="theme"> Light
-            </label>
-            <label>
-              <input tabindex="0" id="theme-dark" type="radio" name="theme"> Dark
-            </label>
-            <label>
-              <input tabindex="0" id="theme-system" type="radio" name="theme" checked> System
-            </label>
-          </div>
-        </div>
-      </div>
     </main>
     <footer>
       <p>
@@ -792,18 +772,6 @@
 
 
       // ******** Other helpers ********
-
-      function updateSelectedTheme() {
-        if (localStorage.getItem("ui.theme") == "light") {
-          dom.themeLight.checked = true;
-        }
-        else if (localStorage.getItem("ui.theme") == "dark") {
-          dom.themeDark.checked = true;
-        }
-        else {
-          dom.themeSystem.checked = true;
-        }
-      }
 
       function getPersonalLink() {
         return `${attr("server-base")}send#${localStorage.getItem("user.userID")}`;
@@ -1009,21 +977,8 @@
 
       async function startApp() {
         verify();
-        updateSelectedTheme();
         setAchievements();
         checkForLocalUnpaired();
-        dom.themeLight.addEventListener("change", () => {
-          document.documentElement.setAttribute("data-theme", "light");
-          localStorage.setItem("ui.theme", "light");
-        });
-        dom.themeDark.addEventListener("change", () => {
-          document.documentElement.setAttribute("data-theme", "dark");
-          localStorage.setItem("ui.theme", "dark");
-        });
-        dom.themeSystem.addEventListener("change", () => {
-          document.documentElement.setAttribute("data-theme", "system");
-          localStorage.setItem("ui.theme", "system");
-        });
         if (!platformApple) {
           dom.osWinLinux.checked = true;
           for (const shortcut of document.querySelectorAll(".shortcut.mac")) {
@@ -1137,7 +1092,6 @@
         }
         window.addEventListener("storage", () => {
           document.documentElement.setAttribute("data-theme", localStorage.getItem("ui.theme"));
-          updateSelectedTheme();
           setAchievements();
           checkForLocalUnpaired();
           if (
@@ -1163,9 +1117,6 @@
       }
       document.documentElement.setAttribute("data-theme", localStorage.getItem("ui.theme"));
       const dom = {
-        themeLight: document.getElementById("theme-light"),
-        themeDark: document.getElementById("theme-dark"),
-        themeSystem: document.getElementById("theme-system"),
         osMac: document.getElementById("os-mac"),
         osWinLinux: document.getElementById("os-win-linux"),
         caseChecking: document.getElementById("case-checking"),

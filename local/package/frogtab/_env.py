@@ -1,9 +1,8 @@
-from typing import Set
-from pathlib import Path
-import sys
 import os
 import shutil
 import subprocess
+import sys
+from pathlib import Path
 
 from ._exceptions import ReadError, WriteError
 
@@ -128,7 +127,7 @@ def log_not_running(port: int) -> None:
         raise WriteError(ports_path)
 
 
-def read_ports(ports_path: Path) -> Set[str]:
+def read_ports(ports_path: Path) -> set[str]:
     if not ports_path.is_file():
         try:
             ports_path.write_text("")

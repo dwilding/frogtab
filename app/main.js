@@ -728,7 +728,9 @@ function setSnap() {
   if (localStorage.getItem("ui.snap") == "bottom") {
     dom.container.classList.add("docked");
     dom.snapToCenter.classList.add("display");
+    dom.snapToCenter.classList.add("divider");
     dom.snapToBottom.classList.remove("display");
+    dom.snapToBottom.classList.remove("divider");
   }
   dom.snapToBottom.addEventListener("click", event => {
     event.preventDefault();
@@ -744,15 +746,79 @@ function toggleSnap() {
   if (localStorage.getItem("ui.snap") == "center") {
     dom.container.classList.add("docked");
     dom.snapToCenter.classList.add("display");
+    dom.snapToCenter.classList.add("divider");
     dom.snapToBottom.classList.remove("display");
+    dom.snapToBottom.classList.remove("divider");
     localStorage.setItem("ui.snap", "bottom");
   }
   else {
     dom.container.classList.remove("docked");
     dom.snapToBottom.classList.add("display");
+    dom.snapToBottom.classList.add("divider");
     dom.snapToCenter.classList.remove("display");
+    dom.snapToCenter.classList.remove("divider");
     localStorage.setItem("ui.snap", "center");
   }
+}
+
+function setTheme() {
+  updateSelectedTheme();
+  dom.themeLight.addEventListener("click", event => {
+    event.preventDefault();
+    if (!dom.themeLight.classList.contains("selected")) {
+      selectTheme("light");
+    }
+  });
+  dom.themeDark.addEventListener("click", event => {
+    event.preventDefault();
+    if (!dom.themeDark.classList.contains("selected")) {
+      selectTheme("dark");
+    }
+  });
+  dom.themeSystem.addEventListener("click", event => {
+    event.preventDefault();
+    if (!dom.themeSystem.classList.contains("selected")) {
+      selectTheme("system");
+    }
+  });
+}
+
+function selectTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  localStorage.setItem("ui.theme", theme);
+  updateSelectedTheme();
+}
+
+function updateSelectedTheme() {
+  for (const element of [dom.themeLight, dom.themeDark, dom.themeSystem]) {
+    element.classList.remove("selected");
+    element.classList.add("clickable");
+    element.setAttribute("tabindex", "0");
+    if (element.hasAttribute("data-menu-seq")) {
+      element.setAttribute("data-menu-seq-backup", element.getAttribute("data-menu-seq"));
+    }
+    else if (element.hasAttribute("data-menu-seq-backup")) {
+      element.setAttribute("data-menu-seq", element.getAttribute("data-menu-seq-backup"));
+    }
+  }
+  const theme = localStorage.getItem("ui.theme");
+  let selected;
+  if (theme == "light") {
+    selected = dom.themeLight;
+  }
+  else if (theme == "dark") {
+    selected = dom.themeDark;
+  }
+  else {
+    selected = dom.themeSystem;
+  }
+  selected.classList.add("selected");
+  selected.classList.remove("clickable");
+  selected.removeAttribute("data-menu-seq");
+  selected.setAttribute("tabindex", "-1");
+  dom.themeLight.title = (selected == dom.themeLight) ? "Using light theme" : "Use light theme";
+  dom.themeDark.title = (selected == dom.themeDark) ? "Using dark theme" : "Use dark theme";
+  dom.themeSystem.title = (selected == dom.themeSystem) ? "Using system theme" : "Use system theme";
 }
 
 function setExportAndSave() {
@@ -989,6 +1055,7 @@ function reportServiceFailure() {
 
 async function startApp() {
   setSnap();
+  setTheme();
   setExportAndSave();
   if (attr("save") == "service") {
     await tryLocalPair();
@@ -1137,19 +1204,21 @@ async function startApp() {
   dom.editor.inbox.addEventListener("focusin", () => {
     dom.menu.classList.remove("display");
   });
+  dom.enableSave.addEventListener("focusin", () => {
+    dom.menu.classList.remove("display");
+  });
   dom.menu.addEventListener("keydown", event => {
     if (event.target.hasAttribute("data-menu-seq") && matchKeyboardEvent(event, "", "arrowdown")) {
       event.preventDefault();
       const elements = document.querySelectorAll("[data-menu-seq].display");
-      const thisIndex = parseInt(event.target.getAttribute("data-menu-seq"), 10);
+      const thisIndex = Array.from(elements).indexOf(event.target);
       const nextIndex = (thisIndex + 1) % elements.length;
       elements[nextIndex].focus();
     }
     else if (event.target.hasAttribute("data-menu-seq") && matchKeyboardEvent(event, "", "arrowup")) {
       event.preventDefault();
-      event.preventDefault();
       const elements = document.querySelectorAll("[data-menu-seq].display");
-      const thisIndex = parseInt(event.target.getAttribute("data-menu-seq"), 10);
+      const thisIndex = Array.from(elements).indexOf(event.target);
       const prevIndex = (thisIndex - 1 + elements.length) % elements.length;
       elements[prevIndex].focus();
     }
@@ -1293,6 +1362,7 @@ async function startApp() {
   }, 15000);
   window.addEventListener("storage", async () => {
     document.documentElement.setAttribute("data-theme", localStorage.getItem("ui.theme"));
+    updateSelectedTheme();
     if (localStorage.getItem("user.userID") !== null && userIDTested !== localStorage.getItem("user.userID")) {
       userIDTested = localStorage.getItem("user.userID");
       await verifyUserAndAppendMessages();
@@ -1385,6 +1455,9 @@ const dom = {
   menu: document.getElementById("menu"),
   snapToBottom: document.getElementById("snap-to-bottom"),
   snapToCenter: document.getElementById("snap-to-center"),
+  themeLight: document.getElementById("theme-light"),
+  themeDark: document.getElementById("theme-dark"),
+  themeSystem: document.getElementById("theme-system"),
   exportData: document.getElementById("export-data"),
   enableSave: document.getElementById("enable-save"),
   popupSavePaused: document.getElementById("popup-save-paused"),

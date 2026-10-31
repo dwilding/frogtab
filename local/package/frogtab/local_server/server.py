@@ -1,13 +1,13 @@
-from pathlib import Path
-import sys
-import os
-import signal
 import json
 import logging
+import os
+import signal
+import sys
+from pathlib import Path
 
 import flask
 
-VERSION = "2.0.4"
+VERSION = "2.1.0"
 
 
 def read_json(json_path: Path) -> dict:
