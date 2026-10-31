@@ -1,9 +1,9 @@
-from pathlib import Path
-import sys
-import os
-import signal
 import json
 import logging
+import os
+import signal
+import sys
+from pathlib import Path
 
 import flask
 

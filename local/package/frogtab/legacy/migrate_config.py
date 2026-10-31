@@ -17,9 +17,9 @@
 # For an example of config.py, see:
 # https://raw.githubusercontent.com/dwilding/frogtab/f5f2d5436440d9e6eb4af4aadfd7273a95b5cadc/local/config.py
 
-from pathlib import Path
-import sys
 import json
+import sys
+from pathlib import Path
 
 args = sys.argv[1:]
 config_path = Path(args[0])
