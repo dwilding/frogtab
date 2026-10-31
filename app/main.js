@@ -728,7 +728,9 @@ function setSnap() {
   if (localStorage.getItem("ui.snap") == "bottom") {
     dom.container.classList.add("docked");
     dom.snapToCenter.classList.add("display");
+    dom.snapToCenter.classList.add("divider");
     dom.snapToBottom.classList.remove("display");
+    dom.snapToBottom.classList.remove("divider");
   }
   dom.snapToBottom.addEventListener("click", event => {
     event.preventDefault();
@@ -744,13 +746,17 @@ function toggleSnap() {
   if (localStorage.getItem("ui.snap") == "center") {
     dom.container.classList.add("docked");
     dom.snapToCenter.classList.add("display");
+    dom.snapToCenter.classList.add("divider");
     dom.snapToBottom.classList.remove("display");
+    dom.snapToBottom.classList.remove("divider");
     localStorage.setItem("ui.snap", "bottom");
   }
   else {
     dom.container.classList.remove("docked");
     dom.snapToBottom.classList.add("display");
+    dom.snapToBottom.classList.add("divider");
     dom.snapToCenter.classList.remove("display");
+    dom.snapToCenter.classList.remove("divider");
     localStorage.setItem("ui.snap", "center");
   }
 }

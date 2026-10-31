@@ -260,7 +260,8 @@ textarea.display {
 .theme-row {
   display: none;
   align-items: center;
-  gap: 0.6rem;
+  justify-content: space-evenly;
+  gap: 0.3rem;
   margin: 0.6rem;
 }
 .theme-row.display {
@@ -291,9 +292,6 @@ textarea.display {
 }
 .theme-row > a.selected svg {
   fill: currentColor;
-}
-.theme-row > a#theme-system.selected {
-  display: none;
 }
 .circle-button {
   display: inline-block;
